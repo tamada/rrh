@@ -34,7 +34,7 @@ GLOBAL OPTIONS:
 
 # Discussion
 
-![Gitter](https://img.shields.io/badge/Gitter-Join_Chat-red.svg)]
+![Gitter](https://img.shields.io/badge/Gitter-Join_Chat-red.svg)
 
 Join our Gitter channel if you have any problem or suggestions to Grim.
 
