@@ -2,7 +2,15 @@
 
 # GRIM
 
-Git Repository Integrated Manager
+Git Repository Integration Manager
+
+# Installation
+
+To install cli, simply run:
+
+```
+$ go get github.com/tamadalab/grim
+```
 
 # Usage
 
@@ -20,16 +28,45 @@ AUTHOR
   Haruaki Tamada
 
 COMMAND
-  help [COMMAND] print this message or print help message for a given command.
-  list [GROUP]   print managed repository and its group.
-  groups         print groups.
-  get <URL>      clone from a remote repository.
-  add <REPO...>  add given repositories to management database.
-  fetch [GROUP]  run `git fetch` command in the all of repositories.
+  list     print managed repository and its group.
+  group    print groups.
+  prune    remove invalid products, and groups have no entry from database.
+  clone    clone from a remote repository.
+  add      add given repositories to management database.
+  fetch    run `git fetch` command in the all of repositories.
 
 GLOBAL OPTIONS:
   -h, --help     show help
   -v, --version  print the version.
+```
+
+# Database
+
+The database for managed repositories is formatted in JSON.
+The JSON format is as follows.
+The JSON file is placed on `$GRIM_ROOT/.grim.json`.
+If `$GRIM_ROOT` was not set, `$HOME` is used as `$GRIM_ROOT`.
+
+```js
+{
+    last-modified: '2019-01-01T',
+    repositories: [
+        {
+            repository_id: 'repository_id1', // unique key of repository.
+            repository_path: 'absolute/path/of/repository',
+            repository_url: 'url/of/origin'
+        },
+        ....
+    ]
+    groups: [
+        {
+            group_name: 'group_name',
+            group_desc: 'The description of the group.'
+            group_items: [ 'repository_id1', repository_id2, ... ]
+        },
+        ....
+    ]
+}
 ```
 
 # Discussion
