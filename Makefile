@@ -1,4 +1,4 @@
-NAME := grim
+NAME := rrh
 VERSION := $(shell git describe --tags --abbrev=0)
 REVISION := $(shell git rev-parse --short HEAD)
 LDFLAGS := -X 'main.version=$(VERSION)'
@@ -31,6 +31,9 @@ lint: setup
 
 fmt: setup
 	goimports -w $$(glide nv -x)
+
+bin/%: cmd/%/rrh.go deps
+	go build -ldflags "$(LDFLAGS)" -o $@ <$
 
 help:
 	@make2help $(MAKEFILE_LIST)

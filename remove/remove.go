@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/tamadalab/rrh/common"
+	"github.com/tamada/rrh/common"
 )
 
 func (rm *RemoveCommand) executeRemoveGroup(db *common.Database, groupName string, options *removeOptions) error {

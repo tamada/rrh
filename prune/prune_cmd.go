@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mitchellh/cli"
-	"github.com/tamadalab/rrh/common"
+	"github.com/tamada/rrh/common"
 )
 
 type PruneCommand struct {

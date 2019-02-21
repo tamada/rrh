@@ -3,7 +3,7 @@ package group
 import (
 	"fmt"
 
-	"github.com/tamadalab/rrh/common"
+	"github.com/tamada/rrh/common"
 )
 
 /*

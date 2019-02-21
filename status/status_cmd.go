@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/mitchellh/cli"
-	"github.com/tamadalab/rrh/common"
+	"github.com/tamada/rrh/common"
 )
 
 type StatusCommand struct {
@@ -74,6 +74,24 @@ func (status *StatusCommand) printResult(results []StatusResult, config *common.
 	}
 }
 
+func (status *StatusCommand) runStatus(db *common.Database, arg string, options *statusOptions) int {
+	var errorFlag = 0
+	var result, err = status.executeStatus(db, arg, options)
+	if len(err) != 0 {
+		for _, item := range err {
+			fmt.Println(item.Error())
+			errorFlag = 1
+		}
+	} else {
+		if options.csv {
+			status.printResultInCsv(result, db.Config)
+		} else {
+			status.printResult(result, db.Config)
+		}
+	}
+	return errorFlag
+}
+
 func (status *StatusCommand) Run(args []string) int {
 	var config = common.OpenConfig()
 	options, err := status.parse(args, config)
@@ -88,19 +106,7 @@ func (status *StatusCommand) Run(args []string) int {
 	}
 	var errorFlag = 0
 	for _, arg := range options.args {
-		var result, err2 = status.executeStatus(db, arg, options)
-		if len(err2) != 0 {
-			for _, item := range err2 {
-				fmt.Println(item.Error())
-				errorFlag = 1
-			}
-		} else {
-			if options.csv {
-				status.printResultInCsv(result, config)
-			} else {
-				status.printResult(result, config)
-			}
-		}
+		errorFlag += status.runStatus(db, arg, options)
 	}
 
 	return errorFlag
