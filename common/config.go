@@ -4,21 +4,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
-
-	"github.com/mitchellh/cli"
 )
 
 const (
-	GrimHome             = "GRIM_HOME"
-	GrimConfigPath       = "GRIM_CONFIG_PATH"
-	GrimDatabasePath     = "GRIM_DATABASE_PATH"
-	GrimDefaultGroupName = "GRIM_DEFAULT_GROUP_NAME"
-	GrimOnError          = "GRIM_ON_ERROR"
-	GrimAutoDeleteGroup  = "GRIM_AUTO_DELETE_GROUP"
-	GrimAutoCreateGroup  = "GRIM_AUTO_CREATE_GROUP"
+	RrhHome             = "RRH_HOME"
+	RrhConfigPath       = "RRH_CONFIG_PATH"
+	RrhDatabasePath     = "RRH_DATABASE_PATH"
+	RrhDefaultGroupName = "RRH_DEFAULT_GROUP_NAME"
+	RrhOnError          = "RRH_ON_ERROR"
+	RrhAutoDeleteGroup  = "RRH_AUTO_DELETE_GROUP"
+	RrhAutoCreateGroup  = "RRH_AUTO_CREATE_GROUP"
+	RrhTimeFormat       = "RRH_TIME_FORMAT"
 )
 
 const (
@@ -26,6 +24,7 @@ const (
 	ConfigFile = "config_file"
 	Env        = "environment"
 	NotFound   = "not found"
+	Relative   = "relative"
 )
 
 const (
@@ -36,13 +35,14 @@ const (
 )
 
 type Config struct {
-	Home             string `json:"grim_home"`
-	AutoDeleteGroup  string `json:"grim_auto_delete_group"`
-	AutoCreateGroup  string `json:"grim_auto_create_group"`
-	ConfigPath       string `json:"grim_config_path"`
-	DatabasePath     string `json:"grim_database_path"`
-	DefaultGroupName string `json:"grim_default_group_name"`
-	OnError          string `json:"grim_on_error"`
+	Home             string `json:"rrh_home"`
+	AutoDeleteGroup  string `json:"rrh_auto_delete_group"`
+	AutoCreateGroup  string `json:"rrh_auto_create_group"`
+	ConfigPath       string `json:"rrh_config_path"`
+	DatabasePath     string `json:"rrh_database_path"`
+	DefaultGroupName string `json:"rrh_default_group_name"`
+	TimeFormat       string `json:"rrh_time_format"`
+	OnError          string `json:"rrh_on_error"`
 }
 
 func trueOrFalse(value string) (string, error) {
@@ -59,39 +59,42 @@ func availableValueOnError(value string) (string, error) {
 	if newvalue == Fail || newvalue == FailImmediately || newvalue == Warn || newvalue == Ignore {
 		return newvalue, nil
 	}
-	return "", fmt.Errorf("%s: Unknown value of GRIM_ON_ERROR (must be %s, %s, %s, or %s)", value, Fail, FailImmediately, Warn, Ignore)
+	return "", fmt.Errorf("%s: Unknown value of RRH_ON_ERROR (must be %s, %s, %s, or %s)", value, Fail, FailImmediately, Warn, Ignore)
 }
 
 func (config *Config) Update(label string, value string) error {
 	switch label {
-	case GrimAutoDeleteGroup:
+	case RrhAutoDeleteGroup:
 		var flag, err = trueOrFalse(value)
 		if err == nil {
 			config.AutoDeleteGroup = flag
 		}
 		return err
-	case GrimAutoCreateGroup:
+	case RrhAutoCreateGroup:
 		var flag, err = trueOrFalse(value)
 		if err == nil {
 			config.AutoCreateGroup = flag
 		}
 		return err
-	case GrimHome:
+	case RrhHome:
 		config.Home = value
 		return nil
-	case GrimDatabasePath:
+	case RrhTimeFormat:
+		config.TimeFormat = value
+		return nil
+	case RrhDatabasePath:
 		config.DatabasePath = value
 		return nil
-	case GrimDefaultGroupName:
+	case RrhDefaultGroupName:
 		config.DefaultGroupName = value
 		return nil
-	case GrimOnError:
+	case RrhOnError:
 		var newValue, err = availableValueOnError(value)
 		if err == nil {
 			config.OnError = newValue
 		}
 		return err
-	case GrimConfigPath:
+	case RrhConfigPath:
 		return fmt.Errorf("%s: does not set on config file. set on environment.", label)
 	}
 	return fmt.Errorf("%s: Unknown variable name", label)
@@ -109,20 +112,22 @@ func (config *Config) GetDefaultValue(label string) string {
 
 func (config *Config) GetString(label string) (value string, readFrom string) {
 	switch label {
-	case GrimAutoDeleteGroup:
-		return config.getStringFromEnv(GrimAutoDeleteGroup, config.AutoDeleteGroup)
-	case GrimAutoCreateGroup:
-		return config.getStringFromEnv(GrimAutoCreateGroup, config.AutoCreateGroup)
-	case GrimHome:
-		return config.getStringFromEnv(GrimHome, config.Home)
-	case GrimConfigPath:
-		return config.getStringFromEnv(GrimConfigPath, config.ConfigPath)
-	case GrimDefaultGroupName:
-		return config.getStringFromEnv(GrimDefaultGroupName, config.DefaultGroupName)
-	case GrimDatabasePath:
-		return config.getStringFromEnv(GrimDatabasePath, config.DatabasePath)
-	case GrimOnError:
-		return config.getStringFromEnv(GrimOnError, config.OnError)
+	case RrhAutoDeleteGroup:
+		return config.getStringFromEnv(RrhAutoDeleteGroup, config.AutoDeleteGroup)
+	case RrhAutoCreateGroup:
+		return config.getStringFromEnv(RrhAutoCreateGroup, config.AutoCreateGroup)
+	case RrhHome:
+		return config.getStringFromEnv(RrhHome, config.Home)
+	case RrhConfigPath:
+		return config.getStringFromEnv(RrhConfigPath, config.ConfigPath)
+	case RrhDefaultGroupName:
+		return config.getStringFromEnv(RrhDefaultGroupName, config.DefaultGroupName)
+	case RrhDatabasePath:
+		return config.getStringFromEnv(RrhDatabasePath, config.DatabasePath)
+	case RrhTimeFormat:
+		return config.getStringFromEnv(RrhTimeFormat, config.TimeFormat)
+	case RrhOnError:
+		return config.getStringFromEnv(RrhOnError, config.OnError)
 	default:
 		return "", NotFound
 	}
@@ -140,21 +145,23 @@ func (config *Config) findDefaultValue(label string, valueFromEnv string) (value
 		return valueFromEnv, Env
 	}
 	switch label {
-	case GrimHome:
-		return fmt.Sprintf("%s/.grim", os.Getenv("HOME")), Default
-	case GrimConfigPath:
-		var home, _ = config.GetString(GrimHome)
+	case RrhHome:
+		return fmt.Sprintf("%s/.rrh", os.Getenv("HOME")), Default
+	case RrhConfigPath:
+		var home, _ = config.GetString(RrhHome)
 		return fmt.Sprintf("%s/config.json", home), Default
-	case GrimDatabasePath:
-		var home, _ = config.GetString(GrimHome)
+	case RrhDatabasePath:
+		var home, _ = config.GetString(RrhHome)
 		return fmt.Sprintf("%s/database.json", home), Default
-	case GrimDefaultGroupName:
+	case RrhDefaultGroupName:
 		return "no-group", Default
-	case GrimOnError:
+	case RrhOnError:
 		return Warn, Default
-	case GrimAutoDeleteGroup:
+	case RrhTimeFormat:
+		return Relative, Default
+	case RrhAutoDeleteGroup:
 		return "false", Default
-	case GrimAutoCreateGroup:
+	case RrhAutoCreateGroup:
 		return "false", Default
 	default:
 		return "", NotFound
@@ -163,12 +170,12 @@ func (config *Config) findDefaultValue(label string, valueFromEnv string) (value
 
 func configPath() string {
 	var config = new(Config)
-	var home, _ = config.getStringFromEnv(GrimConfigPath, "")
+	var home, _ = config.getStringFromEnv(RrhConfigPath, "")
 	return home
 }
 
 func (config *Config) StoreConfig() error {
-	var configPath = config.GetValue(GrimConfigPath)
+	var configPath = config.GetValue(RrhConfigPath)
 	var err1 = CreateParentDir(configPath)
 	if err1 != nil {
 		return err1
@@ -187,141 +194,12 @@ func OpenConfig() *Config {
 	}
 	var config Config
 	if err := json.Unmarshal(bytes, &config); err != nil {
-		log.Fatal(err)
+		return nil
 	}
 	return &config
 }
 
-func printVariableAndValue(label string, config *Config) {
+func (config *Config) formatVariableAndValue(label string) string {
 	var value, readFrom = config.GetString(label)
-	fmt.Printf("%s: %s (%s)\n", label, value, readFrom)
-}
-
-type ConfigCommand struct{}
-type configSetCommand struct{}
-type configUnsetCommand struct{}
-type configListCommand struct{}
-
-func ConfigCommandFactory() (cli.Command, error) {
-	return &ConfigCommand{}, nil
-}
-
-func configSetCommandFactory() (cli.Command, error) {
-	return &configSetCommand{}, nil
-}
-
-func configUnsetCommandFactory() (cli.Command, error) {
-	return &configUnsetCommand{}, nil
-}
-
-func configListCommandFactory() (cli.Command, error) {
-	return &configListCommand{}, nil
-}
-
-func (config *ConfigCommand) Help() string {
-	return `grim config <COMMAND> [ARGUMENTS]
-COMMAND
-	set <ENV_NAME> <VALUE>  set ENV_NAME to VALUE
-	unset <ENV_NAME>        reset ENV_NAME
-	list                    list all of ENVs`
-}
-
-func (csc *configSetCommand) Help() string {
-	return `grim config set <ENV_NAME> <VALUE>
-ARGUMENTS
-	ENV_NAME   environment name.
-	VALUE      the value for the given environment.`
-}
-
-func (cuc *configUnsetCommand) Help() string {
-	return `grim config unset <ENV_NAME>
-ARGUMENTS
-	ENV_NAME   environment name.`
-}
-
-func (clc *configListCommand) Help() string {
-	return `grim config list`
-}
-
-func (config *ConfigCommand) Run(args []string) int {
-	c := cli.NewCLI("grim config", "1.0.0")
-	c.Args = args
-	c.Autocomplete = true
-	c.Commands = map[string]cli.CommandFactory{
-		"set":   configSetCommandFactory,
-		"unset": configUnsetCommandFactory,
-		"list":  configListCommandFactory,
-	}
-	var exitStatus, err = c.Run()
-	if err != nil {
-		log.Println(err)
-	}
-	return exitStatus
-}
-
-func (csc *configSetCommand) Run(args []string) int {
-	if len(args) != 2 {
-		fmt.Println(csc.Help())
-		return 1
-	}
-	var config = OpenConfig()
-	var err = config.Update(args[0], args[1])
-	if err != nil {
-		fmt.Println(err.Error())
-		return 1
-	}
-	config.StoreConfig()
-	return 0
-}
-
-func (cuc *configUnsetCommand) Run(args []string) int {
-	if len(args) != 1 {
-		fmt.Println(cuc.Help())
-		return 1
-	}
-	var config = OpenConfig()
-	var err = config.Update(args[0], config.GetDefaultValue(args[0]))
-	if err != nil {
-		fmt.Println(err.Error())
-		return 1
-	}
-	config.StoreConfig()
-	return 0
-}
-
-func (clc *configListCommand) Run(args []string) int {
-	var config = OpenConfig()
-	printVariableAndValue(GrimHome, config)
-	printVariableAndValue(GrimConfigPath, config)
-	printVariableAndValue("GRIM_DATABASE_PATH", config)
-	printVariableAndValue("GRIM_DEFAULT_GROUP_NAME", config)
-	printVariableAndValue("GRIM_ON_ERROR", config)
-	printVariableAndValue("GRIM_AUTO_CREATE_GROUP", config)
-	printVariableAndValue("GRIM_AUTO_DELETE_GROUP", config)
-	return 0
-}
-
-/*
-Synopsis returns the messages for help on `grim bconfig set`.
-*/
-func (csc *configSetCommand) Synopsis() string {
-	return "set the environment with the given value."
-}
-
-/*
-Synopsis returns the messages for help on `grim bconfig unset`.
-*/
-func (cuc *configUnsetCommand) Synopsis() string {
-	return "reset the given environment."
-}
-
-/*
-Synopsis returns the messages for help on `grim bconfig list`.
-*/
-func (clc *configListCommand) Synopsis() string {
-	return "list the environment and its value."
-}
-
-func (config *ConfigCommand) Synopsis() string {
-	return "set/unset and list configuration of grim."
+	return fmt.Sprintf("%s: %s (%s)", label, value, readFrom)
 }

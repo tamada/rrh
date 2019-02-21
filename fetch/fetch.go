@@ -1,23 +1,52 @@
 package fetch
 
-import "github.com/mitchellh/cli"
+import (
+	"fmt"
+	"os/exec"
 
-type FetchCommand struct{}
+	"github.com/tamadalab/rrh/common"
+)
 
-func FetchCommandFactory() (cli.Command, error) {
-	return &FetchCommand{}, nil
+/*
+DoFetch exec fetch operation of git.
+Currently, fetch is conducted by the system call.
+Ideally, fetch is performed by using go-git.
+*/
+func (fetch *FetchCommand) DoFetch(repo *common.Repository, group string, options *FetchOptions, config *common.Config) error {
+	var cmd = exec.Command("git", "fetch", options.remote)
+	cmd.Dir = common.ToAbsolutePath(repo.Path, config)
+	fmt.Printf("fetching %s,%s....", group, repo.ID)
+	var output, err = cmd.Output()
+	if err != nil {
+		return fmt.Errorf("%s,%s,%s", group, repo.ID, err.Error())
+	}
+	fmt.Printf("done\n%s", output)
+	return nil
 }
 
-func (fetch *FetchCommand) Help() string {
-	return `grim fetch [GROUPS...]
-ARGUMENTS
-    GROUPS    run "git fetch" command on each repository on the group.`
+func (fetch *FetchCommand) fetchRepository(db *common.Database, groupName string, repoID string, options *FetchOptions) error {
+	var repository = db.FindRepository(repoID)
+	if repository == nil {
+		return fmt.Errorf("%s,%s: repository not found", groupName, repoID)
+	}
+	return fetch.DoFetch(repository, groupName, options, db.Config)
 }
 
-func (fetch *FetchCommand) Run(args []string) int {
-	return 1
-}
-
-func (fetch *FetchCommand) Synopsis() string {
-	return "run \"git fetch\" (not yet)"
+func (fetch *FetchCommand) FetchGroup(db *common.Database, groupName string, options *FetchOptions) []error {
+	var list = []error{}
+	var group = db.FindGroup(groupName)
+	if group == nil {
+		return []error{fmt.Errorf("%s: group not found", groupName)}
+	}
+	for _, repoId := range group.Items {
+		var err = fetch.fetchRepository(db, groupName, repoId, options)
+		if err != nil {
+			if db.Config.GetValue(common.RrhOnError) == common.FailImmediately {
+				return []error{err}
+			} else {
+				list = append(list, err)
+			}
+		}
+	}
+	return list
 }

@@ -1,10 +1,14 @@
 package common
 
 import (
+	"bufio"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
+	humanize "github.com/dustin/go-humanize"
 	"gopkg.in/src-d/go-git.v4"
 )
 
@@ -23,9 +27,30 @@ func NormalizePath(path string) string {
 	return path
 }
 
+func IsInputYes(prompt string) bool {
+	fmt.Print(prompt)
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	var text = strings.ToLower(scanner.Text())
+	return text == "yes" || text == "y"
+}
+
+func ToAbsolutePath(path string, config *Config) string {
+	var home = os.Getenv("HOME")
+	return strings.Replace(path, "~", home, 1)
+}
+
 func CreateParentDir(path string) error {
 	var parent = filepath.Dir(path)
 	return os.MkdirAll(parent, 0755)
+}
+
+func Strftime(before time.Time, config *Config) string {
+	var format = config.GetValue(RrhTimeFormat)
+	if format != Relative {
+		return before.Format(format)
+	}
+	return humanize.Time(before)
 }
 
 /*

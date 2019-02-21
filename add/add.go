@@ -1,124 +1,95 @@
 package add
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
 
-	"github.com/mitchellh/cli"
-	"github.com/tamadalab/grim/common"
+	"github.com/tamadalab/rrh/common"
+	git "gopkg.in/src-d/go-git.v4"
 )
 
-type AddCommand struct {
-}
-
-func AddCommandFactory() (cli.Command, error) {
-	return &AddCommand{}, nil
-}
-
-func (add *AddCommand) Help() string {
-	return `grim add [OPTION] <REPOSITORY_PATHS...>
-OPTION
-    -g <GROUP>        add repository to GRIM database.
-ARGUMENTS
-    REPOSITORY_PATHS  local path list of git repository.`
-}
-
-func findGroup(db *common.Database, groupName string, config *common.Config) (*common.Group, error) {
-	var group = db.FindGroup(groupName)
-	if group == nil {
-		if config.GetValue(common.GrimAutoCreateGroup) == "true" {
-			return db.AddGroup(groupName, ""), nil
-		}
-		return nil, fmt.Errorf("%s: group not found", groupName)
-	}
-	return group, nil
-}
-
-func (add *AddCommand) showError(errorlist []error, onError string) {
-	if len(errorlist) == 0 || onError == common.Ignore {
-		return
-	}
-	for _, item := range errorlist {
-		fmt.Fprintf(os.Stderr, "%s\n", item.Error())
-	}
-}
-
-func (add *AddCommand) addRepositoryToGroup(db *common.Database, group *common.Group, path string, config *common.Config, list []error) []error {
-	var absPath, _ = filepath.Abs(path)
-	var id = filepath.Base(absPath)
-	var repoPath = common.NormalizePath(absPath)
-	var remote, err = common.FindRemoteUrlFromRepository(absPath)
+func (add *AddCommand) isExistAndGitRepository(absPath string, path string) error {
+	var fmode, err = os.Stat(absPath)
 	if err != nil {
-		list = append(list, err)
-		if config.GetValue(common.GrimOnError) == common.FailImmediately {
-			return list
-		}
-	} else {
-		var repo = common.Repository{ID: id, Path: repoPath, URL: remote}
-		db.AddRepository(&repo, group)
+		return err
 	}
-
-	return list
+	if !fmode.IsDir() {
+		return fmt.Errorf("%s: not directory", path)
+	}
+	fmode, err = os.Stat(filepath.Join(absPath, ".git"))
+	if err != nil || !fmode.IsDir() {
+		return fmt.Errorf("%s: not git repository", path)
+	}
+	return nil
 }
 
-func (add *AddCommand) perform(db *common.Database, config *common.Config, args []string, groupName string) int {
-	var group, err = findGroup(db, groupName, config)
+func (add *AddCommand) createGroupIfNeeded(db *common.Database, groupName string) error {
+	if !db.HasGroup(groupName) {
+		if db.Config.GetValue(common.RrhAutoCreateGroup) == "true" {
+			var _, err = db.CreateGroup(groupName, "")
+			return err
+		}
+	}
+	if db.HasGroup(groupName) {
+		return nil
+	}
+	return fmt.Errorf("%s: group not found", groupName)
+}
+
+func (add *AddCommand) addRepositoriesToGroup(db *common.Database, args []string, groupName string) []error {
+	var err = add.createGroupIfNeeded(db, groupName)
 	if err != nil {
-		fmt.Println(err.Error())
-		return 1
+		return []error{err}
 	}
 
-	var onError = config.GetValue(common.GrimOnError)
 	var errorlist = []error{}
 	for _, item := range args {
-		errorlist = add.addRepositoryToGroup(db, group, item, config, errorlist)
+		errorlist = add.addRepositoryToGroup(db, groupName, item, errorlist)
 	}
-	add.showError(errorlist, onError)
-
-	if onError == common.Fail {
-		return 1
-	}
-	var err2 = db.StoreAndClose(config)
-	if err2 != nil {
-		fmt.Println(err2.Error())
-	}
-
-	return 0
+	return errorlist
 }
 
-func (add *AddCommand) Run(args []string) int {
-	var config = common.OpenConfig()
-	var opt, err = add.parse(args, config)
+/*
+FindRemotes function returns the remote of the given git repository.
+*/
+func FindRemotes(path string) ([]common.Remote, error) {
+	r, err := git.PlainOpen(path)
 	if err != nil {
-		fmt.Println(add.Help())
-		return 1
-	}
-	return add.perform(common.Open(config), config, opt.args, opt.group)
-}
-
-type addoptions struct {
-	group string
-	args  []string
-}
-
-func (add *AddCommand) parse(args []string, config *common.Config) (*addoptions, error) {
-	var opt = addoptions{}
-	flags := flag.NewFlagSet("add", flag.ExitOnError)
-	flags.Usage = func() { fmt.Println(add.Help()) }
-	flags.StringVar(&opt.group, "g", config.GetValue(common.GrimDefaultGroupName), "target group")
-	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
-	opt.args = flags.Args()
-	if opt.group == "" {
-		opt.group = config.GetValue(common.GrimDefaultGroupName)
+	remotes, err := r.Remotes()
+	if err != nil {
+		return nil, err
 	}
-
-	return &opt, nil
+	var crs = []common.Remote{}
+	for _, remote := range remotes {
+		var config = remote.Config()
+		crs = append(crs, common.Remote{Name: config.Name, URL: config.URLs[0]})
+	}
+	return crs, nil
 }
 
-func (add *AddCommand) Synopsis() string {
-	return "add repository on the local path to GRIM"
+func (add *AddCommand) addRepositoryToGroup(db *common.Database, groupName string, path string, list []error) []error {
+	var absPath, _ = filepath.Abs(path)
+	var id = filepath.Base(absPath)
+	if err1 := add.isExistAndGitRepository(absPath, path); err1 != nil {
+		return append(list, err1)
+	}
+	var repoPath = common.NormalizePath(absPath)
+	if !db.HasRepository(id) {
+		var remotes, err2 = FindRemotes(absPath)
+		if err2 != nil {
+			return append(list, err2)
+		}
+		var _, err = db.CreateRepository(id, repoPath, remotes)
+		if err != nil {
+			return append(list, err)
+		}
+	}
+	var err = db.Relate(groupName, id)
+	if err != nil {
+		return append(list, fmt.Errorf("%s: cannot create relation to group %s", id, groupName))
+	}
+	return list
 }
