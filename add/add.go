@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/tamadalab/rrh/common"
+	"github.com/tamada/rrh/common"
 	git "gopkg.in/src-d/go-git.v4"
 )
 

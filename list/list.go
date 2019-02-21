@@ -3,7 +3,7 @@ package list
 import (
 	"fmt"
 
-	"github.com/tamadalab/rrh/common"
+	"github.com/tamada/rrh/common"
 )
 
 type Repo struct {
