@@ -3,7 +3,7 @@ package prune
 import (
 	"os"
 
-	"github.com/tamadalab/rrh/common"
+	"github.com/tamada/rrh/common"
 )
 
 func (prune *PruneCommand) removeNotExistRepository(db *common.Database) int {

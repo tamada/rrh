@@ -5,16 +5,16 @@ import (
 	"os"
 
 	"github.com/mitchellh/cli"
-	"github.com/tamadalab/rrh/add"
-	"github.com/tamadalab/rrh/clone"
-	"github.com/tamadalab/rrh/common"
-	"github.com/tamadalab/rrh/export"
-	"github.com/tamadalab/rrh/fetch"
-	"github.com/tamadalab/rrh/group"
-	"github.com/tamadalab/rrh/list"
-	"github.com/tamadalab/rrh/prune"
-	"github.com/tamadalab/rrh/remove"
-	"github.com/tamadalab/rrh/status"
+	"github.com/tamada/rrh/add"
+	"github.com/tamada/rrh/clone"
+	"github.com/tamada/rrh/common"
+	"github.com/tamada/rrh/export"
+	"github.com/tamada/rrh/fetch"
+	"github.com/tamada/rrh/group"
+	"github.com/tamada/rrh/list"
+	"github.com/tamada/rrh/prune"
+	"github.com/tamada/rrh/remove"
+	"github.com/tamada/rrh/status"
 )
 
 func main() {

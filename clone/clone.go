@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/tamadalab/rrh/add"
-	"github.com/tamadalab/rrh/common"
+	"github.com/tamada/rrh/add"
+	"github.com/tamada/rrh/common"
 )
 
 func (clone *CloneCommand) toDir(db *common.Database, url string, dest string, repoID string) (*common.Repository, error) {

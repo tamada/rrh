@@ -1,3 +1,4 @@
+[![codebeat badge](https://codebeat.co/badges/15e04551-d448-4ad3-be1d-e98b1e586f1a)](https://codebeat.co/projects/github-com-tamada-rrh-master)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # RRH
@@ -9,7 +10,7 @@ Git Repository Manager
 To install cli, simply run:
 
 ```
-$ go get git@github.com/tamadalab/rrh.git
+$ go get git@github.com/tamada/rrh.git
 ```
 
 # Usage
@@ -191,7 +192,7 @@ Also, configuration file is on `$RRH_ROOT/config.json`
             remotes: [
                 {
                     Name: "origin",
-                    URL: "git@github.com:tamadalab/rrh.git"
+                    URL: "git@github.com:tamada/rrh.git"
                 }
             ]
         },
