@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/tamada/rrh.svg?branch=master)](https://travis-ci.org/tamada/rrh)
+[![Coverage Status](https://coveralls.io/repos/github/tamada/rrh/badge.svg?branch=master)](https://coveralls.io/github/tamada/rrh?branch=master)
 [![codebeat badge](https://codebeat.co/badges/15e04551-d448-4ad3-be1d-e98b1e586f1a)](https://codebeat.co/projects/github-com-tamada-rrh-master)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
