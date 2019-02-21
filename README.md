@@ -230,9 +230,10 @@ Also, configuration file is on `$RRH_ROOT/config.json`
 
 # Discussion
 
-![Gitter](https://img.shields.io/badge/Gitter-Join_Chat-red.svg)
+[![Gitter](https://img.shields.io/badge/Gitter-Join_Chat-red.svg)](https://gitter.im/rrh_git/community)
 
 Join our Gitter channel if you have any problem or suggestions to Rrh.
 
+[![Gitter misc_ja](https://img.shields.io/badge/Gitter-miscj_a-red.svg)](https://gitter.im/rrh_git/misc_ja)
 For Japanese user, `misc_ja` channel has discussions in Japanese.
 Other channels and GitHub pages are English only.
