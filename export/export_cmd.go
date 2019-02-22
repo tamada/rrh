@@ -29,7 +29,7 @@ Help returns the help message of the command.
 */
 func (export *ExportCommand) Help() string {
 	return `rrh export [OPTIONS]
-OPTiONS
+OPTIONS
     --no-indent    print result as no indented json (Default indented json)`
 }
 
@@ -40,6 +40,7 @@ func (export *ExportCommand) Run(args []string) int {
 	options, err := export.parse(args)
 	if err != nil {
 		fmt.Println(err.Error())
+		return 1
 	}
 	var config = common.OpenConfig()
 	db, err := common.Open(config)

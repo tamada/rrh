@@ -13,7 +13,7 @@ func assert(t *testing.T, actual string, expected string) {
 }
 
 func TestOpenConfigBrokenJson(t *testing.T) {
-	os.Setenv(RrhConfigPath, "./testdata/broken.json")
+	os.Setenv(RrhConfigPath, "../testdata/broken.json")
 	var config = OpenConfig()
 	if config != nil {
 		t.Error("broken json returns nil")
@@ -21,7 +21,7 @@ func TestOpenConfigBrokenJson(t *testing.T) {
 }
 
 func TestLoadConfigFile(t *testing.T) {
-	os.Setenv(RrhConfigPath, "./testdata/config.json")
+	os.Setenv(RrhConfigPath, "../testdata/config.json")
 	var config = OpenConfig()
 	if val, from := config.GetString(RrhAutoDeleteGroup); val != "false" || from != ConfigFile {
 		t.Error("The RRH_AUTO_DELETE_GROUP was false in the config file!")
@@ -29,8 +29,8 @@ func TestLoadConfigFile(t *testing.T) {
 	if val, from := config.GetString(RrhAutoCreateGroup); val != "true" || from != ConfigFile {
 		t.Error("The RRH_AUTO_CREATE_GROUP was true in the config file!")
 	}
-	if val, from := config.GetString(RrhConfigPath); val != "./testdata/config.json" || from != Env {
-		t.Error("The RRH_CONFIG_FILE was \"./testdata/config.json\" in environment value!")
+	if val, from := config.GetString(RrhConfigPath); val != "../testdata/config.json" || from != Env {
+		t.Error("The RRH_CONFIG_FILE was \"../testdata/config.json\" in environment value!")
 	}
 	if val, from := config.GetString(RrhTimeFormat); val != Relative || from != Default {
 		t.Error("The RRH_TIME_FORMAT was \"Relative\" in environment value!")
@@ -44,7 +44,7 @@ func TestLoadConfigFile(t *testing.T) {
 }
 
 func TestUpdateTrueFalseValue(t *testing.T) {
-	os.Setenv(RrhConfigPath, "./testdata/testconfig.json")
+	os.Setenv(RrhConfigPath, "../testdata/testconfig.json")
 	var config = OpenConfig()
 	if err := config.Update(RrhAutoDeleteGroup, "True"); err != nil {
 		t.Error(err.Error())
@@ -68,7 +68,7 @@ func TestUpdateTrueFalseValue(t *testing.T) {
 }
 
 func TestUpdateOnError(t *testing.T) {
-	os.Setenv(RrhConfigPath, "./testdata/testconfig.json")
+	os.Setenv(RrhConfigPath, "../testdata/testconfig.json")
 	var config = OpenConfig()
 	if err := config.Update(RrhOnError, Ignore); err != nil {
 		t.Error(err.Error())
@@ -88,7 +88,7 @@ func TestUpdateOnError(t *testing.T) {
 }
 
 func TestUpdateValue(t *testing.T) {
-	os.Setenv(RrhConfigPath, "./testdata/testconfig.json")
+	os.Setenv(RrhConfigPath, "../testdata/testconfig.json")
 	var config = OpenConfig()
 	if err := config.Update(RrhConfigPath, "hogehoge"); err == nil {
 		t.Error("RrhConfigPath cannot update")

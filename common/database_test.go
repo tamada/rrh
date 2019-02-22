@@ -6,14 +6,14 @@ import (
 )
 
 func openDatabase() *Database {
-	os.Setenv(RrhDatabasePath, "./testdata/database.json")
+	os.Setenv(RrhDatabasePath, "../testdata/database.json")
 	var config = OpenConfig()
 	var db, _ = Open(config)
 	return db
 }
 
 func TestOpenBrokenJson(t *testing.T) {
-	os.Setenv(RrhDatabasePath, "./testdata/broken.json")
+	os.Setenv(RrhDatabasePath, "../testdata/broken.json")
 	var config = OpenConfig()
 	var _, err = Open(config)
 	if err == nil {
@@ -22,7 +22,7 @@ func TestOpenBrokenJson(t *testing.T) {
 }
 
 func TestOpenNonExistFile(t *testing.T) {
-	os.Setenv(RrhDatabasePath, "./testdata/not-exist-file.json")
+	os.Setenv(RrhDatabasePath, "../testdata/not-exist-file.json")
 	var config = OpenConfig()
 	var db, _ = Open(config)
 
@@ -35,7 +35,7 @@ func TestOpenNonExistFile(t *testing.T) {
 }
 
 func TestOpenNullDatabase(t *testing.T) {
-	os.Setenv(RrhDatabasePath, "./testdata/nulldb.json")
+	os.Setenv(RrhDatabasePath, "../testdata/nulldb.json")
 	var config = OpenConfig()
 	var db, _ = Open(config)
 
@@ -48,7 +48,7 @@ func TestOpenNullDatabase(t *testing.T) {
 }
 
 func TestStore(t *testing.T) {
-	os.Setenv(RrhDatabasePath, "./testdata/tmp.json")
+	os.Setenv(RrhDatabasePath, "../testdata/tmp.json")
 	var config = OpenConfig()
 	var db, _ = Open(config)
 
