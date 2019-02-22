@@ -36,7 +36,7 @@ Database represents the whole database of RRH.
 type Database struct {
 	Timestamp    time.Time    `json:"last_modified"`
 	Repositories []Repository `json:"repositories"`
-	Groups       []Group      `json:"gruops"`
+	Groups       []Group      `json:"groups"`
 	Config       *Config      `json:"-"`
 }
 

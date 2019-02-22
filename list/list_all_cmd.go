@@ -50,9 +50,9 @@ Help function shows the help message.
 func (list *ListAllCommand) Help() string {
 	return `rrh list-all [OPTIONS]
 OPTIONS
-    -a, --all       print all (default).
+    -a, --all       print all.
     -d, --desc      print description of group.
-    -p, --path      print local paths.
+    -p, --path      print local paths (default).
     -r, --remote    print remote urls.
                     if any options of above are specified, '-a' are specified.
 

@@ -25,10 +25,9 @@ func AddCommandFactory() (cli.Command, error) {
 Help function shows the help message.
 */
 func (add *AddCommand) Help() string {
-	return `rrh add [OPTION] <REPOSITORY_PATHS...>
-OPTION
+	return `rrh add [OPTIONS] <REPOSITORY_PATHS...>
+OPTIONS
     -g, --group <GROUP>    add repository to RRH database.
-
 ARGUMENTS
     REPOSITORY_PATHS       the local path list of the git repositories`
 }

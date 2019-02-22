@@ -13,6 +13,7 @@ setup:
 	go get github.com/mitchellh/cli
 	go get gopkg.in/src-d/go-git.v4
 	go get github.com/dustin/go-humanize
+	go get github.com/posener/complete/gocomplete
 
 test: deps
 	go test $$(glide novendor)

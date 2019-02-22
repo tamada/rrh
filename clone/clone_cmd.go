@@ -24,8 +24,8 @@ type cloneOptions struct {
 Help function shows the help message.
 */
 func (clone *CloneCommand) Help() string {
-	return `rrh clone [OPTION] <REMOTE_REPOS...>
-OPTION
+	return `rrh clone [OPTIONS] <REMOTE_REPOS...>
+OPTIONS
     -g, --group <GROUP>   print managed repositories categoried in the group.
     -d, --dest <DEST>     specify the destination.
 ARGUMENTS

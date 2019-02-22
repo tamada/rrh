@@ -115,14 +115,13 @@ Help function shows the help message.
 func (list *ListCommand) Help() string {
 	return `rrh list [OPTIONS] [GROUPS...]
 OPTIONS
-    -a, --all       print all (default).
+    -a, --all       print all.
     -d, --desc      print description of group.
-    -p, --path      print local paths.
+    -p, --path      print local paths (default).
     -r, --remote    print remote urls.
                     if any options of above are specified, '-a' are specified.
 
     -c, --csv       print result as csv format.
-
 ARGUMENTS
     GROUPS    print managed repositories categoried in the groups.
               if no groups are specified, default groups are printed.`
@@ -147,7 +146,7 @@ func (list *ListCommand) parse(args []string) (*listOptions, error) {
 		return nil, err
 	}
 	if !(options.all || options.description || options.localPath || options.remoteURL) {
-		options.all = true
+		options.localPath = true
 	}
 	options.args = flags.Args()
 	return &options, nil

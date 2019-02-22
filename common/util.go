@@ -20,10 +20,10 @@ Example:
   return:     ~/some/path
 */
 func NormalizePath(path string) string {
-	var home = os.Getenv("HOME")
-	if strings.HasPrefix(path, home) {
-		return strings.Replace(path, home, "~", 1)
-	}
+	// var home = os.Getenv("HOME")
+	// if strings.HasPrefix(path, home) {
+	// 	return strings.Replace(path, home, "~", 1)
+	// }
 	return path
 }
 

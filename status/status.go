@@ -140,7 +140,7 @@ func (status *StatusCommand) findWorktree(name repo, r *git.Repository, db *comm
 func (status *StatusCommand) executeStatusOnRepository(db *common.Database, name repo, options *statusOptions) ([]StatusResult, error) {
 	var r, err = status.openRepository(db, name.rname)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s: %s", name.rname, err.Error())
 	}
 	var results = []StatusResult{}
 	var worktree, err2 = status.findWorktree(name, r, db)

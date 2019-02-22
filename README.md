@@ -5,7 +5,12 @@
 
 # RRH
 
-Git Repository Manager
+There are too many repositories.
+We love programming; however, to manage many repositories is quite hard and bothersome tasks.
+Therefore, we built a headquarter for managing the git repositories, named RRH (Repositories, Ready to Hack).
+RRH manages repositories by categorizing in groups and execute git command to the groups.
+
+RRH is now growing. Please hack RRH itself.
 
 # Installation
 
@@ -37,29 +42,28 @@ Available commands are:
 
 ## subcommands
 
-### `add`
+### `rrh add`
 
 ```sh
-rrh add [OPTION] <REPOSITORY_PATHS...>
-OPTION
+rrh add [OPTIONS] <REPOSITORY_PATHS...>
+OPTIONS
     -g, --group <GROUP>    add repository to RRH database.
-
 ARGUMENTS
     REPOSITORY_PATHS       the local path list of the git repositories
 ```
 
-### `clone`
+### `rrh clone`
 
 ```sh
-rrh clone [OPTION] <REMOTE_REPOS...>
-OPTION
+rrh clone [OPTIONS] <REMOTE_REPOS...>
+OPTIONS
     -g, --group <GROUP>   print managed repositories categoried in the group.
     -d, --dest <DEST>     specify the destination.
 ARGUMENTS
     REMOTE_REPOS          repository urls
 ```
 
-### `config`
+### `rrh config`
 
 ```sh
 rrh config <COMMAND> [ARGUMENTS]
@@ -69,7 +73,7 @@ COMMAND
     list                    list all of ENVs (default)
 ```
 
-### `export`
+### `rrh export`
 
 ```sh
 rrh export [OPTIONS]
@@ -77,7 +81,7 @@ OPTiONS
     --no-indent    print result as no indented json (Default indented json)
 ```
 
-### `fetch`
+### `rrh fetch`
 
 ```sh
 rrh fetch [OPTIONS] [GROUPS...]
@@ -88,7 +92,7 @@ ARGUMENTS
                             if no value is specified, run on the default group.
 ```
 
-### `fetch-all`
+### `rrh fetch-all`
 
 ```sh
 rrh fetch-all [OPTIONS]
@@ -96,7 +100,7 @@ OPTIONS
     -r, --remote <REMOTE>   specify the remote name. Default is "origin."
 ```
 
-### `group`
+### `rrh group`
 
 ```sh
 rrh group <SUBCOMMAND>
@@ -107,7 +111,7 @@ SUBCOMMAND
     update    update group
 ```
 
-### `list`
+### `rrh list`
 
 ```sh
 rrh list [OPTIONS] [GROUPS...]
@@ -119,13 +123,12 @@ OPTIONS
                     if any options of above are specified, '-a' are specified.
 
     -c, --csv       print result as csv format.
-
 ARGUMENTS
     GROUPS    print managed repositories categoried in the groups.
               if no groups are specified, default groups are printed.
 ```
 
-### `list-all`
+### `rrh list-all`
 
 ```sh
 rrh list-all [OPTIONS]
@@ -139,17 +142,17 @@ OPTIONS
     -c, --csv       print result as csv format.
 ```
 
-### `prune`
+### `rrh prune`
 
 ```sh
 rrh prune
 ```
 
-### `rm`
+### `rrh rm`
 
 ```sh
-rrh rm [OPTION] <REPO_ID|GROUP_ID|REPO_ID/GROUP_ID...>
-OPTION
+rrh rm [OPTIONS] <REPO_ID|GROUP_ID|REPO_ID/GROUP_ID...>
+OPTIONS
     -i, --inquiry       inquiry mode.
     -r, --recursive     recursive mode.
     -v, --verbose       verbose mode.
@@ -161,7 +164,7 @@ ARGUMENTS
     GROUP_ID/REPO_ID    remove given REPO_ID from GROUP_ID.
 ```
 
-### `status`
+### `rrh status`
 
 ```sh
 rrh status [OPTIONS] [GROUPS||REPOS...]
@@ -211,6 +214,21 @@ Also, configuration file is on `$RRH_ROOT/config.json`
 }
 ```
 
+# Utilities
+
+## rrcd
+
+list repositories, and filtering them by [`peco`](https://github.com/peco/peco),
+then change directory to the filtering result.
+
+```sh
+cdrrh(){
+  csv=$(rrh list-all --path --csv | peco)
+  cd $(echo $csv | awk -F , '{ print $3 }')
+  pwd
+}
+```
+
 # Development Policy
 
 * Separate `foo_cmd.go` and `foo.go` for implementing `foo` command.
@@ -224,9 +242,10 @@ Also, configuration file is on `$RRH_ROOT/config.json`
 * grim (Git Repository Integrated Manager)
     * However, the means of grim is not good.
 * gram (Git Repository Advanced Manager)
-* rrh (Repositories, Ready to Head)
+    * there are many commands which start with `gr`
+* rrh (Repositories, ready to HACK)
     * No red riding hood.
-    * rrh command was no conflict with other commands.
+    * RRH is good name for command, since no command starts with `rr`.
 
 # Discussion
 
@@ -234,6 +253,7 @@ Also, configuration file is on `$RRH_ROOT/config.json`
 
 Join our Gitter channel if you have any problem or suggestions to Rrh.
 
-[![Gitter misc_ja](https://img.shields.io/badge/Gitter-miscj_a-red.svg)](https://gitter.im/rrh_git/misc_ja)
+[![Gitter misc_ja](https://img.shields.io/badge/Gitter-For_Japanese-red.svg)](https://gitter.im/rrh_git/misc_ja)
+
 For Japanese user, `misc_ja` channel has discussions in Japanese.
-Other channels and GitHub pages are English only.
+The public language of other channels and GitHub pages is English.

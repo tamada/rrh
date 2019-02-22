@@ -32,6 +32,9 @@ func TestLoadConfigFile(t *testing.T) {
 	if val, from := config.GetString(RrhConfigPath); val != "./testdata/config.json" || from != Env {
 		t.Error("The RRH_CONFIG_FILE was \"./testdata/config.json\" in environment value!")
 	}
+	if val, from := config.GetString(RrhTimeFormat); val != Relative || from != Default {
+		t.Error("The RRH_TIME_FORMAT was \"Relative\" in environment value!")
+	}
 	if val, from := config.GetString(RrhOnError); val != Warn || from != Default {
 		t.Error("The RRH_ON_ERRORwas WARN in default!")
 	}
