@@ -1,4 +1,7 @@
+Gopkg.lock
+coverage.out
 rrh
+vendor
 
 ### https://raw.github.com/github/gitignore/2fa80028c33ad84ff08f993966caa91f0b327fed/Global/Emacs.gitignore
 

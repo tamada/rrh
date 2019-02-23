@@ -14,8 +14,8 @@ func ListAllCommandFactory() (cli.Command, error) {
 }
 
 func (la *ListAllCommand) Run(args []string) int {
-	var list = ListCommand{}
-	options, err := list.parse(args)
+	var list = ListCommand{&listOptions{}}
+	var _, err = list.parse(args)
 	if err != nil {
 		fmt.Printf(la.Help())
 		return 1
@@ -24,14 +24,13 @@ func (la *ListAllCommand) Run(args []string) int {
 	db, err := common.Open(config)
 	if err != nil {
 		fmt.Println(err.Error())
-		return 1
+		return 2
 	}
 	var names = []string{}
 	for _, group := range db.Groups {
 		names = append(names, group.Name)
 	}
-	options.args = names
-	list.Options = options
+	list.Options.args = names
 	results, err := list.FindResults(db)
 	list.printResults(results)
 

@@ -14,19 +14,18 @@ setup:
 	go get gopkg.in/src-d/go-git.v4
 	go get github.com/dustin/go-humanize
 	go get github.com/posener/complete/gocomplete
+	go get golang.org/x/tools/cmd/cover
+	go get github.com/mattn/goveralls
 
-test: deps
-	go test $$(glide novendor)
-
-deps: setup
-	glide install
+test: setup
+	go test -covermode=count -coverprofile=coverage.out $$(go list ./... | grep -v vendor)
 
 update: setup
-	glide update
+	dep ensure -update
 
 lint: setup
-	go vet $$(glide novendor)
-	for pkg in $$(glide novendor -x); do \
+	go vet $$(go list ./... | grep -v vendor)
+	for pkg in $$(go list ./... | grep -v vendor); do \
 		golint -set_exit_status $$pkg || exit $$?; \
 	done
 

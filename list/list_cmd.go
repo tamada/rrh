@@ -34,17 +34,16 @@ func (list *ListCommand) printResultAsCsv(result ListResult, repo Repo, remote *
 	if list.Options.localPath || list.Options.all {
 		fmt.Printf(",%s", repo.Path)
 	}
-	if (list.Options.remoteURL || list.Options.all) && remote != nil {
+	if remote != nil && (list.Options.remoteURL || list.Options.all) {
 		fmt.Printf(",%s,%s", remote.Name, remote.URL)
 	}
 	fmt.Println()
 }
 
 func (list *ListCommand) printResultsAsCsv(results []ListResult) int {
-
 	for _, result := range results {
 		for _, repo := range result.Repos {
-			if list.Options.remoteURL || list.Options.all {
+			if len(repo.Remotes) > 0 && (list.Options.remoteURL || list.Options.all) {
 				for _, remote := range repo.Remotes {
 					list.printResultAsCsv(result, repo, &remote)
 				}
@@ -84,22 +83,21 @@ func (list *ListCommand) printResults(results []ListResult) int {
 }
 
 func (list *ListCommand) Run(args []string) int {
-	options, err := list.parse(args)
+	var _, err = list.parse(args)
 	if err != nil {
 		fmt.Printf(list.Help())
 		return 1
 	}
-	list.Options = options
 	var config = common.OpenConfig()
 	db, err := common.Open(config)
 	if err != nil {
 		fmt.Println(err.Error())
-		return 1
+		return 2
 	}
 	results, err := list.FindResults(db)
 	if err != nil {
 		fmt.Println(err.Error())
-		return 1
+		return 3
 	}
 	list.printResults(results)
 	return 0
@@ -152,5 +150,6 @@ func (list *ListCommand) parse(args []string) (*listOptions, error) {
 		options.localPath = true
 	}
 	options.args = flags.Args()
+	list.Options = &options
 	return &options, nil
 }

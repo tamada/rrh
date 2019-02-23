@@ -15,40 +15,110 @@ func open(jsonName string) *common.Database {
 	return db
 }
 
+func ExampleListAllCommand_Run() {
+	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
+	var list, _ = ListAllCommandFactory()
+	list.Run([]string{})
+	// Output:
+	// group1
+	//     Repositories:
+	//         repo1,path1
+	// group2
+	//     Repositories:
+}
+
+func ExampleListCommand_Run() {
+	os.Setenv(common.RrhDefaultGroupName, "group1")
+	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
+	var list, _ = ListCommandFactory()
+	list.Run([]string{"--all", "--csv"})
+	// Output:
+	// group1,desc1,repo1,path1
+}
+
+func TestFailedByUnknownOption(t *testing.T) {
+	var list, _ = ListCommandFactory()
+	if val := list.Run([]string{"--unknown"}); val != 1 {
+		t.Error("unknown option parsed!?")
+	}
+}
+
+func TestListAllCommandHelpAndSynopsis(t *testing.T) {
+	var list, _ = ListAllCommandFactory()
+	var helpMessage = `rrh list-all [OPTIONS]
+OPTIONS
+    -a, --all       print all.
+    -d, --desc      print description of group.
+    -p, --path      print local paths (default).
+    -r, --remote    print remote urls.
+                    if any options of above are specified, '-a' are specified.
+
+    -c, --csv       print result as csv format.`
+
+	if list.Help() != helpMessage {
+		t.Error("help message did not match")
+	}
+	if list.Synopsis() != "print managed repositories and their groups." {
+		t.Error("Synopsis did not match")
+	}
+}
+
+func TestListCommandHelpAndSynopsis(t *testing.T) {
+	var list = ListCommand{&listOptions{}}
+	var helpMessage = `rrh list [OPTIONS] [GROUPS...]
+OPTIONS
+    -a, --all       print all.
+    -d, --desc      print description of group.
+    -p, --path      print local paths (default).
+    -r, --remote    print remote urls.
+                    if any options of above are specified, '-a' are specified.
+
+    -c, --csv       print result as csv format.
+ARGUMENTS
+    GROUPS    print managed repositories categoried in the groups.
+              if no groups are specified, default groups are printed.`
+
+	if list.Help() != helpMessage {
+		t.Error("help message did not match")
+	}
+	if list.Synopsis() != "print managed repositories and their groups." {
+		t.Error("Synopsis did not match")
+	}
+}
+
 func TestFindResults(t *testing.T) {
 	var db = open("tmp.json")
-	var list = ListCommand{}
+	var list = ListCommand{&listOptions{}}
 	var testdata = []struct {
-		target          string
-		wantGroupName   string
-		wantDescription string
-		wantRepos       []struct {
-			wantRepoName     string
-			wantPath         string
-			wantRemoteLength int
-		}
+		targets []string
+		want    []ListResult
 	}{
-		{"group1", "group1", "", {"repo1", "path1", 0}},
-		{"group2", "group2", "", {}},
+		{[]string{"group1"}, []ListResult{ListResult{"group1", "desc1", []Repo{Repo{"repo1", "path1", []common.Remote{}}}}}},
+		{[]string{"group2"}, []ListResult{ListResult{"group2", "desc2", []Repo{}}}},
 	}
 
 	for _, data := range testdata {
-		list.Options.args = []string{data.target}
+		list.Options.args = data.targets
 		var results, err = list.FindResults(db)
 		if err != nil {
-			t.Errorf("%s: group not found.", data.target)
+			t.Errorf("%v: group not found.", data.targets)
 		}
-		if results[0].GroupName != data.wantGroupName {
-			t.Errorf("group name: want: %s, got:%s", data.wantGroupName, results[0].GroupName)
+		if results[0].GroupName != data.want[0].GroupName {
+			t.Errorf("group name: want: %s, got:%s", data.want[0].GroupName, results[0].GroupName)
 		}
-		if results[0].Description != data.wantDescription {
-			t.Errorf("description: want: %s, got: %s", data.wantDescription, results[0].Description)
+		if results[0].Description != data.want[0].Description {
+			t.Errorf("description: want: %s, got: %s", data.want[0].Description, results[0].Description)
 		}
-		if results[0].Repos[0].Name != data.wantRepos[0].wantRepoName {
-			t.Errorf("repo name: want: %s, got:%s", data.wantRepos[0].wantRepoName, results[0].Repos[0].Name)
+		if len(results[0].Repos) != len(data.want[0].Repos) {
+			t.Errorf("# of repositories did not match: want: %d, got: %d\n", len(data.want[0].Repos), len(results[0].Repos))
 		}
-		if results[0].Repos[0].Path != data.wantRepos[0].wantPath {
-			t.Errorf("repo path: want: %s, got:%s", data.wantRepos[0].wantPath, results[0].Repos[0].Path)
+		if len(results[0].Repos) > 0 {
+			if results[0].Repos[0].Name != data.want[0].Repos[0].Name {
+				t.Errorf("repo name: want: %s, got:%s", data.want[0].Repos[0].Name, results[0].Repos[0].Name)
+			}
+			if results[0].Repos[0].Path != data.want[0].Repos[0].Path {
+				t.Errorf("repo path: want: %s, got:%s", data.want[0].Repos[0].Path, results[0].Repos[0].Path)
+			}
 		}
 	}
 }

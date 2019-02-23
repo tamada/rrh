@@ -106,7 +106,7 @@ func (config *Config) GetValue(label string) string {
 }
 
 func (config *Config) GetDefaultValue(label string) string {
-	var value, _ = config.findDefaultValue(label, "")
+	var value, _ = config.findDefaultValue(label)
 	return value
 }
 
@@ -137,22 +137,21 @@ func (config *Config) getStringFromEnv(label string, valueFromConfigFile string)
 	if valueFromConfigFile != "" {
 		return valueFromConfigFile, ConfigFile
 	}
-	return config.findDefaultValue(label, os.Getenv(label))
-}
-
-func (config *Config) findDefaultValue(label string, valueFromEnv string) (value string, readFrom string) {
+	var valueFromEnv = os.Getenv(label)
 	if valueFromEnv != "" {
 		return valueFromEnv, Env
 	}
+	return config.findDefaultValue(label)
+}
+
+func (config *Config) findDefaultValue(label string) (value string, readFrom string) {
 	switch label {
 	case RrhHome:
 		return fmt.Sprintf("%s/.rrh", os.Getenv("HOME")), Default
 	case RrhConfigPath:
-		var home, _ = config.GetString(RrhHome)
-		return fmt.Sprintf("%s/config.json", home), Default
+		return fmt.Sprintf("%s/.rrh/config.json", os.Getenv("HOME")), Default
 	case RrhDatabasePath:
-		var home, _ = config.GetString(RrhHome)
-		return fmt.Sprintf("%s/database.json", home), Default
+		return fmt.Sprintf("%s/.rrh/database.json", os.Getenv("HOME")), Default
 	case RrhDefaultGroupName:
 		return "no-group", Default
 	case RrhOnError:
