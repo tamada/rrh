@@ -1,8 +1,11 @@
 package export
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/tamada/rrh/common"
@@ -15,39 +18,95 @@ func open(jsonName string) *common.Database {
 	return db
 }
 
-func TestHelp(t *testing.T) {
+/*
+captureStdout is refered from https://qiita.com/kami_zh/items/ff636f15da87dabebe6c.
+*/
+func captureStdout(f func()) (string, error) {
+	r, w, err := os.Pipe()
+	if err != nil {
+		return "", err
+	}
+	var stdout = os.Stdout
+	os.Stdout = w
+
+	f()
+
+	os.Stdout = stdout
+	w.Close()
+	var buf bytes.Buffer
+	io.Copy(&buf, r)
+	return buf.String(), nil
+}
+
+func TestHelpAndSynopsis(t *testing.T) {
 	var export = ExportCommand{}
 	var help = export.Help()
 	var helpMessage = `rrh export [OPTIONS]
 OPTIONS
     --no-indent    print result as no indented json (Default indented json)`
 	if help != helpMessage {
-		t.Error("help message was not match")
+		t.Error("help message did not match")
+	}
+
+	if export.Synopsis() != "export RRH database to stdout." {
+		t.Error("synopsis did not match")
 	}
 }
 
-func ExampleNullDB() {
-	os.Setenv(common.RrhDatabasePath, "../testdata/nulldb.json")
-	var export = ExportCommand{}
-	export.Run([]string{})
-	// Output:
-	// {
-	//   "last_modified": "0001-01-01T00:00:00Z",
-	//   "repositories": [],
-	//   "groups": []
-	// }
+func TestUnknownOptions(t *testing.T) {
+	var export, _ = ExportCommandFactory()
+	if export.Run([]string{"--unknown-option"}) != 1 {
+		t.Error("--unknown-option was not failed.")
+	}
 }
 
-func ExampleNullDBNoIndent() {
-	os.Setenv(common.RrhDatabasePath, "../testdata/nulldb.json")
-	var export = ExportCommand{}
-	export.Run([]string{"--no-indent"})
-	// Output: {"last_modified":"0001-01-01T00:00:00Z","repositories":[],"groups":[]}
+func TestBrokenDatabase(t *testing.T) {
+	os.Setenv(common.RrhDatabasePath, "../testdata/broken.json")
+	var export, _ = ExportCommandFactory()
+	if val := export.Run([]string{}); val != 2 {
+		t.Errorf("broken json successfully read!?: %d", val)
+	}
 }
 
-func ExampleTmpNoIndent() {
+func TestNullDB(t *testing.T) {
+	os.Setenv(common.RrhDatabasePath, "../testdata/nulldb.json")
+	var result, _ = captureStdout(func() {
+		var export, _ = ExportCommandFactory()
+		export.Run([]string{})
+	})
+	var actually = `{
+  "last_modified": "0001-01-01T00:00:00Z",
+  "repositories": [],
+  "groups": []
+}`
+	if strings.TrimSpace(result) != actually {
+		t.Error("nulldb data did not match")
+	}
+}
+
+func TestNullDBNoIndent(t *testing.T) {
+	os.Setenv(common.RrhDatabasePath, "../testdata/nulldb.json")
+	var result, _ = captureStdout(func() {
+		var export, _ = ExportCommandFactory()
+		export.Run([]string{"--no-indent"})
+	})
+	if strings.TrimSpace(result) != "{\"last_modified\":\"0001-01-01T00:00:00Z\",\"repositories\":[],\"groups\":[]}" {
+		t.Errorf("nulldb data did not match: %s", result)
+	}
+}
+
+func TestTmpDBNoIndent(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var export = ExportCommand{}
-	export.Run([]string{"--no-indent"})
-	// Output: {"last_modified":"2019-02-22T17:22:14.055153+09:00","repositories":[{"repository_id":"repo1","repository_path":"path1","remotes":[]},{"repository_id":"repo2","repository_path":"path2","remotes":[]}],"groups":[{"group_name":"group1","group_desc":"desc1","group_items":["repo1"]},{"group_name":"group2","group_desc":"desc2","group_items":[]}]}
+	var result, _ = captureStdout(func() {
+		var export, _ = ExportCommandFactory()
+		export.Run([]string{"--no-indent"})
+	})
+	result = strings.TrimSpace(result)
+	if !strings.HasPrefix(result, "{\"last_modified\":") &&
+		!strings.HasSuffix(result, `"repositories":[{"repository_id":"repo1","repository_path":"path1","remotes":[]},{"repository_id":"repo2","repository_path":"path2","remotes":[]}],"groups":[{"group_name":"group1","group_desc":"desc1","group_items":["repo1"]},{"group_name":"group2","group_desc":"desc2","group_items":[]}]}`) {
+		t.Error("tmp.json was not matched.")
+	}
+	// In example testing, how do I ignore the part of output, like below?
+	// Output:
+	// {"last_modified":".*",repositories":[{"repository_id":"repo1","repository_path":"path1","remotes":[]},{"repository_id":"repo2","repository_path":"path2","remotes":[]}],"groups":[{"group_name":"group1","group_desc":"desc1","group_items":["repo1"]},{"group_name":"group2","group_desc":"desc2","group_items":[]}]}
 }

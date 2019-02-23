@@ -46,7 +46,7 @@ func (export *ExportCommand) Run(args []string) int {
 	db, err := common.Open(config)
 	if err != nil {
 		fmt.Println(err.Error())
-		return 1
+		return 2
 	}
 
 	var result, _ = json.Marshal(db)
@@ -57,7 +57,7 @@ func (export *ExportCommand) Run(args []string) int {
 		err := json.Indent(&buffer, result, "", "  ")
 		if err != nil {
 			fmt.Println(err.Error())
-			return 1
+			return 3
 		}
 		fmt.Println(buffer.String())
 	}
@@ -66,7 +66,7 @@ func (export *ExportCommand) Run(args []string) int {
 
 func (export *ExportCommand) parse(args []string) (*exportOptions, error) {
 	var options = exportOptions{false}
-	flags := flag.NewFlagSet("export", flag.ExitOnError)
+	flags := flag.NewFlagSet("export", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(export.Help()) }
 	flags.BoolVar(&options.NoIndent, "no-indent", false, "print not indented result")
 

@@ -25,30 +25,3 @@ func (prune *PruneCommand) removeNotExistRepository(db *common.Database) int {
 	}
 	return count
 }
-
-func (prune *PruneCommand) countReposInGroups(db *common.Database) map[string]int {
-	var repoFlags = map[string]int{}
-	for _, repo := range db.Repositories {
-		repoFlags[repo.ID] = 0
-	}
-	for _, group := range db.Groups {
-		for _, item := range group.Items {
-			repoFlags[item] = repoFlags[item] + 1
-		}
-	}
-	return repoFlags
-}
-
-func (prune *PruneCommand) pruneGroup(db *common.Database) int {
-	var newGroups = []common.Group{}
-	var count = 0
-	for _, group := range db.Groups {
-		if len(group.Items) != 0 {
-			newGroups = append(newGroups, group)
-		} else {
-			count++
-		}
-	}
-	db.Groups = newGroups
-	return count
-}
