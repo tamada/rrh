@@ -17,59 +17,61 @@ type listOptions struct {
 	args        []string
 }
 
-type ListCommand struct{}
-
-func ListCommandFactory() (cli.Command, error) {
-	return &ListCommand{}, nil
+type ListCommand struct {
+	Options *listOptions
 }
 
-func (list *ListCommand) printResultAsCsv(result ListResult, repo Repo, remote *common.Remote, options *listOptions) {
+func ListCommandFactory() (cli.Command, error) {
+	return &ListCommand{&listOptions{}}, nil
+}
+
+func (list *ListCommand) printResultAsCsv(result ListResult, repo Repo, remote *common.Remote) {
 	fmt.Printf("%s", result.GroupName)
-	if options.description || options.all {
+	if list.Options.description || list.Options.all {
 		fmt.Printf(",%s", result.Description)
 	}
 	fmt.Printf(",%s", repo.Name)
-	if options.localPath || options.all {
+	if list.Options.localPath || list.Options.all {
 		fmt.Printf(",%s", repo.Path)
 	}
-	if (options.remoteURL || options.all) && remote != nil {
+	if (list.Options.remoteURL || list.Options.all) && remote != nil {
 		fmt.Printf(",%s,%s", remote.Name, remote.URL)
 	}
 	fmt.Println()
 }
 
-func (list *ListCommand) printResultsAsCsv(results []ListResult, options *listOptions) int {
+func (list *ListCommand) printResultsAsCsv(results []ListResult) int {
 
 	for _, result := range results {
 		for _, repo := range result.Repos {
-			if options.remoteURL || options.all {
+			if list.Options.remoteURL || list.Options.all {
 				for _, remote := range repo.Remotes {
-					list.printResultAsCsv(result, repo, &remote, options)
+					list.printResultAsCsv(result, repo, &remote)
 				}
 			} else {
-				list.printResultAsCsv(result, repo, nil, options)
+				list.printResultAsCsv(result, repo, nil)
 			}
 		}
 	}
 	return 0
 }
 
-func (list *ListCommand) printResults(results []ListResult, options *listOptions) int {
-	if options.csv {
-		return list.printResultsAsCsv(results, options)
+func (list *ListCommand) printResults(results []ListResult) int {
+	if list.Options.csv {
+		return list.printResultsAsCsv(results)
 	}
 	for _, result := range results {
 		fmt.Println(result.GroupName)
-		if options.description || options.all {
+		if list.Options.description || list.Options.all {
 			fmt.Printf("    Description: %s\n", result.Description)
 		}
 		fmt.Println("    Repositories:")
 		for _, repo := range result.Repos {
 			fmt.Printf("        %s", repo.Name)
-			if options.localPath || options.all {
+			if list.Options.localPath || list.Options.all {
 				fmt.Printf(",%s", repo.Path)
 			}
-			if options.remoteURL || options.all {
+			if list.Options.remoteURL || list.Options.all {
 				for _, remote := range repo.Remotes {
 					fmt.Printf("\n            %s,%s", remote.Name, remote.URL)
 				}
@@ -87,18 +89,19 @@ func (list *ListCommand) Run(args []string) int {
 		fmt.Printf(list.Help())
 		return 1
 	}
+	list.Options = options
 	var config = common.OpenConfig()
 	db, err := common.Open(config)
 	if err != nil {
 		fmt.Println(err.Error())
 		return 1
 	}
-	results, err := list.FindResults(db, options)
+	results, err := list.FindResults(db)
 	if err != nil {
 		fmt.Println(err.Error())
 		return 1
 	}
-	list.printResults(results, options)
+	list.printResults(results)
 	return 0
 }
 
@@ -129,7 +132,7 @@ ARGUMENTS
 
 func (list *ListCommand) parse(args []string) (*listOptions, error) {
 	var options = listOptions{false, false, false, false, false, []string{}}
-	flags := flag.NewFlagSet("list", flag.ExitOnError)
+	flags := flag.NewFlagSet("list", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(list.Help()) }
 	flags.BoolVar(&options.all, "a", false, "all flag")
 	flags.BoolVar(&options.all, "all", false, "all flag")

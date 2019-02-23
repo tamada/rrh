@@ -35,8 +35,8 @@ func (list *ListCommand) findList(db *common.Database, groupName string) (*ListR
 	return &ListResult{group.Name, group.Description, repos}, nil
 }
 
-func (list *ListCommand) FindResults(db *common.Database, options *listOptions) ([]ListResult, error) {
-	var groups = options.args
+func (list *ListCommand) FindResults(db *common.Database) ([]ListResult, error) {
+	var groups = list.Options.args
 	if len(groups) == 0 {
 		groups = []string{db.Config.GetValue(common.RrhDefaultGroupName)}
 	}

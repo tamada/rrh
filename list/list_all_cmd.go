@@ -31,8 +31,9 @@ func (la *ListAllCommand) Run(args []string) int {
 		names = append(names, group.Name)
 	}
 	options.args = names
-	results, err := list.FindResults(db, options)
-	list.printResults(results, options)
+	list.Options = options
+	results, err := list.FindResults(db)
+	list.printResults(results)
 
 	return 0
 }
