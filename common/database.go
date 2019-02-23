@@ -191,13 +191,13 @@ func (db *Database) HasRelation(groupID string, repoID string) bool {
 }
 
 /*
-Unrelate delete the relation between the group and the repository.
+Unrelate deletes the relation between the group and the repository.
 The group and the repository are specified by the given parameters.
 If the group and the repository do not have the relation, this function returns `nil` (successfully delete relation).
 */
-func (db *Database) Unrelate(groupID string, repoID string) error {
+func (db *Database) Unrelate(groupID string, repoID string) {
 	if !db.HasRelation(groupID, repoID) {
-		return nil
+		return
 	}
 	for i, group := range db.Groups {
 		if group.Name == groupID {
@@ -210,7 +210,6 @@ func (db *Database) Unrelate(groupID string, repoID string) error {
 			db.Groups[i].Items = newItems
 		}
 	}
-	return nil
 }
 
 /*

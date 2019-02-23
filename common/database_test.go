@@ -131,6 +131,7 @@ func TestDeleteRepository(t *testing.T) {
 }
 
 func TestUnrelate(t *testing.T) {
+	t.Skip("db.Unrelate never failed.")
 	var db = openDatabase()
 
 	db.CreateRepository("somerepo", "unknown", []Remote{})
@@ -138,12 +139,8 @@ func TestUnrelate(t *testing.T) {
 	db.Relate("group2", "somerepo")
 	db.Relate("no-group", "somerepo")
 
-	if err := db.Unrelate("group2", "Rrh"); err != nil {
-		t.Error("no relation between group2 and rrh.")
-	}
-	if err := db.Unrelate("no-group", "rrh"); err != nil {
-		t.Error("unrelate failed no-group and rrh.")
-	}
+	db.Unrelate("group2", "Rrh")
+	db.Unrelate("no-group", "rrh")
 }
 
 func TestCreateRepository(t *testing.T) {
@@ -197,9 +194,8 @@ func TestCreateGroupRelateAndUnrelate(t *testing.T) {
 	if !db.HasRelation("newGroup1", "rrh") {
 		t.Error("created relation was not found!")
 	}
-	if err := db.Unrelate("no-group", "rrh"); err != nil {
-		t.Error(err.Error())
-	}
+
+	db.Unrelate("no-group", "rrh")
 	if db.HasRelation("no-group", "rrh") {
 		t.Error("deleted relation was not found!")
 	}
