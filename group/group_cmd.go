@@ -3,7 +3,6 @@ package group
 import (
 	"flag"
 	"fmt"
-	"log"
 
 	"github.com/mitchellh/cli"
 	"github.com/tamada/rrh/common"
@@ -94,7 +93,7 @@ func (group *GroupCommand) Run(args []string) int {
 	} else {
 		var exitStatus, err = c.Run()
 		if err != nil {
-			log.Println(err)
+			fmt.Println(err.Error())
 		}
 		return exitStatus
 	}
@@ -107,7 +106,7 @@ type addOptions struct {
 
 func (group *groupAddCommand) parse(args []string) (*addOptions, error) {
 	var opt = addOptions{}
-	flags := flag.NewFlagSet("add", flag.ExitOnError)
+	flags := flag.NewFlagSet("add", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(group.Help()) }
 	flags.StringVar(&opt.desc, "d", "", "description")
 	flags.StringVar(&opt.desc, "desc", "", "description")
@@ -129,11 +128,11 @@ func (group *groupAddCommand) Run(args []string) int {
 	var db, err2 = common.Open(config)
 	if err2 != nil {
 		fmt.Println(err2.Error())
-		return 1
+		return 2
 	}
 	if err := group.addGroups(db, options); err != nil {
 		fmt.Println(err.Error())
-		return 1
+		return 3
 	}
 	db.StoreAndClose()
 
@@ -147,7 +146,7 @@ type listOptions struct {
 
 func (group *groupListCommand) parse(args []string) (*listOptions, error) {
 	var opt = listOptions{}
-	flags := flag.NewFlagSet("list", flag.ExitOnError)
+	flags := flag.NewFlagSet("list", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(group.Help()) }
 	flags.BoolVar(&opt.desc, "d", false, "show description")
 	flags.BoolVar(&opt.desc, "desc", false, "show description")
@@ -185,7 +184,7 @@ func (group *groupListCommand) Run(args []string) int {
 	var db, err2 = common.Open(config)
 	if err2 != nil {
 		fmt.Println(err2.Error())
-		return 1
+		return 2
 	}
 	var results, err3 = group.listGroups(db, listOption)
 	if err3 != nil {
@@ -219,7 +218,7 @@ func (options *removeOptions) Inquiry(groupName string) bool {
 
 func (group *groupRemoveCommand) parse(args []string) (*removeOptions, error) {
 	var opt = removeOptions{}
-	flags := flag.NewFlagSet("rm", flag.ExitOnError)
+	flags := flag.NewFlagSet("rm", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(group.Help()) }
 	flags.BoolVar(&opt.inquiry, "i", false, "inquiry mode")
 	flags.BoolVar(&opt.verbose, "v", false, "verbose mode")
@@ -245,11 +244,11 @@ func (group *groupRemoveCommand) Run(args []string) int {
 	var db, err2 = common.Open(config)
 	if err2 != nil {
 		fmt.Println(err2.Error())
-		return 1
+		return 2
 	}
 	if err := group.removeGroups(db, options); err != nil {
 		fmt.Println(err.Error())
-		return 1
+		return 3
 	}
 	db.StoreAndClose()
 
@@ -272,12 +271,12 @@ func (group *groupUpdateCommand) Run(args []string) int {
 	var db, err2 = common.Open(config)
 	if err2 != nil {
 		fmt.Println(err2.Error())
-		return 1
+		return 2
 	}
 	var err3 = group.updateGroup(db, updateOption)
 	if err3 != nil {
 		fmt.Println(err3.Error())
-		return 1
+		return 3
 	}
 	db.StoreAndClose()
 	return 0
@@ -285,7 +284,7 @@ func (group *groupUpdateCommand) Run(args []string) int {
 
 func (group *groupUpdateCommand) parse(args []string) (*updateOptions, error) {
 	var opt = updateOptions{}
-	flags := flag.NewFlagSet("update", flag.ExitOnError)
+	flags := flag.NewFlagSet("update", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(group.Help()) }
 	flags.StringVar(&opt.newName, "n", "", "show description")
 	flags.StringVar(&opt.newName, "name", "", "show description")
@@ -300,14 +299,14 @@ func (group *groupUpdateCommand) parse(args []string) (*updateOptions, error) {
 		return nil, fmt.Errorf("no arguments are specified")
 	}
 	if len(arguments) > 1 {
-		return nil, fmt.Errorf("multiple arguments are specified")
+		return nil, fmt.Errorf("could not accept multiple arguments")
 	}
 	opt.target = arguments[0]
 	return &opt, nil
 }
 
 func (group *GroupCommand) Synopsis() string {
-	return "print groups."
+	return "add/list/update/remove groups."
 }
 
 func (group *groupAddCommand) Synopsis() string {

@@ -12,6 +12,34 @@ func assert(t *testing.T, actual string, expected string) {
 	}
 }
 
+func TestHelps(t *testing.T) {
+	var command, _ = ConfigCommandFactory()
+	if command.Help() != `rrh config <COMMAND> [ARGUMENTS]
+COMMAND
+    set <ENV_NAME> <VALUE>  set ENV_NAME to VALUE
+    unset <ENV_NAME>        reset ENV_NAME
+    list                    list all of ENVs (default)` {
+		t.Errorf("help message did not match")
+	}
+	var clc, _ = configListCommandFactory()
+	if clc.Help() != `rrh config list` {
+		t.Errorf("help message did not match")
+	}
+	var cuc, _ = configUnsetCommandFactory()
+	if cuc.Help() != `rrh config unset <ENV_NAME...>
+ARGUMENTS
+    ENV_NAME   environment name.` {
+		t.Errorf("help message did not match")
+	}
+	var csc, _ = configSetCommandFactory()
+	if csc.Help() != `rrh config set <ENV_NAME> <VALUE>
+ARGUMENTS
+    ENV_NAME   environment name.
+    VALUE      the value for the given environment.` {
+		t.Errorf("help message did not match")
+	}
+}
+
 func TestSynopsises(t *testing.T) {
 	var command, _ = ConfigCommandFactory()
 	if command.Synopsis() != "set/unset and list configuration of RRH." {
@@ -50,6 +78,21 @@ func TestConfigUnset(t *testing.T) {
 	baseConfig.StoreConfig()
 }
 
+func ExampleConfigCommand_Run() {
+	os.Setenv(RrhConfigPath, "../testdata/config.json")
+	os.Setenv(RrhHome, "../testdata/")
+	var command, _ = ConfigCommandFactory()
+	command.Run([]string{}) // the output of no arguments are same as list subcommand.
+	// Output:
+	// RRH_HOME: ../testdata/ (environment)
+	// RRH_CONFIG_PATH: ../testdata/config.json (environment)
+	// RRH_DATABASE_PATH: ../testdata/database.json (environment)
+	// RRH_DEFAULT_GROUP_NAME: no-group (default)
+	// RRH_ON_ERROR: WARN (default)
+	// RRH_TIME_FORMAT: relative (default)
+	// RRH_AUTO_CREATE_GROUP: true (config_file)
+	// RRH_AUTO_DELETE_GROUP: false (config_file)
+}
 func Example_configListCommand_Run() {
 	os.Setenv(RrhConfigPath, "../testdata/config.json")
 	os.Setenv(RrhHome, "../testdata/")
@@ -99,9 +142,10 @@ func TestLoadConfigFile(t *testing.T) {
 }
 
 func TestUpdateTrueFalseValue(t *testing.T) {
-	os.Setenv(RrhConfigPath, "../testdata/testconfig.json")
-	var config = OpenConfig()
+	os.Setenv(RrhConfigPath, "../testdata/config.json")
+	var original = OpenConfig()
 
+	var config = OpenConfig()
 	var testdata = []struct {
 		key       string
 		value     string
@@ -123,10 +167,13 @@ func TestUpdateTrueFalseValue(t *testing.T) {
 			t.Errorf("%s: want: %s, got: %s", data.key, data.wantValue, val)
 		}
 	}
+	original.StoreConfig()
 }
 
 func TestUpdateOnError(t *testing.T) {
-	os.Setenv(RrhConfigPath, "../testdata/testconfig.json")
+	os.Setenv(RrhConfigPath, "../testdata/config.json")
+	var original = OpenConfig()
+
 	var config = OpenConfig()
 	var testdata = []struct {
 		key     string
@@ -144,10 +191,14 @@ func TestUpdateOnError(t *testing.T) {
 			t.Errorf("%s: set to \"%s\", success: %v", RrhOnError, data.key, data.success)
 		}
 	}
+
+	original.StoreConfig()
 }
 
 func TestUpdateValue(t *testing.T) {
-	os.Setenv(RrhConfigPath, "../testdata/testconfig.json")
+	os.Setenv(RrhConfigPath, "../testdata/config.json")
+	var original = OpenConfig()
+
 	var config = OpenConfig()
 	if err := config.Update(RrhConfigPath, "hogehoge"); err == nil {
 		t.Error("RrhConfigPath cannot update")
@@ -168,6 +219,8 @@ func TestUpdateValue(t *testing.T) {
 	if err := config.Update("unknown", "hoge4"); err == nil {
 		t.Error("unknown property was unknown")
 	}
+
+	original.StoreConfig()
 }
 
 func TestOpenConfig(t *testing.T) {
