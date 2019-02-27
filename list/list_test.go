@@ -15,9 +15,9 @@ func open(jsonName string) *common.Database {
 	return db
 }
 
-func ExampleListAllCommand_Run() {
+func ExampleListCommand_Run_Default() {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var list, _ = ListAllCommandFactory()
+	var list, _ = ListCommandFactory()
 	list.Run([]string{})
 	// Output:
 	// group1
@@ -27,7 +27,7 @@ func ExampleListAllCommand_Run() {
 	//     Repositories:
 }
 
-func ExampleListCommand_Run() {
+func ExampleListCommand_Run_Output_as_Csv() {
 	os.Setenv(common.RrhDefaultGroupName, "group1")
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	var list, _ = ListCommandFactory()
@@ -43,31 +43,11 @@ func TestFailedByUnknownOption(t *testing.T) {
 	}
 }
 
-func TestListAllCommandHelpAndSynopsis(t *testing.T) {
-	var list, _ = ListAllCommandFactory()
-	var helpMessage = `rrh list-all [OPTIONS]
-OPTIONS
-    -a, --all       print all.
-    -d, --desc      print description of group.
-    -p, --path      print local paths (default).
-    -r, --remote    print remote urls.
-                    if any options of above are specified, '-a' are specified.
-
-    -c, --csv       print result as csv format.`
-
-	if list.Help() != helpMessage {
-		t.Error("help message did not match")
-	}
-	if list.Synopsis() != "print managed repositories and their groups." {
-		t.Error("Synopsis did not match")
-	}
-}
-
 func TestListCommandHelpAndSynopsis(t *testing.T) {
 	var list = ListCommand{&listOptions{}}
 	var helpMessage = `rrh list [OPTIONS] [GROUPS...]
 OPTIONS
-    -a, --all       print all.
+    -a, --all       print all entries of each repository.
     -d, --desc      print description of group.
     -p, --path      print local paths (default).
     -r, --remote    print remote urls.
@@ -75,8 +55,8 @@ OPTIONS
 
     -c, --csv       print result as csv format.
 ARGUMENTS
-    GROUPS    print managed repositories categoried in the groups.
-              if no groups are specified, default groups are printed.`
+    GROUPS    print managed repositories categorized in the groups.
+              if no groups are specified, all groups are printed.`
 
 	if list.Help() != helpMessage {
 		t.Error("help message did not match")

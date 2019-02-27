@@ -9,6 +9,7 @@ setup:
 	go get github.com/golang/lint/golint
 	go get golang.org/x/tools/cmd/goimports
 	go get github.com/Songmu/make2help/cmd/make2help
+	go get -u github.com/golang/dep/cmd/dep
 
 	go get github.com/mitchellh/cli
 	go get gopkg.in/src-d/go-git.v4
@@ -19,9 +20,10 @@ setup:
 
 test: setup
 	go test -covermode=count -coverprofile=coverage.out $$(go list ./... | grep -v vendor)
+	git checkout -- testdata
 
 update: setup
-	dep ensure -update
+	dep ensure
 
 lint: setup
 	go vet $$(go list ./... | grep -v vendor)

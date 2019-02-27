@@ -30,7 +30,6 @@ func main() {
 		"fetch-all": fetch.FetchAllCommandFactory,
 		"group":     group.GroupCommandFactory,
 		"list":      list.ListCommandFactory,
-		"list-all":  list.ListAllCommandFactory,
 		"prune":     prune.PruneCommandFactory,
 		"rm":        remove.RemoveCommandFactory,
 		"status":    status.StatusCommandFactory,
