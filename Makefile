@@ -1,5 +1,5 @@
 NAME := rrh
-VERSION := $(shell git describe --tags --abbrev=0)
+VERSION := "1.0.0"
 REVISION := $(shell git rev-parse --short HEAD)
 LDFLAGS := -X 'main.version=$(VERSION)'
 	-X 'main.revision=$(REVISION)'
@@ -18,7 +18,7 @@ setup:
 	go get -u golang.org/x/tools/cmd/cover
 	go get -u github.com/mattn/goveralls
 
-test: setup
+test:
 	go test -covermode=count -coverprofile=coverage.out $$(go list ./... | grep -v vendor)
 	git checkout -- testdata
 
