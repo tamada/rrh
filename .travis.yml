@@ -1,11 +1,9 @@
 language: go
 
-secure: "MLqgHzoe5FUHBjBXblT9C9QsQu72gKAgm87Jxg5G/cZ4Jj8CUIdNSg+TcgSAP1IbPtuQsNQ2EURIXNCAfKrYTPfTMjrO8WvoUqwr4qSk6F/n4r2rSo6Kv2ZDt5d1zJCfHmZy1oaYm0urBvg5b7pvSAw9Pa16Gb5x3/CoMEMcb9vxoYF4MgClfy+B+/4CVajvlItD8q2NTWoWTmPhfbc13vDMvnx300GU//CkzmA+PchsISunsJ0YWirkAw8q+ksmQ6QfyCD1T5Owi/rcFKMRv+o81+9HE5V3T/I6GQaLMuOFPJHsmrzayyo5Yrn1CZtHt+4NoWEeowa6AbNaU13HOGXeKiac/bR2yhSTytxGz10nTuAM6pMbTg8HYHtjyXgFHsoc9w9cq7mKP2l6SabR6LO9NwRTTsrS7RsG3pdJIIeTZIdYP5tSsPAqRgERK3aAueR1LWHy53h1j2/1RCM5MCQu0EbSJcCNidU0LCLlZa/WVue8B2M0YhkYOWek1AzWHV7QQT54D0fo1R40D6qYBwS7sTRzHYkS8eVM/vgihFN+IqGq0lw3roXUmEePddPfA5FRlnwG5IcCdXwzvcndTtwBecX4e7PWXlivEkw6bzOacLkuHJ+LY/HR4gANaVnc7g4Dvrrne5Q3qwaL5LTLI4PNh9Y5zn+rWQAVlcPQysM="
-
 go:
     - 1.x
     - 1.11.x
 
 script:
     - make update test
-    - $GOPATH/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALL_TOKEN
+    - $GOPATH/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
