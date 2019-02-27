@@ -5,10 +5,8 @@ LDFLAGS := -X 'main.version=$(VERSION)'
 	-X 'main.revision=$(REVISION)'
 
 setup:
-	go get -u github.com/Masterminds/glide
-	go get -u github.com/golang/lint/golint
+	go get -u golang.org/x/lint/golint
 	go get -u golang.org/x/tools/cmd/goimports
-	go get -u github.com/Songmu/make2help/cmd/make2help
 	go get -u github.com/golang/dep/cmd/dep
 
 	go get -u github.com/mitchellh/cli
@@ -32,7 +30,7 @@ lint: setup
 	done
 
 fmt: setup
-	goimports -w $$(glide nv -x)
+	goimports -w $$(go list ./... | grep -v vendor)
 
 bin/%: cmd/%/rrh.go deps
 	go build -ldflags "$(LDFLAGS)" -o $@ <$
