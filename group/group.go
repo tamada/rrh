@@ -37,7 +37,10 @@ func (group *groupRemoveCommand) removeGroups(db *common.Database, options *remo
 	for _, groupName := range options.args {
 		if db.HasGroup(groupName) && options.Inquiry(groupName) {
 			var group = db.FindGroup(groupName)
-			if len(group.Items) == 0 || options.force {
+			if options.force {
+				db.ForceDeleteGroup(groupName)
+				options.printIfVerbose(fmt.Sprintf("%s: group removed", groupName))
+			} else if len(group.Items) == 0 {
 				db.DeleteGroup(groupName)
 				options.printIfVerbose(fmt.Sprintf("%s: group removed", groupName))
 			} else {

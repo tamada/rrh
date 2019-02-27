@@ -43,10 +43,12 @@ func TestRunByCsvOutput(t *testing.T) {
 }
 
 func TestFailedByUnknownOption(t *testing.T) {
-	var list, _ = ListCommandFactory()
-	if val := list.Run([]string{"--unknown"}); val != 1 {
-		t.Error("unknown option parsed!?")
-	}
+	common.CaptureStdout(func() {
+		var list, _ = ListCommandFactory()
+		if val := list.Run([]string{"--unknown"}); val != 1 {
+			t.Error("unknown option parsed!?")
+		}
+	})
 }
 
 func TestListCommandHelpAndSynopsis(t *testing.T) {

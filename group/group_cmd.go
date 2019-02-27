@@ -8,12 +8,18 @@ import (
 	"github.com/tamada/rrh/common"
 )
 
+/*
+GroupCommand represents a command.
+*/
 type GroupCommand struct{}
 type groupAddCommand struct{}
 type groupListCommand struct{}
 type groupUpdateCommand struct{}
 type groupRemoveCommand struct{}
 
+/*
+GroupCommandFactory returns an instance of command.
+*/
 func GroupCommandFactory() (cli.Command, error) {
 	return &GroupCommand{}, nil
 }
@@ -39,7 +45,7 @@ func (group *groupAddCommand) Help() string {
 OPTIONS
     -d, --desc <DESC>    give the description of the group
 ARGUMENTS
-    GROUP                gives group names.`
+    GROUPS               gives group names.`
 }
 
 func (group *groupListCommand) Help() string {
@@ -53,8 +59,8 @@ func (group *groupRemoveCommand) Help() string {
 	return `rrh group rm [OPTIONS] <GROUPS...>
 OPTIONS
     -f, --force      force remove
-	-i, --inquery    inquiry mode
-	-v, --verbose    verbose mode
+    -i, --inquery    inquiry mode
+    -v, --verbose    verbose mode
 ARGUMENTS
     GROUPS           target group names.`
 }
@@ -110,10 +116,10 @@ func (group *groupAddCommand) parse(args []string) (*addOptions, error) {
 	flags.Usage = func() { fmt.Println(group.Help()) }
 	flags.StringVar(&opt.desc, "d", "", "description")
 	flags.StringVar(&opt.desc, "desc", "", "description")
-	opt.args = flags.Args()
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
+	opt.args = flags.Args()
 	return &opt, nil
 }
 
@@ -133,9 +139,13 @@ func (group *groupAddCommand) Run(args []string) int {
 		fmt.Println(err2.Error())
 		return 2
 	}
+	if len(options.args) == 0 {
+		fmt.Println(group.Help())
+		return 3
+	}
 	if err := group.addGroups(db, options); err != nil {
 		fmt.Println(err.Error())
-		return 3
+		return 4
 	}
 	db.StoreAndClose()
 
@@ -229,10 +239,13 @@ func (group *groupRemoveCommand) parse(args []string) (*removeOptions, error) {
 	flags.BoolVar(&opt.inquiry, "i", false, "inquiry mode")
 	flags.BoolVar(&opt.verbose, "v", false, "verbose mode")
 	flags.BoolVar(&opt.force, "f", false, "force remove")
-	opt.args = flags.Args()
+	flags.BoolVar(&opt.inquiry, "inquiry", false, "inquiry mode")
+	flags.BoolVar(&opt.verbose, "verbose", false, "verbose mode")
+	flags.BoolVar(&opt.force, "force", false, "force remove")
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
+	opt.args = flags.Args()
 	if len(opt.args) == 0 {
 		return nil, fmt.Errorf("no arguments are specified")
 	}
@@ -302,11 +315,11 @@ func (group *groupUpdateCommand) parse(args []string) (*updateOptions, error) {
 	flags.StringVar(&opt.newName, "name", "", "show description")
 	flags.StringVar(&opt.desc, "d", "", "show repositories")
 	flags.StringVar(&opt.desc, "desc", "", "show repositories")
-	var arguments = flags.Args()
 
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
+	var arguments = flags.Args()
 	if len(arguments) == 0 {
 		return nil, fmt.Errorf("no arguments are specified")
 	}
