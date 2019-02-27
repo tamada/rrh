@@ -17,10 +17,16 @@ type listOptions struct {
 	args        []string
 }
 
+/*
+ListCommand represents a command.
+*/
 type ListCommand struct {
 	Options *listOptions
 }
 
+/*
+ListCommandFactory returns an instance of the ListCommand.
+*/
 func ListCommandFactory() (cli.Command, error) {
 	return &ListCommand{&listOptions{}}, nil
 }
@@ -82,6 +88,9 @@ func (list *ListCommand) printResults(results []ListResult) int {
 	return 1
 }
 
+/*
+Run performs the command.
+*/
 func (list *ListCommand) Run(args []string) int {
 	var _, err = list.parse(args)
 	if err != nil {

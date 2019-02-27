@@ -3,6 +3,7 @@ package list
 import (
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/tamada/rrh/common"
@@ -15,7 +16,7 @@ func open(jsonName string) *common.Database {
 	return db
 }
 
-func ExampleListCommand_Run_Default() {
+func ExampleListCommand_Run() {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	var list, _ = ListCommandFactory()
 	list.Run([]string{})
@@ -27,13 +28,18 @@ func ExampleListCommand_Run_Default() {
 	//     Repositories:
 }
 
-func ExampleListCommand_Run_Output_as_Csv() {
+func TestRunByCsvOutput(t *testing.T) {
 	os.Setenv(common.RrhDefaultGroupName, "group1")
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var list, _ = ListCommandFactory()
-	list.Run([]string{"--all", "--csv"})
-	// Output:
-	// group1,desc1,repo1,path1
+	var result, _ = common.CaptureStdout(func() {
+		var list, _ = ListCommandFactory()
+		list.Run([]string{"--all", "--csv"})
+	})
+	result = strings.TrimSpace(result)
+	var want = "group1,desc1,repo1,path1"
+	if result != want {
+		t.Errorf("result did not match\ngot: %s\nwant: %s", result, want)
+	}
 }
 
 func TestFailedByUnknownOption(t *testing.T) {

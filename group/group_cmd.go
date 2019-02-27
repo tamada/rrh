@@ -117,6 +117,9 @@ func (group *groupAddCommand) parse(args []string) (*addOptions, error) {
 	return &opt, nil
 }
 
+/*
+Run performs the command.
+*/
 func (group *groupAddCommand) Run(args []string) int {
 	var options, err = group.parse(args)
 	if err != nil {
@@ -175,6 +178,9 @@ func (group *groupListCommand) printAll(results []GroupResult, options *listOpti
 	}
 }
 
+/*
+Run performs the command.
+*/
 func (group *groupListCommand) Run(args []string) int {
 	var listOption, err = group.parse(args)
 	if err != nil {
@@ -233,6 +239,9 @@ func (group *groupRemoveCommand) parse(args []string) (*removeOptions, error) {
 	return &opt, nil
 }
 
+/*
+Run performs the command.
+*/
 func (group *groupRemoveCommand) Run(args []string) int {
 	var options, err = group.parse(args)
 	if err != nil {
@@ -261,6 +270,9 @@ type updateOptions struct {
 	target  string
 }
 
+/*
+Run performs the command.
+*/
 func (group *groupUpdateCommand) Run(args []string) int {
 	var updateOption, err = group.parse(args)
 	if err != nil {

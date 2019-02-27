@@ -1,9 +1,7 @@
 package export
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"os"
 	"strings"
 	"testing"
@@ -16,26 +14,6 @@ func open(jsonName string) *common.Database {
 	var config = common.OpenConfig()
 	var db, _ = common.Open(config)
 	return db
-}
-
-/*
-captureStdout is refered from https://qiita.com/kami_zh/items/ff636f15da87dabebe6c.
-*/
-func captureStdout(f func()) (string, error) {
-	r, w, err := os.Pipe()
-	if err != nil {
-		return "", err
-	}
-	var stdout = os.Stdout
-	os.Stdout = w
-
-	f()
-
-	os.Stdout = stdout
-	w.Close()
-	var buf bytes.Buffer
-	io.Copy(&buf, r)
-	return buf.String(), nil
 }
 
 func TestHelpAndSynopsis(t *testing.T) {
@@ -70,7 +48,7 @@ func TestBrokenDatabase(t *testing.T) {
 
 func TestNullDB(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/nulldb.json")
-	var result, _ = captureStdout(func() {
+	var result, _ = common.CaptureStdout(func() {
 		var export, _ = ExportCommandFactory()
 		export.Run([]string{})
 	})
@@ -86,7 +64,7 @@ func TestNullDB(t *testing.T) {
 
 func TestNullDBNoIndent(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/nulldb.json")
-	var result, _ = captureStdout(func() {
+	var result, _ = common.CaptureStdout(func() {
 		var export, _ = ExportCommandFactory()
 		export.Run([]string{"--no-indent"})
 	})
@@ -97,7 +75,7 @@ func TestNullDBNoIndent(t *testing.T) {
 
 func TestTmpDBNoIndent(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var result, _ = captureStdout(func() {
+	var result, _ = common.CaptureStdout(func() {
 		var export, _ = ExportCommandFactory()
 		export.Run([]string{"--no-indent"})
 	})
