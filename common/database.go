@@ -201,15 +201,19 @@ func (db *Database) Unrelate(groupID string, repoID string) {
 	}
 	for i, group := range db.Groups {
 		if group.Name == groupID {
-			var newItems = []string{}
-			for _, item := range group.Items {
-				if item != repoID {
-					newItems = append(newItems, item)
-				}
-			}
-			db.Groups[i].Items = newItems
+			db.Groups[i].Items = db.removeItem(i, repoID)
 		}
 	}
+}
+
+func (db *Database) removeItem(index int, repoID string) []string {
+	var newItems = []string{}
+	for _, item := range db.Groups[index].Items {
+		if item != repoID {
+			newItems = append(newItems, item)
+		}
+	}
+	return newItems
 }
 
 /*
