@@ -54,27 +54,31 @@ func (clone *CloneCommand) DoClone(db *common.Database, arguments []string) (int
 		}
 		return 1, []error{}
 	}
-	return clone.DoCloneRepositories(db, arguments)
-}
-
-func (clone *CloneCommand) DoCloneRepositories(db *common.Database, args []string) (int, []error) {
 	var errorlist = []error{}
 	var count = 0
-	for _, url := range args {
-		var id = findID(url)
-		var path = filepath.Join(clone.Options.dest, id)
-		var _, err = clone.toDir(db, url, path, id)
+	for _, url := range arguments {
+		var increment, err = clone.DoCloneRepositories(db, url)
 		if err != nil {
-			if db.Config.GetValue(common.RrhOnError) == common.FailImmediately {
-				return count, []error{err}
-			}
 			errorlist = append(errorlist, err)
-		} else {
-			db.Relate(clone.Options.group, id)
-			count++
+			if db.Config.GetValue(common.RrhOnError) == common.FailImmediately {
+				return count, errorlist
+			}
 		}
+		count += increment
 	}
 	return count, errorlist
+}
+
+func (clone *CloneCommand) DoCloneRepositories(db *common.Database, url string) (int, error) {
+	var count int
+	var id = findID(url)
+	var path = filepath.Join(clone.Options.dest, id)
+	var _, err = clone.toDir(db, url, path, id)
+	if err == nil {
+		db.Relate(clone.Options.group, id)
+		count++
+	}
+	return count, err
 }
 
 func (clone *CloneCommand) DoCloneARepository(db *common.Database, URL string) error {
