@@ -7,8 +7,17 @@
 
 There are too many repositories.
 We love programming; however, to manage many repositories is quite hard and bothersome tasks.
-Therefore, we built a headquarter for managing the git repositories, named RRH (Repositories, Ready to Hack).
+Therefore, we built a headquarter for managing the git repositories, named RRH.
 RRH manages repositories by categorizing in groups and execute git command to the groups.
+
+I know [ghq](https://github.com/motemen/ghq) to manage the git repositories.
+However, I cannot use it by the following reasons.
+
+1. In my home directories, there are quite many repositories.
+    * To start using ghq, we clone the repositories.
+      However, I did not accept to clone all of repositories.
+2. The location of repositories is fixed in the config file and is accepted only one location.
+
 
 RRH is now growing. Please hack RRH itself.
 
@@ -34,7 +43,6 @@ Available commands are:
     fetch-all    run "git fetch" in the all repositories
     group        print groups.
     list         print managed repositories and their groups.
-    list-all     print managed repositories and their groups.
     prune        prune unnecessary repositories and groups.
     rm           remove given repository from database.
     status       show git status of repositories.
@@ -116,30 +124,16 @@ SUBCOMMAND
 ```sh
 rrh list [OPTIONS] [GROUPS...]
 OPTIONS
-    -a, --all       print all (default).
+    -a, --all       print all entries of each repository.
     -d, --desc      print description of group.
-    -p, --path      print local paths.
+    -p, --path      print local paths (default).
     -r, --remote    print remote urls.
                     if any options of above are specified, '-a' are specified.
 
     -c, --csv       print result as csv format.
 ARGUMENTS
-    GROUPS    print managed repositories categoried in the groups.
-              if no groups are specified, default groups are printed.
-```
-
-### `rrh list-all`
-
-```sh
-rrh list-all [OPTIONS]
-OPTIONS
-    -a, --all       print all (default).
-    -d, --desc      print description of group.
-    -p, --path      print local paths.
-    -r, --remote    print remote urls.
-                    if any options of above are specified, '-a' are specified.
-
-    -c, --csv       print result as csv format.
+    GROUPS    print managed repositories categorzied in the groups.
+              if no groups are specified, all groups are printed.
 ```
 
 ### `rrh prune`
@@ -216,14 +210,14 @@ Also, configuration file is on `$RRH_ROOT/config.json`
 
 # Utilities
 
-## rrcd
+## `cdrrh`
 
 list repositories, and filtering them by [`peco`](https://github.com/peco/peco),
 then change directory to the filtering result.
 
 ```sh
 cdrrh(){
-  csv=$(rrh list-all --path --csv | peco)
+  csv=$(rrh list --path --csv | peco)
   cd $(echo $csv | awk -F , '{ print $3 }')
   pwd
 }
@@ -237,15 +231,12 @@ cdrrh(){
 * Call `fmt.Print` methods only `foo_cmd.go` file.
 * Create test for `foo.go`.
 
-# Candidates of the Product Names
+# Why the project name RRH
 
-* grim (Git Repository Integrated Manager)
-    * However, the means of grim is not good.
-* gram (Git Repository Advanced Manager)
-    * there are many commands which start with `gr`
-* rrh (Repositories, ready to HACK)
-    * No red riding hood.
-    * RRH is good name for command, since no command starts with `rr`.
+At first, the name of this project was GRIM (Git Repository Integrated Manager).
+However, the means of `grim` is not good, and there are many commands which start with `gr`.
+Therefore, we changed the project name to RRH.
+RRH is not the abbreviation of the red riding hood.
 
 # Discussion
 
