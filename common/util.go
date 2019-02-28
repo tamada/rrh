@@ -2,14 +2,15 @@ package common
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
 	humanize "github.com/dustin/go-humanize"
-	"gopkg.in/src-d/go-git.v4"
 )
 
 /*
@@ -20,10 +21,10 @@ Example:
   return:     ~/some/path
 */
 func NormalizePath(path string) string {
-	var home = os.Getenv("HOME")
-	if strings.HasPrefix(path, home) {
-		return strings.Replace(path, home, "~", 1)
-	}
+	// var home = os.Getenv("HOME")
+	// if strings.HasPrefix(path, home) {
+	// 	return strings.Replace(path, home, "~", 1)
+	// }
 	return path
 }
 
@@ -54,16 +55,21 @@ func Strftime(before time.Time, config *Config) string {
 }
 
 /*
-FindRemoveUrlFromRepository read remote url of origin from git repository located in given path.
+CaptureStdout is refered from https://qiita.com/kami_zh/items/ff636f15da87dabebe6c.
 */
-func FindRemoteUrlFromRepository(absPath string) (string, error) {
-	var r, err = git.PlainOpen(absPath)
+func CaptureStdout(f func()) (string, error) {
+	r, w, err := os.Pipe()
 	if err != nil {
 		return "", err
 	}
-	var origin, err2 = r.Remote("origin")
-	if err2 != nil {
-		return "", err2
-	}
-	return origin.Config().URLs[0], nil
+	var stdout = os.Stdout
+	os.Stdout = w
+
+	f()
+
+	os.Stdout = stdout
+	w.Close()
+	var buf bytes.Buffer
+	io.Copy(&buf, r)
+	return buf.String(), nil
 }

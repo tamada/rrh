@@ -3,18 +3,25 @@ package group
 import (
 	"flag"
 	"fmt"
-	"log"
 
 	"github.com/mitchellh/cli"
 	"github.com/tamada/rrh/common"
 )
 
+/*
+GroupCommand represents a command.
+*/
 type GroupCommand struct{}
 type groupAddCommand struct{}
 type groupListCommand struct{}
 type groupUpdateCommand struct{}
-type groupRemoveCommand struct{}
+type groupRemoveCommand struct {
+	Options *removeOptions
+}
 
+/*
+GroupCommandFactory returns an instance of command.
+*/
 func GroupCommandFactory() (cli.Command, error) {
 	return &GroupCommand{}, nil
 }
@@ -32,7 +39,7 @@ func groupUpdateCommandFactory() (cli.Command, error) {
 }
 
 func groupRemoveCommandFactory() (cli.Command, error) {
-	return &groupRemoveCommand{}, nil
+	return &groupRemoveCommand{&removeOptions{}}, nil
 }
 
 func (group *groupAddCommand) Help() string {
@@ -40,7 +47,7 @@ func (group *groupAddCommand) Help() string {
 OPTIONS
     -d, --desc <DESC>    give the description of the group
 ARGUMENTS
-    GROUP                gives group names.`
+    GROUPS               gives group names.`
 }
 
 func (group *groupListCommand) Help() string {
@@ -54,8 +61,8 @@ func (group *groupRemoveCommand) Help() string {
 	return `rrh group rm [OPTIONS] <GROUPS...>
 OPTIONS
     -f, --force      force remove
-	-i, --inquery    inquiry mode
-	-v, --verbose    verbose mode
+    -i, --inquery    inquiry mode
+    -v, --verbose    verbose mode
 ARGUMENTS
     GROUPS           target group names.`
 }
@@ -94,7 +101,7 @@ func (group *GroupCommand) Run(args []string) int {
 	} else {
 		var exitStatus, err = c.Run()
 		if err != nil {
-			log.Println(err)
+			fmt.Println(err.Error())
 		}
 		return exitStatus
 	}
@@ -107,17 +114,20 @@ type addOptions struct {
 
 func (group *groupAddCommand) parse(args []string) (*addOptions, error) {
 	var opt = addOptions{}
-	flags := flag.NewFlagSet("add", flag.ExitOnError)
+	flags := flag.NewFlagSet("add", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(group.Help()) }
 	flags.StringVar(&opt.desc, "d", "", "description")
 	flags.StringVar(&opt.desc, "desc", "", "description")
-	opt.args = flags.Args()
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
+	opt.args = flags.Args()
 	return &opt, nil
 }
 
+/*
+Run performs the command.
+*/
 func (group *groupAddCommand) Run(args []string) int {
 	var options, err = group.parse(args)
 	if err != nil {
@@ -129,11 +139,15 @@ func (group *groupAddCommand) Run(args []string) int {
 	var db, err2 = common.Open(config)
 	if err2 != nil {
 		fmt.Println(err2.Error())
-		return 1
+		return 2
+	}
+	if len(options.args) == 0 {
+		fmt.Println(group.Help())
+		return 3
 	}
 	if err := group.addGroups(db, options); err != nil {
 		fmt.Println(err.Error())
-		return 1
+		return 4
 	}
 	db.StoreAndClose()
 
@@ -147,7 +161,7 @@ type listOptions struct {
 
 func (group *groupListCommand) parse(args []string) (*listOptions, error) {
 	var opt = listOptions{}
-	flags := flag.NewFlagSet("list", flag.ExitOnError)
+	flags := flag.NewFlagSet("list", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(group.Help()) }
 	flags.BoolVar(&opt.desc, "d", false, "show description")
 	flags.BoolVar(&opt.desc, "desc", false, "show description")
@@ -176,6 +190,9 @@ func (group *groupListCommand) printAll(results []GroupResult, options *listOpti
 	}
 }
 
+/*
+Run performs the command.
+*/
 func (group *groupListCommand) Run(args []string) int {
 	var listOption, err = group.parse(args)
 	if err != nil {
@@ -185,7 +202,7 @@ func (group *groupListCommand) Run(args []string) int {
 	var db, err2 = common.Open(config)
 	if err2 != nil {
 		fmt.Println(err2.Error())
-		return 1
+		return 2
 	}
 	var results, err3 = group.listGroups(db, listOption)
 	if err3 != nil {
@@ -203,53 +220,60 @@ type removeOptions struct {
 	args    []string
 }
 
-func (options *removeOptions) printIfVerbose(message string) {
-	if options.verbose {
+func (grc *groupRemoveCommand) printIfVerbose(message string) {
+	if grc.Options.verbose {
 		fmt.Println(message)
 	}
 }
 
-func (options *removeOptions) Inquiry(groupName string) bool {
+func (grc *groupRemoveCommand) Inquiry(groupName string) bool {
 	// no inquiry option, do remove group.
-	if !options.inquiry {
+	if !grc.Options.inquiry {
 		return true
 	}
 	return common.IsInputYes(fmt.Sprintf("%s: remove group? [yN]", groupName))
 }
 
-func (group *groupRemoveCommand) parse(args []string) (*removeOptions, error) {
+func (grc *groupRemoveCommand) parse(args []string) (*removeOptions, error) {
 	var opt = removeOptions{}
-	flags := flag.NewFlagSet("rm", flag.ExitOnError)
-	flags.Usage = func() { fmt.Println(group.Help()) }
+	flags := flag.NewFlagSet("rm", flag.ContinueOnError)
+	flags.Usage = func() { fmt.Println(grc.Help()) }
 	flags.BoolVar(&opt.inquiry, "i", false, "inquiry mode")
 	flags.BoolVar(&opt.verbose, "v", false, "verbose mode")
 	flags.BoolVar(&opt.force, "f", false, "force remove")
-	opt.args = flags.Args()
+	flags.BoolVar(&opt.inquiry, "inquiry", false, "inquiry mode")
+	flags.BoolVar(&opt.verbose, "verbose", false, "verbose mode")
+	flags.BoolVar(&opt.force, "force", false, "force remove")
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
+	opt.args = flags.Args()
 	if len(opt.args) == 0 {
 		return nil, fmt.Errorf("no arguments are specified")
 	}
+	grc.Options = &opt
 	return &opt, nil
 }
 
-func (group *groupRemoveCommand) Run(args []string) int {
-	var options, err = group.parse(args)
+/*
+Run performs the command.
+*/
+func (grc *groupRemoveCommand) Run(args []string) int {
+	var _, err = grc.parse(args)
 	if err != nil {
 		fmt.Println(err.Error())
-		fmt.Println(group.Help())
+		fmt.Println(grc.Help())
 		return 1
 	}
 	var config = common.OpenConfig()
 	var db, err2 = common.Open(config)
 	if err2 != nil {
 		fmt.Println(err2.Error())
-		return 1
+		return 2
 	}
-	if err := group.removeGroups(db, options); err != nil {
+	if err := grc.removeGroups(db); err != nil {
 		fmt.Println(err.Error())
-		return 1
+		return 3
 	}
 	db.StoreAndClose()
 
@@ -262,6 +286,9 @@ type updateOptions struct {
 	target  string
 }
 
+/*
+Run performs the command.
+*/
 func (group *groupUpdateCommand) Run(args []string) int {
 	var updateOption, err = group.parse(args)
 	if err != nil {
@@ -272,12 +299,12 @@ func (group *groupUpdateCommand) Run(args []string) int {
 	var db, err2 = common.Open(config)
 	if err2 != nil {
 		fmt.Println(err2.Error())
-		return 1
+		return 2
 	}
 	var err3 = group.updateGroup(db, updateOption)
 	if err3 != nil {
 		fmt.Println(err3.Error())
-		return 1
+		return 3
 	}
 	db.StoreAndClose()
 	return 0
@@ -285,29 +312,29 @@ func (group *groupUpdateCommand) Run(args []string) int {
 
 func (group *groupUpdateCommand) parse(args []string) (*updateOptions, error) {
 	var opt = updateOptions{}
-	flags := flag.NewFlagSet("update", flag.ExitOnError)
+	flags := flag.NewFlagSet("update", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(group.Help()) }
 	flags.StringVar(&opt.newName, "n", "", "show description")
 	flags.StringVar(&opt.newName, "name", "", "show description")
 	flags.StringVar(&opt.desc, "d", "", "show repositories")
 	flags.StringVar(&opt.desc, "desc", "", "show repositories")
-	var arguments = flags.Args()
 
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
+	var arguments = flags.Args()
 	if len(arguments) == 0 {
 		return nil, fmt.Errorf("no arguments are specified")
 	}
 	if len(arguments) > 1 {
-		return nil, fmt.Errorf("multiple arguments are specified")
+		return nil, fmt.Errorf("could not accept multiple arguments")
 	}
 	opt.target = arguments[0]
 	return &opt, nil
 }
 
 func (group *GroupCommand) Synopsis() string {
-	return "print groups."
+	return "add/list/update/remove groups."
 }
 
 func (group *groupAddCommand) Synopsis() string {

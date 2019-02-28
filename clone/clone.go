@@ -13,20 +13,23 @@ import (
 )
 
 func (clone *CloneCommand) toDir(db *common.Database, url string, dest string, repoID string) (*common.Repository, error) {
-	fmt.Printf("git clone %s %s (%s)\n", url, dest, repoID)
+	clone.printIfVerbose(fmt.Sprintf("git clone %s %s (%s)", url, dest, repoID))
 	var cmd = exec.Command("git", "clone", url, dest)
 	var err = cmd.Run()
 	if err != nil {
-		fmt.Println(err.Error())
+		fmt.Printf("clone error: %s\n", err.Error())
 		return nil, err
 	}
 
-	remotes, err := add.FindRemotes(common.ToAbsolutePath(dest, db.Config))
+	path, err := filepath.Abs(dest)
 	if err != nil {
 		return nil, err
 	}
-
-	repo, err := db.CreateRepository(repoID, dest, remotes)
+	remotes, err := add.FindRemotes(path)
+	if err != nil {
+		return nil, err
+	}
+	repo, err := db.CreateRepository(repoID, path, remotes)
 	if err != nil {
 		return nil, err
 	}
@@ -43,46 +46,57 @@ func (clone *CloneCommand) isExistDir(path string) bool {
 	return !os.IsNotExist(err) && stat.IsDir()
 }
 
-func (clone *CloneCommand) DoClone(db *common.Database, options *cloneOptions) (int, []error) {
-	if len(options.args) == 1 {
-		return 1, []error{clone.DoCloneARepository(db, options, options.args[0])}
+func (clone *CloneCommand) DoClone(db *common.Database, arguments []string) (int, []error) {
+	if len(arguments) == 1 {
+		var err = clone.DoCloneARepository(db, arguments[0])
+		if err != nil {
+			return 0, []error{err}
+		}
+		return 1, []error{}
 	}
 	var errorlist = []error{}
 	var count = 0
-	for _, url := range options.args {
-		var id = findID(url)
-		var path = filepath.Join(options.dest, id)
-		var _, err = clone.toDir(db, url, path, id)
+	for _, url := range arguments {
+		var increment, err = clone.DoCloneRepositories(db, url)
 		if err != nil {
-			if db.Config.GetValue(common.RrhOnError) == common.FailImmediately {
-				return count, []error{err}
-			}
 			errorlist = append(errorlist, err)
-		} else {
-			db.Relate(options.group, id)
-			count++
+			if db.Config.GetValue(common.RrhOnError) == common.FailImmediately {
+				return count, errorlist
+			}
 		}
+		count += increment
 	}
 	return count, errorlist
 }
 
-func (clone *CloneCommand) DoCloneARepository(db *common.Database, options *cloneOptions, URL string) error {
+func (clone *CloneCommand) DoCloneRepositories(db *common.Database, url string) (int, error) {
+	var count int
+	var id = findID(url)
+	var path = filepath.Join(clone.Options.dest, id)
+	var _, err = clone.toDir(db, url, path, id)
+	if err == nil {
+		db.Relate(clone.Options.group, id)
+		count++
+	}
+	return count, err
+}
+
+func (clone *CloneCommand) DoCloneARepository(db *common.Database, URL string) error {
 	var id, path string
 
-	if clone.isExistDir(options.dest) {
+	if clone.isExistDir(clone.Options.dest) {
 		id = findID(URL)
-		path = filepath.Join(options.dest, id)
+		path = filepath.Join(clone.Options.dest, id)
 	} else {
-		var _, newid = filepath.Split(options.dest)
-		path = options.dest
+		var _, newid = filepath.Split(clone.Options.dest)
+		path = clone.Options.dest
 		id = newid
 	}
 	var _, err = clone.toDir(db, URL, path, id)
 	if err != nil {
 		return err
 	}
-	db.Relate(options.group, id)
-	return nil
+	return db.Relate(clone.Options.group, id)
 }
 
 func findID(URL string) string {

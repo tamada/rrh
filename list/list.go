@@ -6,12 +6,18 @@ import (
 	"github.com/tamada/rrh/common"
 )
 
+/*
+Repo represents the result for showing of repositories.
+*/
 type Repo struct {
 	Name    string
 	Path    string
 	Remotes []common.Remote
 }
 
+/*
+ListResult represents the result for showing.
+*/
 type ListResult struct {
 	GroupName   string
 	Description string
@@ -35,10 +41,21 @@ func (list *ListCommand) findList(db *common.Database, groupName string) (*ListR
 	return &ListResult{group.Name, group.Description, repos}, nil
 }
 
-func (list *ListCommand) FindResults(db *common.Database, options *listOptions) ([]ListResult, error) {
-	var groups = options.args
+func (list *ListCommand) findAllGroupNames(db *common.Database) []string {
+	var names = []string{}
+	for _, group := range db.Groups {
+		names = append(names, group.Name)
+	}
+	return names
+}
+
+/*
+FindResults returns the result list of list command.
+*/
+func (list *ListCommand) FindResults(db *common.Database) ([]ListResult, error) {
+	var groups = list.Options.args
 	if len(groups) == 0 {
-		groups = []string{db.Config.GetValue(common.RrhDefaultGroupName)}
+		groups = list.findAllGroupNames(db)
 	}
 	var results = []ListResult{}
 	for _, group := range groups {

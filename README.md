@@ -1,9 +1,29 @@
+[![Build Status](https://travis-ci.org/tamada/rrh.svg?branch=master)](https://travis-ci.org/tamada/rrh)
+[![Coverage Status](https://coveralls.io/repos/github/tamada/rrh/badge.svg?branch=master)](https://coveralls.io/github/tamada/rrh?branch=master)
 [![codebeat badge](https://codebeat.co/badges/15e04551-d448-4ad3-be1d-e98b1e586f1a)](https://codebeat.co/projects/github-com-tamada-rrh-master)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # RRH
 
-Git Repository Manager
+There are too many repositories.
+We love programming; however, to manage many repositories is quite hard and bothersome tasks.
+Therefore, we built a headquarter for managing the git repositories, named RRH.
+RRH manages repositories by categorizing in groups and execute git command to the groups.
+
+I know the tool [ghq](https://github.com/motemen/ghq), manages the git repositories.
+However, I cannot use it by the following reasons.
+
+1. there are quite many repositories in my home directory.
+    * To start using ghq, we clone the repositories.
+      However, I did not accept to clone all of repositories.
+2. The location of repositories is fixed in the config file and is accepted only one location.
+    * I just decide the directory layout in my home directory.
+
+Additionally, I edit several repositories in a days, when I work hard.
+Consequently, the progress of each repository are obscured, I cannot remember a lot of things.
+Therefore, it is glad to see the last modified date of branches.
+
+RRH is now growing. Please hack RRH itself.
 
 # Installation
 
@@ -20,14 +40,13 @@ Usage: rrh [--version] [--help] <command> [<args>]
 
 Available commands are:
     add          add repositories on the local path to RRH
-    clone        run "git clone"
+    clone        run "git clone" and register it to a group
     config       set/unset and list configuration of RRH.
     export       export RRH database to stdout.
-    fetch        run "git fetch" on the given groups
+    fetch        run "git fetch" on the repositories of the given groups
     fetch-all    run "git fetch" in the all repositories
-    group        print groups.
+    group        add/list/update/remove groups.
     list         print managed repositories and their groups.
-    list-all     print managed repositories and their groups.
     prune        prune unnecessary repositories and groups.
     rm           remove given repository from database.
     status       show git status of repositories.
@@ -35,29 +54,28 @@ Available commands are:
 
 ## subcommands
 
-### `add`
+### `rrh add`
 
 ```sh
-rrh add [OPTION] <REPOSITORY_PATHS...>
-OPTION
+rrh add [OPTIONS] <REPOSITORY_PATHS...>
+OPTIONS
     -g, --group <GROUP>    add repository to RRH database.
-
 ARGUMENTS
     REPOSITORY_PATHS       the local path list of the git repositories
 ```
 
-### `clone`
+### `rrh clone`
 
 ```sh
-rrh clone [OPTION] <REMOTE_REPOS...>
-OPTION
+rrh clone [OPTIONS] <REMOTE_REPOS...>
+OPTIONS
     -g, --group <GROUP>   print managed repositories categoried in the group.
     -d, --dest <DEST>     specify the destination.
 ARGUMENTS
     REMOTE_REPOS          repository urls
 ```
 
-### `config`
+### `rrh config`
 
 ```sh
 rrh config <COMMAND> [ARGUMENTS]
@@ -67,7 +85,7 @@ COMMAND
     list                    list all of ENVs (default)
 ```
 
-### `export`
+### `rrh export`
 
 ```sh
 rrh export [OPTIONS]
@@ -75,7 +93,7 @@ OPTiONS
     --no-indent    print result as no indented json (Default indented json)
 ```
 
-### `fetch`
+### `rrh fetch`
 
 ```sh
 rrh fetch [OPTIONS] [GROUPS...]
@@ -86,7 +104,7 @@ ARGUMENTS
                             if no value is specified, run on the default group.
 ```
 
-### `fetch-all`
+### `rrh fetch-all`
 
 ```sh
 rrh fetch-all [OPTIONS]
@@ -94,7 +112,7 @@ OPTIONS
     -r, --remote <REMOTE>   specify the remote name. Default is "origin."
 ```
 
-### `group`
+### `rrh group`
 
 ```sh
 rrh group <SUBCOMMAND>
@@ -105,49 +123,34 @@ SUBCOMMAND
     update    update group
 ```
 
-### `list`
+### `rrh list`
 
 ```sh
 rrh list [OPTIONS] [GROUPS...]
 OPTIONS
-    -a, --all       print all (default).
+    -a, --all       print all entries of each repository.
     -d, --desc      print description of group.
-    -p, --path      print local paths.
+    -p, --path      print local paths (default).
     -r, --remote    print remote urls.
                     if any options of above are specified, '-a' are specified.
 
     -c, --csv       print result as csv format.
-
 ARGUMENTS
-    GROUPS    print managed repositories categoried in the groups.
-              if no groups are specified, default groups are printed.
+    GROUPS    print managed repositories categorzied in the groups.
+              if no groups are specified, all groups are printed.
 ```
 
-### `list-all`
-
-```sh
-rrh list-all [OPTIONS]
-OPTIONS
-    -a, --all       print all (default).
-    -d, --desc      print description of group.
-    -p, --path      print local paths.
-    -r, --remote    print remote urls.
-                    if any options of above are specified, '-a' are specified.
-
-    -c, --csv       print result as csv format.
-```
-
-### `prune`
+### `rrh prune`
 
 ```sh
 rrh prune
 ```
 
-### `rm`
+### `rrh rm`
 
 ```sh
-rrh rm [OPTION] <REPO_ID|GROUP_ID|REPO_ID/GROUP_ID...>
-OPTION
+rrh rm [OPTIONS] <REPO_ID|GROUP_ID|REPO_ID/GROUP_ID...>
+OPTIONS
     -i, --inquiry       inquiry mode.
     -r, --recursive     recursive mode.
     -v, --verbose       verbose mode.
@@ -159,7 +162,7 @@ ARGUMENTS
     GROUP_ID/REPO_ID    remove given REPO_ID from GROUP_ID.
 ```
 
-### `status`
+### `rrh status`
 
 ```sh
 rrh status [OPTIONS] [GROUPS||REPOS...]
@@ -209,6 +212,21 @@ Also, configuration file is on `$RRH_ROOT/config.json`
 }
 ```
 
+# Utilities
+
+## `cdrrh`
+
+list repositories, and filtering them by [`peco`](https://github.com/peco/peco),
+then change directory to the filtering result.
+
+```sh
+cdrrh(){
+  csv=$(rrh list --path --csv | peco)
+  cd $(echo $csv | awk -F , '{ print $3 }')
+  pwd
+}
+```
+
 # Development Policy
 
 * Separate `foo_cmd.go` and `foo.go` for implementing `foo` command.
@@ -217,20 +235,20 @@ Also, configuration file is on `$RRH_ROOT/config.json`
 * Call `fmt.Print` methods only `foo_cmd.go` file.
 * Create test for `foo.go`.
 
-# Candidates of the Product Names
+# Why the project name RRH
 
-* grim (Git Repository Integrated Manager)
-    * However, the means of grim is not good.
-* gram (Git Repository Advanced Manager)
-* rrh (Repositories, Ready to Head)
-    * No red riding hood.
-    * rrh command was no conflict with other commands.
+At first, the name of this project was GRIM (Git Repository Integrated Manager).
+However, the means of `grim` is not good, and there are many commands which start with `gr`.
+Therefore, we changed the project name to RRH.
+RRH is not the abbreviation of the red riding hood.
 
 # Discussion
 
-![Gitter](https://img.shields.io/badge/Gitter-Join_Chat-red.svg)
+[![Gitter](https://img.shields.io/badge/Gitter-Join_Chat-red.svg)](https://gitter.im/rrh_git/community)
 
 Join our Gitter channel if you have any problem or suggestions to Rrh.
 
+[![Gitter misc_ja](https://img.shields.io/badge/Gitter-For_Japanese-red.svg)](https://gitter.im/rrh_git/misc_ja)
+
 For Japanese user, `misc_ja` channel has discussions in Japanese.
-Other channels and GitHub pages are English only.
+The public language of other channels and GitHub pages is English.
