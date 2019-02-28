@@ -8,16 +8,19 @@ import (
 	"github.com/tamada/rrh/common"
 )
 
-type CloneCommand struct{}
+type CloneCommand struct {
+	Options *cloneOptions
+}
 
 func CloneCommandFactory() (cli.Command, error) {
 	return &CloneCommand{}, nil
 }
 
 type cloneOptions struct {
-	group string
-	dest  string
-	args  []string
+	group   string
+	dest    string
+	verbose bool
+	args    []string
 }
 
 /*
@@ -28,6 +31,7 @@ func (clone *CloneCommand) Help() string {
 OPTIONS
     -g, --group <GROUP>   print managed repositories categoried in the group.
     -d, --dest <DEST>     specify the destination.
+    -v, --verbose         verbose mode.
 ARGUMENTS
     REMOTE_REPOS          repository urls`
 }
@@ -37,6 +41,12 @@ Synopsis returns the help message of the command.
 */
 func (clone *CloneCommand) Synopsis() string {
 	return "run \"git clone\""
+}
+
+func (clone *CloneCommand) printIfVerbose(message string) {
+	if clone.Options.verbose {
+		fmt.Println(message)
+	}
 }
 
 func (clone *CloneCommand) showError(list []error) {
@@ -81,18 +91,21 @@ func (clone *CloneCommand) perform(db *common.Database, options *cloneOptions) i
 
 func (clone *CloneCommand) parse(args []string, config *common.Config) (*cloneOptions, error) {
 	var defaultGroup = config.GetDefaultValue(common.RrhDefaultGroupName)
-	var options = cloneOptions{defaultGroup, ".", []string{}}
+	var options = cloneOptions{defaultGroup, ".", false, []string{}}
 	flags := flag.NewFlagSet("clone", flag.ExitOnError)
 	flags.Usage = func() { fmt.Println(clone.Help()) }
 	flags.StringVar(&options.group, "g", defaultGroup, "belonging group")
 	flags.StringVar(&options.group, "group", defaultGroup, "belonging group")
 	flags.StringVar(&options.dest, "d", ".", "destination")
 	flags.StringVar(&options.dest, "dest", ".", "destination")
+	flags.BoolVar(&options.verbose, "v", false, "verbose mode")
+	flags.BoolVar(&options.verbose, "verbose", false, "verbose mode")
 
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
 	options.args = flags.Args()
+	clone.Options = &options
 
 	return &options, nil
 }
