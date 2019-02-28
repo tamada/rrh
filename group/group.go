@@ -33,18 +33,25 @@ func (group *groupAddCommand) addGroups(db *common.Database, options *addOptions
 	return nil
 }
 
-func (group *groupRemoveCommand) removeGroups(db *common.Database, options *removeOptions) error {
-	for _, groupName := range options.args {
-		if db.HasGroup(groupName) && options.Inquiry(groupName) {
-			var group = db.FindGroup(groupName)
-			if options.force {
-				db.ForceDeleteGroup(groupName)
-				options.printIfVerbose(fmt.Sprintf("%s: group removed", groupName))
-			} else if len(group.Items) == 0 {
-				db.DeleteGroup(groupName)
-				options.printIfVerbose(fmt.Sprintf("%s: group removed", groupName))
-			} else {
-				return fmt.Errorf("%s: cannot remove group. the group has relations", groupName)
+func (grc *groupRemoveCommand) removeGroupsImpl(db *common.Database, groupName string) error {
+	var group = db.FindGroup(groupName)
+	if grc.Options.force {
+		db.ForceDeleteGroup(groupName)
+		grc.printIfVerbose(fmt.Sprintf("%s: group removed", groupName))
+	} else if len(group.Items) == 0 {
+		db.DeleteGroup(groupName)
+		grc.printIfVerbose(fmt.Sprintf("%s: group removed", groupName))
+	} else {
+		return fmt.Errorf("%s: cannot remove group. the group has relations", groupName)
+	}
+	return nil
+}
+
+func (grc *groupRemoveCommand) removeGroups(db *common.Database) error {
+	for _, groupName := range grc.Options.args {
+		if db.HasGroup(groupName) && grc.Inquiry(groupName) {
+			if err := grc.removeGroupsImpl(db, groupName); err != nil {
+				return err
 			}
 		}
 	}

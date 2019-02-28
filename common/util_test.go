@@ -1,8 +1,10 @@
 package common
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -36,6 +38,16 @@ func TestStrftime(t *testing.T) {
 
 	os.Unsetenv(RrhTimeFormat)
 	os.Unsetenv(RrhConfigPath)
+}
+
+func TestCaptureStdout(t *testing.T) {
+	var result, _ = CaptureStdout(func() {
+		fmt.Println("Hello World")
+	})
+	result = strings.TrimSpace(result)
+	if result != "Hello World" {
+		t.Errorf("wont: \"Hello World\", got: %s", result)
+	}
 }
 
 func TestNormalizePath(t *testing.T) {

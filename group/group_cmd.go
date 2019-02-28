@@ -15,7 +15,9 @@ type GroupCommand struct{}
 type groupAddCommand struct{}
 type groupListCommand struct{}
 type groupUpdateCommand struct{}
-type groupRemoveCommand struct{}
+type groupRemoveCommand struct {
+	Options *removeOptions
+}
 
 /*
 GroupCommandFactory returns an instance of command.
@@ -37,7 +39,7 @@ func groupUpdateCommandFactory() (cli.Command, error) {
 }
 
 func groupRemoveCommandFactory() (cli.Command, error) {
-	return &groupRemoveCommand{}, nil
+	return &groupRemoveCommand{&removeOptions{}}, nil
 }
 
 func (group *groupAddCommand) Help() string {
@@ -218,24 +220,24 @@ type removeOptions struct {
 	args    []string
 }
 
-func (options *removeOptions) printIfVerbose(message string) {
-	if options.verbose {
+func (grc *groupRemoveCommand) printIfVerbose(message string) {
+	if grc.Options.verbose {
 		fmt.Println(message)
 	}
 }
 
-func (options *removeOptions) Inquiry(groupName string) bool {
+func (grc *groupRemoveCommand) Inquiry(groupName string) bool {
 	// no inquiry option, do remove group.
-	if !options.inquiry {
+	if !grc.Options.inquiry {
 		return true
 	}
 	return common.IsInputYes(fmt.Sprintf("%s: remove group? [yN]", groupName))
 }
 
-func (group *groupRemoveCommand) parse(args []string) (*removeOptions, error) {
+func (grc *groupRemoveCommand) parse(args []string) (*removeOptions, error) {
 	var opt = removeOptions{}
 	flags := flag.NewFlagSet("rm", flag.ContinueOnError)
-	flags.Usage = func() { fmt.Println(group.Help()) }
+	flags.Usage = func() { fmt.Println(grc.Help()) }
 	flags.BoolVar(&opt.inquiry, "i", false, "inquiry mode")
 	flags.BoolVar(&opt.verbose, "v", false, "verbose mode")
 	flags.BoolVar(&opt.force, "f", false, "force remove")
@@ -249,17 +251,18 @@ func (group *groupRemoveCommand) parse(args []string) (*removeOptions, error) {
 	if len(opt.args) == 0 {
 		return nil, fmt.Errorf("no arguments are specified")
 	}
+	grc.Options = &opt
 	return &opt, nil
 }
 
 /*
 Run performs the command.
 */
-func (group *groupRemoveCommand) Run(args []string) int {
-	var options, err = group.parse(args)
+func (grc *groupRemoveCommand) Run(args []string) int {
+	var _, err = grc.parse(args)
 	if err != nil {
 		fmt.Println(err.Error())
-		fmt.Println(group.Help())
+		fmt.Println(grc.Help())
 		return 1
 	}
 	var config = common.OpenConfig()
@@ -268,7 +271,7 @@ func (group *groupRemoveCommand) Run(args []string) int {
 		fmt.Println(err2.Error())
 		return 2
 	}
-	if err := group.removeGroups(db, options); err != nil {
+	if err := grc.removeGroups(db); err != nil {
 		fmt.Println(err.Error())
 		return 3
 	}
