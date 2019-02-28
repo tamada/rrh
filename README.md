@@ -10,14 +10,18 @@ We love programming; however, to manage many repositories is quite hard and both
 Therefore, we built a headquarter for managing the git repositories, named RRH.
 RRH manages repositories by categorizing in groups and execute git command to the groups.
 
-I know [ghq](https://github.com/motemen/ghq) to manage the git repositories.
+I know the tool [ghq](https://github.com/motemen/ghq), manages the git repositories.
 However, I cannot use it by the following reasons.
 
-1. In my home directories, there are quite many repositories.
+1. there are quite many repositories in my home directory.
     * To start using ghq, we clone the repositories.
       However, I did not accept to clone all of repositories.
 2. The location of repositories is fixed in the config file and is accepted only one location.
+    * I just decide the directory layout in my home directory.
 
+Additionally, I edit several repositories in a days, when I work hard.
+Consequently, the progress of each repository are obscured, I cannot remember a lot of things.
+Therefore, it is glad to see the last modified date of branches.
 
 RRH is now growing. Please hack RRH itself.
 
@@ -36,12 +40,12 @@ Usage: rrh [--version] [--help] <command> [<args>]
 
 Available commands are:
     add          add repositories on the local path to RRH
-    clone        run "git clone"
+    clone        run "git clone" and register it to a group
     config       set/unset and list configuration of RRH.
     export       export RRH database to stdout.
-    fetch        run "git fetch" on the given groups
+    fetch        run "git fetch" on the repositories of the given groups
     fetch-all    run "git fetch" in the all repositories
-    group        print groups.
+    group        add/list/update/remove groups.
     list         print managed repositories and their groups.
     prune        prune unnecessary repositories and groups.
     rm           remove given repository from database.

@@ -27,7 +27,7 @@ func TestCloneCommand_Run(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	rollback(func() {
 		var clone, _ = CloneCommandFactory()
-		clone.Run([]string{"-d", "../testdata", "-v", "https://htamada@bitbucket.org/htamada/helloworld.git"})
+		clone.Run([]string{"-d", "../testdata", "https://htamada@bitbucket.org/htamada/helloworld.git"})
 		defer cleanup([]string{"../testdata/helloworld"})
 
 		var config = common.OpenConfig()
@@ -61,7 +61,7 @@ ARGUMENTS
 		t.Error("help message did not match")
 	}
 
-	if clone.Synopsis() != `run "git clone"` {
+	if clone.Synopsis() != `run "git clone" and register it to a group` {
 		t.Error("synopsis did not match")
 	}
 }
