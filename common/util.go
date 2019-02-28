@@ -11,7 +11,6 @@ import (
 	"time"
 
 	humanize "github.com/dustin/go-humanize"
-	"gopkg.in/src-d/go-git.v4"
 )
 
 /*
@@ -53,21 +52,6 @@ func Strftime(before time.Time, config *Config) string {
 		return before.Format(format)
 	}
 	return humanize.Time(before)
-}
-
-/*
-FindRemoveUrlFromRepository read remote url of origin from git repository located in given path.
-*/
-func FindRemoteUrlFromRepository(absPath string) (string, error) {
-	var r, err = git.PlainOpen(absPath)
-	if err != nil {
-		return "", err
-	}
-	var origin, err2 = r.Remote("origin")
-	if err2 != nil {
-		return "", err2
-	}
-	return origin.Config().URLs[0], nil
 }
 
 /*
