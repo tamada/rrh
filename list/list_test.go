@@ -22,10 +22,8 @@ func ExampleListCommand_Run() {
 	list.Run([]string{})
 	// Output:
 	// group1
-	//     Repositories:
-	//         repo1,path1
+	//     repo1        path1
 	// group2
-	//     Repositories:
 }
 
 func TestRunByCsvOutput(t *testing.T) {

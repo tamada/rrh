@@ -5,16 +5,16 @@ LDFLAGS := -X 'main.version=$(VERSION)'
 	-X 'main.revision=$(REVISION)'
 
 setup:
-	go get -u golang.org/x/lint/golint
-	go get -u golang.org/x/tools/cmd/goimports
-	go get -u github.com/golang/dep/cmd/dep
+	go get golang.org/x/lint/golint
+	go get golang.org/x/tools/cmd/goimports
+	go get github.com/golang/dep/cmd/dep
 
-	go get -u github.com/mitchellh/cli
-	go get -u gopkg.in/src-d/go-git.v4
-	go get -u github.com/dustin/go-humanize
-	go get -u github.com/posener/complete/gocomplete
-	go get -u golang.org/x/tools/cmd/cover
-	go get -u github.com/mattn/goveralls
+	go get github.com/mitchellh/cli
+	go get gopkg.in/src-d/go-git.v4
+	go get github.com/dustin/go-humanize
+	go get github.com/posener/complete/gocomplete
+	go get golang.org/x/tools/cmd/cover
+	go get github.com/mattn/goveralls
 
 test:
 	go test -covermode=count -coverprofile=coverage.out $$(go list ./... | grep -v vendor)

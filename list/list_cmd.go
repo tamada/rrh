@@ -61,6 +61,20 @@ func (list *ListCommand) printResultsAsCsv(results []ListResult) int {
 	return 0
 }
 
+/*
+generateFormatString returns the formatter for `Printf` to arrange the length of repository names.
+*/
+func (list *ListCommand) generateFormatString(repos []Repo) string {
+	var max = len("Description")
+	for _, repo := range repos {
+		var len = len(repo.Name)
+		if len > max {
+			max = len
+		}
+	}
+	return fmt.Sprintf("    %%-%ds", max)
+}
+
 func (list *ListCommand) printResults(results []ListResult) int {
 	if list.Options.csv {
 		return list.printResultsAsCsv(results)
@@ -68,17 +82,19 @@ func (list *ListCommand) printResults(results []ListResult) int {
 	for _, result := range results {
 		fmt.Println(result.GroupName)
 		if list.Options.description || list.Options.all {
-			fmt.Printf("    Description: %s\n", result.Description)
+			fmt.Printf("    Description  %s", result.Description)
+			fmt.Println()
 		}
-		fmt.Println("    Repositories:")
+		var formatString = list.generateFormatString(result.Repos)
 		for _, repo := range result.Repos {
-			fmt.Printf("        %s", repo.Name)
+			fmt.Printf(formatString, repo.Name)
 			if list.Options.localPath || list.Options.all {
-				fmt.Printf(",%s", repo.Path)
+				fmt.Printf("  %s", repo.Path)
 			}
 			if list.Options.remoteURL || list.Options.all {
 				for _, remote := range repo.Remotes {
-					fmt.Printf("\n            %s,%s", remote.Name, remote.URL)
+					fmt.Println()
+					fmt.Printf("        %s  %s", remote.Name, remote.URL)
 				}
 			}
 			fmt.Println()
