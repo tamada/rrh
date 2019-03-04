@@ -168,7 +168,7 @@ ARGUMENTS
     REPOY_ID            repository name for removing.
     GROUP_ID            group name. if the group contains repositories,
                         remove will fail without '-r' option.
-    GROUP_ID/REPO_ID    remove given REPO_ID from GROUP_ID.`
+    GROUP_ID/REPO_ID    remove the relation between the given REPO_ID and GROUP_ID.`
 	var rm, _ = RemoveCommandFactory()
 	if rm.Help() != helpMessage {
 		t.Error("help message did not match.")

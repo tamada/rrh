@@ -52,9 +52,11 @@ Available commands are:
     status       show git status of repositories.
 ```
 
-## subcommands
+## Subcommands
 
 ### `rrh add`
+
+This command registers the repositories which specified the given paths to the RRH database and categorize to the group (Default `no-group`, see [RRH_DEFAULT_GROUP_NAME](#rrh_default_group_name)).
 
 ```sh
 rrh add [OPTIONS] <REPOSITORY_PATHS...>
@@ -66,16 +68,27 @@ ARGUMENTS
 
 ### `rrh clone`
 
+Runs `git clone` command and registers the cloned repository to RRH database.
+The id of the repository is identified by the following steps.
+
+1. If the length of `REMOTE_REPOS` is 1, and `DEST` is exists, then the last entry of `REMOTE_REPOS` is repository id by eliminating the suffix `.git`.
+3. If the length of `REMOTE_REPOS` is 1, and `DEST` is not exists, then the last entry of `DEST` is repository id.
+2. If the length of `REMOTE_REPOS` is greater than 1, then the last entry of each `REMOTE_REPOS` is repository ids by eliminating the suffix `.git`.
+
 ```sh
 rrh clone [OPTIONS] <REMOTE_REPOS...>
 OPTIONS
     -g, --group <GROUP>   print managed repositories categoried in the group.
-    -d, --dest <DEST>     specify the destination.
+    -d, --dest <DEST>     specify the destination. Default is the current directory.
 ARGUMENTS
     REMOTE_REPOS          repository urls
 ```
 
 ### `rrh config`
+
+Handles the operations of configuration/environment variables.
+This subcommand requires sub-sub-command.
+If sub-sub-command was not specified, it runs `list` sub-sub-command.
 
 ```sh
 rrh config <COMMAND> [ARGUMENTS]
@@ -87,6 +100,8 @@ COMMAND
 
 ### `rrh export`
 
+Exports the data of RRH database by JSON format.
+
 ```sh
 rrh export [OPTIONS]
 OPTiONS
@@ -94,6 +109,8 @@ OPTiONS
 ```
 
 ### `rrh fetch`
+
+Runs `git fetch` command in the repositories of the specified group.
 
 ```sh
 rrh fetch [OPTIONS] [GROUPS...]
@@ -106,6 +123,9 @@ ARGUMENTS
 
 ### `rrh fetch-all`
 
+Runs `git fetch` command in all repositories of managing in RRH.
+This command may make haevy network traffic, therefore, we do not recommend to run.
+
 ```sh
 rrh fetch-all [OPTIONS]
 OPTIONS
@@ -113,6 +133,10 @@ OPTIONS
 ```
 
 ### `rrh group`
+
+Handles the operations of groups of RRH.
+This subcommand requires sub-sub-command.
+If sub-sub-command was not specified, it runs `list` sub-sub-command.
 
 ```sh
 rrh group <SUBCOMMAND>
@@ -124,6 +148,8 @@ SUBCOMMAND
 ```
 
 ### `rrh list`
+
+Prints the repositories of managing in RRH.
 
 ```sh
 rrh list [OPTIONS] [GROUPS...]
@@ -142,11 +168,19 @@ ARGUMENTS
 
 ### `rrh prune`
 
+Deletes unnecessary groups and repositories.
+The unnecessary groups are no repositories in them.
+The unnecessary repositories are to have a invalid path.
+
+
 ```sh
 rrh prune
 ```
 
 ### `rrh rm`
+
+Remove the specified groups, repositories, and relations.
+If the group has entires is removed by specifying option `--recursive`.
 
 ```sh
 rrh rm [OPTIONS] <REPO_ID|GROUP_ID|REPO_ID/GROUP_ID...>
@@ -159,10 +193,12 @@ ARGUMENTS
     REPOY_ID            repository name for removing.
     GROUP_ID            group name. if the group contains repositories,
                         removing will fail without '-r' option.
-    GROUP_ID/REPO_ID    remove given REPO_ID from GROUP_ID.
+    GROUP_ID/REPO_ID    remove the relation between the given REPO_ID and GROUP_ID.
 ```
 
 ### `rrh status`
+
+Prints the last modified times of each branches in the repositories of the specified group.
 
 ```sh
 rrh status [OPTIONS] [GROUPS||REPOS...]
@@ -177,7 +213,53 @@ ARGUMENTS
                     shows the result of default group.
 ```
 
-# Database
+## Environment variables
+
+We can see those variables by running `rrh config` sub-command.
+
+* `RRH_HOME`
+    * specifies the location of the RRH database and config file.
+    * default: `/Users/tamada/.rrh`
+* `RRH_CONFIG_PATH`
+    * specifies the location of the location path.
+        * `RRH_CONFIG_PATH` was ignored by specifing in the config file.
+          This varaible availables only environment variable.
+    * default: `${RRH_HOME}/config.json`
+* `RRH_DATABASE_PATH`
+    * specifies the location of the database path.
+    * default: `${RRH_HOME}/database.json`
+* `RRH_DEFAULT_GROUP_NAME`
+    * specifies the default group name.
+    * default: `no-group`
+* `RRH_ON_ERROR`
+    * specifies the behaviors of RRH on error.
+    * default: `WARN`
+    * Available values: `FAIL_IMMEDIATELY`, `FAIL`, `WARN`, and `IGNORE`
+        * `FAIL_IMMEDIATELY`
+            * reports error immediately and quits RRH with non-zero status.
+        * `FAIL`
+            * runs through all targets and reports errors if needed, then quits RRH with non-zero status.
+        * `WARN`
+            * runs through all targets and reports errors if needed, then quits RRH successfully.
+        * `IGNORE`
+            * runs all targets and no reports errors.
+* `RRH_TIME_FORMAT`
+    * specifies the time format for `status` command.
+    * default: `relative`
+    * Available value: `relative` and the time format for Go lang.
+        * `relative`
+            * shows times by humanized format (e.g., 2 weeks ago)
+        * others
+            * Other strings regards as formating layout and gives to `Format` method of time.
+                * see [Time.Format](https://golang.org/pkg/time/#Time.Format)
+* `RRH_AUTO_CREATE_GROUP`
+    * specifies to create the group when not existing group was specified and it needs to create.
+    * default: false
+* `RRH_AUTO_DELETE_GROUP`
+    * specifies to delete the group when some group was no more needed.
+    * default: false
+
+## Database
 
 The database for managed repositories is formatted in JSON.
 The JSON format is as follows.
