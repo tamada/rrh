@@ -222,7 +222,7 @@ We can see those variables by running `rrh config` sub-command.
     * default: `/Users/tamada/.rrh`
 * `RRH_CONFIG_PATH`
     * specifies the location of the location path.
-        * `RRH_CONFIG_PATH` was ignored by specifying in the config file.
+        * RRH ignores to specify `RRH_CONFIG_PATH` in the config file.
           This variable availables only environment variable.
     * default: `${RRH_HOME}/config.json`
 * `RRH_DATABASE_PATH`
@@ -251,7 +251,7 @@ We can see those variables by running `rrh config` sub-command.
             * shows times by humanized format (e.g., 2 weeks ago)
         * Other strings
             * regard as formatting layout and give to `Format` method of the time.
-                * see [Time.Format](https://golang.org/pkg/time/#Time.Format)
+                * see [Time.Format](https://golang.org/pkg/time/#Time.Format), for more detail.
 * `RRH_AUTO_CREATE_GROUP`
     * specifies to create the group when the not existing group was specified, and it needs to create.
     * default: false

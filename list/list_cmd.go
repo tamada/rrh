@@ -31,30 +31,30 @@ func ListCommandFactory() (cli.Command, error) {
 	return &ListCommand{&listOptions{}}, nil
 }
 
-func (list *ListCommand) printResultAsCsv(result ListResult, repo Repo, remote *common.Remote) {
+func (options *listOptions) printResultAsCsv(result ListResult, repo Repo, remote *common.Remote) {
 	fmt.Printf("%s", result.GroupName)
-	if list.Options.description || list.Options.all {
+	if options.description || options.all {
 		fmt.Printf(",%s", result.Description)
 	}
 	fmt.Printf(",%s", repo.Name)
-	if list.Options.localPath || list.Options.all {
+	if options.localPath || options.all {
 		fmt.Printf(",%s", repo.Path)
 	}
-	if remote != nil && (list.Options.remoteURL || list.Options.all) {
+	if remote != nil && (options.remoteURL || options.all) {
 		fmt.Printf(",%s,%s", remote.Name, remote.URL)
 	}
 	fmt.Println()
 }
 
-func (list *ListCommand) printResultsAsCsv(results []ListResult) int {
+func (options *listOptions) printResultsAsCsv(results []ListResult) int {
 	for _, result := range results {
 		for _, repo := range result.Repos {
-			if len(repo.Remotes) > 0 && (list.Options.remoteURL || list.Options.all) {
+			if len(repo.Remotes) > 0 && (options.remoteURL || options.all) {
 				for _, remote := range repo.Remotes {
-					list.printResultAsCsv(result, repo, &remote)
+					options.printResultAsCsv(result, repo, &remote)
 				}
 			} else {
-				list.printResultAsCsv(result, repo, nil)
+				options.printResultAsCsv(result, repo, nil)
 			}
 		}
 	}
@@ -64,7 +64,7 @@ func (list *ListCommand) printResultsAsCsv(results []ListResult) int {
 /*
 generateFormatString returns the formatter for `Printf` to arrange the length of repository names.
 */
-func (list *ListCommand) generateFormatString(repos []Repo) string {
+func (options *listOptions) generateFormatString(repos []Repo) string {
 	var max = len("Description")
 	for _, repo := range repos {
 		var len = len(repo.Name)
@@ -75,23 +75,23 @@ func (list *ListCommand) generateFormatString(repos []Repo) string {
 	return fmt.Sprintf("    %%-%ds", max)
 }
 
-func (list *ListCommand) printResults(results []ListResult) int {
-	if list.Options.csv {
-		return list.printResultsAsCsv(results)
+func (options *listOptions) printResults(results []ListResult) int {
+	if options.csv {
+		return options.printResultsAsCsv(results)
 	}
 	for _, result := range results {
 		fmt.Println(result.GroupName)
-		if list.Options.description || list.Options.all {
+		if options.description || options.all {
 			fmt.Printf("    Description  %s", result.Description)
 			fmt.Println()
 		}
-		var formatString = list.generateFormatString(result.Repos)
+		var formatString = options.generateFormatString(result.Repos)
 		for _, repo := range result.Repos {
 			fmt.Printf(formatString, repo.Name)
-			if list.Options.localPath || list.Options.all {
+			if options.localPath || options.all {
 				fmt.Printf("  %s", repo.Path)
 			}
-			if list.Options.remoteURL || list.Options.all {
+			if options.remoteURL || options.all {
 				for _, remote := range repo.Remotes {
 					fmt.Println()
 					fmt.Printf("        %s  %s", remote.Name, remote.URL)
@@ -100,8 +100,7 @@ func (list *ListCommand) printResults(results []ListResult) int {
 			fmt.Println()
 		}
 	}
-
-	return 1
+	return 0
 }
 
 /*
@@ -124,8 +123,7 @@ func (list *ListCommand) Run(args []string) int {
 		fmt.Println(err.Error())
 		return 3
 	}
-	list.printResults(results)
-	return 0
+	return list.Options.printResults(results)
 }
 
 /*

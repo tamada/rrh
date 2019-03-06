@@ -79,7 +79,7 @@ func (clone *CloneCommand) perform(db *common.Database, arguments []string) int 
 		}
 	}
 	db.StoreAndClose()
-	if count == 0 {
+	if count == 1 {
 		fmt.Printf("a repository cloned into %s and registered to group %s\n", clone.Options.dest, clone.Options.group)
 	} else {
 		fmt.Printf("%d repositories cloned into %s and registered to group %s\n", count, clone.Options.dest, clone.Options.group)

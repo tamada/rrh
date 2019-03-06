@@ -69,13 +69,27 @@ func (clone *CloneCommand) DoClone(db *common.Database, arguments []string) (int
 	return count, errorlist
 }
 
+func (clone *CloneCommand) relateTo(db *common.Database, groupID string, repoID string) error {
+	if !db.HasGroup(groupID) {
+		if db.Config.GetValue(common.RrhAutoCreateGroup) == "true" {
+			db.CreateGroup(groupID, "")
+		} else {
+			return fmt.Errorf("%s: group not found", groupID)
+		}
+	}
+	db.Relate(groupID, repoID)
+	return nil
+}
+
 func (clone *CloneCommand) DoCloneRepositories(db *common.Database, url string) (int, error) {
 	var count int
 	var id = findID(url)
 	var path = filepath.Join(clone.Options.dest, id)
 	var _, err = clone.toDir(db, url, path, id)
 	if err == nil {
-		db.Relate(clone.Options.group, id)
+		if err := clone.relateTo(db, clone.Options.group, id); err != nil {
+			return count, err
+		}
 		count++
 	}
 	return count, err
@@ -96,7 +110,7 @@ func (clone *CloneCommand) DoCloneARepository(db *common.Database, URL string) e
 	if err != nil {
 		return err
 	}
-	return db.Relate(clone.Options.group, id)
+	return clone.relateTo(db, clone.Options.group, id)
 }
 
 func findID(URL string) string {
