@@ -46,16 +46,20 @@ func (options *listOptions) printResultAsCsv(result ListResult, repo Repo, remot
 	fmt.Println()
 }
 
+func (options *listOptions) printRepoAsCsv(repo Repo, result ListResult) {
+	if len(repo.Remotes) > 0 && (options.remoteURL || options.all) {
+		for _, remote := range repo.Remotes {
+			options.printResultAsCsv(result, repo, &remote)
+		}
+	} else {
+		options.printResultAsCsv(result, repo, nil)
+	}
+}
+
 func (options *listOptions) printResultsAsCsv(results []ListResult) int {
 	for _, result := range results {
 		for _, repo := range result.Repos {
-			if len(repo.Remotes) > 0 && (options.remoteURL || options.all) {
-				for _, remote := range repo.Remotes {
-					options.printResultAsCsv(result, repo, &remote)
-				}
-			} else {
-				options.printResultAsCsv(result, repo, nil)
-			}
+			options.printRepoAsCsv(repo, result)
 		}
 	}
 	return 0
@@ -75,30 +79,38 @@ func (options *listOptions) generateFormatString(repos []Repo) string {
 	return fmt.Sprintf("    %%-%ds", max)
 }
 
+func (options *listOptions) printRepo(repo Repo, result ListResult, formatString string) {
+	fmt.Printf(formatString, repo.Name)
+	if options.localPath || options.all {
+		fmt.Printf("  %s", repo.Path)
+	}
+	if options.remoteURL || options.all {
+		for _, remote := range repo.Remotes {
+			fmt.Println()
+			fmt.Printf("        %s  %s", remote.Name, remote.URL)
+		}
+	}
+	fmt.Println()
+}
+
+func (options *listOptions) printResult(result ListResult) {
+	fmt.Println(result.GroupName)
+	if options.description || options.all {
+		fmt.Printf("    Description  %s", result.Description)
+		fmt.Println()
+	}
+	var formatString = options.generateFormatString(result.Repos)
+	for _, repo := range result.Repos {
+		options.printRepo(repo, result, formatString)
+	}
+}
+
 func (options *listOptions) printResults(results []ListResult) int {
 	if options.csv {
 		return options.printResultsAsCsv(results)
 	}
 	for _, result := range results {
-		fmt.Println(result.GroupName)
-		if options.description || options.all {
-			fmt.Printf("    Description  %s", result.Description)
-			fmt.Println()
-		}
-		var formatString = options.generateFormatString(result.Repos)
-		for _, repo := range result.Repos {
-			fmt.Printf(formatString, repo.Name)
-			if options.localPath || options.all {
-				fmt.Printf("  %s", repo.Path)
-			}
-			if options.remoteURL || options.all {
-				for _, remote := range repo.Remotes {
-					fmt.Println()
-					fmt.Printf("        %s  %s", remote.Name, remote.URL)
-				}
-			}
-			fmt.Println()
-		}
+		options.printResult(result)
 	}
 	return 0
 }
