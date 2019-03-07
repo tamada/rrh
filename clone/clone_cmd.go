@@ -91,7 +91,7 @@ func (clone *CloneCommand) perform(db *common.Database, arguments []string) int 
 func (clone *CloneCommand) parse(args []string, config *common.Config) ([]string, error) {
 	var defaultGroup = config.GetDefaultValue(common.RrhDefaultGroupName)
 	var options = cloneOptions{defaultGroup, ".", false}
-	flags := flag.NewFlagSet("clone", flag.ExitOnError)
+	flags := flag.NewFlagSet("clone", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(clone.Help()) }
 	flags.StringVar(&options.group, "g", defaultGroup, "belonging group")
 	flags.StringVar(&options.group, "group", defaultGroup, "belonging group")

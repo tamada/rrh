@@ -51,8 +51,8 @@ func TestCloneCommand_MultipleProjects(t *testing.T) {
 	rollback(func() {
 		var clone, _ = CloneCommandFactory()
 		clone.Run([]string{"-d", "../testdata/hoge", "-g", "not-exist-group",
-			"https://htamada@bitbucket.org/htamada/helloworld.git",
-			"https://htamada@bitbucket.org/htamada/fibonacci.git"})
+			"../testdata/helloworld",
+			"../testdata/fibonacci"})
 		defer cleanup([]string{"../testdata/hoge"})
 
 		var config = common.OpenConfig()
@@ -83,8 +83,8 @@ func TestCloneCommand_Run(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	rollback(func() {
 		var clone, _ = CloneCommandFactory()
-		clone.Run([]string{"-dest", "../testdata", "https://htamada@bitbucket.org/htamada/helloworld.git"})
-		defer cleanup([]string{"../testdata/helloworld"})
+		clone.Run([]string{"https://htamada@bitbucket.org/htamada/helloworld.git"})
+		defer cleanup([]string{"./helloworld"})
 
 		var config = common.OpenConfig()
 		var db, _ = common.Open(config)
@@ -92,7 +92,7 @@ func TestCloneCommand_Run(t *testing.T) {
 			t.Fatal("helloworld was not registered.")
 		}
 		var repo = db.Repositories[2]
-		if message := validate(repo, "helloworld", "../testdata/helloworld"); message != "" {
+		if message := validate(repo, "helloworld", "./helloworld"); message != "" {
 			t.Error(message)
 		}
 		var group = db.FindGroup("no-group")
@@ -107,7 +107,7 @@ func TestCloneCommand_SpecifyingId(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	rollback(func() {
 		var clone, _ = CloneCommandFactory()
-		clone.Run([]string{"-d", "../testdata/newid", "https://htamada@bitbucket.org/htamada/helloworld.git"})
+		clone.Run([]string{"-d", "../testdata/newid", "../testdata/helloworld"})
 		defer cleanup([]string{"../testdata/newid"})
 
 		var config = common.OpenConfig()

@@ -6,6 +6,7 @@ import (
 
 	"github.com/mitchellh/cli"
 	"github.com/tamada/rrh/common"
+	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
 type StatusCommand struct {
@@ -16,6 +17,14 @@ type statusOptions struct {
 	branch bool
 	remote bool
 	args   []string
+}
+
+func (options *statusOptions) isRemoteTarget(name plumbing.ReferenceName) bool {
+	return options.remote && name.IsRemote()
+}
+
+func (options *statusOptions) isBranchTarget(name plumbing.ReferenceName) bool {
+	return options.branch && name.IsBranch()
 }
 
 func StatusCommandFactory() (cli.Command, error) {
