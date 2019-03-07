@@ -17,6 +17,7 @@ setup:
 	go get github.com/mattn/goveralls
 
 test:
+	git submodule update -i
 	go test -covermode=count -coverprofile=coverage.out $$(go list ./... | grep -v vendor)
 	git checkout -- testdata
 
