@@ -31,16 +31,20 @@ func ListCommandFactory() (cli.Command, error) {
 	return &ListCommand{&listOptions{}}, nil
 }
 
+func (options *listOptions) isChecked(target bool) bool {
+	return target || options.all
+}
+
 func (options *listOptions) printResultAsCsv(result ListResult, repo Repo, remote *common.Remote) {
 	fmt.Printf("%s", result.GroupName)
-	if options.description || options.all {
+	if options.isChecked(options.description) {
 		fmt.Printf(",%s", result.Description)
 	}
 	fmt.Printf(",%s", repo.Name)
-	if options.localPath || options.all {
+	if options.isChecked(options.localPath) {
 		fmt.Printf(",%s", repo.Path)
 	}
-	if remote != nil && (options.remoteURL || options.all) {
+	if remote != nil && options.isChecked(options.remoteURL) {
 		fmt.Printf(",%s,%s", remote.Name, remote.URL)
 	}
 	fmt.Println()

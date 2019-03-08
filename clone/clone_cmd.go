@@ -48,7 +48,7 @@ func (clone *CloneCommand) printIfVerbose(message string) {
 	}
 }
 
-func (clone *CloneCommand) showError(list []error) {
+func (options *cloneOptions) showError(list []error) {
 	for _, err := range list {
 		fmt.Println(err.Error())
 	}
@@ -72,7 +72,7 @@ func (clone *CloneCommand) Run(args []string) int {
 func (clone *CloneCommand) perform(db *common.Database, arguments []string) int {
 	var count, list = clone.DoClone(db, arguments)
 	if len(list) != 0 {
-		clone.showError(list)
+		clone.Options.showError(list)
 		var onError = db.Config.GetValue(common.RrhOnError)
 		if onError == common.Fail || onError == common.FailImmediately {
 			return 1
