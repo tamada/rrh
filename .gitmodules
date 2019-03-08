@@ -1,0 +1,6 @@
+[submodule "testdata/fibonacci"]
+	path = testdata/fibonacci
+	url = https://htamada@bitbucket.org/htamada/fibonacci.git
+[submodule "testdata/helloworld"]
+	path = testdata/helloworld
+	url = https://htamada@bitbucket.org/htamada/helloworld.git

@@ -48,7 +48,7 @@ func (clone *CloneCommand) printIfVerbose(message string) {
 	}
 }
 
-func (clone *CloneCommand) showError(list []error) {
+func (options *cloneOptions) showError(list []error) {
 	for _, err := range list {
 		fmt.Println(err.Error())
 	}
@@ -72,14 +72,14 @@ func (clone *CloneCommand) Run(args []string) int {
 func (clone *CloneCommand) perform(db *common.Database, arguments []string) int {
 	var count, list = clone.DoClone(db, arguments)
 	if len(list) != 0 {
-		clone.showError(list)
+		clone.Options.showError(list)
 		var onError = db.Config.GetValue(common.RrhOnError)
 		if onError == common.Fail || onError == common.FailImmediately {
 			return 1
 		}
 	}
 	db.StoreAndClose()
-	if count == 0 {
+	if count == 1 {
 		fmt.Printf("a repository cloned into %s and registered to group %s\n", clone.Options.dest, clone.Options.group)
 	} else {
 		fmt.Printf("%d repositories cloned into %s and registered to group %s\n", count, clone.Options.dest, clone.Options.group)
@@ -91,7 +91,7 @@ func (clone *CloneCommand) perform(db *common.Database, arguments []string) int 
 func (clone *CloneCommand) parse(args []string, config *common.Config) ([]string, error) {
 	var defaultGroup = config.GetDefaultValue(common.RrhDefaultGroupName)
 	var options = cloneOptions{defaultGroup, ".", false}
-	flags := flag.NewFlagSet("clone", flag.ExitOnError)
+	flags := flag.NewFlagSet("clone", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(clone.Help()) }
 	flags.StringVar(&options.group, "g", defaultGroup, "belonging group")
 	flags.StringVar(&options.group, "group", defaultGroup, "belonging group")

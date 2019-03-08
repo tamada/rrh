@@ -19,6 +19,7 @@ import (
 
 func main() {
 	c := cli.NewCLI("rrh", "1.0.0")
+	c.Name = "rrh"
 	c.Args = os.Args[1:]
 	c.Autocomplete = true
 	c.Commands = map[string]cli.CommandFactory{

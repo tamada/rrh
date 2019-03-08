@@ -49,6 +49,11 @@ func (status *StatusCommand) openRepository(db *common.Database, repoID string) 
 	return r, nil
 }
 
+func isTarget(options *statusOptions, ref *plumbing.Reference) bool {
+	var refName = ref.Name()
+	return refName.String() == "HEAD" || options.isRemoteTarget(refName) || options.isBranchTarget(refName)
+}
+
 func (status *StatusCommand) findLocalBranches(name repo, r *git.Repository, options *statusOptions) ([]StatusResult, error) {
 	var results = []StatusResult{}
 	var iter, err2 = r.References()
@@ -57,9 +62,7 @@ func (status *StatusCommand) findLocalBranches(name repo, r *git.Repository, opt
 	}
 
 	iter.ForEach(func(ref *plumbing.Reference) error {
-		if ref.Name().String() == "HEAD" ||
-			options.remote && ref.Name().IsRemote() ||
-			options.branch && ref.Name().IsBranch() {
+		if isTarget(options, ref) {
 			var result, err = status.lastCommitOnLocalBranch(name, r, ref)
 			if err != nil {
 				return err
@@ -95,20 +98,12 @@ func (status *StatusCommand) findTime(path string, repoID string, db *common.Dat
 	return fi.ModTime()
 }
 
-func (status *StatusCommand) flagChecker(db *common.Database, rname string, key string, value *git.FileStatus, lastModified *time.Time) (bool, bool, *time.Time) {
-	var staging, changesNotAdded = false, false
-	if value.Staging != ' ' && value.Staging != '?' {
-		staging = true
-	}
-	if value.Worktree != ' ' && value.Worktree != '?' {
-		changesNotAdded = true
-	}
+func (status *StatusCommand) flagChecker(db *common.Database, rname string, key string, lastModified *time.Time) *time.Time {
 	var time = status.findTime(key, rname, db)
 	if lastModified == nil || time.After(*lastModified) {
-		lastModified = &time
+		return &time
 	}
-	// fmt.Printf("%-20s(%c, %c)\t%s\n", key, value.Staging, value.Worktree, time)
-	return staging, changesNotAdded, lastModified
+	return lastModified
 }
 
 func (status *StatusCommand) generateMessage(staging bool, changesNotAdded bool) string {
@@ -118,6 +113,10 @@ func (status *StatusCommand) generateMessage(staging bool, changesNotAdded bool)
 		return "Changes in workspace"
 	}
 	return "No changes"
+}
+
+func checkUpdateFlag(status git.StatusCode) bool {
+	return status != git.Unmodified && status != git.Untracked
 }
 
 func (status *StatusCommand) findWorktree(name repo, r *git.Repository, db *common.Database) (*StatusResult, error) {
@@ -132,7 +131,9 @@ func (status *StatusCommand) findWorktree(name repo, r *git.Repository, db *comm
 	var lastModified *time.Time
 	var staging, changesNotAdded = false, false
 	for key, value := range s {
-		staging, changesNotAdded, lastModified = status.flagChecker(db, name.rname, key, value, lastModified)
+		staging = staging || checkUpdateFlag(value.Staging)
+		changesNotAdded = changesNotAdded || checkUpdateFlag(value.Worktree)
+		lastModified = status.flagChecker(db, name.rname, key, lastModified)
 	}
 	return &StatusResult{name.gname, name.rname, "WORKTREE", lastModified, status.generateMessage(staging, changesNotAdded)}, nil
 }

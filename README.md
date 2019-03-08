@@ -11,16 +11,16 @@ Therefore, we built a headquarter for managing the git repositories, named RRH.
 RRH manages repositories by categorizing in groups and execute git command to the groups.
 
 I know the tool [ghq](https://github.com/motemen/ghq), manages the git repositories.
-However, I cannot use it by the following reasons.
+However, I cannot use it for the following reasons.
 
 1. there are quite many repositories in my home directory.
     * To start using ghq, we clone the repositories.
-      However, I did not accept to clone all of repositories.
+      However, I did not accept to clone all of the repositories.
 2. The location of repositories is fixed in the config file and is accepted only one location.
-    * I just decide the directory layout in my home directory.
+    * I decide the directory layout in my home directory.
 
-Additionally, I edit several repositories in a days, when I work hard.
-Consequently, the progress of each repository are obscured, I cannot remember a lot of things.
+Additionally, I edit several repositories in a day, when I work hard.
+Consequently, the progress of each repository is obscured; I cannot remember a lot of things.
 Therefore, it is glad to see the last modified date of branches.
 
 RRH is now growing. Please hack RRH itself.
@@ -52,9 +52,11 @@ Available commands are:
     status       show git status of repositories.
 ```
 
-## subcommands
+## Subcommands
 
 ### `rrh add`
+
+Registers the repositories which specified the given paths to the RRH database and categorize to the group (Default `no-group`, see [`RRH_DEFAULT_GROUP_NAME`](#rrh_default_group_name)).
 
 ```sh
 rrh add [OPTIONS] <REPOSITORY_PATHS...>
@@ -66,16 +68,27 @@ ARGUMENTS
 
 ### `rrh clone`
 
+Runs `git clone` command and registers the cloned repository to RRH database.
+The following steps identify the id of the repository.
+
+1. If the length of `REMOTE_REPOS` is 1, and `DEST` exists, then the last entry of `REMOTE_REPOS` is repository id by eliminating the suffix `.git`.
+3. If the length of `REMOTE_REPOS` is 1, and `DEST` does not exist, then the last entry of `DEST` is repository id.
+2. If the length of `REMOTE_REPOS` is greater than 1, then the last entry of each `REMOTE_REPOS` is repository ids by eliminating the suffix `.git`.
+
 ```sh
 rrh clone [OPTIONS] <REMOTE_REPOS...>
 OPTIONS
     -g, --group <GROUP>   print managed repositories categoried in the group.
-    -d, --dest <DEST>     specify the destination.
+    -d, --dest <DEST>     specify the destination. Default is the current directory.
 ARGUMENTS
     REMOTE_REPOS          repository urls
 ```
 
 ### `rrh config`
+
+Handles the operations of configuration/environment variables.
+This subcommand requires sub-sub-command.
+If sub-sub-command was not specified, it runs `list` sub-sub-command.
 
 ```sh
 rrh config <COMMAND> [ARGUMENTS]
@@ -87,6 +100,8 @@ COMMAND
 
 ### `rrh export`
 
+Exports the data of RRH database by JSON format.
+
 ```sh
 rrh export [OPTIONS]
 OPTiONS
@@ -94,6 +109,8 @@ OPTiONS
 ```
 
 ### `rrh fetch`
+
+Runs `git fetch` command in the repositories of the specified group.
 
 ```sh
 rrh fetch [OPTIONS] [GROUPS...]
@@ -106,6 +123,9 @@ ARGUMENTS
 
 ### `rrh fetch-all`
 
+Runs `git fetch` command in all repositories of managing in RRH.
+This command may make heavy network traffic; therefore, we do not recommend to run.
+
 ```sh
 rrh fetch-all [OPTIONS]
 OPTIONS
@@ -113,6 +133,10 @@ OPTIONS
 ```
 
 ### `rrh group`
+
+Handles the operations of groups of RRH.
+This subcommand requires sub-sub-command.
+If sub-sub-command was not specified, it runs `list` sub-sub-command.
 
 ```sh
 rrh group <SUBCOMMAND>
@@ -124,6 +148,8 @@ SUBCOMMAND
 ```
 
 ### `rrh list`
+
+Prints the repositories of managing in RRH.
 
 ```sh
 rrh list [OPTIONS] [GROUPS...]
@@ -142,11 +168,19 @@ ARGUMENTS
 
 ### `rrh prune`
 
+Deletes unnecessary groups and repositories.
+The unnecessary groups are no repositories in them.
+The unnecessary repositories are to have an invalid path.
+
+
 ```sh
 rrh prune
 ```
 
 ### `rrh rm`
+
+Removes the specified groups, repositories, and relations.
+If the group has entries is removed by specifying the option `--recursive.`
 
 ```sh
 rrh rm [OPTIONS] <REPO_ID|GROUP_ID|REPO_ID/GROUP_ID...>
@@ -159,10 +193,12 @@ ARGUMENTS
     REPOY_ID            repository name for removing.
     GROUP_ID            group name. if the group contains repositories,
                         removing will fail without '-r' option.
-    GROUP_ID/REPO_ID    remove given REPO_ID from GROUP_ID.
+    GROUP_ID/REPO_ID    remove the relation between the given REPO_ID and GROUP_ID.
 ```
 
 ### `rrh status`
+
+Prints the last modified times of each branch in the repositories of the specified group.
 
 ```sh
 rrh status [OPTIONS] [GROUPS||REPOS...]
@@ -177,13 +213,59 @@ ARGUMENTS
                     shows the result of default group.
 ```
 
-# Database
+## Environment variables
+
+We can see those variables by running `rrh config` sub-command.
+
+* `RRH_HOME`
+    * specifies the location of the RRH database and config file.
+    * default: `/Users/tamada/.rrh`
+* `RRH_CONFIG_PATH`
+    * specifies the location of the location path.
+        * RRH ignores to specify `RRH_CONFIG_PATH` in the config file.
+          This variable availables only environment variable.
+    * default: `${RRH_HOME}/config.json`
+* `RRH_DATABASE_PATH`
+    * specifies the location of the database path.
+    * default: `${RRH_HOME}/database.json`
+* `RRH_DEFAULT_GROUP_NAME`
+    * specifies the default group name.
+    * default: `no-group`
+* `RRH_ON_ERROR`
+    * specifies the behaviors of RRH on error.
+    * default: `WARN`
+    * Available values: `FAIL_IMMEDIATELY`, `FAIL`, `WARN`, and `IGNORE`
+        * `FAIL_IMMEDIATELY`
+            * reports error immediately and quits RRH with a non-zero status.
+        * `FAIL`
+            * runs through all targets and reports errors if needed, then quits RRH with a non-zero status.
+        * `WARN`
+            * runs through all targets and reports errors if needed, then quits RRH successfully.
+        * `IGNORE`
+            * runs all targets and no reports errors.
+* `RRH_TIME_FORMAT`
+    * specifies the time format for `status` command.
+    * default: `relative`
+    * Available value: `relative` and the time format for Go lang.
+        * `relative`
+            * shows times by humanized format (e.g., 2 weeks ago)
+        * Other strings
+            * regard as formatting layout and give to `Format` method of the time.
+                * see [Time.Format](https://golang.org/pkg/time/#Time.Format), for more detail.
+* `RRH_AUTO_CREATE_GROUP`
+    * specifies to create the group when the not existing group was specified, and it needs to create.
+    * default: false
+* `RRH_AUTO_DELETE_GROUP`
+    * specifies to delete the group when some group was no more needed.
+    * default: false
+
+## Database
 
 The database for managed repositories is formatted in JSON.
 The JSON format is as follows.
 The JSON file is placed on `$RRH_ROOT/database.json`.
 If `$RRH_ROOT` was not set, `$HOME` is used as `$RRH_ROOT`.
-Also, configuration file is on `$RRH_ROOT/config.json`
+Also, the configuration file is on `$RRH_ROOT/config.json`
 
 ```js
 {
@@ -251,4 +333,4 @@ Join our Gitter channel if you have any problem or suggestions to Rrh.
 [![Gitter misc_ja](https://img.shields.io/badge/Gitter-For_Japanese-red.svg)](https://gitter.im/rrh_git/misc_ja)
 
 For Japanese user, `misc_ja` channel has discussions in Japanese.
-The public language of other channels and GitHub pages is English.
+The public language of other channels and GitHub pages are English.

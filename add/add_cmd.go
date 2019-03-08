@@ -78,14 +78,14 @@ func (add *AddCommand) Run(args []string) int {
 	return add.perform(db, opt.args, opt.group)
 }
 
-type addoptions struct {
+type addOptions struct {
 	group string
 	args  []string
 }
 
-func (add *AddCommand) parse(args []string, config *common.Config) (*addoptions, error) {
-	var opt = addoptions{}
-	flags := flag.NewFlagSet("add", flag.ExitOnError)
+func (add *AddCommand) parse(args []string, config *common.Config) (*addOptions, error) {
+	var opt = addOptions{}
+	flags := flag.NewFlagSet("add", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(add.Help()) }
 	flags.StringVar(&opt.group, "g", config.GetValue(common.RrhDefaultGroupName), "target group")
 	flags.StringVar(&opt.group, "group", config.GetValue(common.RrhDefaultGroupName), "target group")

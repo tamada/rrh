@@ -18,7 +18,8 @@ func (add *AddCommand) isExistAndGitRepository(absPath string, path string) erro
 		return fmt.Errorf("%s: not directory", path)
 	}
 	fmode, err = os.Stat(filepath.Join(absPath, ".git"))
-	if err != nil || !fmode.IsDir() {
+	// If the repository of path is submodule, `.git` will be a file to indicate the `.git` directory.
+	if os.IsNotExist(err) {
 		return fmt.Errorf("%s: not git repository", path)
 	}
 	return nil

@@ -19,13 +19,13 @@ func open(jsonName string) *common.Database {
 func ExampleListCommand_Run() {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	var list, _ = ListCommandFactory()
-	list.Run([]string{})
+	list.Run([]string{"--desc", "--path"})
 	// Output:
 	// group1
-	//     Repositories:
-	//         repo1,path1
+	//     Description  desc1
+	//     repo1        path1
 	// group2
-	//     Repositories:
+	//     Description  desc2
 }
 
 func TestRunByCsvOutput(t *testing.T) {
