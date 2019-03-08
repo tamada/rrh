@@ -22,6 +22,7 @@ test:
 
 update: setup
 	dep ensure
+	git submodule update --init
 
 lint: setup
 	go vet $$(go list ./... | grep -v vendor)
