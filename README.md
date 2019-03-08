@@ -25,6 +25,30 @@ Therefore, it is glad to see the last modified date of branches.
 
 RRH is now growing. Please hack RRH itself.
 
+# Table of Contents
+
+* [Installation](#installation)
+* [Usage](#usage)
+    * [Subcommands](#subcommands)
+        * [`rrh add`](#rrh-add)
+        * [`rrh clone`](#rrh-clone)
+        * [`rrh config`](#rrh-config)
+        * [`rrh export`](#rrh-export)
+        * [`rrh fetch`](#rrh-fetch)
+        * [`rrh fetch-all`](#rrh-fetch-all)
+        * [`rrh group`](#rrh-group)
+        * [`rrh list`](#rrh-list)
+        * [`rrh prune`](#rrh-prune)
+        * [`rrh rm`](#rrh-rm)
+        * [`rrh status`](#rrh-status)
+    * [Environment variables](#environment-variables)
+    * [Database](#database)
+* [Utilities](#utilities)
+    * [`cdrrh`](#cdrrh)
+* [Development Policy](#development-policy)
+* [Why the project name RRH?](#why-the-project-name-rrh)
+* [Discussion](#discussion)
+
 # Installation
 
 To install cli, simply run:
