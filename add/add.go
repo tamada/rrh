@@ -56,7 +56,7 @@ func (add *AddCommand) addRepositoryToGroup(db *common.Database, groupName strin
 	if err1 := checkDuplication(db, id, absPath); err1 != nil {
 		return append(list, err1)
 	} else {
-		var remotes, err2 = findRemotes(absPath)
+		var remotes, err2 = FindRemotes(absPath)
 		if err2 != nil {
 			return append(list, err2)
 		}
@@ -85,7 +85,7 @@ func (add *AddCommand) AddRepositoriesToGroup(db *common.Database, args []string
 /*
 FindRemotes function returns the remote of the given git repository.
 */
-func findRemotes(path string) ([]common.Remote, error) {
+func FindRemotes(path string) ([]common.Remote, error) {
 	r, err := git.PlainOpen(path)
 	if err != nil {
 		return nil, err
