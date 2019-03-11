@@ -44,7 +44,7 @@ func (add *AddCommand) showError(errorlist []error, onError string) {
 func (add *AddCommand) perform(db *common.Database, args []string, groupName string) int {
 	var onError = db.Config.GetValue(common.RrhOnError)
 
-	var errorlist = add.addRepositoriesToGroup(db, args, groupName)
+	var errorlist = add.AddRepositoriesToGroup(db, args, groupName)
 
 	add.showError(errorlist, onError)
 
@@ -73,7 +73,7 @@ func (add *AddCommand) Run(args []string) int {
 	var db, err2 = common.Open(config)
 	if err2 != nil {
 		fmt.Println(err2.Error())
-		return 1
+		return 2
 	}
 	return add.perform(db, opt.args, opt.group)
 }
@@ -85,17 +85,15 @@ type addOptions struct {
 
 func (add *AddCommand) parse(args []string, config *common.Config) (*addOptions, error) {
 	var opt = addOptions{}
+	var defaultGroup = config.GetValue(common.RrhDefaultGroupName)
 	flags := flag.NewFlagSet("add", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(add.Help()) }
-	flags.StringVar(&opt.group, "g", config.GetValue(common.RrhDefaultGroupName), "target group")
-	flags.StringVar(&opt.group, "group", config.GetValue(common.RrhDefaultGroupName), "target group")
+	flags.StringVar(&opt.group, "g", defaultGroup, "target group")
+	flags.StringVar(&opt.group, "group", defaultGroup, "target group")
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
 	opt.args = flags.Args()
-	if opt.group == "" {
-		opt.group = config.GetValue(common.RrhDefaultGroupName)
-	}
 
 	return &opt, nil
 }
