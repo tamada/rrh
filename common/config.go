@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+const VERSION = "0.1"
+
 const (
 	RrhHome             = "RRH_HOME"
 	RrhConfigPath       = "RRH_CONFIG_PATH"

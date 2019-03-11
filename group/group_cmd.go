@@ -86,7 +86,7 @@ SUBCOMMAND
 }
 
 func (group *GroupCommand) Run(args []string) int {
-	c := cli.NewCLI("rrh group", "1.0.0")
+	c := cli.NewCLI("rrh group", common.VERSION)
 	c.Args = args
 	c.Autocomplete = true
 	c.Commands = map[string]cli.CommandFactory{

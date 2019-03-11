@@ -18,7 +18,7 @@ import (
 )
 
 func main() {
-	c := cli.NewCLI("rrh", "1.0.0")
+	c := cli.NewCLI("rrh", common.VERSION)
 	c.Name = "rrh"
 	c.Args = os.Args[1:]
 	c.Autocomplete = true

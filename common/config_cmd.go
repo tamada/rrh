@@ -54,7 +54,7 @@ func (clc *configListCommand) Help() string {
 }
 
 func (config *ConfigCommand) Run(args []string) int {
-	c := cli.NewCLI("rrh config", "1.0.0")
+	c := cli.NewCLI("rrh config", VERSION)
 	c.Args = args
 	c.Autocomplete = true
 	c.Commands = map[string]cli.CommandFactory{

@@ -1,5 +1,5 @@
 NAME := rrh
-VERSION := "1.0.0"
+VERSION := "0.1"
 REVISION := $(shell git rev-parse --short HEAD)
 LDFLAGS := -X 'main.version=$(VERSION)'
 	-X 'main.revision=$(REVISION)'
@@ -16,13 +16,16 @@ setup:
 	go get golang.org/x/tools/cmd/cover
 	go get github.com/mattn/goveralls
 
-test:
+test: update
 	go test -covermode=count -coverprofile=coverage.out $$(go list ./... | grep -v vendor)
 	git checkout -- testdata
 
 update: setup
 	dep ensure
 	git submodule update --init
+
+build: update test
+	go build
 
 lint: setup
 	go vet $$(go list ./... | grep -v vendor)
@@ -36,7 +39,14 @@ fmt: setup
 bin/%: cmd/%/rrh.go deps
 	go build -ldflags "$(LDFLAGS)" -o $@ <$
 
-help:
-	@make2help $(MAKEFILE_LIST)
+install: deps
+	$(GO) install $(LDFLAGS)
 
-.PHONY: setup deps update test lint help
+bump-minor:
+	git diff --quiet && git diff --cached --quiet
+	new_version=$$(gobump minor -w -r -v) && \
+	test -n "$$new_version" && \
+	git commit -a -m "bump version to $$new_version" && \
+	git tag v$$new_version
+
+.PHONY: setup deps update test lint
