@@ -70,3 +70,28 @@ func TestAddCommand_Run(t *testing.T) {
 		}
 	})
 }
+
+func TestAddToDifferentGroup(t *testing.T) {
+	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
+	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
+	rollback(func() {
+		var command, _ = AddCommandFactory()
+		command.Run([]string{"../testdata/fibonacci"})
+		command.Run([]string{"-g", "group1", "../testdata/fibonacci"})
+
+		var config = common.OpenConfig()
+		var db, _ = common.Open(config)
+		if !db.HasGroup("no-group") {
+			t.Error("no-group: group not found")
+		}
+		if !db.HasRepository("fibonacci") {
+			t.Error("fibonacci: repository not found")
+		}
+		if !db.HasRelation("no-group", "fibonacci") {
+			t.Error("no-group, and fibonacci: the relation not found")
+		}
+		if !db.HasRelation("group1", "fibonacci") {
+			t.Error("group1 and fibonacci: the relation not found")
+		}
+	})
+}
