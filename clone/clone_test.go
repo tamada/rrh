@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/tamada/rrh/common"
@@ -120,6 +121,34 @@ func TestCloneCommand_SpecifyingId(t *testing.T) {
 			t.Error(message)
 		}
 	})
+}
+
+func TestUnknownOption(t *testing.T) {
+	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
+	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
+	var output, _ = common.CaptureStdout(func() {
+		var clone, _ = CloneCommandFactory()
+		clone.Run([]string{})
+	})
+	var cm = CloneCommand{}
+	if output != cm.Help() {
+		t.Error("no arguments were allowed")
+	}
+}
+
+func TestCloneNotGitRepository(t *testing.T) {
+	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
+	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
+	os.Setenv(common.RrhOnError, "FAIL")
+	var output, _ = common.CaptureStdout(func() {
+		var clone, _ = CloneCommandFactory()
+		clone.Run([]string{"../testdata"})
+	})
+	output = strings.TrimSpace(output)
+	var message = "../testdata: clone error (exit status 128)"
+	if output != message {
+		t.Errorf("wont: %s, got: %s", message, output)
+	}
 }
 
 func TestHelpAndSynopsis(t *testing.T) {

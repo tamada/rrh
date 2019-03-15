@@ -38,7 +38,38 @@ func (add *AddCommand) createGroupIfNeeded(db *common.Database, groupName string
 	return fmt.Errorf("%s: group not found", groupName)
 }
 
-func (add *AddCommand) addRepositoriesToGroup(db *common.Database, args []string, groupName string) []error {
+func checkDuplication(db *common.Database, repoID string, path string) error {
+	var repo = db.FindRepository(repoID)
+	if repo != nil && repo.Path != path {
+		return fmt.Errorf("%s: duplicate repository id", repoID)
+	}
+	return nil
+}
+
+func (add *AddCommand) addRepositoryToGroup(db *common.Database, groupName string, path string, list []error) []error {
+	var absPath, _ = filepath.Abs(path)
+	var id = filepath.Base(absPath)
+	if err1 := add.isExistAndGitRepository(absPath, path); err1 != nil {
+		return append(list, err1)
+	}
+	var repoPath = common.NormalizePath(absPath)
+	if err1 := checkDuplication(db, id, absPath); err1 != nil {
+		return append(list, err1)
+	} else {
+		var remotes, err2 = FindRemotes(absPath)
+		if err2 != nil {
+			return append(list, err2)
+		}
+		db.CreateRepository(id, repoPath, remotes)
+	}
+	var err = db.Relate(groupName, id)
+	if err != nil {
+		return append(list, fmt.Errorf("%s: cannot create relation to group %s", id, groupName))
+	}
+	return list
+}
+
+func (add *AddCommand) AddRepositoriesToGroup(db *common.Database, args []string, groupName string) []error {
 	var err = add.createGroupIfNeeded(db, groupName)
 	if err != nil {
 		return []error{err}
@@ -69,28 +100,4 @@ func FindRemotes(path string) ([]common.Remote, error) {
 		crs = append(crs, common.Remote{Name: config.Name, URL: config.URLs[0]})
 	}
 	return crs, nil
-}
-
-func (add *AddCommand) addRepositoryToGroup(db *common.Database, groupName string, path string, list []error) []error {
-	var absPath, _ = filepath.Abs(path)
-	var id = filepath.Base(absPath)
-	if err1 := add.isExistAndGitRepository(absPath, path); err1 != nil {
-		return append(list, err1)
-	}
-	var repoPath = common.NormalizePath(absPath)
-	if !db.HasRepository(id) {
-		var remotes, err2 = FindRemotes(absPath)
-		if err2 != nil {
-			return append(list, err2)
-		}
-		var _, err = db.CreateRepository(id, repoPath, remotes)
-		if err != nil {
-			return append(list, err)
-		}
-	}
-	var err = db.Relate(groupName, id)
-	if err != nil {
-		return append(list, fmt.Errorf("%s: cannot create relation to group %s", id, groupName))
-	}
-	return list
 }

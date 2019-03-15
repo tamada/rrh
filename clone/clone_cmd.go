@@ -64,7 +64,7 @@ func (clone *CloneCommand) Run(args []string) int {
 	db, err := common.Open(config)
 	if err != nil {
 		fmt.Println(err.Error())
-		return 1
+		return 2
 	}
 	return clone.perform(db, arguments)
 }
@@ -79,13 +79,19 @@ func (clone *CloneCommand) perform(db *common.Database, arguments []string) int 
 		}
 	}
 	db.StoreAndClose()
-	if count == 1 {
-		fmt.Printf("a repository cloned into %s and registered to group %s\n", clone.Options.dest, clone.Options.group)
-	} else {
-		fmt.Printf("%d repositories cloned into %s and registered to group %s\n", count, clone.Options.dest, clone.Options.group)
-	}
-
+	printResult(count, clone.Options.dest, clone.Options.group)
 	return 0
+}
+
+func printResult(count int, dest string, group string) {
+	switch count {
+	case 0:
+		fmt.Println("no repositories cloned")
+	case 1:
+		fmt.Printf("a repository cloned into %s and registered to group %s\n", dest, group)
+	default:
+		fmt.Printf("%d repositories cloned into %s and registered to group %s\n", count, dest, group)
+	}
 }
 
 func (clone *CloneCommand) parse(args []string, config *common.Config) ([]string, error) {
