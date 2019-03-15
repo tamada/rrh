@@ -84,12 +84,13 @@ func (clone *CloneCommand) perform(db *common.Database, arguments []string) int 
 }
 
 func printResult(count int, dest string, group string) {
-	if count == 1 {
-		fmt.Printf("a repository cloned into %s and registered to group %s\n", dest, group)
-	} else if count > 1 {
-		fmt.Printf("%d repositories cloned into %s and registered to group %s\n", count, dest, group)
-	} else if count == 0 {
+	switch count {
+	case 0:
 		fmt.Println("no repositories cloned")
+	case 1:
+		fmt.Printf("a repository cloned into %s and registered to group %s\n", dest, group)
+	default:
+		fmt.Printf("%d repositories cloned into %s and registered to group %s\n", count, dest, group)
 	}
 }
 
