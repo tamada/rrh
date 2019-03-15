@@ -17,8 +17,7 @@ func (clone *CloneCommand) toDir(db *common.Database, url string, dest string, r
 	var cmd = exec.Command("git", "clone", url, dest)
 	var err = cmd.Run()
 	if err != nil {
-		fmt.Printf("clone error: %s\n", err.Error())
-		return nil, err
+		return nil, fmt.Errorf("%s: clone error (%s)", url, err.Error())
 	}
 
 	path, err := filepath.Abs(dest)
