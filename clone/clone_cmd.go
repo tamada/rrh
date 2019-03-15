@@ -79,15 +79,18 @@ func (clone *CloneCommand) perform(db *common.Database, arguments []string) int 
 		}
 	}
 	db.StoreAndClose()
+	printResult(count, clone.Options.dest, clone.Options.group)
+	return 0
+}
+
+func printResult(count int, dest string, group string) {
 	if count == 1 {
-		fmt.Printf("a repository cloned into %s and registered to group %s\n", clone.Options.dest, clone.Options.group)
+		fmt.Printf("a repository cloned into %s and registered to group %s\n", dest, group)
 	} else if count > 1 {
-		fmt.Printf("%d repositories cloned into %s and registered to group %s\n", count, clone.Options.dest, clone.Options.group)
+		fmt.Printf("%d repositories cloned into %s and registered to group %s\n", count, dest, group)
 	} else if count == 0 {
 		fmt.Println("no repositories cloned")
 	}
-
-	return 0
 }
 
 func (clone *CloneCommand) parse(args []string, config *common.Config) ([]string, error) {
