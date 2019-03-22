@@ -203,6 +203,26 @@ func (db *Database) Relate(groupID string, repoID string) error {
 	return nil
 }
 
+func (db *Database) BelongingCount(repoID string) int {
+	var repos = repositoryFrequencies(db)
+	return repos[repoID]
+}
+
+func (db *Database) ContainsCount(groupID string) int {
+	var groups = groupFrequencies(db)
+	return groups[groupID]
+}
+
+func (db *Database) FindRelationsOfGroup(groupId string) []string {
+	var repositories = []string{}
+	for _, relation := range db.Relations {
+		if relation.GroupName == groupId {
+			repositories = append(repositories, relation.RepositoryID)
+		}
+	}
+	return repositories
+}
+
 /*
 HasRelation returns true if the group and the repository has relation.
 The group and the repository are specified by the given parameters.
@@ -228,6 +248,26 @@ func (db *Database) Unrelate(groupID string, repoID string) {
 	var newRelations = []Relation{}
 	for _, relation := range db.Relations {
 		if !(relation.GroupName == groupID && relation.RepositoryID == repoID) {
+			newRelations = append(newRelations, relation)
+		}
+	}
+	db.Relations = newRelations
+}
+
+func (db *Database) UnrelateRepository(repoID string) {
+	var newRelations = []Relation{}
+	for _, relation := range db.Relations {
+		if relation.RepositoryID != repoID {
+			newRelations = append(newRelations, relation)
+		}
+	}
+	db.Relations = newRelations
+}
+
+func (db *Database) UnrelateFromGroup(groupID string) {
+	var newRelations = []Relation{}
+	for _, relation := range db.Relations {
+		if relation.GroupName != groupID {
 			newRelations = append(newRelations, relation)
 		}
 	}
@@ -365,6 +405,9 @@ func Open(config *Config) (*Database, error) {
 	}
 	if db.Groups == nil {
 		db.Groups = []Group{}
+	}
+	if db.Relations == nil {
+		db.Relations = []Relation{}
 	}
 	db.Config = config
 	return &db, nil

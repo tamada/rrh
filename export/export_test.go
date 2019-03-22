@@ -55,7 +55,8 @@ func TestNullDB(t *testing.T) {
 	var actually = `{
   "last_modified": "0001-01-01T00:00:00Z",
   "repositories": [],
-  "groups": []
+  "groups": [],
+  "relations": []
 }`
 	if strings.TrimSpace(result) != actually {
 		t.Error("nulldb data did not match")
@@ -68,7 +69,7 @@ func TestNullDBNoIndent(t *testing.T) {
 		var export, _ = ExportCommandFactory()
 		export.Run([]string{"--no-indent"})
 	})
-	if strings.TrimSpace(result) != "{\"last_modified\":\"0001-01-01T00:00:00Z\",\"repositories\":[],\"groups\":[]}" {
+	if strings.TrimSpace(result) != "{\"last_modified\":\"0001-01-01T00:00:00Z\",\"repositories\":[],\"groups\":[],\"relations\":[]}" {
 		t.Errorf("nulldb data did not match: %s", result)
 	}
 }

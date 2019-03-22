@@ -51,7 +51,7 @@ func TestRemoveRepository(t *testing.T) {
 	if len(db.Groups) != 2 {
 		t.Error("the number of groups changed")
 	}
-	if len(db.Groups[0].Items) != 0 || len(db.Groups[1].Items) != 0 {
+	if db.ContainsCount("group1") != 0 || db.ContainsCount("group2") != 0 {
 		t.Error("Unrelate repo was failed?")
 	}
 }
@@ -101,7 +101,7 @@ func TestRemoveRelation(t *testing.T) {
 	if len(db2.Repositories) != 2 && len(db2.Groups) != 2 {
 		t.Error("repositories and groups are removed!")
 	}
-	if len(db2.Groups[0].Items) != 0 || len(db2.Groups[1].Items) != 0 {
+	if db2.ContainsCount("group1") != 0 || db2.ContainsCount("group2") != 0 {
 		t.Error("relation was not removed")
 	}
 
@@ -117,7 +117,7 @@ func TestRunRemoveRepository(t *testing.T) {
 	if len(db2.Repositories) != 1 && len(db2.Groups) != 1 {
 		t.Errorf("repositories: %d, groups: %d\n", len(db2.Repositories), len(db2.Groups))
 	}
-	if len(db2.Groups[0].Items) != 0 {
+	if db2.ContainsCount("group1") != 0 {
 		t.Errorf("database was broken")
 	}
 

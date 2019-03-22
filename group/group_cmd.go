@@ -337,18 +337,18 @@ func (group *GroupCommand) Synopsis() string {
 	return "add/list/update/remove groups."
 }
 
-func (group *groupAddCommand) Synopsis() string {
+func (gac *groupAddCommand) Synopsis() string {
 	return "add group."
 }
 
-func (group *groupListCommand) Synopsis() string {
+func (glc *groupListCommand) Synopsis() string {
 	return "list groups."
 }
 
-func (group *groupRemoveCommand) Synopsis() string {
+func (grc *groupRemoveCommand) Synopsis() string {
 	return "remove given group."
 }
 
-func (group *groupUpdateCommand) Synopsis() string {
+func (guc *groupUpdateCommand) Synopsis() string {
 	return "update group."
 }
