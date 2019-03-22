@@ -1,1 +1,15 @@
-{"last_modified":"2019-02-06T19:22:52.872307+09:00","repositories":[{"repository_id":"rrh","repository_path":"~/go/src/github.com/tamada/rrh"}],"groups":[{"group_name":"no-group","group_desc":"","group_items":["rrh"]}]}
+{
+    "last_modified":"2019-02-06T19:22:52.872307+09:00",
+    "repositories":[{
+        "repository_id":"rrh",
+        "repository_path":"~/go/src/github.com/tamada/rrh"
+    }],
+    "groups":[{
+        "group_name":"no-group",
+        "group_desc":""
+    }],
+    "relations":[{
+        "repository_id": "rrh",
+        "group_name": "no-group"
+    }]
+}
