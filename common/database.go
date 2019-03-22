@@ -395,7 +395,7 @@ How to call this function
 */
 func Open(config *Config) (*Database, error) {
 	bytes, err := ioutil.ReadFile(databasePath(config))
-	var db = Database{time.Now(), []Repository{}, []Group{}, []Relation{}, config}
+	var db = Database{time.Unix(0, 0), []Repository{}, []Group{}, []Relation{}, config}
 	if err != nil {
 		return &db, nil
 	}
