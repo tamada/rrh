@@ -151,7 +151,7 @@ func TestCreateRepository(t *testing.T) {
 		t.Error(err1.Error())
 	}
 
-	var r2, err2 = db.CreateRepository("somerepo", "unknown", []Remote{Remote{"name1", "url1"}, Remote{"name2", "url2"}})
+	var r2, err2 = db.CreateRepository("somerepo", "unknown", []Remote{{"name1", "url1"}, {"name2", "url2"}})
 	if r2 == nil && err2 != nil {
 		t.Error("somerepo: cannot create repository")
 	}
@@ -265,9 +265,9 @@ func TestHasGroup(t *testing.T) {
 		t.Error("rrh: no relation with no-group")
 	}
 	if db.HasRelation("unknown", "rrh") {
-		t.Error("rrh: unknown relatin found!")
+		t.Error("rrh: unknown relation found!")
 	}
 	if db.HasRelation("no-group", "unknown") {
-		t.Error("unknown relatin in no-group found!")
+		t.Error("unknown relation in no-group found!")
 	}
 }

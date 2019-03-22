@@ -55,7 +55,7 @@ func Strftime(before time.Time, config *Config) string {
 }
 
 /*
-CaptureStdout is refered from https://qiita.com/kami_zh/items/ff636f15da87dabebe6c.
+CaptureStdout is referred from https://qiita.com/kami_zh/items/ff636f15da87dabebe6c.
 */
 func CaptureStdout(f func()) (string, error) {
 	r, w, err := os.Pipe()

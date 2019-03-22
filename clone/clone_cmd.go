@@ -28,7 +28,7 @@ Help function shows the help message.
 func (clone *CloneCommand) Help() string {
 	return `rrh clone [OPTIONS] <REMOTE_REPOS...>
 OPTIONS
-    -g, --group <GROUP>   print managed repositories categoried in the group.
+    -g, --group <GROUP>   print managed repositories categorized in the group.
     -d, --dest <DEST>     specify the destination.
     -v, --verbose         verbose mode.
 ARGUMENTS
