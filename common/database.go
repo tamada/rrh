@@ -395,23 +395,13 @@ How to call this function
 */
 func Open(config *Config) (*Database, error) {
 	bytes, err := ioutil.ReadFile(databasePath(config))
+	var db = Database{time.Now(), []Repository{}, []Group{}, []Relation{}, config}
 	if err != nil {
-		var db = Database{time.Now(), []Repository{}, []Group{}, []Relation{}, config}
 		return &db, nil
 	}
 
-	var db Database
 	if err := json.Unmarshal(bytes, &db); err != nil {
 		return nil, err
-	}
-	if db.Repositories == nil {
-		db.Repositories = []Repository{}
-	}
-	if db.Groups == nil {
-		db.Groups = []Group{}
-	}
-	if db.Relations == nil {
-		db.Relations = []Relation{}
 	}
 	db.Config = config
 	return &db, nil

@@ -39,16 +39,25 @@ func (fetch *FetchCommand) FetchGroup(db *common.Database, groupName string, opt
 		return []error{fmt.Errorf("%s: group not found", groupName)}
 	}
 	for _, relation := range db.Relations {
-		if relation.GroupName == groupName {
-			var err = fetch.fetchRepository(db, groupName, relation.RepositoryID, options)
-			if err != nil {
-				if db.Config.GetValue(common.RrhOnError) == common.FailImmediately {
-					return []error{err}
-				} else {
-					list = append(list, err)
-				}
-			}
+		var err = fetch.executeFetch(db, groupName, relation, options)
+		if err == nil {
+			continue
+		}
+		if db.Config.GetValue(common.RrhOnError) == common.FailImmediately {
+			return []error{err}
+		} else {
+			list = append(list, err)
 		}
 	}
 	return list
+}
+
+func (fetch *FetchCommand) executeFetch(db *common.Database, groupName string, relation common.Relation, options *FetchOptions) error {
+	if relation.GroupName == groupName {
+		var err = fetch.fetchRepository(db, groupName, relation.RepositoryID, options)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
