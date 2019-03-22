@@ -3,6 +3,9 @@
     "repositories":[{
         "repository_id":"rrh",
         "repository_path":"~/go/src/github.com/tamada/rrh"
+    },{
+        "repository_id":"hoge",
+        "repository_path":"hogehoge"
     }],
     "groups":[{
         "group_name":"no-group",

@@ -271,3 +271,23 @@ func TestHasGroup(t *testing.T) {
 		t.Error("unknown relation in no-group found!")
 	}
 }
+
+func TestFindRelations(t *testing.T) {
+	var db = openDatabase()
+
+	var repos = db.FindRelationsOfGroup("no-group")
+	if len(repos) != 1 || repos[0] != "rrh" {
+		t.Errorf("find relations: wont: [\"rrh\"], got: %v", repos)
+	}
+}
+
+func TestCounting(t *testing.T) {
+	var db = openDatabase()
+
+	if count := db.BelongingCount("rrh"); count != 1 {
+		t.Errorf("belonging count of %s: wont: 1, got: %d", "rrh", count)
+	}
+	if count := db.ContainsCount("no-group"); count != 1 {
+		t.Errorf("%s contains: wont: 1, got: %d", "no-group", count)
+	}
+}

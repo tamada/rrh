@@ -203,11 +203,17 @@ func (db *Database) Relate(groupID string, repoID string) error {
 	return nil
 }
 
+/*
+BelongingCount returns the number of groups belonging given repoID.
+*/
 func (db *Database) BelongingCount(repoID string) int {
 	var repos = repositoryFrequencies(db)
 	return repos[repoID]
 }
 
+/*
+ContainsCount returns the number of repositories in the given groupID.
+*/
 func (db *Database) ContainsCount(groupID string) int {
 	var groups = groupFrequencies(db)
 	return groups[groupID]
@@ -306,9 +312,7 @@ func (db *Database) DeleteRepository(repoID string) error {
 	if !db.HasRepository(repoID) {
 		return fmt.Errorf("%s: repository not found", repoID)
 	}
-	for _, group := range db.Groups {
-		db.Unrelate(group.Name, repoID)
-	}
+	db.UnrelateRepository(repoID)
 	var newRepositories = []Repository{}
 	for _, repo := range db.Repositories {
 		if repo.ID != repoID {
@@ -344,8 +348,7 @@ func (db *Database) DeleteGroup(groupID string) error {
 	if groups[groupID] != 0 {
 		return fmt.Errorf("%s: group has %d relatins", groupID, groups[groupID])
 	}
-	var err = db.deleteGroup(groupID)
-	return err
+	return db.deleteGroup(groupID)
 }
 
 /*
@@ -356,6 +359,7 @@ func (db *Database) ForceDeleteGroup(groupID string) error {
 	if !db.HasGroup(groupID) {
 		return fmt.Errorf("%s: group not found", groupID)
 	}
+	db.UnrelateFromGroup(groupID)
 	return db.deleteGroup(groupID)
 }
 
