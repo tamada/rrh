@@ -265,9 +265,9 @@ func TestHasGroup(t *testing.T) {
 		t.Error("rrh: no relation with no-group")
 	}
 	if db.HasRelation("unknown", "rrh") {
-		t.Error("rrh: unknown relatin found!")
+		t.Error("rrh: unknown relation found!")
 	}
 	if db.HasRelation("no-group", "unknown") {
-		t.Error("unknown relatin in no-group found!")
+		t.Error("unknown relation in no-group found!")
 	}
 }
