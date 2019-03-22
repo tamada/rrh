@@ -52,6 +52,18 @@ RRH is now growing. Please hack RRH itself.
 
 # Installation
 
+## Homebrew
+
+Install rrh via [Homebrew](https://brew.sh), simply run:
+
+```sh
+$ brew tap tamada/rrh
+$ brew install rrh
+```
+
+
+## Go lang
+
 To install cli, simply run:
 
 ```
