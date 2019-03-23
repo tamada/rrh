@@ -81,9 +81,10 @@ func TestTmpDBNoIndent(t *testing.T) {
 		export.Run([]string{"--no-indent"})
 	})
 	result = strings.TrimSpace(result)
+
 	if !strings.HasPrefix(result, "{\"last_modified\":") &&
-		!strings.HasSuffix(result, `"repositories":[{"repository_id":"repo1","repository_path":"path1","remotes":[]},{"repository_id":"repo2","repository_path":"path2","remotes":[]}],"groups":[{"group_name":"group1","group_desc":"desc1","group_items":["repo1"]},{"group_name":"group2","group_desc":"desc2","group_items":[]}]}`) {
-		t.Error("tmp.json was not matched.")
+		!strings.HasSuffix(result, `"repositories":[{"repository_id":"repo1","repository_path":"path1","remotes":[]},{"repository_id":"repo2","repository_path":"path2","remotes":[]}],"groups":[{"group_name":"group1","group_desc":"desc1"},{"group_name":"group2","group_desc":"desc2"}],"relations":[{"repository_id":"repo1","group_name":"group1"}]}`) {
+		t.Errorf("tmp.json was not matched.\ngot: %s", result)
 	}
 	// In example testing, how do I ignore the part of output, like below?
 	// Output:

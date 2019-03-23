@@ -12,8 +12,8 @@ DoFetch exec fetch operation of git.
 Currently, fetch is conducted by the system call.
 Ideally, fetch is performed by using go-git.
 */
-func (fetch *FetchCommand) DoFetch(repo *common.Repository, group string, options *FetchOptions, config *common.Config) error {
-	var cmd = exec.Command("git", "fetch", options.remote)
+func (fetch *FetchCommand) DoFetch(repo *common.Repository, group string, config *common.Config) error {
+	var cmd = exec.Command("git", "fetch", fetch.options.remote)
 	cmd.Dir = common.ToAbsolutePath(repo.Path, config)
 	fmt.Printf("fetching %s,%s....", group, repo.ID)
 	var output, err = cmd.Output()
@@ -24,22 +24,22 @@ func (fetch *FetchCommand) DoFetch(repo *common.Repository, group string, option
 	return nil
 }
 
-func (fetch *FetchCommand) fetchRepository(db *common.Database, groupName string, repoID string, options *FetchOptions) error {
+func (fetch *FetchCommand) fetchRepository(db *common.Database, groupName string, repoID string) error {
 	var repository = db.FindRepository(repoID)
 	if repository == nil {
 		return fmt.Errorf("%s,%s: repository not found", groupName, repoID)
 	}
-	return fetch.DoFetch(repository, groupName, options, db.Config)
+	return fetch.DoFetch(repository, groupName, db.Config)
 }
 
-func (fetch *FetchCommand) FetchGroup(db *common.Database, groupName string, options *FetchOptions) []error {
+func (fetch *FetchCommand) FetchGroup(db *common.Database, groupName string) []error {
 	var list = []error{}
 	var group = db.FindGroup(groupName)
 	if group == nil {
 		return []error{fmt.Errorf("%s: group not found", groupName)}
 	}
 	for _, relation := range db.Relations {
-		var err = fetch.executeFetch(db, groupName, relation, options)
+		var err = fetch.executeFetch(db, groupName, relation)
 		if err == nil {
 			continue
 		}
@@ -52,9 +52,9 @@ func (fetch *FetchCommand) FetchGroup(db *common.Database, groupName string, opt
 	return list
 }
 
-func (fetch *FetchCommand) executeFetch(db *common.Database, groupName string, relation common.Relation, options *FetchOptions) error {
+func (fetch *FetchCommand) executeFetch(db *common.Database, groupName string, relation common.Relation) error {
 	if relation.GroupName == groupName {
-		var err = fetch.fetchRepository(db, groupName, relation.RepositoryID, options)
+		var err = fetch.fetchRepository(db, groupName, relation.RepositoryID)
 		if err != nil {
 			return err
 		}

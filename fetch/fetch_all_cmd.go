@@ -50,9 +50,10 @@ func (fetch *FetchAllCommand) execFetch(db *common.Database, fetchOptions *Fetch
 	var onError = db.Config.GetValue(common.RrhOnError)
 
 	var fetch2 = FetchCommand{}
+	fetch2.options = fetchOptions
 	var errorlist = []error{}
 	for _, group := range db.Groups {
-		var errs = fetch2.FetchGroup(db, group.Name, fetchOptions)
+		var errs = fetch2.FetchGroup(db, group.Name)
 		errorlist = append(errorlist, errs...)
 		if onError == common.FailImmediately {
 			fetch.printError(errorlist)

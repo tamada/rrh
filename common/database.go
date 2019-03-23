@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"sort"
-	"time"
 )
 
 type Remote struct {
@@ -39,7 +38,7 @@ type Relation struct {
 Database represents the whole database of RRH.
 */
 type Database struct {
-	Timestamp    time.Time    `json:"last_modified"`
+	Timestamp    RrhTime      `json:"last_modified"`
 	Repositories []Repository `json:"repositories"`
 	Groups       []Group      `json:"groups"`
 	Relations    []Relation   `json:"relations"`
@@ -372,7 +371,7 @@ StoreAndClose stores the database to file and close the database.
 The database path is defined in RRH_DATABASE_PATH of config.
 */
 func (db *Database) StoreAndClose() error {
-	db.Timestamp = time.Now()
+	db.Timestamp = Now()
 	var bytes, err = json.Marshal(db)
 	if err != nil {
 		return err
@@ -395,7 +394,7 @@ How to call this function
 */
 func Open(config *Config) (*Database, error) {
 	bytes, err := ioutil.ReadFile(databasePath(config))
-	var db = Database{time.Unix(0, 0), []Repository{}, []Group{}, []Relation{}, config}
+	var db = Database{Unix(0, 0), []Repository{}, []Group{}, []Relation{}, config}
 	if err != nil {
 		return &db, nil
 	}

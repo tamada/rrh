@@ -8,7 +8,9 @@ import (
 	"github.com/tamada/rrh/common"
 )
 
-type FetchCommand struct{}
+type FetchCommand struct {
+	options *FetchOptions
+}
 
 func FetchCommandFactory() (cli.Command, error) {
 	return &FetchCommand{}, nil
@@ -42,14 +44,14 @@ func (fetch *FetchCommand) Run(args []string) int {
 		fmt.Println(err2.Error())
 		return 1
 	}
-	return fetch.perform(db, fetchOptions)
+	return fetch.perform(db)
 }
 
-func (fetch *FetchCommand) perform(db *common.Database, options *FetchOptions) int {
+func (fetch *FetchCommand) perform(db *common.Database) int {
 	var errorFlag = 0
 	var onError = db.Config.GetValue(common.RrhOnError)
-	for _, groupName := range options.args {
-		var list = fetch.FetchGroup(db, groupName, options)
+	for _, groupName := range fetch.options.args {
+		var list = fetch.FetchGroup(db, groupName)
 		for _, err := range list {
 			if onError != common.Ignore {
 				fmt.Println(err.Error())
@@ -85,5 +87,6 @@ func (fetch *FetchCommand) parse(args []string) (*FetchOptions, error) {
 		return nil, err
 	}
 	options.args = flags.Args()
+	fetch.options = &options
 	return &options, nil
 }
