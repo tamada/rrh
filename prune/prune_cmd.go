@@ -7,9 +7,15 @@ import (
 	"github.com/tamada/rrh/common"
 )
 
+/*
+PruneCommand represents a command.
+*/
 type PruneCommand struct {
 }
 
+/*
+PruneCommandFactory returns an instance of the PruneCommand.
+*/
 func PruneCommandFactory() (cli.Command, error) {
 	return &PruneCommand{}, nil
 }
@@ -21,10 +27,16 @@ func (prune *PruneCommand) perform(db *common.Database) bool {
 	return true
 }
 
+/*
+Help function shows the help message.
+*/
 func (prune *PruneCommand) Help() string {
 	return `rrh prune`
 }
 
+/*
+Run performs the command.
+*/
 func (prune *PruneCommand) Run(args []string) int {
 	var config = common.OpenConfig()
 	var db, err = common.Open(config)

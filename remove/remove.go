@@ -16,15 +16,11 @@ func (rm *RemoveCommand) executeRemoveGroup(db *common.Database, groupName strin
 		rm.Options.printIfVerbose(fmt.Sprintf("%s: group do not removed", groupName))
 		return nil
 	}
-	if !rm.Options.recursive && len(group.Items) > 0 {
-		return fmt.Errorf("%s: cannot remove, it contains %d repository(es)", group.Name, len(group.Items))
+	var count = db.ContainsCount(groupName)
+	if !rm.Options.recursive && count > 0 {
+		return fmt.Errorf("%s: cannot remove, it contains %d repository(es)", group.Name, count)
 	}
-
-	for i, g := range db.Groups {
-		if g.Name == group.Name {
-			db.Groups[i].Items = []string{}
-		}
-	}
+	db.UnrelateFromGroup(groupName)
 	var err = db.DeleteGroup(groupName)
 	if err == nil {
 		rm.Options.printIfVerbose(fmt.Sprintf("%s: group removed", group.Name))

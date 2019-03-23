@@ -61,11 +61,11 @@ func TestCloneCommand_MultipleProjects(t *testing.T) {
 		if len(db.Repositories) != 4 {
 			t.Fatal("helloworld and fibonacci were not registered.")
 		}
-		var hwRepo = db.Repositories[2]
+		var hwRepo = db.Repositories[1]
 		if message := validate(hwRepo, "helloworld", "../testdata/hoge/helloworld"); message != "" {
 			t.Error(message)
 		}
-		var fiboRepo = db.Repositories[3]
+		var fiboRepo = db.Repositories[0]
 		if message := validate(fiboRepo, "fibonacci", "../testdata/hoge/fibonacci"); message != "" {
 			t.Error(message)
 		}
@@ -73,7 +73,7 @@ func TestCloneCommand_MultipleProjects(t *testing.T) {
 			t.Fatalf("not-exist-group: group not found: %v", db.Groups)
 		}
 		var group = db.FindGroup("not-exist-group")
-		if !contains(group.Items, "helloworld") || !contains(group.Items, "fibonacci") {
+		if !db.HasRelation("not-exist-group", "helloworld") || !db.HasRelation("not-exist-group", "fibonacci") {
 			t.Errorf("%s: does not have helloworld or fibonacci", group.Name)
 		}
 	})
@@ -92,13 +92,12 @@ func TestCloneCommand_Run(t *testing.T) {
 		if len(db.Repositories) != 3 {
 			t.Fatal("helloworld was not registered.")
 		}
-		var repo = db.Repositories[2]
+		var repo = db.Repositories[0]
 		if message := validate(repo, "helloworld", "./helloworld"); message != "" {
 			t.Error(message)
 		}
-		var group = db.FindGroup("no-group")
-		if len(group.Items) != 1 || !contains(group.Items, "helloworld") {
-			t.Errorf("helloworld was not registered to the group \"no-group\": %v", group.Items)
+		if db.ContainsCount("no-group") != 1 || !db.HasRelation("no-group", "helloworld") {
+			t.Errorf("helloworld was not registered to the group \"no-group\": %v", db.Relations)
 		}
 	})
 }
@@ -116,7 +115,7 @@ func TestCloneCommand_SpecifyingId(t *testing.T) {
 		if len(db.Repositories) != 3 {
 			t.Fatal("newid was not registered.")
 		}
-		var repo = db.Repositories[2]
+		var repo = db.Repositories[0]
 		if message := validate(repo, "newid", "../testdata/newid"); message != "" {
 			t.Error(message)
 		}

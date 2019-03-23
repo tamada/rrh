@@ -9,6 +9,9 @@ import (
 	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
+/*
+StatusCommand represents a command.
+*/
 type StatusCommand struct {
 }
 
@@ -27,10 +30,16 @@ func (options *statusOptions) isBranchTarget(name plumbing.ReferenceName) bool {
 	return options.branch && name.IsBranch()
 }
 
+/*
+StatusCommandFactory returns an instance of the StatusCommand.
+*/
 func StatusCommandFactory() (cli.Command, error) {
 	return &StatusCommand{}, nil
 }
 
+/*
+Help returns the help message for the user.
+*/
 func (status *StatusCommand) Help() string {
 	return `rrh status [OPTIONS] [REPOSITORIES|GROUPS...]
 OPTIONS
@@ -101,6 +110,9 @@ func (status *StatusCommand) runStatus(db *common.Database, arg string, options 
 	return errorFlag
 }
 
+/*
+Run performs the command.
+*/
 func (status *StatusCommand) Run(args []string) int {
 	var config = common.OpenConfig()
 	options, err := status.parse(args, config)

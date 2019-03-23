@@ -18,7 +18,13 @@ type GroupResult struct {
 func (group *groupListCommand) listGroups(db *common.Database, listOptions *listOptions) ([]GroupResult, error) {
 	var results = []GroupResult{}
 	for _, group := range db.Groups {
-		results = append(results, GroupResult{group.Name, group.Description, group.Items})
+		var result = GroupResult{group.Name, group.Description, []string{}}
+		for _, relation := range db.Relations {
+			if relation.GroupName == group.Name {
+				result.Repos = append(result.Repos, relation.RepositoryID)
+			}
+		}
+		results = append(results, result)
 	}
 	return results, nil
 }
@@ -34,11 +40,10 @@ func (group *groupAddCommand) addGroups(db *common.Database, options *addOptions
 }
 
 func (grc *groupRemoveCommand) removeGroupsImpl(db *common.Database, groupName string) error {
-	var group = db.FindGroup(groupName)
 	if grc.Options.force {
 		db.ForceDeleteGroup(groupName)
 		grc.printIfVerbose(fmt.Sprintf("%s: group removed", groupName))
-	} else if len(group.Items) == 0 {
+	} else if db.ContainsCount(groupName) == 0 {
 		db.DeleteGroup(groupName)
 		grc.printIfVerbose(fmt.Sprintf("%s: group removed", groupName))
 	} else {

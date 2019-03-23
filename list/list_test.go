@@ -81,8 +81,8 @@ func TestFindResults(t *testing.T) {
 		targets []string
 		want    []ListResult
 	}{
-		{[]string{"group1"}, []ListResult{ListResult{"group1", "desc1", []Repo{{"repo1", "path1", []common.Remote{}}}}}},
-		{[]string{"group2"}, []ListResult{ListResult{"group2", "desc2", []Repo{}}}},
+		{[]string{"group1"}, []ListResult{{"group1", "desc1", []Repo{{"repo1", "path1", []common.Remote{}}}}}},
+		{[]string{"group2"}, []ListResult{{"group2", "desc2", []Repo{}}}},
 	}
 
 	for _, data := range testdata {

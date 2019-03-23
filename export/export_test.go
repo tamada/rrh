@@ -53,12 +53,13 @@ func TestNullDB(t *testing.T) {
 		export.Run([]string{})
 	})
 	var actually = `{
-  "last_modified": "0001-01-01T00:00:00Z",
+  "last_modified": "1970-01-01T09:00:00+09:00",
   "repositories": [],
-  "groups": []
+  "groups": [],
+  "relations": []
 }`
 	if strings.TrimSpace(result) != actually {
-		t.Error("nulldb data did not match")
+		t.Errorf("nulldb data did not match: wont: %s, got: %s", actually, strings.TrimSpace(result))
 	}
 }
 
@@ -68,7 +69,7 @@ func TestNullDBNoIndent(t *testing.T) {
 		var export, _ = ExportCommandFactory()
 		export.Run([]string{"--no-indent"})
 	})
-	if strings.TrimSpace(result) != "{\"last_modified\":\"0001-01-01T00:00:00Z\",\"repositories\":[],\"groups\":[]}" {
+	if strings.TrimSpace(result) != "{\"last_modified\":\"1970-01-01T09:00:00+09:00\",\"repositories\":[],\"groups\":[],\"relations\":[]}" {
 		t.Errorf("nulldb data did not match: %s", result)
 	}
 }
@@ -80,9 +81,10 @@ func TestTmpDBNoIndent(t *testing.T) {
 		export.Run([]string{"--no-indent"})
 	})
 	result = strings.TrimSpace(result)
+
 	if !strings.HasPrefix(result, "{\"last_modified\":") &&
-		!strings.HasSuffix(result, `"repositories":[{"repository_id":"repo1","repository_path":"path1","remotes":[]},{"repository_id":"repo2","repository_path":"path2","remotes":[]}],"groups":[{"group_name":"group1","group_desc":"desc1","group_items":["repo1"]},{"group_name":"group2","group_desc":"desc2","group_items":[]}]}`) {
-		t.Error("tmp.json was not matched.")
+		!strings.HasSuffix(result, `"repositories":[{"repository_id":"repo1","repository_path":"path1","remotes":[]},{"repository_id":"repo2","repository_path":"path2","remotes":[]}],"groups":[{"group_name":"group1","group_desc":"desc1"},{"group_name":"group2","group_desc":"desc2"}],"relations":[{"repository_id":"repo1","group_name":"group1"}]}`) {
+		t.Errorf("tmp.json was not matched.\ngot: %s", result)
 	}
 	// In example testing, how do I ignore the part of output, like below?
 	// Output:

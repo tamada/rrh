@@ -8,10 +8,16 @@ import (
 	"github.com/tamada/rrh/common"
 )
 
+/*
+CloneCommand represents a command.
+*/
 type CloneCommand struct {
 	Options *cloneOptions
 }
 
+/*
+CloneCommandFactory returns an instance of the CloneCommand.
+*/
 func CloneCommandFactory() (cli.Command, error) {
 	return &CloneCommand{&cloneOptions{}}, nil
 }
@@ -54,6 +60,9 @@ func (options *cloneOptions) showError(list []error) {
 	}
 }
 
+/*
+Run performs the command.
+*/
 func (clone *CloneCommand) Run(args []string) int {
 	var config = common.OpenConfig()
 	arguments, err := clone.parse(args, config)

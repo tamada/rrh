@@ -11,6 +11,9 @@ import (
 	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
+/*
+StatusResult shows the result of the `rrh status` command.
+*/
 type StatusResult struct {
 	GroupName      string
 	RepositoryName string
@@ -178,12 +181,14 @@ func (status *StatusCommand) executeStatusOnGroup(db *common.Database, groupName
 	}
 	var errors = []error{}
 	var results = []StatusResult{}
-	for _, repoName := range group.Items {
-		var sr, err = status.executeStatusOnRepository(db, repo{groupName, repoName}, options)
-		if err != nil {
-			errors = append(errors, err)
-		} else {
-			results = append(results, sr...)
+	for _, relation := range db.Relations {
+		if relation.GroupName == groupName {
+			var sr, err = status.executeStatusOnRepository(db, repo{groupName, relation.RepositoryID}, options)
+			if err != nil {
+				errors = append(errors, err)
+			} else {
+				results = append(results, sr...)
+			}
 		}
 	}
 

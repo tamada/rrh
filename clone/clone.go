@@ -12,12 +12,12 @@ import (
 	"github.com/tamada/rrh/common"
 )
 
-func (clone *CloneCommand) toDir(db *common.Database, url string, dest string, repoID string) (*common.Repository, error) {
-	clone.printIfVerbose(fmt.Sprintf("git clone %s %s (%s)", url, dest, repoID))
-	var cmd = exec.Command("git", "clone", url, dest)
+func (clone *CloneCommand) toDir(db *common.Database, URL string, dest string, repoID string) (*common.Repository, error) {
+	clone.printIfVerbose(fmt.Sprintf("git clone %s %s (%s)", URL, dest, repoID))
+	var cmd = exec.Command("git", "clone", URL, dest)
 	var err = cmd.Run()
 	if err != nil {
-		return nil, fmt.Errorf("%s: clone error (%s)", url, err.Error())
+		return nil, fmt.Errorf("%s: clone error (%s)", URL, err.Error())
 	}
 
 	path, err := filepath.Abs(dest)
@@ -45,6 +45,9 @@ func (clone *CloneCommand) isExistDir(path string) bool {
 	return !os.IsNotExist(err) && stat.IsDir()
 }
 
+/*
+DoClone performs `git clone` command and register the cloned repositories to RRH database.
+*/
 func (clone *CloneCommand) DoClone(db *common.Database, arguments []string) (int, []error) {
 	if len(arguments) == 1 {
 		var err = clone.DoCloneARepository(db, arguments[0])
@@ -56,7 +59,7 @@ func (clone *CloneCommand) DoClone(db *common.Database, arguments []string) (int
 	var errorlist = []error{}
 	var count = 0
 	for _, url := range arguments {
-		var increment, err = clone.DoCloneRepositories(db, url)
+		var increment, err = clone.DoCloneEachRepository(db, url)
 		if err != nil {
 			errorlist = append(errorlist, err)
 			if db.Config.GetValue(common.RrhOnError) == common.FailImmediately {
@@ -80,11 +83,15 @@ func (clone *CloneCommand) relateTo(db *common.Database, groupID string, repoID 
 	return nil
 }
 
-func (clone *CloneCommand) DoCloneRepositories(db *common.Database, url string) (int, error) {
+/*
+DoCloneEachRepository performes `git clone` for each repository.
+This function is called repeatedly.
+*/
+func (clone *CloneCommand) DoCloneEachRepository(db *common.Database, URL string) (int, error) {
 	var count int
-	var id = findID(url)
+	var id = findID(URL)
 	var path = filepath.Join(clone.Options.dest, id)
-	var _, err = clone.toDir(db, url, path, id)
+	var _, err = clone.toDir(db, URL, path, id)
 	if err == nil {
 		if err := clone.relateTo(db, clone.Options.group, id); err != nil {
 			return count, err
@@ -94,6 +101,9 @@ func (clone *CloneCommand) DoCloneRepositories(db *common.Database, url string) 
 	return count, err
 }
 
+/*
+DoCloneARepository clones a repository from given URL.
+*/
 func (clone *CloneCommand) DoCloneARepository(db *common.Database, URL string) error {
 	var id, path string
 

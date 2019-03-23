@@ -30,12 +30,14 @@ func (list *ListCommand) findList(db *common.Database, groupName string) (*ListR
 	if group == nil {
 		return nil, fmt.Errorf("%s: group not found", groupName)
 	}
-	for _, repoName := range group.Items {
-		var repo = db.FindRepository(repoName)
-		if repo == nil {
-			return nil, fmt.Errorf("%s: repository not found", repoName)
+	for _, relation := range db.Relations {
+		if relation.GroupName == groupName {
+			var repo = db.FindRepository(relation.RepositoryID)
+			if repo == nil {
+				return nil, fmt.Errorf("%s: repository not found", relation.RepositoryID)
+			}
+			repos = append(repos, Repo{repo.ID, repo.Path, repo.Remotes})
 		}
-		repos = append(repos, Repo{repo.ID, repo.Path, repo.Remotes})
 	}
 
 	return &ListResult{group.Name, group.Description, repos}, nil
