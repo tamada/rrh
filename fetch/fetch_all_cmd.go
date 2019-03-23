@@ -8,18 +8,30 @@ import (
 	"github.com/tamada/rrh/common"
 )
 
+/*
+FetchAllCommand represents a command.
+*/
 type FetchAllCommand struct{}
 
+/*
+FetchAllCommandFactory returns an instance of the FetchAllCommand.
+*/
 func FetchAllCommandFactory() (cli.Command, error) {
 	return &FetchAllCommand{}, nil
 }
 
+/*
+Help returns the help message.
+*/
 func (fetch *FetchAllCommand) Help() string {
 	return `rrh fetch-all [OPTIONS]
 OPTIONS
     -r, --remote <REMOTE>   specify the remote name. Default is "origin."`
 }
 
+/*
+Run performs the command.
+*/
 func (fetch *FetchAllCommand) Run(args []string) int {
 	var config = common.OpenConfig()
 
@@ -88,6 +100,9 @@ func (fetch *FetchAllCommand) parse(args []string) (*FetchOptions, error) {
 	return &options, nil
 }
 
+/*
+Synopsis returns the help message of the command.
+*/
 func (fetch *FetchAllCommand) Synopsis() string {
 	return "run \"git fetch\" in the all repositories"
 }

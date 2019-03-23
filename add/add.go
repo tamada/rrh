@@ -55,13 +55,13 @@ func (add *AddCommand) addRepositoryToGroup(db *common.Database, groupName strin
 	var repoPath = common.NormalizePath(absPath)
 	if err1 := checkDuplication(db, id, absPath); err1 != nil {
 		return append(list, err1)
-	} else {
-		var remotes, err2 = FindRemotes(absPath)
-		if err2 != nil {
-			return append(list, err2)
-		}
-		db.CreateRepository(id, repoPath, remotes)
 	}
+	var remotes, err2 = FindRemotes(absPath)
+	if err2 != nil {
+		return append(list, err2)
+	}
+	db.CreateRepository(id, repoPath, remotes)
+
 	var err = db.Relate(groupName, id)
 	if err != nil {
 		return append(list, fmt.Errorf("%s: cannot create relation to group %s", id, groupName))
@@ -69,6 +69,9 @@ func (add *AddCommand) addRepositoryToGroup(db *common.Database, groupName strin
 	return list
 }
 
+/*
+AddRepositoriesToGroup registers the given repositories to the specified group.
+*/
 func (add *AddCommand) AddRepositoriesToGroup(db *common.Database, args []string, groupName string) []error {
 	var err = add.createGroupIfNeeded(db, groupName)
 	if err != nil {

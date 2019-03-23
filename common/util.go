@@ -15,10 +15,6 @@ import (
 
 /*
 NormalizePath normalizes given path.
-
-Example:
-  given path: /home/username/some/path
-  return:     ~/some/path
 */
 func NormalizePath(path string) string {
 	// var home = os.Getenv("HOME")
@@ -28,6 +24,9 @@ func NormalizePath(path string) string {
 	return path
 }
 
+/*
+IsInputYes print the given prompt and returns TRUE if the user inputs "yes".
+*/
 func IsInputYes(prompt string) bool {
 	fmt.Print(prompt)
 	scanner := bufio.NewScanner(os.Stdin)
@@ -36,16 +35,25 @@ func IsInputYes(prompt string) bool {
 	return text == "yes" || text == "y"
 }
 
+/*
+ToAbsolutePath returns the absolute path of the given path.
+*/
 func ToAbsolutePath(path string, config *Config) string {
 	var home = os.Getenv("HOME")
 	return strings.Replace(path, "~", home, 1)
 }
 
+/*
+CreateParentDir create the parent directories of the given path.
+*/
 func CreateParentDir(path string) error {
 	var parent = filepath.Dir(path)
 	return os.MkdirAll(parent, 0755)
 }
 
+/*
+Strftime returns the string of the given time.
+*/
 func Strftime(before time.Time, config *Config) string {
 	var format = config.GetValue(RrhTimeFormat)
 	if format != Relative {

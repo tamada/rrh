@@ -15,10 +15,16 @@ type removeOptions struct {
 	args      []string
 }
 
+/*
+RemoveCommand represents a command.
+*/
 type RemoveCommand struct {
 	Options *removeOptions
 }
 
+/*
+RemoveCommandFactory returns an instance of the RemoveCommand.
+*/
 func RemoveCommandFactory() (cli.Command, error) {
 	return &RemoveCommand{&removeOptions{}}, nil
 }
@@ -29,6 +35,9 @@ func (options *removeOptions) printIfVerbose(message string) {
 	}
 }
 
+/*
+Run performs the command.
+*/
 func (rm *RemoveCommand) Run(args []string) int {
 	var options, err = rm.parse(args)
 	if err != nil {

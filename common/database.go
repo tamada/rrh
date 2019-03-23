@@ -7,6 +7,9 @@ import (
 	"sort"
 )
 
+/*
+Remote represents remote of the git repository.
+*/
 type Remote struct {
 	Name string
 	URL  string
@@ -29,6 +32,9 @@ type Group struct {
 	Description string `json:"group_desc"`
 }
 
+/*
+Relation represents the relation between group and the repository.
+*/
 type Relation struct {
 	RepositoryID string `json:"repository_id"`
 	GroupName    string `json:"group_name"`

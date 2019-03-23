@@ -7,11 +7,17 @@ import (
 	"github.com/mitchellh/cli"
 )
 
+/*
+ConfigCommand represents a command.
+*/
 type ConfigCommand struct{}
 type configSetCommand struct{}
 type configUnsetCommand struct{}
 type configListCommand struct{}
 
+/*
+ConfigCommandFactory returns an instance of the ConfigCommand.
+*/
 func ConfigCommandFactory() (cli.Command, error) {
 	return &ConfigCommand{}, nil
 }
@@ -28,6 +34,9 @@ func configListCommandFactory() (cli.Command, error) {
 	return &configListCommand{}, nil
 }
 
+/*
+Help returns the help message.
+*/
 func (config *ConfigCommand) Help() string {
 	return `rrh config <COMMAND> [ARGUMENTS]
 COMMAND
@@ -36,6 +45,9 @@ COMMAND
     list                    list all of ENVs (default)`
 }
 
+/*
+Help returns the help message.
+*/
 func (csc *configSetCommand) Help() string {
 	return `rrh config set <ENV_NAME> <VALUE>
 ARGUMENTS
@@ -43,16 +55,25 @@ ARGUMENTS
     VALUE      the value for the given environment.`
 }
 
+/*
+Help returns the help message.
+*/
 func (cuc *configUnsetCommand) Help() string {
 	return `rrh config unset <ENV_NAME...>
 ARGUMENTS
     ENV_NAME   environment name.`
 }
 
+/*
+Help returns the help message.
+*/
 func (clc *configListCommand) Help() string {
 	return `rrh config list`
 }
 
+/*
+Run performs the command.
+*/
 func (config *ConfigCommand) Run(args []string) int {
 	c := cli.NewCLI("rrh config", VERSION)
 	c.Args = args
@@ -65,15 +86,17 @@ func (config *ConfigCommand) Run(args []string) int {
 	if len(args) == 0 {
 		new(configListCommand).Run([]string{})
 		return 0
-	} else {
-		var exitStatus, err = c.Run()
-		if err != nil {
-			log.Println(err)
-		}
-		return exitStatus
 	}
+	var exitStatus, err = c.Run()
+	if err != nil {
+		log.Println(err)
+	}
+	return exitStatus
 }
 
+/*
+Run performs the command.
+*/
 func (csc *configSetCommand) Run(args []string) int {
 	if len(args) != 2 {
 		fmt.Println(csc.Help())
@@ -89,6 +112,9 @@ func (csc *configSetCommand) Run(args []string) int {
 	return 0
 }
 
+/*
+Run performs the command.
+*/
 func (cuc *configUnsetCommand) Run(args []string) int {
 	if len(args) != 1 {
 		fmt.Println(cuc.Help())
@@ -106,6 +132,9 @@ func (cuc *configUnsetCommand) Run(args []string) int {
 	return 0
 }
 
+/*
+Run performs the command.
+*/
 func (clc *configListCommand) Run(args []string) int {
 	var config = OpenConfig()
 	fmt.Println(config.formatVariableAndValue(RrhHome))

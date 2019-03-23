@@ -11,6 +11,9 @@ import (
 	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
+/*
+StatusResult shows the result of the `rrh status` command.
+*/
 type StatusResult struct {
 	GroupName      string
 	RepositoryName string

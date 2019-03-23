@@ -10,6 +10,9 @@ import (
 	"github.com/tamada/rrh/common"
 )
 
+/*
+ExportCommand represents a command.
+*/
 type ExportCommand struct {
 }
 

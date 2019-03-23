@@ -32,6 +32,9 @@ func (fetch *FetchCommand) fetchRepository(db *common.Database, groupName string
 	return fetch.DoFetch(repository, groupName, db.Config)
 }
 
+/*
+FetchGroup performs `git fetch` command in the repositories belonging in the specified group.
+*/
 func (fetch *FetchCommand) FetchGroup(db *common.Database, groupName string) []error {
 	var list = []error{}
 	var group = db.FindGroup(groupName)
@@ -45,9 +48,8 @@ func (fetch *FetchCommand) FetchGroup(db *common.Database, groupName string) []e
 		}
 		if db.Config.GetValue(common.RrhOnError) == common.FailImmediately {
 			return []error{err}
-		} else {
-			list = append(list, err)
 		}
+		list = append(list, err)
 	}
 	return list
 }

@@ -42,7 +42,7 @@ func groupRemoveCommandFactory() (cli.Command, error) {
 	return &groupRemoveCommand{&removeOptions{}}, nil
 }
 
-func (group *groupAddCommand) Help() string {
+func (gac *groupAddCommand) Help() string {
 	return `rrh group add [OPTIONS] <GROUPS...>
 OPTIONS
     -d, --desc <DESC>    give the description of the group
@@ -50,14 +50,14 @@ ARGUMENTS
     GROUPS               gives group names.`
 }
 
-func (group *groupListCommand) Help() string {
+func (glc *groupListCommand) Help() string {
 	return `rrh group list [OPTIONS]
 OPTIONS
     -d, --desc          show description.
     -r, --repository    show repositories in the group.`
 }
 
-func (group *groupRemoveCommand) Help() string {
+func (grc *groupRemoveCommand) Help() string {
 	return `rrh group rm [OPTIONS] <GROUPS...>
 OPTIONS
     -f, --force      force remove
@@ -67,7 +67,7 @@ ARGUMENTS
     GROUPS           target group names.`
 }
 
-func (group *groupUpdateCommand) Help() string {
+func (guc *groupUpdateCommand) Help() string {
 	return `rrh group update [OPTIONS] <GROUP>
 OPTIONS
     -n, --name <NAME>   change group name to NAME.
@@ -112,10 +112,10 @@ type addOptions struct {
 	args []string
 }
 
-func (group *groupAddCommand) parse(args []string) (*addOptions, error) {
+func (gac *groupAddCommand) parse(args []string) (*addOptions, error) {
 	var opt = addOptions{}
 	flags := flag.NewFlagSet("add", flag.ContinueOnError)
-	flags.Usage = func() { fmt.Println(group.Help()) }
+	flags.Usage = func() { fmt.Println(gac.Help()) }
 	flags.StringVar(&opt.desc, "d", "", "description")
 	flags.StringVar(&opt.desc, "desc", "", "description")
 	if err := flags.Parse(args); err != nil {
@@ -128,11 +128,11 @@ func (group *groupAddCommand) parse(args []string) (*addOptions, error) {
 /*
 Run performs the command.
 */
-func (group *groupAddCommand) Run(args []string) int {
-	var options, err = group.parse(args)
+func (gac *groupAddCommand) Run(args []string) int {
+	var options, err = gac.parse(args)
 	if err != nil {
 		fmt.Println(err.Error())
-		fmt.Println(group.Help())
+		fmt.Println(gac.Help())
 		return 1
 	}
 	var config = common.OpenConfig()
@@ -142,10 +142,10 @@ func (group *groupAddCommand) Run(args []string) int {
 		return 2
 	}
 	if len(options.args) == 0 {
-		fmt.Println(group.Help())
+		fmt.Println(gac.Help())
 		return 3
 	}
-	if err := group.addGroups(db, options); err != nil {
+	if err := gac.addGroups(db, options); err != nil {
 		fmt.Println(err.Error())
 		return 4
 	}
@@ -159,10 +159,10 @@ type listOptions struct {
 	repositories bool
 }
 
-func (group *groupListCommand) parse(args []string) (*listOptions, error) {
+func (glc *groupListCommand) parse(args []string) (*listOptions, error) {
 	var opt = listOptions{}
 	flags := flag.NewFlagSet("list", flag.ContinueOnError)
-	flags.Usage = func() { fmt.Println(group.Help()) }
+	flags.Usage = func() { fmt.Println(glc.Help()) }
 	flags.BoolVar(&opt.desc, "d", false, "show description")
 	flags.BoolVar(&opt.desc, "desc", false, "show description")
 	flags.BoolVar(&opt.repositories, "r", false, "show repositories")
@@ -173,7 +173,7 @@ func (group *groupListCommand) parse(args []string) (*listOptions, error) {
 	return &opt, nil
 }
 
-func (group *groupListCommand) printAll(results []GroupResult, options *listOptions) {
+func (glc *groupListCommand) printAll(results []GroupResult, options *listOptions) {
 	for _, result := range results {
 		fmt.Printf("%s,", result.Name)
 		if options.desc {
@@ -193,8 +193,8 @@ func (group *groupListCommand) printAll(results []GroupResult, options *listOpti
 /*
 Run performs the command.
 */
-func (group *groupListCommand) Run(args []string) int {
-	var listOption, err = group.parse(args)
+func (glc *groupListCommand) Run(args []string) int {
+	var listOption, err = glc.parse(args)
 	if err != nil {
 		return 1
 	}
@@ -204,11 +204,11 @@ func (group *groupListCommand) Run(args []string) int {
 		fmt.Println(err2.Error())
 		return 2
 	}
-	var results, err3 = group.listGroups(db, listOption)
+	var results, err3 = glc.listGroups(db, listOption)
 	if err3 != nil {
 		fmt.Println(err3.Error())
 	}
-	group.printAll(results, listOption)
+	glc.printAll(results, listOption)
 
 	return 0
 }
@@ -289,8 +289,8 @@ type updateOptions struct {
 /*
 Run performs the command.
 */
-func (group *groupUpdateCommand) Run(args []string) int {
-	var updateOption, err = group.parse(args)
+func (guc *groupUpdateCommand) Run(args []string) int {
+	var updateOption, err = guc.parse(args)
 	if err != nil {
 		fmt.Println(err.Error())
 		return 1
@@ -301,7 +301,7 @@ func (group *groupUpdateCommand) Run(args []string) int {
 		fmt.Println(err2.Error())
 		return 2
 	}
-	var err3 = group.updateGroup(db, updateOption)
+	var err3 = guc.updateGroup(db, updateOption)
 	if err3 != nil {
 		fmt.Println(err3.Error())
 		return 3
@@ -310,10 +310,10 @@ func (group *groupUpdateCommand) Run(args []string) int {
 	return 0
 }
 
-func (group *groupUpdateCommand) parse(args []string) (*updateOptions, error) {
+func (guc *groupUpdateCommand) parse(args []string) (*updateOptions, error) {
 	var opt = updateOptions{}
 	flags := flag.NewFlagSet("update", flag.ContinueOnError)
-	flags.Usage = func() { fmt.Println(group.Help()) }
+	flags.Usage = func() { fmt.Println(guc.Help()) }
 	flags.StringVar(&opt.newName, "n", "", "show description")
 	flags.StringVar(&opt.newName, "name", "", "show description")
 	flags.StringVar(&opt.desc, "d", "", "show repositories")
@@ -333,22 +333,37 @@ func (group *groupUpdateCommand) parse(args []string) (*updateOptions, error) {
 	return &opt, nil
 }
 
+/*
+Synopsis returns the help message of the command.
+*/
 func (group *GroupCommand) Synopsis() string {
 	return "add/list/update/remove groups."
 }
 
+/*
+Synopsis returns the help message of the command.
+*/
 func (gac *groupAddCommand) Synopsis() string {
 	return "add group."
 }
 
+/*
+Synopsis returns the help message of the command.
+*/
 func (glc *groupListCommand) Synopsis() string {
 	return "list groups."
 }
 
+/*
+Synopsis returns the help message of the command.
+*/
 func (grc *groupRemoveCommand) Synopsis() string {
 	return "remove given group."
 }
 
+/*
+Synopsis returns the help message of the command.
+*/
 func (guc *groupUpdateCommand) Synopsis() string {
 	return "update group."
 }
