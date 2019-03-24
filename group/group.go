@@ -67,8 +67,8 @@ func (group *groupUpdateCommand) updateGroup(db *common.Database, opt *updateOpt
 	if !db.HasGroup(opt.target) {
 		return fmt.Errorf("%s: group not found", opt.target)
 	}
-	if !db.UpdateGroup(opt.target, opt.newName, opt.desc) {
-		return fmt.Errorf("%s: failed to update to {%s, %s}", opt.target, opt.newName, opt.desc)
+	if !db.UpdateGroup(opt.target, opt.newName, opt.desc, opt.omitList) {
+		return fmt.Errorf("%s: failed to update to {%s, %s, %s}", opt.target, opt.newName, opt.desc, opt.omitList)
 	}
 	return nil
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"sort"
+	"strings"
 )
 
 /*
@@ -30,6 +31,7 @@ Group represents the groups of the Git repositories.
 type Group struct {
 	Name        string `json:"group_name"`
 	Description string `json:"group_desc"`
+	OmitList    bool   `json:"omit_list"`
 }
 
 /*
@@ -160,7 +162,7 @@ func (db *Database) CreateGroup(groupID string, description string) (*Group, err
 	if db.HasGroup(groupID) {
 		return nil, fmt.Errorf("%s: already registered group", groupID)
 	}
-	var group = Group{groupID, description}
+	var group = Group{groupID, description, false}
 	db.Groups = append(db.Groups, group)
 
 	sort.Slice(db.Groups, func(i, j int) bool {
@@ -174,7 +176,7 @@ func (db *Database) CreateGroup(groupID string, description string) (*Group, err
 UpdateGroup updates found group with `newGroupID` and `newDescription`.
 The return value is that the update is success or not.
 */
-func (db *Database) UpdateGroup(groupID string, newGroupID string, newDescription string) bool {
+func (db *Database) UpdateGroup(groupID string, newGroupID string, newDescription string, omitList string) bool {
 	if !db.HasGroup(groupID) {
 		return false
 	}
@@ -182,6 +184,7 @@ func (db *Database) UpdateGroup(groupID string, newGroupID string, newDescriptio
 		if group.Name == groupID {
 			db.Groups[i].Name = newGroupID
 			db.Groups[i].Description = newDescription
+			db.Groups[i].OmitList = strings.ToLower(omitList) == "true"
 		}
 	}
 	sort.Slice(db.Groups, func(i, j int) bool {

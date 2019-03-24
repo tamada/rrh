@@ -23,8 +23,8 @@ func ExampleGroupCommand_Run() {
 	var gc, _ = GroupCommandFactory()
 	gc.Run([]string{})
 	// Output:
-	// group1,(1 repository)
-	// group2,(0 repositories)
+	// group1,1 repository
+	// group2,0 repositories
 }
 
 func Example_groupListCommand_Run() {
@@ -32,8 +32,8 @@ func Example_groupListCommand_Run() {
 	var glc, _ = groupListCommandFactory()
 	glc.Run([]string{"-d", "-r"})
 	// Output:
-	// group1,desc1,[repo1],(1 repository)
-	// group2,desc2,[],(0 repositories)
+	// group1,desc1,[repo1],1 repository
+	// group2,desc2,[],0 repositories
 }
 
 func TestAddGroup(t *testing.T) {

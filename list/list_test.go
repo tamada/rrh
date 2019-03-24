@@ -60,6 +60,7 @@ OPTIONS
     -p, --path      print local paths (default).
     -r, --remote    print remote urls.
                     if any options of above are specified, '-a' are specified.
+	-n, --no-omit   print all repositories, no omittion.
 
     -c, --csv       print result as csv format.
 ARGUMENTS
@@ -81,8 +82,8 @@ func TestFindResults(t *testing.T) {
 		targets []string
 		want    []ListResult
 	}{
-		{[]string{"group1"}, []ListResult{{"group1", "desc1", []Repo{{"repo1", "path1", []common.Remote{}}}}}},
-		{[]string{"group2"}, []ListResult{{"group2", "desc2", []Repo{}}}},
+		{[]string{"group1"}, []ListResult{{"group1", "desc1", false, []Repo{{"repo1", "path1", []common.Remote{}}}}}},
+		{[]string{"group2"}, []ListResult{{"group2", "desc2", false, []Repo{}}}},
 	}
 
 	for _, data := range testdata {

@@ -209,7 +209,7 @@ func TestCreateGroupRelateAndUnrelate(t *testing.T) {
 func TestUpdateGroup(t *testing.T) {
 	var db = openDatabase()
 
-	db.UpdateGroup("no-group", "updated-group", "description")
+	db.UpdateGroup("no-group", "updated-group", "description", "false")
 	var group = db.FindGroup("updated-group")
 	if group.Name != "updated-group" {
 		t.Error("Update is failed (group name was not updated)")
@@ -218,7 +218,7 @@ func TestUpdateGroup(t *testing.T) {
 		t.Error("Update is failed (description was not updated)")
 	}
 
-	if db.UpdateGroup("unknown", "never used", "never used2") {
+	if db.UpdateGroup("unknown", "never used", "never used2", "false") {
 		t.Error("unknown group is successfully updated.")
 	}
 }

@@ -21,6 +21,7 @@ ListResult represents the result for showing.
 type ListResult struct {
 	GroupName   string
 	Description string
+	OmitList    bool
 	Repos       []Repo
 }
 
@@ -40,7 +41,7 @@ func (list *ListCommand) findList(db *common.Database, groupName string) (*ListR
 		}
 	}
 
-	return &ListResult{group.Name, group.Description, repos}, nil
+	return &ListResult{group.Name, group.Description, group.OmitList, repos}, nil
 }
 
 func (list *ListCommand) findAllGroupNames(db *common.Database) []string {
