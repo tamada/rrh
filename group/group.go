@@ -64,11 +64,25 @@ func (grc *groupRemoveCommand) removeGroups(db *common.Database) error {
 	return nil
 }
 
+func createNewGroup(opt *updateOptions, prevGroup *common.Group) common.Group {
+	var newGroup = common.Group{Name: opt.newName, Description: opt.desc, OmitList: strings.ToLower(opt.omitList) == "true"}
+	if opt.desc == "" {
+		newGroup.Description = prevGroup.Description
+	}
+	if opt.newName == "" {
+		newGroup.Name = prevGroup.Name
+	}
+	if opt.omitList == "" {
+		newGroup.OmitList = prevGroup.OmitList
+	}
+	return newGroup
+}
+
 func (group *groupUpdateCommand) updateGroup(db *common.Database, opt *updateOptions) error {
 	if !db.HasGroup(opt.target) {
 		return fmt.Errorf("%s: group not found", opt.target)
 	}
-	var newGroup = common.Group{Name: opt.newName, Description: opt.desc, OmitList: strings.ToLower(opt.omitList) == "true"}
+	var newGroup = createNewGroup(opt, db.FindGroup(opt.target))
 	if !db.UpdateGroup(opt.target, newGroup) {
 		return fmt.Errorf("%s: failed to update to {%s, %s, %s}", opt.target, opt.newName, opt.desc, opt.omitList)
 	}
