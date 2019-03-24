@@ -45,7 +45,11 @@ func TestRemoveRepository(t *testing.T) {
 		t.Error("unknown-repo: found")
 	}
 	var err = rm.executeRemoveRepository(db, "repo1")
+<<<<<<< HEAD
 	if len(db.Repositories) != 1 || err != nil {
+=======
+	if err != nil || len(db.Repositories) != 1 {
+>>>>>>> master
 		t.Errorf("repo1 did not remove?: %s", err.Error())
 	}
 	if len(db.Groups) != 3 {

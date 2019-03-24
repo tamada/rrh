@@ -7,6 +7,7 @@ import (
 
 func openDatabase() *Database {
 	os.Setenv(RrhDatabasePath, "../testdata/database.json")
+	os.Setenv(RrhConfigPath, "../testdata/config.json")
 	var config = OpenConfig()
 	var db, _ = Open(config)
 	return db
@@ -45,6 +46,9 @@ func TestOpenNullDatabase(t *testing.T) {
 	if len(db.Groups) != 0 {
 		t.Error("null db have no group entries")
 	}
+	if len(db.Relations) != 0 {
+		t.Error("null db have no group entries")
+	}
 }
 
 func TestStore(t *testing.T) {
@@ -72,7 +76,10 @@ func TestStore(t *testing.T) {
 	if !db2.HasRepository("repo2") {
 		t.Error("repo2 not found!")
 	}
-	os.Remove("./testdata/tmp.json")
+	if !db2.HasRelation("group1", "repo1") {
+		t.Error("group1 does not relate with repo1")
+	}
+
 }
 
 func TestPrune(t *testing.T) {
@@ -89,6 +96,9 @@ func TestPrune(t *testing.T) {
 	}
 	if db.HasRepository("repo2") {
 		t.Error("repo2 was not pruned")
+	}
+	if !db.HasRelation("group1", "repo1") {
+		t.Error("relation is removed?")
 	}
 }
 
@@ -131,7 +141,6 @@ func TestDeleteRepository(t *testing.T) {
 }
 
 func TestUnrelate(t *testing.T) {
-	t.Skip("db.Unrelate never failed.")
 	var db = openDatabase()
 
 	db.CreateRepository("somerepo", "unknown", []Remote{})
@@ -141,6 +150,10 @@ func TestUnrelate(t *testing.T) {
 
 	db.Unrelate("group2", "Rrh")
 	db.Unrelate("no-group", "rrh")
+
+	if !db.HasRelation("group2", "somerepo") {
+		t.Error("group2 does not relate with somerepo")
+	}
 }
 
 func TestCreateRepository(t *testing.T) {

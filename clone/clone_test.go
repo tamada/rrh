@@ -61,12 +61,12 @@ func TestCloneCommand_MultipleProjects(t *testing.T) {
 		if len(db.Repositories) != 4 {
 			t.Fatal("helloworld and fibonacci were not registered.")
 		}
-		var hwRepo = db.Repositories[1]
-		if message := validate(hwRepo, "helloworld", "../testdata/hoge/helloworld"); message != "" {
+		var hwRepo = db.FindRepository("helloworld")
+		if message := validate(*hwRepo, "helloworld", "../testdata/hoge/helloworld"); message != "" {
 			t.Error(message)
 		}
-		var fiboRepo = db.Repositories[0]
-		if message := validate(fiboRepo, "fibonacci", "../testdata/hoge/fibonacci"); message != "" {
+		var fiboRepo = db.FindRepository("fibonacci")
+		if message := validate(*fiboRepo, "fibonacci", "../testdata/hoge/fibonacci"); message != "" {
 			t.Error(message)
 		}
 		if !db.HasGroup("not-exist-group") || len(db.Groups) != 4 {
@@ -92,8 +92,8 @@ func TestCloneCommand_Run(t *testing.T) {
 		if len(db.Repositories) != 3 {
 			t.Fatal("helloworld was not registered.")
 		}
-		var repo = db.Repositories[0]
-		if message := validate(repo, "helloworld", "./helloworld"); message != "" {
+		var repo = db.FindRepository("helloworld")
+		if message := validate(*repo, "helloworld", "./helloworld"); message != "" {
 			t.Error(message)
 		}
 		if db.ContainsCount("no-group") != 1 || !db.HasRelation("no-group", "helloworld") {
@@ -115,8 +115,8 @@ func TestCloneCommand_SpecifyingId(t *testing.T) {
 		if len(db.Repositories) != 3 {
 			t.Fatal("newid was not registered.")
 		}
-		var repo = db.Repositories[0]
-		if message := validate(repo, "newid", "../testdata/newid"); message != "" {
+		var repo = db.FindRepository("newid")
+		if message := validate(*repo, "newid", "../testdata/newid"); message != "" {
 			t.Error(message)
 		}
 	})

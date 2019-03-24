@@ -57,7 +57,7 @@ func isTarget(options *statusOptions, ref *plumbing.Reference) bool {
 	return refName.String() == "HEAD" || options.isRemoteTarget(refName) || options.isBranchTarget(refName)
 }
 
-func (status *StatusCommand) findLocalBranches(name repo, r *git.Repository, options *statusOptions) ([]StatusResult, error) {
+func (status *StatusCommand) findLocalBranches(name repo, r *git.Repository) ([]StatusResult, error) {
 	var results = []StatusResult{}
 	var iter, err2 = r.References()
 	if err2 != nil {
@@ -65,7 +65,7 @@ func (status *StatusCommand) findLocalBranches(name repo, r *git.Repository, opt
 	}
 
 	iter.ForEach(func(ref *plumbing.Reference) error {
-		if isTarget(options, ref) {
+		if isTarget(status.Options, ref) {
 			var result, err = status.lastCommitOnLocalBranch(name, r, ref)
 			if err != nil {
 				return err
@@ -82,7 +82,7 @@ func (status *StatusCommand) findLocalBranches(name repo, r *git.Repository, opt
 	return results, nil
 }
 
-func (status *StatusCommand) findTime(path string, repoID string, db *common.Database) time.Time {
+func (status *StatusCommand) findTime(db *common.Database, path string, repoID string) time.Time {
 	var repo = db.FindRepository(repoID)
 	var absPath = common.ToAbsolutePath(repo.Path, db.Config)
 	var target = filepath.Join(absPath, path)
@@ -102,7 +102,7 @@ func (status *StatusCommand) findTime(path string, repoID string, db *common.Dat
 }
 
 func (status *StatusCommand) flagChecker(db *common.Database, rname string, key string, lastModified *time.Time) *time.Time {
-	var time = status.findTime(key, rname, db)
+	var time = status.findTime(db, key, rname)
 	if lastModified == nil || time.After(*lastModified) {
 		return &time
 	}
@@ -141,7 +141,7 @@ func (status *StatusCommand) findWorktree(name repo, r *git.Repository, db *comm
 	return &StatusResult{name.gname, name.rname, "WORKTREE", lastModified, status.generateMessage(staging, changesNotAdded)}, nil
 }
 
-func (status *StatusCommand) executeStatusOnRepository(db *common.Database, name repo, options *statusOptions) ([]StatusResult, error) {
+func (status *StatusCommand) executeStatusOnRepository(db *common.Database, name repo) ([]StatusResult, error) {
 	var r, err = status.openRepository(db, name.rname)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %s", name.rname, err.Error())
@@ -151,7 +151,7 @@ func (status *StatusCommand) executeStatusOnRepository(db *common.Database, name
 	if err2 != nil {
 		return nil, err2
 	}
-	var localBranches, err3 = status.findLocalBranches(name, r, options)
+	var localBranches, err3 = status.findLocalBranches(name, r)
 	if err3 != nil {
 		return nil, err3
 	}
@@ -161,36 +161,33 @@ func (status *StatusCommand) executeStatusOnRepository(db *common.Database, name
 	return results, nil
 }
 
-func (status *StatusCommand) executeStatus(db *common.Database, name string, options *statusOptions) ([]StatusResult, []error) {
+func (status *StatusCommand) executeStatus(db *common.Database, name string) ([]StatusResult, []error) {
 	if db.HasRepository(name) {
-		var results, err = status.executeStatusOnRepository(db, repo{"unknown-group", name}, options)
+		var results, err = status.executeStatusOnRepository(db, repo{"unknown-group", name})
 		if err != nil {
 			return results, []error{err}
 		}
 		return results, nil
 	} else if db.HasGroup(name) {
-		return status.executeStatusOnGroup(db, name, options)
+		return status.executeStatusOnGroup(db, name)
 	}
 	return nil, []error{fmt.Errorf("%s: group and repository not found", name)}
 }
 
-func (status *StatusCommand) executeStatusOnGroup(db *common.Database, groupName string, options *statusOptions) ([]StatusResult, []error) {
+func (status *StatusCommand) executeStatusOnGroup(db *common.Database, groupName string) ([]StatusResult, []error) {
 	var group = db.FindGroup(groupName)
 	if group == nil {
 		return nil, []error{fmt.Errorf("%s: group not found", groupName)}
 	}
 	var errors = []error{}
 	var results = []StatusResult{}
-	for _, relation := range db.Relations {
-		if relation.GroupName == groupName {
-			var sr, err = status.executeStatusOnRepository(db, repo{groupName, relation.RepositoryID}, options)
-			if err != nil {
-				errors = append(errors, err)
-			} else {
-				results = append(results, sr...)
-			}
+	for _, repoID := range db.FindRelationsOfGroup(groupName) {
+		var sr, err = status.executeStatusOnRepository(db, repo{groupName, repoID})
+		if err != nil {
+			errors = append(errors, err)
+		} else {
+			results = append(results, sr...)
 		}
 	}
-
 	return results, errors
 }
