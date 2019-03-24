@@ -138,20 +138,21 @@ func (db *Database) FindGroup(groupID string) *Group {
 }
 
 func sortIfNeeded(db *Database) {
-	if db.Config.GetValue(RrhSortOnUpdating) == "yes" {
-		sort.Slice(db.Repositories, func(i, j int) bool {
-			return db.Repositories[i].ID < db.Repositories[j].ID
-		})
-		sort.Slice(db.Groups, func(i, j int) bool {
-			return db.Groups[i].Name < db.Groups[j].Name
-		})
-		sort.Slice(db.Relations, func(i, j int) bool {
-			if db.Relations[i].GroupName == db.Relations[j].GroupName {
-				return db.Relations[i].RepositoryID < db.Relations[j].RepositoryID
-			}
-			return db.Relations[i].GroupName < db.Relations[j].GroupName
-		})
+	if db.Config.GetValue(RrhSortOnUpdating) != "true" {
+		return
 	}
+	sort.Slice(db.Repositories, func(i, j int) bool {
+		return db.Repositories[i].ID < db.Repositories[j].ID
+	})
+	sort.Slice(db.Groups, func(i, j int) bool {
+		return db.Groups[i].Name < db.Groups[j].Name
+	})
+	sort.Slice(db.Relations, func(i, j int) bool {
+		if db.Relations[i].GroupName == db.Relations[j].GroupName {
+			return db.Relations[i].RepositoryID < db.Relations[j].RepositoryID
+		}
+		return db.Relations[i].GroupName < db.Relations[j].GroupName
+	})
 }
 
 /*

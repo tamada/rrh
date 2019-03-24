@@ -13,6 +13,7 @@ import (
 StatusCommand represents a command.
 */
 type StatusCommand struct {
+	Options *statusOptions
 }
 
 type statusOptions struct {
@@ -34,7 +35,7 @@ func (options *statusOptions) isBranchTarget(name plumbing.ReferenceName) bool {
 StatusCommandFactory returns an instance of the StatusCommand.
 */
 func StatusCommandFactory() (cli.Command, error) {
-	return &StatusCommand{}, nil
+	return &StatusCommand{&statusOptions{false, false, false, []string{}}}, nil
 }
 
 /*
@@ -92,16 +93,16 @@ func (status *StatusCommand) printResult(results []StatusResult, config *common.
 	}
 }
 
-func (status *StatusCommand) runStatus(db *common.Database, arg string, options *statusOptions) int {
+func (status *StatusCommand) runStatus(db *common.Database, arg string) int {
 	var errorFlag = 0
-	var result, err = status.executeStatus(db, arg, options)
+	var result, err = status.executeStatus(db, arg)
 	if len(err) != 0 {
 		for _, item := range err {
 			fmt.Println(item.Error())
 			errorFlag = 1
 		}
 	} else {
-		if options.csv {
+		if status.Options.csv {
 			status.printResultInCsv(result, db.Config)
 		} else {
 			status.printResult(result, db.Config)
@@ -127,7 +128,7 @@ func (status *StatusCommand) Run(args []string) int {
 	}
 	var errorFlag = 0
 	for _, arg := range options.args {
-		errorFlag += status.runStatus(db, arg, options)
+		errorFlag += status.runStatus(db, arg)
 	}
 
 	return errorFlag
@@ -150,6 +151,7 @@ func (status *StatusCommand) parse(args []string, config *common.Config) (*statu
 	if len(options.args) == 0 {
 		options.args = []string{config.GetValue(common.RrhDefaultGroupName)}
 	}
+	status.Options = &options
 	return &options, nil
 }
 
