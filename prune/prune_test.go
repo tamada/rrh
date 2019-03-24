@@ -32,7 +32,7 @@ func TestHelp(t *testing.T) {
 func TestPrune(t *testing.T) {
 	var db = open("tmp.json")
 	db.Prune()
-	if len(db.Repositories) != 1 && len(db.Groups) != 1 {
+	if len(db.Repositories) != 1 && len(db.Groups) != 2 {
 		t.Error("prune failed")
 	}
 }
@@ -60,7 +60,7 @@ func ExamplePruneCommand_Run() {
 
 	var prune, _ = PruneCommandFactory()
 	prune.Run([]string{})
-	// Output: Pruned 2 groups, 2 repositories
+	// Output: Pruned 3 groups, 2 repositories
 
 	db.StoreAndClose()
 }

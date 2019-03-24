@@ -44,11 +44,11 @@ func TestRemoveRepository(t *testing.T) {
 	if err := rm.executeRemoveRepository(db, "unknown-repo"); err == nil {
 		t.Error("unknown-repo: found")
 	}
-	var _ = rm.executeRemoveRepository(db, "repo1")
-	if len(db.Repositories) != 1 {
-		t.Error("repo1 did not remove?")
+	var err = rm.executeRemoveRepository(db, "repo1")
+	if len(db.Repositories) != 1 || err != nil {
+		t.Errorf("repo1 did not remove?: %s", err.Error())
 	}
-	if len(db.Groups) != 2 {
+	if len(db.Groups) != 3 {
 		t.Error("the number of groups changed")
 	}
 	if db.ContainsCount("group1") != 0 || db.ContainsCount("group2") != 0 {
@@ -98,7 +98,7 @@ func TestRemoveRelation(t *testing.T) {
 	var rm, _ = RemoveCommandFactory()
 	rm.Run([]string{"-v", "group1/repo1"})
 	var db2 = open("tmp.json")
-	if len(db2.Repositories) != 2 && len(db2.Groups) != 2 {
+	if len(db2.Repositories) != 2 && len(db2.Groups) != 3 {
 		t.Error("repositories and groups are removed!")
 	}
 	if db2.ContainsCount("group1") != 0 || db2.ContainsCount("group2") != 0 {
@@ -114,7 +114,7 @@ func TestRunRemoveRepository(t *testing.T) {
 	var rm, _ = RemoveCommandFactory()
 	rm.Run([]string{"-v", "group2", "repo1"})
 	var db2 = open("tmp.json")
-	if len(db2.Repositories) != 1 && len(db2.Groups) != 1 {
+	if len(db2.Repositories) != 1 && len(db2.Groups) != 2 {
 		t.Errorf("repositories: %d, groups: %d\n", len(db2.Repositories), len(db2.Groups))
 	}
 	if db2.ContainsCount("group1") != 0 {

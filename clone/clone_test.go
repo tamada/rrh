@@ -69,7 +69,7 @@ func TestCloneCommand_MultipleProjects(t *testing.T) {
 		if message := validate(fiboRepo, "fibonacci", "../testdata/hoge/fibonacci"); message != "" {
 			t.Error(message)
 		}
-		if !db.HasGroup("not-exist-group") || len(db.Groups) != 3 {
+		if !db.HasGroup("not-exist-group") || len(db.Groups) != 4 {
 			t.Fatalf("not-exist-group: group not found: %v", db.Groups)
 		}
 		var group = db.FindGroup("not-exist-group")

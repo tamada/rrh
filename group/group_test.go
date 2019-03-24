@@ -25,6 +25,7 @@ func ExampleGroupCommand_Run() {
 	// Output:
 	// group1,1 repository
 	// group2,0 repositories
+	// group3,1 repository
 }
 
 func Example_groupListCommand_Run() {
@@ -34,21 +35,22 @@ func Example_groupListCommand_Run() {
 	// Output:
 	// group1,desc1,[repo1],1 repository
 	// group2,desc2,[],0 repositories
+	// group3,desc3,[repo2],1 repository
 }
 
 func TestAddGroup(t *testing.T) {
 	rollback("../testdata/tmp.json", func() {
 		var gac, _ = groupAddCommandFactory()
-		if val := gac.Run([]string{"-d", "desc3", "group3"}); val != 0 {
+		if val := gac.Run([]string{"-d", "desc4", "group4"}); val != 0 {
 			t.Errorf("group add failed: %d", val)
 		}
 		var config = common.OpenConfig()
 		var db2, _ = common.Open(config)
-		if len(db2.Groups) != 3 {
+		if len(db2.Groups) != 4 {
 			t.Fatal("group3 was not added.")
 		}
-		if db2.Groups[2].Name != "group3" || db2.Groups[2].Description != "desc3" {
-			t.Errorf("want: group3 (desc3), got: %s (%s)", db2.Groups[2].Name, db2.Groups[2].Description)
+		if db2.Groups[3].Name != "group4" || db2.Groups[3].Description != "desc4" {
+			t.Errorf("want: group3 (desc3), got: %s (%s)", db2.Groups[3].Name, db2.Groups[3].Description)
 		}
 	})
 }
@@ -61,11 +63,11 @@ func TestUpdateGroup(t *testing.T) {
 		}
 		var config = common.OpenConfig()
 		var db2, _ = common.Open(config)
-		if len(db2.Groups) != 2 {
+		if len(db2.Groups) != 3 {
 			t.Fatal("the length of group did not match")
 		}
-		if db2.Groups[1].Name != "newgroup2" || db2.Groups[1].Description != "newdesc2" {
-			t.Errorf("want: newgroup2 (newdesc2), got: %s (%s)", db2.Groups[1].Name, db2.Groups[1].Description)
+		if db2.Groups[2].Name != "newgroup2" || db2.Groups[2].Description != "newdesc2" {
+			t.Errorf("want: newgroup2 (newdesc2), got: %s (%s)", db2.Groups[2].Name, db2.Groups[2].Description)
 		}
 	})
 }
@@ -78,7 +80,7 @@ func TestRemoveGroup(t *testing.T) {
 		}
 		var config = common.OpenConfig()
 		var db2, _ = common.Open(config)
-		if len(db2.Groups) != 1 {
+		if len(db2.Groups) != 2 {
 			t.Fatalf("the length of group did not match: %v", db2.Groups)
 		}
 		if db2.Groups[0].Name != "group2" || db2.Groups[0].Description != "desc2" {

@@ -98,23 +98,29 @@ func (options *listOptions) printRepo(repo Repo, result ListResult, formatString
 	fmt.Println()
 }
 
-func (options *listOptions) printResult(result ListResult) {
+func (options *listOptions) printSimple(result ListResult) bool {
 	if !options.noOmit && result.OmitList {
 		if len(result.Repos) == 1 {
 			fmt.Printf("%s (1 repository)\n", result.GroupName)
 		} else {
 			fmt.Printf("%s (%d repositories)\n", result.GroupName, len(result.Repos))
 		}
-		return
+		return true
 	}
-	fmt.Println(result.GroupName)
-	if options.description || options.all {
-		fmt.Printf("    Description  %s", result.Description)
-		fmt.Println()
-	}
-	var formatString = options.generateFormatString(result.Repos)
-	for _, repo := range result.Repos {
-		options.printRepo(repo, result, formatString)
+	return false
+}
+
+func (options *listOptions) printResult(result ListResult) {
+	if !options.printSimple(result) {
+		fmt.Println(result.GroupName)
+		if options.description || options.all {
+			fmt.Printf("    Description  %s", result.Description)
+			fmt.Println()
+		}
+		var formatString = options.generateFormatString(result.Repos)
+		for _, repo := range result.Repos {
+			options.printRepo(repo, result, formatString)
+		}
 	}
 }
 

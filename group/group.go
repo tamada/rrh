@@ -2,6 +2,7 @@ package group
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/tamada/rrh/common"
 )
@@ -67,7 +68,8 @@ func (group *groupUpdateCommand) updateGroup(db *common.Database, opt *updateOpt
 	if !db.HasGroup(opt.target) {
 		return fmt.Errorf("%s: group not found", opt.target)
 	}
-	if !db.UpdateGroup(opt.target, opt.newName, opt.desc, opt.omitList) {
+	var newGroup = common.Group{Name: opt.newName, Description: opt.desc, OmitList: strings.ToLower(opt.omitList) == "true"}
+	if !db.UpdateGroup(opt.target, newGroup) {
 		return fmt.Errorf("%s: failed to update to {%s, %s, %s}", opt.target, opt.newName, opt.desc, opt.omitList)
 	}
 	return nil

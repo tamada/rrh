@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"sort"
-	"strings"
 )
 
 /*
@@ -176,15 +175,15 @@ func (db *Database) CreateGroup(groupID string, description string) (*Group, err
 UpdateGroup updates found group with `newGroupID` and `newDescription`.
 The return value is that the update is success or not.
 */
-func (db *Database) UpdateGroup(groupID string, newGroupID string, newDescription string, omitList string) bool {
+func (db *Database) UpdateGroup(groupID string, newGroup Group) bool {
 	if !db.HasGroup(groupID) {
 		return false
 	}
 	for i, group := range db.Groups {
 		if group.Name == groupID {
-			db.Groups[i].Name = newGroupID
-			db.Groups[i].Description = newDescription
-			db.Groups[i].OmitList = strings.ToLower(omitList) == "true"
+			db.Groups[i].Name = newGroup.Name
+			db.Groups[i].Description = newGroup.Description
+			db.Groups[i].OmitList = newGroup.OmitList
 		}
 	}
 	sort.Slice(db.Groups, func(i, j int) bool {

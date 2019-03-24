@@ -26,6 +26,7 @@ func ExampleListCommand_Run() {
 	//     repo1        path1
 	// group2
 	//     Description  desc2
+	// group3 (1 repository)
 }
 
 func TestRunByCsvOutput(t *testing.T) {
@@ -36,7 +37,7 @@ func TestRunByCsvOutput(t *testing.T) {
 		list.Run([]string{"--all", "--csv"})
 	})
 	result = strings.TrimSpace(result)
-	var want = "group1,desc1,repo1,path1"
+	var want = "group1,desc1,repo1,path1\ngroup3,desc3,repo2,path2"
 	if result != want {
 		t.Errorf("result did not match\ngot: %s\nwant: %s", result, want)
 	}
