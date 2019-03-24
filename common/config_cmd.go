@@ -145,6 +145,7 @@ func (clc *configListCommand) Run(args []string) int {
 	fmt.Println(config.formatVariableAndValue(RrhTimeFormat))
 	fmt.Println(config.formatVariableAndValue(RrhAutoCreateGroup))
 	fmt.Println(config.formatVariableAndValue(RrhAutoDeleteGroup))
+	fmt.Println(config.formatVariableAndValue(RrhSortOnUpdating))
 	return 0
 }
 

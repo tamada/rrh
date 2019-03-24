@@ -137,6 +137,23 @@ func (db *Database) FindGroup(groupID string) *Group {
 	return nil
 }
 
+func sortIfNeeded(db *Database) {
+	if db.Config.GetValue(RrhSortOnUpdating) == "yes" {
+		sort.Slice(db.Repositories, func(i, j int) bool {
+			return db.Repositories[i].ID < db.Repositories[j].ID
+		})
+		sort.Slice(db.Groups, func(i, j int) bool {
+			return db.Groups[i].Name < db.Groups[j].Name
+		})
+		sort.Slice(db.Relations, func(i, j int) bool {
+			if db.Relations[i].GroupName == db.Relations[j].GroupName {
+				return db.Relations[i].RepositoryID < db.Relations[j].RepositoryID
+			}
+			return db.Relations[i].GroupName < db.Relations[j].GroupName
+		})
+	}
+}
+
 /*
 CreateRepository returns the repository by creating the given parameters and store it to database.
 */
@@ -146,9 +163,7 @@ func (db *Database) CreateRepository(repoID string, path string, remotes []Remot
 	}
 	var repo = Repository{repoID, path, remotes}
 	db.Repositories = append(db.Repositories, repo)
-	sort.Slice(db.Repositories, func(i, j int) bool {
-		return db.Repositories[i].ID < db.Repositories[j].ID
-	})
+	sortIfNeeded(db)
 
 	return &repo, nil
 }
@@ -162,10 +177,7 @@ func (db *Database) CreateGroup(groupID string, description string) (*Group, err
 	}
 	var group = Group{groupID, description}
 	db.Groups = append(db.Groups, group)
-
-	sort.Slice(db.Groups, func(i, j int) bool {
-		return db.Groups[i].Name < db.Groups[j].Name
-	})
+	sortIfNeeded(db)
 
 	return &group, nil
 }
@@ -184,9 +196,7 @@ func (db *Database) UpdateGroup(groupID string, newGroupID string, newDescriptio
 			db.Groups[i].Description = newDescription
 		}
 	}
-	sort.Slice(db.Groups, func(i, j int) bool {
-		return db.Groups[i].Name < db.Groups[j].Name
-	})
+	sortIfNeeded(db)
 
 	return true
 }
@@ -201,9 +211,7 @@ func (db *Database) Relate(groupID string, repoID string) error {
 		return nil
 	}
 	db.Relations = append(db.Relations, Relation{repoID, groupID})
-	sort.Slice(db.Relations, func(i, j int) bool {
-		return db.Relations[i].GroupName < db.Relations[j].GroupName
-	})
+	sortIfNeeded(db)
 
 	return nil
 }
@@ -329,7 +337,7 @@ func (db *Database) DeleteRepository(repoID string) error {
 	return nil
 }
 
-func (db *Database) deleteGroup(groupID string) error {
+func deleteGroup(db *Database, groupID string) error {
 	var groups = []Group{}
 	for _, group := range db.Groups {
 		if group.Name != groupID {
@@ -353,7 +361,7 @@ func (db *Database) DeleteGroup(groupID string) error {
 	if groups[groupID] != 0 {
 		return fmt.Errorf("%s: group has %d relatins", groupID, groups[groupID])
 	}
-	return db.deleteGroup(groupID)
+	return deleteGroup(db, groupID)
 }
 
 /*
@@ -365,7 +373,7 @@ func (db *Database) ForceDeleteGroup(groupID string) error {
 		return fmt.Errorf("%s: group not found", groupID)
 	}
 	db.UnrelateFromGroup(groupID)
-	return db.deleteGroup(groupID)
+	return deleteGroup(db, groupID)
 }
 
 func databasePath(config *Config) string {
