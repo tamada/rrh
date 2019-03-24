@@ -183,7 +183,7 @@ ARGUMENTS
               if no groups are specified, all groups are printed.`
 }
 
-func (list *ListCommand) parse(args []string) (*listOptions, error) {
+func (list *ListCommand) buildFlagSet() (*flag.FlagSet, *listOptions) {
 	var options = listOptions{false, false, false, false, false, false, []string{}}
 	flags := flag.NewFlagSet("list", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(list.Help()) }
@@ -199,6 +199,11 @@ func (list *ListCommand) parse(args []string) (*listOptions, error) {
 	flags.BoolVar(&options.noOmit, "no-omit", false, "no omit repositories")
 	flags.BoolVar(&options.csv, "c", false, "print as csv format")
 	flags.BoolVar(&options.csv, "csv", false, "print as csv format")
+	return flags, &options
+}
+
+func (list *ListCommand) parse(args []string) (*listOptions, error) {
+	var flags, options = list.buildFlagSet()
 
 	if err := flags.Parse(args); err != nil {
 		return nil, err
@@ -207,6 +212,6 @@ func (list *ListCommand) parse(args []string) (*listOptions, error) {
 		options.localPath = true
 	}
 	options.args = flags.Args()
-	list.Options = &options
-	return &options, nil
+	list.Options = options
+	return options, nil
 }
