@@ -92,6 +92,7 @@ func ExampleConfigCommand_Run() {
 	// RRH_TIME_FORMAT: relative (default)
 	// RRH_AUTO_CREATE_GROUP: true (config_file)
 	// RRH_AUTO_DELETE_GROUP: false (config_file)
+	// RRH_SORT_ON_UPDATING: true (config_file)
 }
 func Example_configListCommand_Run() {
 	os.Setenv(RrhConfigPath, "../testdata/config.json")
@@ -107,6 +108,7 @@ func Example_configListCommand_Run() {
 	// RRH_TIME_FORMAT: relative (default)
 	// RRH_AUTO_CREATE_GROUP: true (config_file)
 	// RRH_AUTO_DELETE_GROUP: false (config_file)
+	// RRH_SORT_ON_UPDATING: true (config_file)
 }
 
 func TestOpenConfigBrokenJson(t *testing.T) {
@@ -127,6 +129,7 @@ func TestLoadConfigFile(t *testing.T) {
 	}{
 		{RrhAutoDeleteGroup, "false", ConfigFile},
 		{RrhAutoCreateGroup, "true", ConfigFile},
+		{RrhSortOnUpdating, "true", ConfigFile},
 		{RrhConfigPath, "../testdata/config.json", Env},
 		{RrhTimeFormat, Relative, Default},
 		{RrhOnError, Warn, Default},
@@ -154,9 +157,12 @@ func TestUpdateTrueFalseValue(t *testing.T) {
 	}{
 		{RrhAutoDeleteGroup, "True", false, "true"},
 		{RrhAutoDeleteGroup, "FALSE", false, "false"},
+		{RrhAutoDeleteGroup, "FALSE", false, "false"},
 		{RrhAutoDeleteGroup, "YES", true, ""},
 		{RrhAutoCreateGroup, "FALSE", false, "false"},
 		{RrhAutoCreateGroup, "YES", true, ""},
+		{RrhSortOnUpdating, "FALSE", false, "false"},
+		{RrhSortOnUpdating, "YES", true, ""},
 	}
 
 	for _, data := range testdata {
@@ -235,6 +241,7 @@ func TestOpenConfig(t *testing.T) {
 		{RrhOnError, Warn},
 		{RrhAutoCreateGroup, "false"},
 		{RrhAutoDeleteGroup, "false"},
+		{RrhSortOnUpdating, "false"},
 		{RrhTimeFormat, Relative},
 		{"unknown", ""},
 	}

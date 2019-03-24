@@ -19,6 +19,7 @@ const (
 	RrhAutoDeleteGroup  = "RRH_AUTO_DELETE_GROUP"
 	RrhAutoCreateGroup  = "RRH_AUTO_CREATE_GROUP"
 	RrhTimeFormat       = "RRH_TIME_FORMAT"
+	RrhSortOnUpdating   = "RRH_SORT_ON_UPDATING"
 )
 
 const (
@@ -45,6 +46,7 @@ type Config struct {
 	DefaultGroupName string `json:"rrh_default_group_name"`
 	TimeFormat       string `json:"rrh_time_format"`
 	OnError          string `json:"rrh_on_error"`
+	SortOnUpdating   string `json:"rrh_sort_on_updating"`
 }
 
 func trueOrFalse(value string) (string, error) {
@@ -76,6 +78,12 @@ func (config *Config) Update(label string, value string) error {
 		var flag, err = trueOrFalse(value)
 		if err == nil {
 			config.AutoCreateGroup = flag
+		}
+		return err
+	case RrhSortOnUpdating:
+		var flag, err = trueOrFalse(value)
+		if err == nil {
+			config.SortOnUpdating = flag
 		}
 		return err
 	case RrhHome:
@@ -118,6 +126,8 @@ func (config *Config) GetString(label string) (value string, readFrom string) {
 		return config.getStringFromEnv(RrhAutoDeleteGroup, config.AutoDeleteGroup)
 	case RrhAutoCreateGroup:
 		return config.getStringFromEnv(RrhAutoCreateGroup, config.AutoCreateGroup)
+	case RrhSortOnUpdating:
+		return config.getStringFromEnv(RrhSortOnUpdating, config.SortOnUpdating)
 	case RrhHome:
 		return config.getStringFromEnv(RrhHome, config.Home)
 	case RrhConfigPath:
@@ -163,6 +173,8 @@ func (config *Config) findDefaultValue(label string) (value string, readFrom str
 	case RrhAutoDeleteGroup:
 		return "false", Default
 	case RrhAutoCreateGroup:
+		return "false", Default
+	case RrhSortOnUpdating:
 		return "false", Default
 	default:
 		return "", NotFound
