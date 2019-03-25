@@ -12,6 +12,7 @@ import (
 	"github.com/tamada/rrh/fetch"
 	"github.com/tamada/rrh/group"
 	"github.com/tamada/rrh/list"
+	"github.com/tamada/rrh/move"
 	"github.com/tamada/rrh/prune"
 	"github.com/tamada/rrh/remove"
 	"github.com/tamada/rrh/status"
@@ -31,6 +32,7 @@ func main() {
 		"fetch-all": fetch.FetchAllCommandFactory,
 		"group":     group.GroupCommandFactory,
 		"list":      list.ListCommandFactory,
+		"mv":        move.MoveCommandFactory,
 		"prune":     prune.PruneCommandFactory,
 		"rm":        remove.RemoveCommandFactory,
 		"status":    status.StatusCommandFactory,
