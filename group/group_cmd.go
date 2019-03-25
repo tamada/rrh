@@ -183,9 +183,9 @@ func (glc *groupListCommand) printAll(results []GroupResult, options *listOption
 			fmt.Printf("%v,", result.Repos)
 		}
 		if len(result.Repos) == 1 {
-			fmt.Println("(1 repository)")
+			fmt.Println("1 repository")
 		} else {
-			fmt.Printf("(%d repositories)\n", len(result.Repos))
+			fmt.Printf("%d repositories\n", len(result.Repos))
 		}
 	}
 }
@@ -281,9 +281,10 @@ func (grc *groupRemoveCommand) Run(args []string) int {
 }
 
 type updateOptions struct {
-	newName string
-	desc    string
-	target  string
+	newName  string
+	desc     string
+	omitList string
+	target   string
 }
 
 /*
@@ -314,10 +315,12 @@ func (guc *groupUpdateCommand) parse(args []string) (*updateOptions, error) {
 	var opt = updateOptions{}
 	flags := flag.NewFlagSet("update", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(guc.Help()) }
-	flags.StringVar(&opt.newName, "n", "", "show description")
-	flags.StringVar(&opt.newName, "name", "", "show description")
-	flags.StringVar(&opt.desc, "d", "", "show repositories")
-	flags.StringVar(&opt.desc, "desc", "", "show repositories")
+	flags.StringVar(&opt.newName, "n", "", "specify new group name")
+	flags.StringVar(&opt.newName, "name", "", "specify new group name")
+	flags.StringVar(&opt.desc, "d", "", "specify the description")
+	flags.StringVar(&opt.desc, "desc", "", "specify the description")
+	flags.StringVar(&opt.omitList, "omit-list", "false", "set the omit list flag. ")
+	flags.StringVar(&opt.omitList, "o", "false", "set the omit list flag. ")
 
 	if err := flags.Parse(args); err != nil {
 		return nil, err

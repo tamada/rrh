@@ -14,6 +14,7 @@ type listOptions struct {
 	localPath   bool
 	remoteURL   bool
 	csv         bool
+	noOmit      bool
 	args        []string
 }
 
@@ -97,15 +98,29 @@ func (options *listOptions) printRepo(repo Repo, result ListResult, formatString
 	fmt.Println()
 }
 
-func (options *listOptions) printResult(result ListResult) {
-	fmt.Println(result.GroupName)
-	if options.description || options.all {
-		fmt.Printf("    Description  %s", result.Description)
-		fmt.Println()
+func (options *listOptions) printSimple(result ListResult) bool {
+	if !options.noOmit && result.OmitList {
+		if len(result.Repos) == 1 {
+			fmt.Printf("%s (1 repository)\n", result.GroupName)
+		} else {
+			fmt.Printf("%s (%d repositories)\n", result.GroupName, len(result.Repos))
+		}
+		return true
 	}
-	var formatString = options.generateFormatString(result.Repos)
-	for _, repo := range result.Repos {
-		options.printRepo(repo, result, formatString)
+	return false
+}
+
+func (options *listOptions) printResult(result ListResult) {
+	if !options.printSimple(result) {
+		fmt.Println(result.GroupName)
+		if options.description || options.all {
+			fmt.Printf("    Description  %s", result.Description)
+			fmt.Println()
+		}
+		var formatString = options.generateFormatString(result.Repos)
+		for _, repo := range result.Repos {
+			options.printRepo(repo, result, formatString)
+		}
 	}
 }
 
@@ -160,6 +175,7 @@ OPTIONS
     -p, --path      print local paths (default).
     -r, --remote    print remote urls.
                     if any options of above are specified, '-a' are specified.
+	-n, --no-omit   print all repositories, no omittion.
 
     -c, --csv       print result as csv format.
 ARGUMENTS
@@ -167,8 +183,8 @@ ARGUMENTS
               if no groups are specified, all groups are printed.`
 }
 
-func (list *ListCommand) parse(args []string) (*listOptions, error) {
-	var options = listOptions{false, false, false, false, false, []string{}}
+func (list *ListCommand) buildFlagSet() (*flag.FlagSet, *listOptions) {
+	var options = listOptions{false, false, false, false, false, false, []string{}}
 	flags := flag.NewFlagSet("list", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(list.Help()) }
 	flags.BoolVar(&options.all, "a", false, "all flag")
@@ -179,8 +195,15 @@ func (list *ListCommand) parse(args []string) (*listOptions, error) {
 	flags.BoolVar(&options.localPath, "path", false, "local path flag")
 	flags.BoolVar(&options.remoteURL, "r", false, "remote url flag")
 	flags.BoolVar(&options.remoteURL, "remote", false, "remote url flag")
+	flags.BoolVar(&options.noOmit, "n", false, "no omit repositories")
+	flags.BoolVar(&options.noOmit, "no-omit", false, "no omit repositories")
 	flags.BoolVar(&options.csv, "c", false, "print as csv format")
 	flags.BoolVar(&options.csv, "csv", false, "print as csv format")
+	return flags, &options
+}
+
+func (list *ListCommand) parse(args []string) (*listOptions, error) {
+	var flags, options = list.buildFlagSet()
 
 	if err := flags.Parse(args); err != nil {
 		return nil, err
@@ -189,6 +212,6 @@ func (list *ListCommand) parse(args []string) (*listOptions, error) {
 		options.localPath = true
 	}
 	options.args = flags.Args()
-	list.Options = &options
-	return &options, nil
+	list.Options = options
+	return options, nil
 }

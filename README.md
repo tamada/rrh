@@ -180,7 +180,7 @@ rrh group <SUBCOMMAND>
 SUBCOMMAND
     add       add new group.
     list      list groups (default).
-    rm        remove group.
+    rm        remove group
     update    update group
 ```
 
@@ -196,6 +196,7 @@ OPTIONS
     -p, --path      print local paths (default).
     -r, --remote    print remote urls.
                     if any options of above are specified, '-a' are specified.
+    -n, --no-omit   print all repositories, no omit.
 
     -c, --csv       print result as csv format.
 ARGUMENTS
@@ -295,6 +296,9 @@ We can see those variables by running `rrh config` sub-command.
 * `RRH_AUTO_DELETE_GROUP`
     * specifies to delete the group when some group was no more needed.
     * default: false
+* `RRH_SORT_ON_UPDATING`
+    * specifies to sort database entries on updating database.
+    * default: false
 
 ## Database
 
@@ -309,7 +313,7 @@ Also, the configuration file is on `$RRH_ROOT/config.json`
     last-modified: '2019-01-01T',
     repositories: [
         {
-            repository_id: 'repository_id1', // unique key of repository.
+            repository_id: 'rrh', // unique key of repository.
             repository_path: 'absolute/path/of/repository',
             remotes: [
                 {
@@ -322,11 +326,17 @@ Also, the configuration file is on `$RRH_ROOT/config.json`
     ]
     groups: [
         {
-            group_name: 'group_name',
-            group_desc: 'The description of the group.'
-            group_items: [ 'repository_id1', 'repository_id2', ... ]
+            group_name: 'no-group',
+            group_desc: 'The description of the group.',
+            omit_list: false
         },
         ....
+    ],
+    relations: [
+        {
+            repository_id: 'rrh',
+            group_name: 'no-group'
+        }
     ]
 }
 ```
