@@ -165,38 +165,32 @@ func convertToTarget(db *common.Database, froms []string, to string) ([]target, 
 	return targetFrom, targetTo
 }
 
+func (mv *MoveCommand) performImpl(db *common.Database, froms []target, to target, executionType int) []error {
+	switch executionType {
+	case GroupToGroup:
+		return mv.moveGroupToGroup(db, froms[0], to)
+	case GroupsToGroup:
+		return mv.moveGroupsToGroup(db, froms, to)
+	case RepositoriesToGroup:
+		return mv.moveRepositoriesToGroup(db, froms, to)
+	case RepositoryToRepository:
+		var err = mv.moveRepositoryToRepository(db, froms[0], to)
+		if err != nil {
+			return []error{err}
+		}
+	default:
+		return []error{fmt.Errorf("%d: unknown execution type", executionType)}
+	}
+	return []error{}
+}
+
 func (mv *MoveCommand) perform(db *common.Database) int {
-	var list = []error{}
 	var from, to = convertToTarget(db, mv.Options.from, mv.Options.to)
 	var executionType, err = verifyArguments(db, from, to)
 	if err != nil {
 		return printError(db.Config, []error{err})
 	}
-	switch executionType {
-	case GroupToGroup:
-		var errs = mv.moveGroupToGroup(db, from[0], to)
-		if len(errs) > 0 {
-			list = append(list, errs...)
-		}
-	case GroupsToGroup:
-		var errs = mv.moveGroupsToGroup(db, from, to)
-		if len(errs) > 0 {
-			list = append(list, errs...)
-		}
-	case RepositoriesToGroup:
-		var errs = mv.moveRepositoriesToGroup(db, from, to)
-		if len(errs) > 0 {
-			list = append(list, errs...)
-		}
-	case RepositoryToRepository:
-		var err = mv.moveRepositoryToRepository(db, from[0], to)
-		if err != nil {
-			list = append(list, err)
-		}
-	default:
-		list = append(list, fmt.Errorf("%d: unknown execution type", executionType))
-	}
-
+	var list = mv.performImpl(db, from, to, executionType)
 	var statusCode = printError(db.Config, list)
 	if statusCode == 0 {
 		db.StoreAndClose()
