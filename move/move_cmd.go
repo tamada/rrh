@@ -44,7 +44,7 @@ func printError(config *common.Config, errs []error) int {
 		}
 	}
 	if len(errs) > 0 && (onError == common.Fail || onError == common.FailImmediately) {
-		return 1
+		return 4
 	}
 	return 0
 }
@@ -64,25 +64,24 @@ type target struct {
 	original       string
 }
 
-func parseType(db *common.Database, typeString string) (target, error) {
-	if strings.Contains(typeString, "/") {
-		var types = strings.SplitN(typeString, "/", 2)
-		var groupFound = db.HasGroup(types[0])
-		var repoFound = db.HasRepository(types[1])
-		if !groupFound && !repoFound {
-			return target{Unknown, types[0], types[1], typeString}, fmt.Errorf("%s: group %s and repository %s not found", typeString, types[0], types[1])
-		} else if !groupFound && repoFound {
-			return target{GroupAndRepoType, types[0], types[1], typeString}, fmt.Errorf("%s: group %s not found", typeString, types[0])
-		} else if groupFound && !repoFound {
-			return target{GroupAndRepoType, types[0], types[1], typeString}, fmt.Errorf("%s: repository %s not found", typeString, types[1])
-		} else if !db.HasRelation(types[0], types[1]) {
-			return target{GroupAndRepoType, types[0], types[1], typeString}, fmt.Errorf("%s and %s: no relation", types[0], types[1])
-		}
-		return target{GroupAndRepoType, types[0], types[1], typeString}, nil
+func parseCompound(db *common.Database, types []string, original string) (target, error) {
+	var groupFound = db.HasGroup(types[0])
+	var repoFound = db.HasRepository(types[1])
+	if !groupFound && !repoFound {
+		return target{Unknown, types[0], types[1], original}, fmt.Errorf("%s: group %s and repository %s not found", original, types[0], types[1])
+	} else if !groupFound && repoFound {
+		return target{GroupAndRepoType, types[0], types[1], original}, fmt.Errorf("%s: group %s not found", original, types[0])
+	} else if groupFound && !repoFound {
+		return target{GroupAndRepoType, types[0], types[1], original}, fmt.Errorf("%s: repository %s not found", original, types[1])
+	} else if !db.HasRelation(types[0], types[1]) {
+		return target{GroupAndRepoType, types[0], types[1], original}, fmt.Errorf("%s and %s: no relation", types[0], types[1])
 	}
+	return target{GroupAndRepoType, types[0], types[1], original}, nil
+}
+
+func parseEither(db *common.Database, typeString string) (target, error) {
 	var groupFound = db.HasGroup(typeString)
 	var repositoryFound = db.HasRepository(typeString)
-
 	if groupFound && repositoryFound {
 		return target{Unknown, "", "", typeString}, fmt.Errorf("%s: group and repository both exist", typeString)
 	} else if groupFound && !repositoryFound {
@@ -91,6 +90,14 @@ func parseType(db *common.Database, typeString string) (target, error) {
 		return target{RepositoryType, "", typeString, typeString}, nil
 	}
 	return target{GroupOrRepoType, typeString, "", typeString}, nil
+}
+
+func parseType(db *common.Database, typeString string) (target, error) {
+	if strings.Contains(typeString, "/") {
+		var types = strings.SplitN(typeString, "/", 2)
+		return parseCompound(db, types, typeString)
+	}
+	return parseEither(db, typeString)
 }
 
 func mergeType(types []int) (int, error) {
@@ -111,17 +118,30 @@ const (
 	Invalid
 )
 
+func isGroupToGroup(fromType int, toType int) bool {
+	return fromType == GroupType && (toType == GroupType || toType == GroupOrRepoType)
+}
+
+func isRepositoriesToGroup(fromType int, toType int) bool {
+	var flag = (toType == GroupType || toType == GroupOrRepoType)
+	return fromType == GroupAndRepoType && flag ||
+		fromType == RepositoryType && flag
+}
+
+func isRepositoryToRepository(fromType int, toType int) bool {
+	return fromType == RepositoryType || fromType == GroupAndRepoType &&
+		toType == GroupAndRepoType
+}
+
 func verifyArgumentsOneToOne(db *common.Database, from target, to target) (int, error) {
 	if from.targetType == Unknown {
 		return Invalid, fmt.Errorf("%s: unknown type not acceptable", from.original)
 	}
-	if from.targetType == GroupType && (to.targetType == GroupType || to.targetType == GroupOrRepoType) {
+	if isGroupToGroup(from.targetType, to.targetType) {
 		return GroupToGroup, nil
-	} else if from.targetType == GroupAndRepoType && (to.targetType == GroupType || to.targetType == GroupOrRepoType) {
+	} else if isRepositoriesToGroup(from.targetType, to.targetType) {
 		return RepositoriesToGroup, nil
-	} else if from.targetType == RepositoryType && (to.targetType == GroupType || to.targetType == GroupOrRepoType) {
-		return RepositoriesToGroup, nil
-	} else if (from.targetType == RepositoryType || from.targetType == GroupAndRepoType) && to.targetType == GroupAndRepoType {
+	} else if isRepositoryToRepository(from.targetType, to.targetType) {
 		return RepositoryToRepository, nil
 	} else if to.targetType != GroupType && to.targetType != GroupOrRepoType {
 		return Invalid, fmt.Errorf("%s: not group", to.original)
@@ -221,8 +241,6 @@ func buildFlagSet(mv *MoveCommand) (*flag.FlagSet, *moveOptions) {
 	var options = moveOptions{false, false, []string{}, ""}
 	flags := flag.NewFlagSet("mv", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(mv.Help()) }
-	flags.BoolVar(&options.inquiry, "i", false, "inquiry mode")
-	flags.BoolVar(&options.inquiry, "inquiry", false, "inquiry mode")
 	flags.BoolVar(&options.verbose, "v", false, "verbose mode")
 	flags.BoolVar(&options.verbose, "verbose", false, "verbose mode")
 	return flags, &options
@@ -251,7 +269,6 @@ func (mv *MoveCommand) Help() string {
 	return `rrh mv [OPTIONS] <FROMS...> <TO>
 OPTIONS
     -v, --verbose   verbose mode
-    -i, --inquiry   inquiry mode
 
 ARGUMENTS
     FROMS...        specifies move from, formatted in <GROUP_NAME/REPO_ID>, or <GROUP_NAME>

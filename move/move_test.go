@@ -15,6 +15,7 @@ func rollback(dbpath string, f func()) {
 
 	db.StoreAndClose()
 }
+
 func open(jsonName string) *common.Database {
 	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
 	os.Setenv(common.RrhDatabasePath, fmt.Sprintf("../testdata/%s", jsonName))
@@ -23,7 +24,30 @@ func open(jsonName string) *common.Database {
 	return db
 }
 
-func TestMoveRepositoryToRepository(t *testing.T) {
+func TestParseError(t *testing.T) {
+	var testcases = []struct {
+		args       []string
+		statusCode int
+	}{
+		{[]string{"--unknown-option"}, 1},
+		{[]string{"too_few_arguments"}, 1},
+		{[]string{"group1/repo1", "group3/repo5"}, 4},
+	}
+	os.Setenv(common.RrhOnError, common.Fail)
+
+	for _, testcase := range testcases {
+		common.CaptureStdout(func() {
+			var mv, _ = MoveCommandFactory()
+			var status = mv.Run(testcase.args)
+			if status != testcase.statusCode {
+				t.Errorf("args: %v, statusCode: wont: %d, got: %d", testcase.args, testcase.statusCode, status)
+			}
+		})
+	}
+	os.Setenv(common.RrhOnError, common.Warn)
+}
+
+func TestMoveCommand(t *testing.T) {
 	type relation struct {
 		group       string
 		repo        string
@@ -147,12 +171,12 @@ func TestSynopsis(t *testing.T) {
 		t.Error("Synopsis message is not matched.")
 	}
 }
+
 func TestHelp(t *testing.T) {
 	var mv = MoveCommand{}
 	const helpMessage = `rrh mv [OPTIONS] <FROMS...> <TO>
 OPTIONS
     -v, --verbose   verbose mode
-    -i, --inquiry   inquiry mode
 
 ARGUMENTS
     FROMS...        specifies move from, formatted in <GROUP_NAME/REPO_ID>, or <GROUP_NAME>

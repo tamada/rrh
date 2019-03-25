@@ -213,7 +213,6 @@ Move repositories to another group.
 rrh mv [OPTIONS] <FROMS...> <TO>
 OPTIONS
     -v, --verbose   verbose mode
-    -i, --inquiry   inquiry mode
 
 ARGUMENTS
     FROMS...        specifies move from, formatted in <GROUP_NAME/REPO_ID>, or <GROUP_NAME>
