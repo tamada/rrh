@@ -139,7 +139,7 @@ func (db *Database) FindGroup(groupID string) *Group {
 }
 
 func sortIfNeeded(db *Database) {
-	if db.Config.IsSet(RrhSortOnUpdating) {
+	if !db.Config.IsSet(RrhSortOnUpdating) {
 		return
 	}
 	sort.Slice(db.Repositories, func(i, j int) bool {
