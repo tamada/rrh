@@ -134,7 +134,7 @@ func (status *StatusCommand) Run(args []string) int {
 	return errorFlag
 }
 
-func (status *StatusCommand) parse(args []string, config *common.Config) (*statusOptions, error) {
+func (status *StatusCommand) buildFlagSet() (*flag.FlagSet, *statusOptions) {
 	var options = statusOptions{false, false, false, []string{}}
 	flags := flag.NewFlagSet("status", flag.ExitOnError)
 	flags.Usage = func() { fmt.Println(status.Help()) }
@@ -144,6 +144,11 @@ func (status *StatusCommand) parse(args []string, config *common.Config) (*statu
 	flags.BoolVar(&options.remote, "remote", false, "remote branch status")
 	flags.BoolVar(&options.branch, "b", false, "local branch status")
 	flags.BoolVar(&options.branch, "branch", false, "local branch status")
+	return flags, &options
+}
+
+func (status *StatusCommand) parse(args []string, config *common.Config) (*statusOptions, error) {
+	var flags, options = status.buildFlagSet()
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
@@ -151,8 +156,8 @@ func (status *StatusCommand) parse(args []string, config *common.Config) (*statu
 	if len(options.args) == 0 {
 		options.args = []string{config.GetValue(common.RrhDefaultGroupName)}
 	}
-	status.Options = &options
-	return &options, nil
+	status.Options = options
+	return options, nil
 }
 
 /*
