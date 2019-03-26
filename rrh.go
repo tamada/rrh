@@ -12,17 +12,14 @@ import (
 	"github.com/tamada/rrh/fetch"
 	"github.com/tamada/rrh/group"
 	"github.com/tamada/rrh/list"
+	"github.com/tamada/rrh/move"
 	"github.com/tamada/rrh/prune"
 	"github.com/tamada/rrh/remove"
 	"github.com/tamada/rrh/status"
 )
 
-func main() {
-	c := cli.NewCLI("rrh", common.VERSION)
-	c.Name = "rrh"
-	c.Args = os.Args[1:]
-	c.Autocomplete = true
-	c.Commands = map[string]cli.CommandFactory{
+func buildCommandFactoryMap() map[string]cli.CommandFactory {
+	return map[string]cli.CommandFactory{
 		"add":       add.AddCommandFactory,
 		"clone":     clone.CloneCommandFactory,
 		"config":    common.ConfigCommandFactory,
@@ -31,10 +28,19 @@ func main() {
 		"fetch-all": fetch.FetchAllCommandFactory,
 		"group":     group.GroupCommandFactory,
 		"list":      list.ListCommandFactory,
+		"mv":        move.MoveCommandFactory,
 		"prune":     prune.PruneCommandFactory,
 		"rm":        remove.RemoveCommandFactory,
 		"status":    status.StatusCommandFactory,
 	}
+}
+
+func main() {
+	c := cli.NewCLI("rrh", common.VERSION)
+	c.Name = "rrh"
+	c.Args = os.Args[1:]
+	c.Autocomplete = true
+	c.Commands = buildCommandFactoryMap()
 
 	exitStatus, err := c.Run()
 	if err != nil {

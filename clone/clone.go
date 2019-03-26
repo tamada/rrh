@@ -50,16 +50,20 @@ DoClone performs `git clone` command and register the cloned repositories to RRH
 */
 func (clone *CloneCommand) DoClone(db *common.Database, arguments []string) (int, []error) {
 	if len(arguments) == 1 {
-		var err = clone.DoCloneARepository(db, arguments[0])
+		var err = clone.doCloneARepository(db, arguments[0])
 		if err != nil {
 			return 0, []error{err}
 		}
 		return 1, []error{}
 	}
+	return clone.doCloneRepositories(db, arguments)
+}
+
+func (clone *CloneCommand) doCloneRepositories(db *common.Database, arguments []string) (int, []error) {
 	var errorlist = []error{}
 	var count = 0
 	for _, url := range arguments {
-		var increment, err = clone.DoCloneEachRepository(db, url)
+		var increment, err = clone.doCloneEachRepository(db, url)
 		if err != nil {
 			errorlist = append(errorlist, err)
 			if db.Config.GetValue(common.RrhOnError) == common.FailImmediately {
@@ -72,22 +76,19 @@ func (clone *CloneCommand) DoClone(db *common.Database, arguments []string) (int
 }
 
 func (clone *CloneCommand) relateTo(db *common.Database, groupID string, repoID string) error {
-	if !db.HasGroup(groupID) {
-		if db.Config.GetValue(common.RrhAutoCreateGroup) == "true" {
-			db.CreateGroup(groupID, "")
-		} else {
-			return fmt.Errorf("%s: group not found", groupID)
-		}
+	var _, err = db.AutoCreateGroup(groupID, "")
+	if err != nil {
+		return fmt.Errorf("%s: group not found", groupID)
 	}
 	db.Relate(groupID, repoID)
 	return nil
 }
 
 /*
-DoCloneEachRepository performes `git clone` for each repository.
+doCloneEachRepository performes `git clone` for each repository.
 This function is called repeatedly.
 */
-func (clone *CloneCommand) DoCloneEachRepository(db *common.Database, URL string) (int, error) {
+func (clone *CloneCommand) doCloneEachRepository(db *common.Database, URL string) (int, error) {
 	var count int
 	var id = findID(URL)
 	var path = filepath.Join(clone.Options.dest, id)
@@ -104,7 +105,7 @@ func (clone *CloneCommand) DoCloneEachRepository(db *common.Database, URL string
 /*
 DoCloneARepository clones a repository from given URL.
 */
-func (clone *CloneCommand) DoCloneARepository(db *common.Database, URL string) error {
+func (clone *CloneCommand) doCloneARepository(db *common.Database, URL string) error {
 	var id, path string
 
 	if clone.isExistDir(clone.Options.dest) {

@@ -35,6 +35,24 @@ func (options *removeOptions) printIfVerbose(message string) {
 	}
 }
 
+func (rm *RemoveCommand) perform(db *common.Database) int {
+	var result = 0
+	for _, target := range rm.Options.args {
+		var err = rm.executeRemove(db, target)
+		if err != nil {
+			fmt.Println(err.Error())
+			result = 3
+		}
+	}
+	if result == 0 {
+		if db.Config.IsSet(common.RrhAutoDeleteGroup) {
+			db.Prune()
+		}
+		db.StoreAndClose()
+	}
+	return result
+}
+
 /*
 Run performs the command.
 */
@@ -50,26 +68,10 @@ func (rm *RemoveCommand) Run(args []string) int {
 		fmt.Println(err1.Error())
 		return 2
 	}
-
-	var result = 0
-	for _, target := range rm.Options.args {
-		var err = rm.executeRemove(db, target)
-		if err != nil {
-			fmt.Println(err.Error())
-			result = 3
-		}
-	}
-	if result == 0 {
-		if config.GetValue(common.RrhAutoDeleteGroup) == "true" {
-			db.Prune()
-		}
-		db.StoreAndClose()
-	}
-
-	return result
+	return rm.perform(db)
 }
 
-func (rm *RemoveCommand) parse(args []string) (*removeOptions, error) {
+func (rm *RemoveCommand) buildFlagSet() (*flag.FlagSet, *removeOptions) {
 	var options = removeOptions{false, false, false, []string{}}
 	flags := flag.NewFlagSet("rm", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(rm.Help()) }
@@ -79,12 +81,16 @@ func (rm *RemoveCommand) parse(args []string) (*removeOptions, error) {
 	flags.BoolVar(&options.inquiry, "inquiry", false, "inquiry flag")
 	flags.BoolVar(&options.verbose, "verbose", false, "verbose flag")
 	flags.BoolVar(&options.recursive, "recursive", false, "recursive flag")
+	return flags, &options
+}
 
+func (rm *RemoveCommand) parse(args []string) (*removeOptions, error) {
+	var flags, options = rm.buildFlagSet()
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
 	options.args = flags.Args()
-	return &options, nil
+	return options, nil
 }
 
 /*

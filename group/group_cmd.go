@@ -234,7 +234,7 @@ func (grc *groupRemoveCommand) Inquiry(groupName string) bool {
 	return common.IsInputYes(fmt.Sprintf("%s: remove group? [yN]", groupName))
 }
 
-func (grc *groupRemoveCommand) parse(args []string) (*removeOptions, error) {
+func (grc *groupRemoveCommand) buildFlagSet() (*flag.FlagSet, *removeOptions) {
 	var opt = removeOptions{}
 	flags := flag.NewFlagSet("rm", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(grc.Help()) }
@@ -244,6 +244,11 @@ func (grc *groupRemoveCommand) parse(args []string) (*removeOptions, error) {
 	flags.BoolVar(&opt.inquiry, "inquiry", false, "inquiry mode")
 	flags.BoolVar(&opt.verbose, "verbose", false, "verbose mode")
 	flags.BoolVar(&opt.force, "force", false, "force remove")
+	return flags, &opt
+}
+
+func (grc *groupRemoveCommand) parse(args []string) (*removeOptions, error) {
+	var flags, opt = grc.buildFlagSet()
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
@@ -251,8 +256,8 @@ func (grc *groupRemoveCommand) parse(args []string) (*removeOptions, error) {
 	if len(opt.args) == 0 {
 		return nil, fmt.Errorf("no arguments are specified")
 	}
-	grc.Options = &opt
-	return &opt, nil
+	grc.Options = opt
+	return opt, nil
 }
 
 /*
@@ -311,7 +316,7 @@ func (guc *groupUpdateCommand) Run(args []string) int {
 	return 0
 }
 
-func (guc *groupUpdateCommand) parse(args []string) (*updateOptions, error) {
+func (guc *groupUpdateCommand) buildFlagSet() (*flag.FlagSet, *updateOptions) {
 	var opt = updateOptions{}
 	flags := flag.NewFlagSet("update", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(guc.Help()) }
@@ -321,7 +326,11 @@ func (guc *groupUpdateCommand) parse(args []string) (*updateOptions, error) {
 	flags.StringVar(&opt.desc, "desc", "", "specify the description")
 	flags.StringVar(&opt.omitList, "omit-list", "false", "set the omit list flag. ")
 	flags.StringVar(&opt.omitList, "o", "false", "set the omit list flag. ")
+	return flags, &opt
+}
 
+func (guc *groupUpdateCommand) parse(args []string) (*updateOptions, error) {
+	var flags, opt = guc.buildFlagSet()
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
@@ -333,7 +342,7 @@ func (guc *groupUpdateCommand) parse(args []string) (*updateOptions, error) {
 		return nil, fmt.Errorf("could not accept multiple arguments")
 	}
 	opt.target = arguments[0]
-	return &opt, nil
+	return opt, nil
 }
 
 /*

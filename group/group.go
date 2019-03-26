@@ -55,10 +55,11 @@ func (grc *groupRemoveCommand) removeGroupsImpl(db *common.Database, groupName s
 
 func (grc *groupRemoveCommand) removeGroups(db *common.Database) error {
 	for _, groupName := range grc.Options.args {
-		if db.HasGroup(groupName) && grc.Inquiry(groupName) {
-			if err := grc.removeGroupsImpl(db, groupName); err != nil {
-				return err
-			}
+		if !db.HasGroup(groupName) || !grc.Inquiry(groupName) {
+			return nil
+		}
+		if err := grc.removeGroupsImpl(db, groupName); err != nil {
+			return err
 		}
 	}
 	return nil

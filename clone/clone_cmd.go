@@ -103,7 +103,7 @@ func printResult(count int, dest string, group string) {
 	}
 }
 
-func (clone *CloneCommand) parse(args []string, config *common.Config) ([]string, error) {
+func (clone *CloneCommand) buildFlagSets(config *common.Config) (*flag.FlagSet, *cloneOptions) {
 	var defaultGroup = config.GetDefaultValue(common.RrhDefaultGroupName)
 	var options = cloneOptions{defaultGroup, ".", false}
 	flags := flag.NewFlagSet("clone", flag.ContinueOnError)
@@ -114,11 +114,15 @@ func (clone *CloneCommand) parse(args []string, config *common.Config) ([]string
 	flags.StringVar(&options.dest, "dest", ".", "destination")
 	flags.BoolVar(&options.verbose, "v", false, "verbose mode")
 	flags.BoolVar(&options.verbose, "verbose", false, "verbose mode")
+	return flags, &options
+}
 
+func (clone *CloneCommand) parse(args []string, config *common.Config) ([]string, error) {
+	var flags, options = clone.buildFlagSets(config)
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
-	clone.Options = &options
+	clone.Options = options
 
 	return flags.Args(), nil
 }

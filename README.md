@@ -39,6 +39,7 @@ RRH is now growing. Please hack RRH itself.
         * [`rrh fetch-all`](#rrh-fetch-all)
         * [`rrh group`](#rrh-group)
         * [`rrh list`](#rrh-list)
+        * [`rrh mv`](#rrh-mv)
         * [`rrh prune`](#rrh-prune)
         * [`rrh rm`](#rrh-rm)
         * [`rrh status`](#rrh-status)
@@ -202,6 +203,20 @@ OPTIONS
 ARGUMENTS
     GROUPS    print managed repositories categorzied in the groups.
               if no groups are specified, all groups are printed.
+```
+
+### `rrh mv`
+
+Move repositories to another group.
+
+```sh
+rrh mv [OPTIONS] <FROMS...> <TO>
+OPTIONS
+    -v, --verbose   verbose mode
+
+ARGUMENTS
+    FROMS...        specifies move from, formatted in <GROUP_NAME/REPO_ID>, or <GROUP_NAME>
+    TO              specifies move to, formatted in <GROUP_NAME>
 ```
 
 ### `rrh prune`
