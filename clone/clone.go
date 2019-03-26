@@ -72,12 +72,9 @@ func (clone *CloneCommand) DoClone(db *common.Database, arguments []string) (int
 }
 
 func (clone *CloneCommand) relateTo(db *common.Database, groupID string, repoID string) error {
-	if !db.HasGroup(groupID) {
-		if db.Config.GetValue(common.RrhAutoCreateGroup) == "true" {
-			db.CreateGroup(groupID, "")
-		} else {
-			return fmt.Errorf("%s: group not found", groupID)
-		}
+	var _, err = db.AutoCreateGroup(groupID, "")
+	if err != nil {
+		return fmt.Errorf("%s: group not found", groupID)
 	}
 	db.Relate(groupID, repoID)
 	return nil

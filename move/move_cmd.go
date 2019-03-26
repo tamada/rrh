@@ -133,6 +133,10 @@ func isRepositoryToRepository(fromType int, toType int) bool {
 		toType == GroupAndRepoType
 }
 
+// func isNotGroupType(fromType int, toType int) bool {
+// 	return toType != GroupType && toType != GroupOrRepoType
+// }
+
 func verifyArgumentsOneToOne(db *common.Database, from target, to target) (int, error) {
 	if from.targetType == Unknown {
 		return Invalid, fmt.Errorf("%s: unknown type not acceptable", from.original)
@@ -143,8 +147,9 @@ func verifyArgumentsOneToOne(db *common.Database, from target, to target) (int, 
 		return RepositoriesToGroup, nil
 	} else if isRepositoryToRepository(from.targetType, to.targetType) {
 		return RepositoryToRepository, nil
-	} else if to.targetType != GroupType && to.targetType != GroupOrRepoType {
-		return Invalid, fmt.Errorf("%s: not group", to.original)
+		//	never reach this part?
+		//	} else if isNotGroupType(from.targetType, to.targetType) {
+		//		return Invalid, fmt.Errorf("%s: not group", to.original)
 	}
 	return Invalid, fmt.Errorf("Specifying arguments did not accept")
 }

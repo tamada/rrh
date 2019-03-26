@@ -32,6 +32,7 @@ func TestParseError(t *testing.T) {
 		{[]string{"--unknown-option"}, 1},
 		{[]string{"too_few_arguments"}, 1},
 		{[]string{"group1/repo1", "group3/repo5"}, 4},
+		{[]string{"group1/repo1", "repo2", "group5"}, 4},
 	}
 	os.Setenv(common.RrhOnError, common.Fail)
 

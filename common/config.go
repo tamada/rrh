@@ -110,6 +110,14 @@ func (config *Config) Update(label string, value string) error {
 	return fmt.Errorf("%s: Unknown variable name", label)
 }
 
+func (config *Config) IsSet(label string) bool {
+	var value = config.GetValue(label)
+	if label != RrhAutoCreateGroup && label != RrhAutoDeleteGroup && label != RrhSortOnUpdating {
+		return false
+	}
+	return strings.ToLower(value) == "true"
+}
+
 func (config *Config) GetValue(label string) string {
 	var value, _ = config.GetString(label)
 	return value

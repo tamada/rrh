@@ -6,21 +6,11 @@ import (
 	"github.com/tamada/rrh/common"
 )
 
-func createGroupIfNeeded(db *common.Database, groupName string, description string) error {
-	if !db.HasGroup(groupName) {
-		if db.Config.GetValue(common.RrhAutoCreateGroup) != "true" {
-			return fmt.Errorf("%s: group not found", groupName)
-		}
-		db.CreateGroup(groupName, description)
-	}
-	return nil
-}
-
 func (mv *MoveCommand) moveRepositoryToRepository(db *common.Database, from target, to target) error {
 	if from.repositoryName != to.repositoryName {
 		return fmt.Errorf("repository name did not match: %s, %s", from.original, to.original)
 	}
-	if err := createGroupIfNeeded(db, to.groupName, ""); err != nil {
+	if _, err := db.AutoCreateGroup(to.groupName, ""); err != nil {
 		return err
 	}
 	if from.targetType == GroupAndRepoType {
@@ -34,7 +24,7 @@ func (mv *MoveCommand) moveRepositoryToRepository(db *common.Database, from targ
 
 func (mv *MoveCommand) moveRepositoryToGroup(db *common.Database, from target, to target) error {
 	if to.targetType == GroupType || to.targetType == GroupOrRepoType {
-		if err := createGroupIfNeeded(db, to.original, ""); err != nil {
+		if _, err := db.AutoCreateGroup(to.original, ""); err != nil {
 			return err
 		}
 	}
@@ -78,7 +68,7 @@ func (mv *MoveCommand) moveGroupsToGroup(db *common.Database, froms []target, to
 }
 
 func (mv *MoveCommand) moveGroupToGroup(db *common.Database, from target, to target) []error {
-	if err := createGroupIfNeeded(db, to.groupName, ""); err != nil {
+	if _, err := db.AutoCreateGroup(to.groupName, ""); err != nil {
 		return []error{err}
 	}
 	var repos = db.FindRelationsOfGroup(from.groupName)

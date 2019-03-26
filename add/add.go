@@ -25,19 +25,6 @@ func (add *AddCommand) isExistAndGitRepository(absPath string, path string) erro
 	return nil
 }
 
-func (add *AddCommand) createGroupIfNeeded(db *common.Database, groupName string) error {
-	if !db.HasGroup(groupName) {
-		if db.Config.GetValue(common.RrhAutoCreateGroup) == "true" {
-			var _, err = db.CreateGroup(groupName, "")
-			return err
-		}
-	}
-	if db.HasGroup(groupName) {
-		return nil
-	}
-	return fmt.Errorf("%s: group not found", groupName)
-}
-
 func checkDuplication(db *common.Database, repoID string, path string) error {
 	var repo = db.FindRepository(repoID)
 	if repo != nil && repo.Path != path {
@@ -73,11 +60,10 @@ func (add *AddCommand) addRepositoryToGroup(db *common.Database, groupName strin
 AddRepositoriesToGroup registers the given repositories to the specified group.
 */
 func (add *AddCommand) AddRepositoriesToGroup(db *common.Database, args []string, groupName string) []error {
-	var err = add.createGroupIfNeeded(db, groupName)
+	var _, err = db.AutoCreateGroup(groupName, "")
 	if err != nil {
 		return []error{err}
 	}
-
 	var errorlist = []error{}
 	for _, item := range args {
 		errorlist = add.addRepositoryToGroup(db, groupName, item, errorlist)

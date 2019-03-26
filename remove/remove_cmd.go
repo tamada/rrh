@@ -60,7 +60,7 @@ func (rm *RemoveCommand) Run(args []string) int {
 		}
 	}
 	if result == 0 {
-		if config.GetValue(common.RrhAutoDeleteGroup) == "true" {
+		if config.IsSet(common.RrhAutoDeleteGroup) {
 			db.Prune()
 		}
 		db.StoreAndClose()

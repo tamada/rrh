@@ -139,7 +139,7 @@ func (db *Database) FindGroup(groupID string) *Group {
 }
 
 func sortIfNeeded(db *Database) {
-	if db.Config.GetValue(RrhSortOnUpdating) != "true" {
+	if db.Config.IsSet(RrhSortOnUpdating) {
 		return
 	}
 	sort.Slice(db.Repositories, func(i, j int) bool {
@@ -168,6 +168,16 @@ func (db *Database) CreateRepository(repoID string, path string, remotes []Remot
 	sortIfNeeded(db)
 
 	return &repo, nil
+}
+
+func (db *Database) AutoCreateGroup(groupID string, description string) (*Group, error) {
+	if db.HasGroup(groupID) {
+		return db.FindGroup(groupID), nil
+	}
+	if db.Config.IsSet(RrhAutoCreateGroup) {
+		return db.CreateGroup(groupID, description)
+	}
+	return nil, fmt.Errorf("%s: could not create group", groupID)
 }
 
 /*
