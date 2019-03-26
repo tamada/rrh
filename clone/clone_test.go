@@ -164,7 +164,7 @@ ARGUMENTS
 		t.Error("help message did not match")
 	}
 
-	if clone.Synopsis() != `run "git clone" and register it to a group` {
+	if clone.Synopsis() != `run "git clone" and register it to a group.` {
 		t.Error("synopsis did not match")
 	}
 }

@@ -26,7 +26,7 @@ ARGUMENTS
 }
 
 func (fetch *FetchCommand) Synopsis() string {
-	return "run \"git fetch\" on the given groups"
+	return "run \"git fetch\" on the given groups."
 }
 
 func (fetch *FetchCommand) Run(args []string) int {

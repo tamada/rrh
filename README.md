@@ -77,14 +77,15 @@ $ go get git@github.com/tamada/rrh.git
 Usage: rrh [--version] [--help] <command> [<args>]
 
 Available commands are:
-    add          add repositories on the local path to RRH
-    clone        run "git clone" and register it to a group
+    add          add repositories on the local path to RRH.
+    clone        run "git clone" and register it to a group.
     config       set/unset and list configuration of RRH.
     export       export RRH database to stdout.
-    fetch        run "git fetch" on the repositories of the given groups
-    fetch-all    run "git fetch" in the all repositories
+    fetch        run "git fetch" on the repositories of the given groups.
+    fetch-all    run "git fetch" in the all repositories.
     group        add/list/update/remove groups.
     list         print managed repositories and their groups.
+    mv           move the repositories from groups to another group.
     prune        prune unnecessary repositories and groups.
     rm           remove given repository from database.
     status       show git status of repositories.

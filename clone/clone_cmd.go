@@ -45,7 +45,7 @@ ARGUMENTS
 Synopsis returns the help message of the command.
 */
 func (clone *CloneCommand) Synopsis() string {
-	return "run \"git clone\" and register it to a group"
+	return "run \"git clone\" and register it to a group."
 }
 
 func (clone *CloneCommand) printIfVerbose(message string) {
