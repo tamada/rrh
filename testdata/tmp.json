@@ -1,1 +1,40 @@
-{"last_modified":"2019-03-26T11:56:36+09:00","repositories":[{"repository_id":"repo1","repository_path":"path1","remotes":[]},{"repository_id":"repo2","repository_path":"path2","remotes":[]}],"groups":[{"group_name":"group1","group_desc":"desc1","omit_list":false},{"group_name":"group2","group_desc":"desc2","omit_list":false},{"group_name":"group3","group_desc":"desc3","omit_list":true}],"relations":[{"repository_id":"repo1","group_name":"group1"},{"repository_id":"repo2","group_name":"group3"}]}
+{
+  "last_modified": "2019-03-23T17:02:57+09:00",
+  "repositories": [
+    {
+      "repository_id": "repo1",
+      "repository_path": "path1",
+      "remotes": []
+    },
+    {
+      "repository_id": "repo2",
+      "repository_path": "path2",
+      "remotes": []
+    }
+  ],
+  "groups": [
+    {
+      "group_name": "group1",
+      "group_desc": "desc1"
+    },
+    {
+      "group_name": "group2",
+      "group_desc": "desc2"
+    },
+    {
+      "group_name": "group3",
+      "group_desc": "desc3",
+      "omit_list": true
+    }
+  ],
+  "relations": [
+    {
+      "group_name": "group1",
+      "repository_id": "repo1"
+    },
+    {
+      "group_name": "group3",
+      "repository_id": "repo2"
+    }
+  ]
+}

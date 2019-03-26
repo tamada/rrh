@@ -35,16 +35,18 @@ func TestParseError(t *testing.T) {
 		{[]string{"group1/repo1", "repo2", "group5"}, 4},
 	}
 	os.Setenv(common.RrhOnError, common.Fail)
+	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
+	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
 
-	for _, testcase := range testcases {
-		common.CaptureStdout(func() {
+	common.CaptureStdout(func() {
+		for _, testcase := range testcases {
 			var mv, _ = MoveCommandFactory()
 			var status = mv.Run(testcase.args)
 			if status != testcase.statusCode {
 				t.Errorf("args: %v, statusCode: wont: %d, got: %d", testcase.args, testcase.statusCode, status)
 			}
-		})
-	}
+		}
+	})
 	os.Setenv(common.RrhOnError, common.Warn)
 }
 
@@ -61,6 +63,10 @@ func TestMoveCommand(t *testing.T) {
 	}{
 		{"unrelate, then relate", []string{"-v", "group1/repo1", "group3/repo1"},
 			[]relation{{"group3", "repo1", true}, {"group1", "repo1", false}}},
+		{"unrelate, then relate", []string{"-v", "group1/repo1", "group5"},
+			[]relation{{"group5", "repo1", true}, {"group1", "repo1", false}}},
+		{"different repository name", []string{"group1/repo1", "group5/repo1"},
+			[]relation{{"group5", "repo1", true}, {"group1", "repo1", false}}},
 		{"relate only", []string{"repo1", "group3"}, []relation{
 			{"group3", "repo1", true},
 			{"group1", "repo1", true}}},
@@ -130,6 +136,7 @@ func TestVerifyArguments(t *testing.T) {
 		{[]string{"repo1"}, "group3", RepositoriesToGroup, false, ""},
 		{[]string{"repo1"}, "group5", RepositoriesToGroup, false, ""},
 		{[]string{"group1/repo1"}, "repo5/repo1", RepositoryToRepository, false, ""},
+		{[]string{"group1/repo1"}, "group3/repo5", RepositoryToRepository, false, ""},
 		{[]string{"group1/repo1"}, "group2", RepositoriesToGroup, false, ""},
 		{[]string{"group1/repo1", "group3/repo2"}, "group1", RepositoriesToGroup, false, ""},
 		{[]string{"group1"}, "group3", GroupToGroup, false, ""},

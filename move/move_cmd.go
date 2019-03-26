@@ -64,6 +64,11 @@ type target struct {
 	original       string
 }
 
+type targets struct {
+	froms []target
+	to    target
+}
+
 func parseCompound(db *common.Database, types []string, original string) (target, error) {
 	var groupFound = db.HasGroup(types[0])
 	var repoFound = db.HasRepository(types[1])
@@ -190,16 +195,16 @@ func convertToTarget(db *common.Database, froms []string, to string) ([]target, 
 	return targetFrom, targetTo
 }
 
-func (mv *MoveCommand) performImpl(db *common.Database, froms []target, to target, executionType int) []error {
+func (mv *MoveCommand) performImpl(db *common.Database, targets targets, executionType int) []error {
 	switch executionType {
 	case GroupToGroup:
-		return mv.moveGroupToGroup(db, froms[0], to)
+		return mv.moveGroupToGroup(db, targets.froms[0], targets.to)
 	case GroupsToGroup:
-		return mv.moveGroupsToGroup(db, froms, to)
+		return mv.moveGroupsToGroup(db, targets.froms, targets.to)
 	case RepositoriesToGroup:
-		return mv.moveRepositoriesToGroup(db, froms, to)
+		return mv.moveRepositoriesToGroup(db, targets.froms, targets.to)
 	case RepositoryToRepository:
-		var err = mv.moveRepositoryToRepository(db, froms[0], to)
+		var err = mv.moveRepositoryToRepository(db, targets.froms[0], targets.to)
 		if err != nil {
 			return []error{err}
 		}
@@ -215,7 +220,7 @@ func (mv *MoveCommand) perform(db *common.Database) int {
 	if err != nil {
 		return printError(db.Config, []error{err})
 	}
-	var list = mv.performImpl(db, from, to, executionType)
+	var list = mv.performImpl(db, targets{from, to}, executionType)
 	var statusCode = printError(db.Config, list)
 	if statusCode == 0 {
 		db.StoreAndClose()
