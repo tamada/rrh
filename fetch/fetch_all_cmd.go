@@ -104,5 +104,5 @@ func (fetch *FetchAllCommand) parse(args []string) (*FetchOptions, error) {
 Synopsis returns the help message of the command.
 */
 func (fetch *FetchAllCommand) Synopsis() string {
-	return "run \"git fetch\" in the all repositories"
+	return "run \"git fetch\" in the all repositories."
 }

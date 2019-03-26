@@ -204,14 +204,23 @@ func (db *Database) UpdateGroup(groupID string, newGroup Group) bool {
 	}
 	for i, group := range db.Groups {
 		if group.Name == groupID {
-			db.Groups[i].Name = newGroup.Name
-			db.Groups[i].Description = newGroup.Description
-			db.Groups[i].OmitList = newGroup.OmitList
+			db.updateGroupImpl(i, groupID, newGroup)
 		}
 	}
 	sortIfNeeded(db)
 
 	return true
+}
+
+func (db *Database) updateGroupImpl(index int, groupID string, newGroup Group) {
+	db.Groups[index].Name = newGroup.Name
+	db.Groups[index].Description = newGroup.Description
+	db.Groups[index].OmitList = newGroup.OmitList
+	for i, relation := range db.Relations {
+		if relation.GroupName == groupID {
+			db.Relations[i].GroupName = newGroup.Name
+		}
+	}
 }
 
 /*

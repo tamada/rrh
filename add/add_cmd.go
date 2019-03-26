@@ -102,5 +102,5 @@ func (add *AddCommand) parse(args []string, config *common.Config) (*addOptions,
 Synopsis returns the simple help message of the command.
 */
 func (add *AddCommand) Synopsis() string {
-	return "add repositories on the local path to RRH"
+	return "add repositories on the local path to RRH."
 }

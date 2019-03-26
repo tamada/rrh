@@ -175,8 +175,8 @@ func TestMergeType(t *testing.T) {
 
 func TestSynopsis(t *testing.T) {
 	var mv, _ = MoveCommandFactory()
-	if mv.Synopsis() != "move the repositories from groups to another group" {
-		t.Error("Synopsis message is not matched.")
+	if mv.Synopsis() != "move the repositories from groups to another group." {
+		t.Error("Synopsis message is not matched")
 	}
 }
 
@@ -190,6 +190,6 @@ ARGUMENTS
     FROMS...        specifies move from, formatted in <GROUP_NAME/REPO_ID>, or <GROUP_NAME>
     TO              specifies move to, formatted in <GROUP_NAME>`
 	if mv.Help() != helpMessage {
-		t.Error("Help message is not matched.")
+		t.Error("Help message is not matched")
 	}
 }

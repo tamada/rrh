@@ -27,7 +27,7 @@ func TestInvalidOptions(t *testing.T) {
 
 func TestHelpAndSynopsis(t *testing.T) {
 	var command, _ = AddCommandFactory()
-	if command.Synopsis() != "add repositories on the local path to RRH" {
+	if command.Synopsis() != "add repositories on the local path to RRH." {
 		t.Error("synopsis did not match")
 	}
 	if command.Help() != `rrh add [OPTIONS] <REPOSITORY_PATHS...>

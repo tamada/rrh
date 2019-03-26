@@ -289,5 +289,5 @@ ARGUMENTS
 Synopsis returns the help message of the command.
 */
 func (mv *MoveCommand) Synopsis() string {
-	return "move the repositories from groups to another group"
+	return "move the repositories from groups to another group."
 }
