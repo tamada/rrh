@@ -21,7 +21,8 @@ func TestHelpAndSynopsis(t *testing.T) {
 	var help = export.Help()
 	var helpMessage = `rrh export [OPTIONS]
 OPTIONS
-    --no-indent    print result as no indented json (Default indented json)`
+    --no-indent      print result as no indented json,
+    --no-hide-home   not replace home directory to '$HOME' keyword`
 	if help != helpMessage {
 		t.Error("help message did not match")
 	}
