@@ -159,7 +159,7 @@ type listOptions struct {
 	nameOnly     bool
 }
 
-func (glc *groupListCommand) parse(args []string) (*listOptions, error) {
+func (glc *groupListCommand) buildFlagSet() (*flag.FlagSet, *listOptions) {
 	var opt = listOptions{}
 	flags := flag.NewFlagSet("list", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(glc.Help()) }
@@ -169,10 +169,15 @@ func (glc *groupListCommand) parse(args []string) (*listOptions, error) {
 	flags.BoolVar(&opt.repositories, "repository", false, "show repositories")
 	flags.BoolVar(&opt.nameOnly, "o", false, "show only group names")
 	flags.BoolVar(&opt.nameOnly, "only-groupname", false, "show only group names")
+	return flags, &opt
+}
+
+func (glc *groupListCommand) parse(args []string) (*listOptions, error) {
+	var flags, opt = glc.buildFlagSet()
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
-	return &opt, nil
+	return opt, nil
 }
 
 func printRepositoryCount(count int) {
