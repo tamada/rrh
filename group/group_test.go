@@ -55,21 +55,85 @@ func TestAddGroup(t *testing.T) {
 	})
 }
 
-func TestUpdateGroup(t *testing.T) {
-	rollback("../testdata/tmp.json", func() {
-		var guc, _ = groupUpdateCommandFactory()
-		if val := guc.Run([]string{"-d", "newdesc2", "--name", "newgroup2", "group2"}); val != 0 {
-			t.Errorf("group update failed: %d", val)
-		}
+func TestUpdateGroupFailed(t *testing.T) {
+	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
+	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
+
+	var testcases = []struct {
+		opt     updateOptions
+		errFlag bool
+	}{
+		{updateOptions{"newName", "desc", "omitList", "target"}, true},
+	}
+	for _, testcase := range testcases {
+		var guc = groupUpdateCommand{}
 		var config = common.OpenConfig()
-		var db2, _ = common.Open(config)
-		if len(db2.Groups) != 3 {
-			t.Fatal("the length of group did not match")
+		var db, _ = common.Open(config)
+		var err = guc.updateGroup(db, &testcase.opt)
+		if (err != nil) != testcase.errFlag {
+			t.Errorf("%v: test failed: err wont: %v, got: %v: err (%v)", testcase.opt, testcase.errFlag, !testcase.errFlag, err)
 		}
-		if db2.Groups[2].Name != "newgroup2" || db2.Groups[2].Description != "newdesc2" {
-			t.Errorf("want: newgroup2 (newdesc2), got: %s (%s)", db2.Groups[2].Name, db2.Groups[2].Description)
-		}
-	})
+	}
+}
+
+func TestUpdateGroup(t *testing.T) {
+	type relation struct {
+		groupID      string
+		repositoryID string
+		exist        bool
+	}
+	type groupExistCheck struct {
+		groupName   string
+		description string
+		omitList    bool
+		exist       bool
+	}
+	var testcases = []struct {
+		args      []string
+		gexists   []groupExistCheck
+		relations []relation
+	}{
+		{[]string{"-d", "newdesc2", "--name", "newgroup2", "-o", "true", "group2"},
+			[]groupExistCheck{{"newgroup2", "newdesc2", true, true}, {"group2", "", false, false}},
+			[]relation{}},
+		{[]string{"-n", "newgroup3", "group3"},
+			[]groupExistCheck{{"newgroup3", "desc3", true, true}, {"group3", "desc3", false, false}},
+			[]relation{{"newgroup3", "repo2", true}, {"group3", "repo2", false}},
+		},
+		{[]string{"-o", "true", "group1"},
+			[]groupExistCheck{{"group1", "desc1", true, true}},
+			[]relation{{"group1", "repo1", true}},
+		},
+	}
+	for _, testcase := range testcases {
+		rollback("../testdata/tmp.json", func() {
+			var guc, _ = groupUpdateCommandFactory()
+			if val := guc.Run(testcase.args); val != 0 {
+				t.Errorf("group update failed: %v", testcase.args)
+			}
+			var config = common.OpenConfig()
+			var db2, _ = common.Open(config)
+			for _, gec := range testcase.gexists {
+				if db2.HasGroup(gec.groupName) != gec.exist {
+					t.Errorf("%s: exist check failed wont: %v, got: %v", gec.groupName, gec.exist, !gec.exist)
+				}
+				if gec.exist {
+					var group = db2.FindGroup(gec.groupName)
+					if group.Description != gec.description {
+						t.Errorf("%s: description did not match: wont: %s, got: %s", gec.groupName, gec.description, group.Description)
+					}
+					if group.OmitList != gec.omitList {
+						t.Errorf("%s: omitList did not match: wont: %v, got: %v", gec.groupName, gec.omitList, !gec.omitList)
+					}
+				}
+			}
+			for _, rel := range testcase.relations {
+				if db2.HasRelation(rel.groupID, rel.repositoryID) != rel.exist {
+					t.Errorf("relation between %s and %s: wont: %v, got: %v", rel.groupID, rel.repositoryID, rel.exist, !rel.exist)
+				}
+			}
+		})
+	}
 }
 
 func TestRemoveGroup(t *testing.T) {

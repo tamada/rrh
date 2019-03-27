@@ -324,8 +324,8 @@ func (guc *groupUpdateCommand) buildFlagSet() (*flag.FlagSet, *updateOptions) {
 	flags.StringVar(&opt.newName, "name", "", "specify new group name")
 	flags.StringVar(&opt.desc, "d", "", "specify the description")
 	flags.StringVar(&opt.desc, "desc", "", "specify the description")
-	flags.StringVar(&opt.omitList, "omit-list", "false", "set the omit list flag. ")
-	flags.StringVar(&opt.omitList, "o", "false", "set the omit list flag. ")
+	flags.StringVar(&opt.omitList, "omit-list", "", "set the omit list flag. ")
+	flags.StringVar(&opt.omitList, "o", "", "set the omit list flag. ")
 	return flags, &opt
 }
 
