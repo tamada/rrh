@@ -175,23 +175,31 @@ func (glc *groupListCommand) parse(args []string) (*listOptions, error) {
 	return &opt, nil
 }
 
+func printRepositoryCount(count int) {
+	if count == 1 {
+		fmt.Print(",1 repository")
+	} else {
+		fmt.Printf(",%d repositories", count)
+	}
+}
+
+func (glc *groupListCommand) printResult(result GroupResult, options *listOptions) {
+	fmt.Print(result.Name)
+	if !options.nameOnly && options.desc {
+		fmt.Printf(",%s", result.Description)
+	}
+	if !options.nameOnly && options.repositories {
+		fmt.Printf(",%v", result.Repos)
+	}
+	if !options.nameOnly {
+		printRepositoryCount(len(result.Repos))
+	}
+	fmt.Println()
+}
+
 func (glc *groupListCommand) printAll(results []GroupResult, options *listOptions) {
 	for _, result := range results {
-		fmt.Printf("%s", result.Name)
-		if !options.nameOnly && options.desc {
-			fmt.Printf(",%s", result.Description)
-		}
-		if !options.nameOnly && options.repositories {
-			fmt.Printf(",%v", result.Repos)
-		}
-		if !options.nameOnly {
-			if len(result.Repos) == 1 {
-				fmt.Print(",1 repository")
-			} else {
-				fmt.Printf(",%d repositories", len(result.Repos))
-			}
-		}
-		fmt.Println()
+		glc.printResult(result, options)
 	}
 }
 
