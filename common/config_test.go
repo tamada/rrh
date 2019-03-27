@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"testing"
+
+	"github.com/mitchellh/go-homedir"
 )
 
 func assert(t *testing.T, actual string, expected string) {
@@ -230,13 +232,14 @@ func TestUpdateValue(t *testing.T) {
 }
 
 func TestOpenConfig(t *testing.T) {
+	var home, _ = homedir.Dir()
 	var testdata = []struct {
 		key  string
 		want string
 	}{
-		{RrhHome, fmt.Sprintf("%s/.rrh", os.Getenv("HOME"))},
-		{RrhConfigPath, fmt.Sprintf("%s/.rrh/config.json", os.Getenv("HOME"))},
-		{RrhDatabasePath, fmt.Sprintf("%s/.rrh/database.json", os.Getenv("HOME"))},
+		{RrhHome, fmt.Sprintf("%s/.rrh", home)},
+		{RrhConfigPath, fmt.Sprintf("%s/.rrh/config.json", home)},
+		{RrhDatabasePath, fmt.Sprintf("%s/.rrh/database.json", home)},
 		{RrhDefaultGroupName, "no-group"},
 		{RrhOnError, Warn},
 		{RrhAutoCreateGroup, "false"},

@@ -45,7 +45,7 @@ func (status *StatusCommand) openRepository(db *common.Database, repoID string) 
 	if repo == nil {
 		return nil, fmt.Errorf("%s: repository not found", repoID)
 	}
-	var r, err = git.PlainOpen(common.ToAbsolutePath(repo.Path, db.Config))
+	var r, err = git.PlainOpen(repo.Path)
 	if err != nil {
 		return nil, err
 	}
@@ -84,8 +84,7 @@ func (status *StatusCommand) findLocalBranches(name repo, r *git.Repository) ([]
 
 func (status *StatusCommand) findTime(db *common.Database, path string, repoID string) time.Time {
 	var repo = db.FindRepository(repoID)
-	var absPath = common.ToAbsolutePath(repo.Path, db.Config)
-	var target = filepath.Join(absPath, path)
+	var target = filepath.Join(repo.Path, path)
 
 	var file, err2 = os.Open(target)
 	defer file.Close()

@@ -144,7 +144,8 @@ Exports the data of RRH database by JSON format.
 ```sh
 rrh export [OPTIONS]
 OPTiONS
-    --no-indent    print result as no indented json (Default indented json)
+    --no-indent      print result as no indented json
+    --no-hide-home   not replace home directory to '${HOME}' keyword
 ```
 
 ### `rrh fetch`

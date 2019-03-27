@@ -39,7 +39,7 @@ Help returns the help message of the command.
 func (export *ExportCommand) Help() string {
 	return `rrh export [OPTIONS]
 OPTIONS
-    --no-indent      print result as no indented json,
+    --no-indent      print result as no indented json
     --no-hide-home   not replace home directory to '${HOME}' keyword`
 }
 

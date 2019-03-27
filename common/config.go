@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/mitchellh/go-homedir"
 )
 
 const VERSION = "0.2"
@@ -165,13 +167,14 @@ func (config *Config) getStringFromEnv(label string, valueFromConfigFile string)
 }
 
 func (config *Config) findDefaultValue(label string) (value string, readFrom string) {
+	var home, _ = homedir.Dir()
 	switch label {
 	case RrhHome:
-		return fmt.Sprintf("%s/.rrh", os.Getenv("HOME")), Default
+		return fmt.Sprintf("%s/.rrh", home), Default
 	case RrhConfigPath:
-		return fmt.Sprintf("%s/.rrh/config.json", os.Getenv("HOME")), Default
+		return fmt.Sprintf("%s/.rrh/config.json", home), Default
 	case RrhDatabasePath:
-		return fmt.Sprintf("%s/.rrh/database.json", os.Getenv("HOME")), Default
+		return fmt.Sprintf("%s/.rrh/database.json", home), Default
 	case RrhDefaultGroupName:
 		return "no-group", Default
 	case RrhOnError:

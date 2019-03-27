@@ -14,17 +14,6 @@ import (
 )
 
 /*
-NormalizePath normalizes given path.
-*/
-func NormalizePath(path string) string {
-	// var home = os.Getenv("HOME")
-	// if strings.HasPrefix(path, home) {
-	// 	return strings.Replace(path, home, "~", 1)
-	// }
-	return path
-}
-
-/*
 IsInputYes print the given prompt and returns TRUE if the user inputs "yes".
 */
 func IsInputYes(prompt string) bool {
@@ -33,14 +22,6 @@ func IsInputYes(prompt string) bool {
 	scanner.Scan()
 	var text = strings.ToLower(scanner.Text())
 	return text == "yes" || text == "y"
-}
-
-/*
-ToAbsolutePath returns the absolute path of the given path.
-*/
-func ToAbsolutePath(path string, config *Config) string {
-	var home = os.Getenv("HOME")
-	return strings.Replace(path, "~", home, 1)
 }
 
 /*

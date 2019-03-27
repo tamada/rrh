@@ -39,7 +39,6 @@ func (add *AddCommand) addRepositoryToGroup(db *common.Database, groupName strin
 	if err1 := add.isExistAndGitRepository(absPath, path); err1 != nil {
 		return append(list, err1)
 	}
-	var repoPath = common.NormalizePath(absPath)
 	if err1 := checkDuplication(db, id, absPath); err1 != nil {
 		return append(list, err1)
 	}
@@ -47,7 +46,7 @@ func (add *AddCommand) addRepositoryToGroup(db *common.Database, groupName strin
 	if err2 != nil {
 		return append(list, err2)
 	}
-	db.CreateRepository(id, repoPath, remotes)
+	db.CreateRepository(id, absPath, remotes)
 
 	var err = db.Relate(groupName, id)
 	if err != nil {
