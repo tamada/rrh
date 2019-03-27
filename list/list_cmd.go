@@ -170,14 +170,14 @@ Help function shows the help message.
 func (list *ListCommand) Help() string {
 	return `rrh list [OPTIONS] [GROUPS...]
 OPTIONS
-    -a, --all       print all entries of each repository.
-    -d, --desc      print description of group.
-    -p, --path      print local paths (default).
-    -r, --remote    print remote urls.
-                    if any options of above are specified, '-a' are specified.
-    -n, --no-omit   print all repositories, no omittion.
+    -a, --all           print all repositories, no omit repositories.
+    -d, --desc          print description of group.
+    -p, --path          print local paths (default).
+    -r, --remote        print remote urls.
+                        if any options of above are specified, '-a' are specified.
+    -A, --all-entries   print all entries of each repository.
 
-    -c, --csv       print result as csv format.
+    -c, --csv           print result as csv format.
 ARGUMENTS
     GROUPS    print managed repositories categorized in the groups.
               if no groups are specified, all groups are printed.`
@@ -187,16 +187,16 @@ func (list *ListCommand) buildFlagSet() (*flag.FlagSet, *listOptions) {
 	var options = listOptions{false, false, false, false, false, false, []string{}}
 	flags := flag.NewFlagSet("list", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(list.Help()) }
-	flags.BoolVar(&options.all, "a", false, "all flag")
-	flags.BoolVar(&options.all, "all", false, "all flag")
+	flags.BoolVar(&options.all, "A", false, "show all entries")
+	flags.BoolVar(&options.all, "all-entries", false, "show all entries")
 	flags.BoolVar(&options.description, "d", false, "description flag")
 	flags.BoolVar(&options.description, "desc", false, "description flag")
 	flags.BoolVar(&options.localPath, "p", false, "local path flag")
 	flags.BoolVar(&options.localPath, "path", false, "local path flag")
 	flags.BoolVar(&options.remoteURL, "r", false, "remote url flag")
 	flags.BoolVar(&options.remoteURL, "remote", false, "remote url flag")
-	flags.BoolVar(&options.noOmit, "n", false, "no omit repositories")
-	flags.BoolVar(&options.noOmit, "no-omit", false, "no omit repositories")
+	flags.BoolVar(&options.noOmit, "a", false, "no omit repositories")
+	flags.BoolVar(&options.noOmit, "all", false, "no omit repositories")
 	flags.BoolVar(&options.csv, "c", false, "print as csv format")
 	flags.BoolVar(&options.csv, "csv", false, "print as csv format")
 	return flags, &options
