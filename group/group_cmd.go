@@ -71,8 +71,9 @@ ARGUMENTS
 func (guc *groupUpdateCommand) Help() string {
 	return `rrh group update [OPTIONS] <GROUP>
 OPTIONS
-    -n, --name <NAME>   change group name to NAME.
-    -d, --desc <DESC>   change description to DESC.
+    -n, --name <NAME>        change group name to NAME.
+    -d, --desc <DESC>        change description to DESC.
+    -o, --omit-list <FLAG>   change omit-list of the group. FLAG must be "true" or "false".
 ARGUMENTS
     GROUP               update target group names.`
 }
@@ -340,8 +341,8 @@ func (guc *groupUpdateCommand) buildFlagSet() (*flag.FlagSet, *updateOptions) {
 	flags.StringVar(&opt.newName, "name", "", "specify new group name")
 	flags.StringVar(&opt.desc, "d", "", "specify the description")
 	flags.StringVar(&opt.desc, "desc", "", "specify the description")
-	flags.StringVar(&opt.omitList, "omit-list", "", "set the omit list flag. ")
-	flags.StringVar(&opt.omitList, "o", "", "set the omit list flag. ")
+	flags.StringVar(&opt.omitList, "omit-list", "", "set the omit list flag.")
+	flags.StringVar(&opt.omitList, "o", "", "set the omit list flag.")
 	return flags, &opt
 }
 
