@@ -53,8 +53,9 @@ ARGUMENTS
 func (glc *groupListCommand) Help() string {
 	return `rrh group list [OPTIONS]
 OPTIONS
-    -d, --desc          show description.
-    -r, --repository    show repositories in the group.`
+    -d, --desc             show description.
+    -r, --repository       show repositories in the group.
+    -o, --only-groupname   show only group name. This option is prioritized.`
 }
 
 func (grc *groupRemoveCommand) Help() string {
@@ -131,8 +132,6 @@ Run performs the command.
 func (gac *groupAddCommand) Run(args []string) int {
 	var options, err = gac.parse(args)
 	if err != nil {
-		fmt.Println(err.Error())
-		fmt.Println(gac.Help())
 		return 1
 	}
 	var config = common.OpenConfig()
@@ -157,6 +156,7 @@ func (gac *groupAddCommand) Run(args []string) int {
 type listOptions struct {
 	desc         bool
 	repositories bool
+	nameOnly     bool
 }
 
 func (glc *groupListCommand) parse(args []string) (*listOptions, error) {
@@ -167,6 +167,8 @@ func (glc *groupListCommand) parse(args []string) (*listOptions, error) {
 	flags.BoolVar(&opt.desc, "desc", false, "show description")
 	flags.BoolVar(&opt.repositories, "r", false, "show repositories")
 	flags.BoolVar(&opt.repositories, "repository", false, "show repositories")
+	flags.BoolVar(&opt.nameOnly, "o", false, "show only group names")
+	flags.BoolVar(&opt.nameOnly, "only-groupname", false, "show only group names")
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
@@ -175,18 +177,21 @@ func (glc *groupListCommand) parse(args []string) (*listOptions, error) {
 
 func (glc *groupListCommand) printAll(results []GroupResult, options *listOptions) {
 	for _, result := range results {
-		fmt.Printf("%s,", result.Name)
-		if options.desc {
-			fmt.Printf("%s,", result.Description)
+		fmt.Printf("%s", result.Name)
+		if !options.nameOnly && options.desc {
+			fmt.Printf(",%s", result.Description)
 		}
-		if options.repositories {
-			fmt.Printf("%v,", result.Repos)
+		if !options.nameOnly && options.repositories {
+			fmt.Printf(",%v", result.Repos)
 		}
-		if len(result.Repos) == 1 {
-			fmt.Println("1 repository")
-		} else {
-			fmt.Printf("%d repositories\n", len(result.Repos))
+		if !options.nameOnly {
+			if len(result.Repos) == 1 {
+				fmt.Print(",1 repository")
+			} else {
+				fmt.Printf(",%d repositories", len(result.Repos))
+			}
 		}
+		fmt.Println()
 	}
 }
 
@@ -266,8 +271,6 @@ Run performs the command.
 func (grc *groupRemoveCommand) Run(args []string) int {
 	var _, err = grc.parse(args)
 	if err != nil {
-		fmt.Println(err.Error())
-		fmt.Println(grc.Help())
 		return 1
 	}
 	var config = common.OpenConfig()

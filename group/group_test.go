@@ -2,6 +2,7 @@ package group
 
 import (
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/tamada/rrh/common"
@@ -36,6 +37,20 @@ func Example_groupListCommand_Run() {
 	// group1,desc1,[repo1],1 repository
 	// group2,desc2,[],0 repositories
 	// group3,desc3,[repo2],1 repository
+}
+
+func TestGroupListOnlyName(t *testing.T) {
+	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
+	var output, _ = common.CaptureStdout(func() {
+		var glc, _ = groupListCommandFactory()
+		glc.Run([]string{"--only-groupname"})
+	})
+	var wontOutput = `group1
+group2
+group3`
+	if strings.TrimSpace(output) != wontOutput {
+		t.Errorf("the result with option only-groupname did not match\nwont: %s, got: %s", wontOutput, output)
+	}
 }
 
 func TestAddGroup(t *testing.T) {
@@ -190,8 +205,9 @@ ARGUMENTS
 
 	var glcHelp = `rrh group list [OPTIONS]
 OPTIONS
-    -d, --desc          show description.
-    -r, --repository    show repositories in the group.`
+    -d, --desc             show description.
+    -r, --repository       show repositories in the group.
+    -o, --only-groupname   show only group name. This option is prioritized.`
 
 	var grcHelp = `rrh group rm [OPTIONS] <GROUPS...>
 OPTIONS
