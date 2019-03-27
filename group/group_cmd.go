@@ -53,8 +53,9 @@ ARGUMENTS
 func (glc *groupListCommand) Help() string {
 	return `rrh group list [OPTIONS]
 OPTIONS
-    -d, --desc          show description.
-    -r, --repository    show repositories in the group.`
+    -d, --desc             show description.
+    -r, --repository       show repositories in the group.
+    -o, --only-groupname   show only group name. This option is prioritized.`
 }
 
 func (grc *groupRemoveCommand) Help() string {
@@ -131,8 +132,6 @@ Run performs the command.
 func (gac *groupAddCommand) Run(args []string) int {
 	var options, err = gac.parse(args)
 	if err != nil {
-		fmt.Println(err.Error())
-		fmt.Println(gac.Help())
 		return 1
 	}
 	var config = common.OpenConfig()
@@ -157,9 +156,10 @@ func (gac *groupAddCommand) Run(args []string) int {
 type listOptions struct {
 	desc         bool
 	repositories bool
+	nameOnly     bool
 }
 
-func (glc *groupListCommand) parse(args []string) (*listOptions, error) {
+func (glc *groupListCommand) buildFlagSet() (*flag.FlagSet, *listOptions) {
 	var opt = listOptions{}
 	flags := flag.NewFlagSet("list", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(glc.Help()) }
@@ -167,26 +167,44 @@ func (glc *groupListCommand) parse(args []string) (*listOptions, error) {
 	flags.BoolVar(&opt.desc, "desc", false, "show description")
 	flags.BoolVar(&opt.repositories, "r", false, "show repositories")
 	flags.BoolVar(&opt.repositories, "repository", false, "show repositories")
+	flags.BoolVar(&opt.nameOnly, "o", false, "show only group names")
+	flags.BoolVar(&opt.nameOnly, "only-groupname", false, "show only group names")
+	return flags, &opt
+}
+
+func (glc *groupListCommand) parse(args []string) (*listOptions, error) {
+	var flags, opt = glc.buildFlagSet()
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
-	return &opt, nil
+	return opt, nil
+}
+
+func printRepositoryCount(count int) {
+	if count == 1 {
+		fmt.Print(",1 repository")
+	} else {
+		fmt.Printf(",%d repositories", count)
+	}
+}
+
+func (glc *groupListCommand) printResult(result GroupResult, options *listOptions) {
+	fmt.Print(result.Name)
+	if !options.nameOnly && options.desc {
+		fmt.Printf(",%s", result.Description)
+	}
+	if !options.nameOnly && options.repositories {
+		fmt.Printf(",%v", result.Repos)
+	}
+	if !options.nameOnly {
+		printRepositoryCount(len(result.Repos))
+	}
+	fmt.Println()
 }
 
 func (glc *groupListCommand) printAll(results []GroupResult, options *listOptions) {
 	for _, result := range results {
-		fmt.Printf("%s,", result.Name)
-		if options.desc {
-			fmt.Printf("%s,", result.Description)
-		}
-		if options.repositories {
-			fmt.Printf("%v,", result.Repos)
-		}
-		if len(result.Repos) == 1 {
-			fmt.Println("1 repository")
-		} else {
-			fmt.Printf("%d repositories\n", len(result.Repos))
-		}
+		glc.printResult(result, options)
 	}
 }
 
@@ -266,8 +284,6 @@ Run performs the command.
 func (grc *groupRemoveCommand) Run(args []string) int {
 	var _, err = grc.parse(args)
 	if err != nil {
-		fmt.Println(err.Error())
-		fmt.Println(grc.Help())
 		return 1
 	}
 	var config = common.OpenConfig()
@@ -324,8 +340,8 @@ func (guc *groupUpdateCommand) buildFlagSet() (*flag.FlagSet, *updateOptions) {
 	flags.StringVar(&opt.newName, "name", "", "specify new group name")
 	flags.StringVar(&opt.desc, "d", "", "specify the description")
 	flags.StringVar(&opt.desc, "desc", "", "specify the description")
-	flags.StringVar(&opt.omitList, "omit-list", "false", "set the omit list flag. ")
-	flags.StringVar(&opt.omitList, "o", "false", "set the omit list flag. ")
+	flags.StringVar(&opt.omitList, "omit-list", "", "set the omit list flag. ")
+	flags.StringVar(&opt.omitList, "o", "", "set the omit list flag. ")
 	return flags, &opt
 }
 
