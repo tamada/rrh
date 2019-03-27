@@ -61,7 +61,7 @@ OPTIONS
     -p, --path      print local paths (default).
     -r, --remote    print remote urls.
                     if any options of above are specified, '-a' are specified.
-	-n, --no-omit   print all repositories, no omittion.
+    -n, --no-omit   print all repositories, no omittion.
 
     -c, --csv       print result as csv format.
 ARGUMENTS
