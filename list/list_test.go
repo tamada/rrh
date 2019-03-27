@@ -56,13 +56,12 @@ func TestListCommandHelpAndSynopsis(t *testing.T) {
 	var list = ListCommand{&listOptions{}}
 	var helpMessage = `rrh list [OPTIONS] [GROUPS...]
 OPTIONS
-    -a, --all           print all repositories, no omit repositories.
     -d, --desc          print description of group.
     -p, --path          print local paths (default).
     -r, --remote        print remote urls.
-                        if any options of above are specified, '-a' are specified.
     -A, --all-entries   print all entries of each repository.
 
+    -a, --all           print all repositories, no omit repositories.
     -c, --csv           print result as csv format.
 ARGUMENTS
     GROUPS    print managed repositories categorized in the groups.

@@ -186,6 +186,54 @@ SUBCOMMAND
     update    update group
 ```
 
+#### `rrh group add`
+
+Adds new group to the RRH database.
+
+```sh
+rrh group add [OPTIONS] <GROUPS...>
+OPTIONS
+    -d, --desc <DESC>    give the description of the group
+ARGUMENTS
+    GROUPS               gives group names.```
+
+#### `rrh group list`
+
+Displays group list.
+
+```sh
+rrh group list [OPTIONS]
+OPTIONS
+    -d, --desc             show description.
+    -r, --repository       show repositories in the group.
+    -o, --only-groupname   show only group name. This option is prioritized.```
+
+#### `rrh group rm`
+
+Removes groups.
+
+```sh
+rrh group rm [OPTIONS] <GROUPS...>
+OPTIONS
+    -f, --force      force remove
+    -i, --inquery    inquiry mode
+    -v, --verbose    verbose mode
+ARGUMENTS
+    GROUPS           target group names.```
+
+#### `rrh group update`
+
+Update the information of specified group.
+
+```sh
+rrh group update [OPTIONS] <GROUP>
+OPTIONS
+    -n, --name <NAME>   change group name to NAME.
+    -d, --desc <DESC>   change description to DESC.
+    -o, --omit-list <FLAG>   change omit-list of the group. FLAG must be "true" or "false".
+ARGUMENTS
+    GROUP               update target group names.```
+
 ### `rrh list`
 
 Prints the repositories of managing in RRH.
@@ -193,16 +241,15 @@ Prints the repositories of managing in RRH.
 ```sh
 rrh list [OPTIONS] [GROUPS...]
 OPTIONS
-    -a, --all       print all entries of each repository.
-    -d, --desc      print description of group.
-    -p, --path      print local paths (default).
-    -r, --remote    print remote urls.
-                    if any options of above are specified, '-a' are specified.
-    -n, --no-omit   print all repositories, no omit.
+    -d, --desc          print description of group.
+    -p, --path          print local paths (default).
+    -r, --remote        print remote urls.
+    -A, --all-entries   print all entries of each repository.
 
-    -c, --csv       print result as csv format.
+    -a, --all           print all repositories, no omit repositories.
+    -c, --csv           print result as csv format.
 ARGUMENTS
-    GROUPS    print managed repositories categorzied in the groups.
+    GROUPS    print managed repositories categorized in the groups.
               if no groups are specified, all groups are printed.
 ```
 
