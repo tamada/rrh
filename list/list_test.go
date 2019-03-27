@@ -34,12 +34,12 @@ func TestRunByCsvOutput(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	var result, _ = common.CaptureStdout(func() {
 		var list, _ = ListCommandFactory()
-		list.Run([]string{"--all", "--csv"})
+		list.Run([]string{"--all-entries", "--csv"})
 	})
 	result = strings.TrimSpace(result)
 	var want = "group1,desc1,repo1,path1\ngroup3,desc3,repo2,path2"
 	if result != want {
-		t.Errorf("result did not match\ngot: %s\nwant: %s", result, want)
+		t.Errorf("result did not match\ngot: %s\nwont: %s", result, want)
 	}
 }
 
@@ -56,14 +56,14 @@ func TestListCommandHelpAndSynopsis(t *testing.T) {
 	var list = ListCommand{&listOptions{}}
 	var helpMessage = `rrh list [OPTIONS] [GROUPS...]
 OPTIONS
-    -a, --all       print all entries of each repository.
-    -d, --desc      print description of group.
-    -p, --path      print local paths (default).
-    -r, --remote    print remote urls.
-                    if any options of above are specified, '-a' are specified.
-    -n, --no-omit   print all repositories, no omittion.
+    -a, --all           print all repositories, no omit repositories.
+    -d, --desc          print description of group.
+    -p, --path          print local paths (default).
+    -r, --remote        print remote urls.
+                        if any options of above are specified, '-a' are specified.
+    -A, --all-entries   print all entries of each repository.
 
-    -c, --csv       print result as csv format.
+    -c, --csv           print result as csv format.
 ARGUMENTS
     GROUPS    print managed repositories categorized in the groups.
               if no groups are specified, all groups are printed.`
