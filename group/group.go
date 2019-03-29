@@ -32,7 +32,7 @@ func (group *groupListCommand) listGroups(db *common.Database, listOptions *list
 
 func (group *groupAddCommand) addGroups(db *common.Database, options *addOptions) error {
 	for _, group := range options.args {
-		var _, err = db.CreateGroup(group, options.desc)
+		var _, err = db.CreateGroup(group, options.desc, false)
 		if err != nil {
 			return err
 		}

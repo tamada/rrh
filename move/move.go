@@ -10,7 +10,7 @@ func (mv *MoveCommand) moveRepositoryToRepository(db *common.Database, from targ
 	if from.repositoryName != to.repositoryName {
 		return fmt.Errorf("repository name did not match: %s, %s", from.original, to.original)
 	}
-	if _, err := db.AutoCreateGroup(to.groupName, ""); err != nil {
+	if _, err := db.AutoCreateGroup(to.groupName, "", false); err != nil {
 		return err
 	}
 	if from.targetType == GroupAndRepoType {
@@ -24,7 +24,7 @@ func (mv *MoveCommand) moveRepositoryToRepository(db *common.Database, from targ
 
 func (mv *MoveCommand) moveRepositoryToGroup(db *common.Database, from target, to target) error {
 	if to.targetType == GroupType || to.targetType == GroupOrRepoType {
-		if _, err := db.AutoCreateGroup(to.original, ""); err != nil {
+		if _, err := db.AutoCreateGroup(to.original, "", false); err != nil {
 			return err
 		}
 	}
@@ -68,7 +68,7 @@ func (mv *MoveCommand) moveGroupsToGroup(db *common.Database, froms []target, to
 }
 
 func (mv *MoveCommand) moveGroupToGroup(db *common.Database, from target, to target) []error {
-	if _, err := db.AutoCreateGroup(to.groupName, ""); err != nil {
+	if _, err := db.AutoCreateGroup(to.groupName, "", false); err != nil {
 		return []error{err}
 	}
 	var repos = db.FindRelationsOfGroup(from.groupName)

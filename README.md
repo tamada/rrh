@@ -38,6 +38,7 @@ RRH is now growing. Please hack RRH itself.
         * [`rrh fetch`](#rrh-fetch)
         * [`rrh fetch-all`](#rrh-fetch-all)
         * [`rrh group`](#rrh-group)
+        * [`rrh import`](#rrh-import)
         * [`rrh list`](#rrh-list)
         * [`rrh mv`](#rrh-mv)
         * [`rrh prune`](#rrh-prune)
@@ -234,6 +235,20 @@ OPTIONS
     -o, --omit-list <FLAG>   change omit-list of the group. FLAG must be "true" or "false".
 ARGUMENTS
     GROUP               update target group names.```
+
+### `rrh import`
+
+Import the database to the local environment.
+
+```sh
+rrh import [OPTIONS] <DATABASE_JSON>
+OPTIONS
+    --auto-clone    clone the repository, if paths do not exist.
+    --overwrite     replace the local RRH database to the given database.
+    -v, --verbose   verbose mode.
+ARGUMENTS
+    DATABASE_JSON   the exported RRH database.
+```
 
 ### `rrh list`
 

@@ -51,6 +51,23 @@ type Config struct {
 	SortOnUpdating   string `json:"rrh_sort_on_updating"`
 }
 
+func (config *Config) isOnErrorIgnoreOrWarn() bool {
+	var onError = config.GetValue(RrhOnError)
+	return onError == Ignore || onError == Warn
+}
+
+func (config *Config) PrintErrors(errs []error) int {
+	if config.GetValue(RrhOnError) != Ignore {
+		for _, err := range errs {
+			fmt.Println(err.Error())
+		}
+	}
+	if len(errs) == 0 || config.isOnErrorIgnoreOrWarn() {
+		return 0
+	}
+	return 5
+}
+
 func trueOrFalse(value string) (string, error) {
 	if strings.ToLower(value) == "true" {
 		return "true", nil

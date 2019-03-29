@@ -2,9 +2,7 @@ package common
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -43,22 +41,18 @@ func Strftime(before time.Time, config *Config) string {
 	return humanize.Time(before)
 }
 
-/*
-CaptureStdout is referred from https://qiita.com/kami_zh/items/ff636f15da87dabebe6c.
-*/
-func CaptureStdout(f func()) (string, error) {
-	r, w, err := os.Pipe()
+func IsExistAndGitRepository(absPath string, path string) error {
+	var fmode, err = os.Stat(absPath)
 	if err != nil {
-		return "", err
+		return err
 	}
-	var stdout = os.Stdout
-	os.Stdout = w
-
-	f()
-
-	os.Stdout = stdout
-	w.Close()
-	var buf bytes.Buffer
-	io.Copy(&buf, r)
-	return buf.String(), nil
+	if !fmode.IsDir() {
+		return fmt.Errorf("%s: not directory", path)
+	}
+	fmode, err = os.Stat(filepath.Join(absPath, ".git"))
+	// If the repository of path is submodule, `.git` will be a file to indicate the `.git` directory.
+	if os.IsNotExist(err) {
+		return fmt.Errorf("%s: not git repository", path)
+	}
+	return nil
 }

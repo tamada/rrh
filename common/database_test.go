@@ -56,8 +56,8 @@ func TestStore(t *testing.T) {
 	var config = OpenConfig()
 	var db, _ = Open(config)
 
-	db.CreateGroup("group1", "desc1")
-	db.CreateGroup("group2", "desc2")
+	db.CreateGroup("group1", "desc1", false)
+	db.CreateGroup("group2", "desc2", false)
 	db.CreateRepository("repo1", "path1", []Remote{})
 	db.CreateRepository("repo2", "path2", []Remote{})
 	db.Relate("group1", "repo1")
@@ -84,8 +84,8 @@ func TestStore(t *testing.T) {
 
 func TestPrune(t *testing.T) {
 	var db = openDatabase()
-	db.CreateGroup("group1", "desc1")
-	db.CreateGroup("group2", "desc2")
+	db.CreateGroup("group1", "desc1", false)
+	db.CreateGroup("group2", "desc2", false)
 	db.CreateRepository("repo1", "path1", []Remote{})
 	db.CreateRepository("repo2", "path2", []Remote{})
 	db.Relate("group1", "repo1")
@@ -104,8 +104,8 @@ func TestPrune(t *testing.T) {
 
 func TestDeleteGroup(t *testing.T) {
 	var db = openDatabase()
-	db.CreateGroup("group1", "desc1")
-	db.CreateGroup("group2", "desc2")
+	db.CreateGroup("group1", "desc1", false)
+	db.CreateGroup("group2", "desc2", false)
 	db.CreateRepository("repo1", "path1", []Remote{})
 	db.CreateRepository("repo2", "path2", []Remote{})
 	db.Relate("group1", "repo1")
@@ -144,7 +144,7 @@ func TestUnrelate(t *testing.T) {
 	var db = openDatabase()
 
 	db.CreateRepository("somerepo", "unknown", []Remote{})
-	db.CreateGroup("group2", "desc2")
+	db.CreateGroup("group2", "desc2", false)
 	db.Relate("group2", "somerepo")
 	db.Relate("no-group", "somerepo")
 
@@ -182,7 +182,7 @@ func TestCreateRepository(t *testing.T) {
 func TestCreateGroupRelateAndUnrelate(t *testing.T) {
 	var db = openDatabase()
 
-	var g1, err1 = db.CreateGroup("newGroup1", "desc1")
+	var g1, err1 = db.CreateGroup("newGroup1", "desc1", false)
 	if err1 != nil {
 		t.Error(err1.Error())
 	}
@@ -193,7 +193,7 @@ func TestCreateGroupRelateAndUnrelate(t *testing.T) {
 		t.Error("the description of created group is different")
 	}
 
-	var g2, err2 = db.CreateGroup("newGroup1", "desc2")
+	var g2, err2 = db.CreateGroup("newGroup1", "desc2", false)
 	if err2 == nil || g2 != nil {
 		t.Error("cannot create same name group")
 	}

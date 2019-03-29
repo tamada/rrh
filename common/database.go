@@ -170,12 +170,12 @@ func (db *Database) CreateRepository(repoID string, path string, remotes []Remot
 	return &repo, nil
 }
 
-func (db *Database) AutoCreateGroup(groupID string, description string) (*Group, error) {
+func (db *Database) AutoCreateGroup(groupID string, description string, omitList bool) (*Group, error) {
 	if db.HasGroup(groupID) {
 		return db.FindGroup(groupID), nil
 	}
 	if db.Config.IsSet(RrhAutoCreateGroup) {
-		return db.CreateGroup(groupID, description)
+		return db.CreateGroup(groupID, description, omitList)
 	}
 	return nil, fmt.Errorf("%s: could not create group", groupID)
 }
@@ -183,11 +183,11 @@ func (db *Database) AutoCreateGroup(groupID string, description string) (*Group,
 /*
 CreateGroup returns the group by creating the given parameters and store it to database.
 */
-func (db *Database) CreateGroup(groupID string, description string) (*Group, error) {
+func (db *Database) CreateGroup(groupID string, description string, omitList bool) (*Group, error) {
 	if db.HasGroup(groupID) {
 		return nil, fmt.Errorf("%s: already registered group", groupID)
 	}
-	var group = Group{groupID, description, false}
+	var group = Group{groupID, description, omitList}
 	db.Groups = append(db.Groups, group)
 	sortIfNeeded(db)
 
