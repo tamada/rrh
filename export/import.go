@@ -37,20 +37,30 @@ func (command *ImportCommand) copyDB(from *common.Database, to *common.Database)
 	return append(errs, errs3...)
 }
 
+func (command *ImportCommand) copyGroup(group common.Group, to *common.Database) []error {
+	var list = []error{}
+	if to.HasGroup(group.Name) {
+		var successFlag = to.UpdateGroup(group.Name, group)
+		if !successFlag {
+			list = append(list, fmt.Errorf("%s: update failed", group.Name))
+		}
+	} else {
+		var _, err = to.CreateGroup(group.Name, group.Description, group.OmitList)
+		if err != nil {
+			list = append(list, err)
+		}
+		command.options.printIfNeeded(fmt.Sprintf("%s: create group", group.Name))
+	}
+	return list
+}
+
 func (command *ImportCommand) copyGroups(from *common.Database, to *common.Database) []error {
 	var list = []error{}
 	for _, group := range from.Groups {
-		if to.HasGroup(group.Name) {
-			var successFlag = to.UpdateGroup(group.Name, group)
-			if !successFlag {
-				list = append(list, fmt.Errorf("%s: update failed", group.Name))
-			}
-		} else {
-			var _, err = to.CreateGroup(group.Name, group.Description, group.OmitList)
-			if err != nil {
-				list = append(list, err)
-			}
-			command.options.printIfNeeded(fmt.Sprintf("%s: create group", group.Name))
+		var errs = command.copyGroup(group, to)
+		list = append(list, errs...)
+		if len(errs) != 0 && isFailImmediately(from.Config) {
+			return list
 		}
 	}
 	return list
@@ -86,33 +96,57 @@ func (command *ImportCommand) cloneRepository(repository common.Repository) erro
 	return command.doClone(repository, remote)
 }
 
+func (command *ImportCommand) cloneIfNeeded(repository common.Repository) error {
+	if !command.options.autoClone {
+		return fmt.Errorf("%s: repository path did not exist at %s", repository.ID, repository.Path)
+	}
+	command.cloneRepository(repository)
+	return nil
+}
+
+func (command *ImportCommand) copyRepository(repository common.Repository, to *common.Database) []error {
+	if to.HasRepository(repository.ID) {
+		return []error{}
+	}
+	var _, err = os.Stat(repository.Path)
+	if err != nil {
+		var err1 = command.cloneIfNeeded(repository)
+		if err1 != nil {
+			return []error{err1}
+		}
+	}
+	return command.copyRepositoryImpl(repository, to)
+}
+
+func (command *ImportCommand) copyRepositoryImpl(repository common.Repository, to *common.Database) []error {
+	if err := common.IsExistAndGitRepository(repository.Path, repository.ID); err != nil {
+		return []error{err}
+	} else {
+		to.CreateRepository(repository.ID, repository.Path, repository.Remotes)
+		command.options.printIfNeeded(fmt.Sprintf("%s: create repository", repository.ID))
+	}
+	return []error{}
+}
+
 func (command *ImportCommand) copyRepositories(from *common.Database, to *common.Database) []error {
 	var list = []error{}
 	for _, repository := range from.Repositories {
-		if to.HasRepository(repository.ID) {
-			continue
+		var errs = command.copyRepository(repository, to)
+		list = append(list, errs...)
+		if len(errs) > 0 && isFailImmediately(from.Config) {
+			return list
 		}
-		var _, err = os.Stat(repository.Path)
-		if err != nil {
-			if command.options.autoClone {
-				command.cloneRepository(repository)
-			} else {
-				list = append(list, fmt.Errorf("%s: repository path did not exist at %s", repository.ID, repository.Path))
-				if isFailImmediately(from.Config) {
-					return list
-				}
-				continue
-			}
-		}
-		if err := common.IsExistAndGitRepository(repository.Path, repository.ID); err != nil {
-			list = append(list, err)
-			if isFailImmediately(from.Config) {
-				return list
-			}
-		} else {
-			to.CreateRepository(repository.ID, repository.Path, repository.Remotes)
-			command.options.printIfNeeded(fmt.Sprintf("%s: create repository", repository.ID))
-		}
+	}
+	return list
+}
+
+func (command *ImportCommand) copyRelation(rel common.Relation, to *common.Database) []error {
+	var list = []error{}
+	if to.HasGroup(rel.GroupName) && to.HasRepository(rel.RepositoryID) {
+		to.Relate(rel.GroupName, rel.RepositoryID)
+		command.options.printIfNeeded(fmt.Sprintf("%s, %s: create relation", rel.GroupName, rel.RepositoryID))
+	} else {
+		list = append(list, fmt.Errorf("group %s and repository %s: could not relate", rel.GroupName, rel.RepositoryID))
 	}
 	return list
 }
@@ -120,14 +154,10 @@ func (command *ImportCommand) copyRepositories(from *common.Database, to *common
 func (command *ImportCommand) copyRelations(from *common.Database, to *common.Database) []error {
 	var list = []error{}
 	for _, rel := range from.Relations {
-		if to.HasGroup(rel.GroupName) && to.HasRepository(rel.RepositoryID) {
-			to.Relate(rel.GroupName, rel.RepositoryID)
-			command.options.printIfNeeded(fmt.Sprintf("%s, %s: create relation", rel.GroupName, rel.RepositoryID))
-		} else {
-			list = append(list, fmt.Errorf("group %s and repository %s: could not relate", rel.GroupName, rel.RepositoryID))
-			if isFailImmediately(to.Config) {
-				return list
-			}
+		var errs = command.copyRelation(rel, to)
+		list = append(list, errs...)
+		if len(errs) > 0 && isFailImmediately(from.Config) {
+			return list
 		}
 	}
 	return list
