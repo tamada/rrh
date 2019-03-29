@@ -46,7 +46,7 @@ func (command *ImportCommand) perform(db *common.Database) int {
 	if command.options.overwrite {
 		command.eraseDatabase(db)
 	}
-	var db2, err = command.readNewDB(command.options.database, db.Config)
+	var db2, err = readNewDB(command.options.database, db.Config)
 	if err != nil {
 		fmt.Printf(err.Error())
 		return 4

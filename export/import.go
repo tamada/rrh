@@ -13,7 +13,7 @@ import (
 	"github.com/tamada/rrh/common"
 )
 
-func (command *ImportCommand) readNewDB(path string, config *common.Config) (*common.Database, error) {
+func readNewDB(path string, config *common.Config) (*common.Database, error) {
 	var db = common.Database{Timestamp: common.Now(), Repositories: []common.Repository{}, Groups: []common.Group{}, Relations: []common.Relation{}, Config: config}
 	var bytes, err = ioutil.ReadFile(path)
 	if err != nil {
@@ -79,7 +79,7 @@ func findOrigin(remotes []common.Remote) common.Remote {
 	return remotes[0]
 }
 
-func (command *ImportCommand) doClone(repository common.Repository, remote common.Remote) error {
+func doClone(repository common.Repository, remote common.Remote) error {
 	var cmd = exec.Command("git", "clone", remote.URL, repository.Path)
 	var err = cmd.Run()
 	if err != nil {
@@ -93,7 +93,9 @@ func (command *ImportCommand) cloneRepository(repository common.Repository) erro
 		return fmt.Errorf("%s: could not clone, did not have remotes", repository.ID)
 	}
 	var remote = findOrigin(repository.Remotes)
-	return command.doClone(repository, remote)
+	var err = doClone(repository, remote)
+	command.options.printIfNeeded(fmt.Sprintf("%s: clone repository from %s", repository.ID, remote.URL))
+	return err
 }
 
 func (command *ImportCommand) cloneIfNeeded(repository common.Repository) error {
