@@ -7,14 +7,6 @@ import (
 	"github.com/tamada/rrh/common"
 )
 
-func rollback(f func()) {
-	var config = common.OpenConfig()
-	var db, _ = common.Open(config)
-	defer db.StoreAndClose()
-
-	f()
-}
-
 func TestInvalidOptions(t *testing.T) {
 	common.CaptureStdout(func() {
 		var command, _ = AddCommandFactory()
@@ -39,52 +31,78 @@ ARGUMENTS
 	}
 }
 
-func TestAddToTheSpecifiedGroup(t *testing.T) {
+func TestAdd(t *testing.T) {
+	type groupChecker struct {
+		groupName string
+		existFlag bool
+	}
+	type repositoryChecker struct {
+		repositoryID string
+		existFlag    bool
+	}
+	type relationChecker struct {
+		groupName    string
+		repositoryID string
+		existFlag    bool
+	}
+	var testcases = []struct {
+		args        []string
+		statusCode  int
+		gCheckers   []groupChecker
+		rCheckers   []repositoryChecker
+		relCheckers []relationChecker
+	}{
+		{[]string{"--group", "group2", "../testdata/helloworld"}, 0,
+			[]groupChecker{{"group2", true}},
+			[]repositoryChecker{{"helloworld", true}},
+			[]relationChecker{{"group2", "helloworld", true}},
+		},
+		{[]string{"../testdata/fibonacci"}, 0,
+			[]groupChecker{{"no-group", true}},
+			[]repositoryChecker{{"fibonacci", true}},
+			[]relationChecker{{"no-group", "fibonacci", true}},
+		},
+		{[]string{"../testdata/fibonacci", "../testdata/helloworld", "../not-exist-dir", "../testdata/other/helloworld"}, 0,
+			[]groupChecker{{"no-group", true}},
+			[]repositoryChecker{{"fibonacci", true}, {"helloworld", true}, {"not-exist-dir", false}},
+			[]relationChecker{{"no-group", "fibonacci", true}, {"no-group", "helloworld", true}},
+		},
+	}
+
 	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
-	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	rollback(func() {
-		var command, _ = AddCommandFactory()
-		command.Run([]string{"--group", "group2", "../testdata/helloworld"})
+	for _, testcase := range testcases {
+		common.Rollback("../testdata/tmp.json", func() {
+			var command, _ = AddCommandFactory()
+			var status = command.Run(testcase.args)
 
-		var config = common.OpenConfig()
-		var db, _ = common.Open(config)
-		if !db.HasGroup("group2") {
-			t.Error("group2: group not found")
-		}
-		if !db.HasRepository("helloworld") {
-			t.Error("helloworld: repository not found")
-		}
-		if !db.HasRelation("group2", "helloworld") {
-			t.Error("gruop2, and helloworld: the relation not found")
-		}
-	})
-}
+			var config = common.OpenConfig()
+			var db, _ = common.Open(config)
+			if status != testcase.statusCode {
+				t.Errorf("%v: status code did not match, wont: %d, got: %d", testcase.args, testcase.statusCode, status)
+			}
 
-func TestAddCommand_Run(t *testing.T) {
-	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
-	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	rollback(func() {
-		var command, _ = AddCommandFactory()
-		command.Run([]string{"../testdata/fibonacci"})
-
-		var config = common.OpenConfig()
-		var db, _ = common.Open(config)
-		if !db.HasGroup("no-group") {
-			t.Error("no-group: group not found")
-		}
-		if !db.HasRepository("fibonacci") {
-			t.Error("fibonacci: repository not found")
-		}
-		if !db.HasRelation("no-group", "fibonacci") {
-			t.Error("no-group, and fibonacci: the relation not found")
-		}
-	})
+			for _, checker := range testcase.gCheckers {
+				if db.HasGroup(checker.groupName) != checker.existFlag {
+					t.Errorf("%v: group wont: %v, got: %v", testcase.args, checker.existFlag, !checker.existFlag)
+				}
+			}
+			for _, checker := range testcase.rCheckers {
+				if db.HasRepository(checker.repositoryID) != checker.existFlag {
+					t.Errorf("%v: repository wont: %v, got: %v", testcase.args, checker.existFlag, !checker.existFlag)
+				}
+			}
+			for _, checker := range testcase.relCheckers {
+				if db.HasRelation(checker.groupName, checker.repositoryID) != checker.existFlag {
+					t.Errorf("%v: relation (%s, %s) wont: %v, got: %v", testcase.args, checker.repositoryID, checker.groupName, checker.existFlag, !checker.existFlag)
+				}
+			}
+		})
+	}
 }
 
 func TestAddToDifferentGroup(t *testing.T) {
 	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
-	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	rollback(func() {
+	common.Rollback("../testdata/tmp.json", func() {
 		var command, _ = AddCommandFactory()
 		command.Run([]string{"../testdata/fibonacci"})
 		command.Run([]string{"-g", "group1", "../testdata/fibonacci"})
