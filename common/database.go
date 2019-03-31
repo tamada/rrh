@@ -255,6 +255,9 @@ func (db *Database) ContainsCount(groupID string) int {
 	return groups[groupID]
 }
 
+/*
+FindRelationsOfGroup returns the repository ids belonging to the specified group.
+*/
 func (db *Database) FindRelationsOfGroup(groupId string) []string {
 	var repositories = []string{}
 	for _, relation := range db.Relations {
@@ -296,6 +299,9 @@ func (db *Database) Unrelate(groupID string, repoID string) {
 	db.Relations = newRelations
 }
 
+/*
+UnrelateRepository deletes all relations of the specified repository.
+*/
 func (db *Database) UnrelateRepository(repoID string) {
 	var newRelations = []Relation{}
 	for _, relation := range db.Relations {
@@ -306,6 +312,9 @@ func (db *Database) UnrelateRepository(repoID string) {
 	db.Relations = newRelations
 }
 
+/*
+UnrelateGroup deletes all relations about the specified group.
+*/
 func (db *Database) UnrelateFromGroup(groupID string) {
 	var newRelations = []Relation{}
 	for _, relation := range db.Relations {

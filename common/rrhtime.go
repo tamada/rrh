@@ -5,6 +5,9 @@ import (
 	"time"
 )
 
+/*
+RrhTime represents the time for RRH command, for marshaling a specific format.
+*/
 type RrhTime struct {
 	time time.Time
 }

@@ -8,14 +8,23 @@ import (
 	"github.com/tamada/rrh/common"
 )
 
+/*
+FetchCommand represents a command.
+*/
 type FetchCommand struct {
-	options *FetchOptions
+	options *fetchOptions
 }
 
+/*
+FetchCommandFactory returns an instance of command.
+*/
 func FetchCommandFactory() (cli.Command, error) {
-	return &FetchCommand{}, nil
+	return &FetchCommand{&fetchOptions{}}, nil
 }
 
+/*
+Help returns the help message of the command.
+*/
 func (fetch *FetchCommand) Help() string {
 	return `rrh fetch [OPTIONS] [GROUPS...]
 OPTIONS
@@ -25,10 +34,16 @@ ARGUMENTS
                             if no value is specified, run on the default group.`
 }
 
+/*
+Synopsis returns the help message of the command.
+*/
 func (fetch *FetchCommand) Synopsis() string {
 	return "run \"git fetch\" on the given groups."
 }
 
+/*
+Run performs the command.
+*/
 func (fetch *FetchCommand) Run(args []string) int {
 	var fetchOptions, err = fetch.parse(args)
 	if err != nil {
@@ -65,7 +80,7 @@ func (fetch *FetchCommand) perform(db *common.Database) int {
 	return errorFlag
 }
 
-type FetchOptions struct {
+type fetchOptions struct {
 	remote string
 	// key      string
 	// userName string
@@ -73,8 +88,8 @@ type FetchOptions struct {
 	args []string
 }
 
-func (fetch *FetchCommand) parse(args []string) (*FetchOptions, error) {
-	var options = FetchOptions{"origin", []string{}}
+func (fetch *FetchCommand) parse(args []string) (*fetchOptions, error) {
+	var options = fetchOptions{"origin", []string{}}
 	flags := flag.NewFlagSet("fetch", flag.ExitOnError)
 	flags.Usage = func() { fmt.Println(fetch.Help()) }
 	flags.StringVar(&options.remote, "r", "origin", "remote name")

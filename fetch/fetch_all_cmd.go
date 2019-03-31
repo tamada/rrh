@@ -58,7 +58,7 @@ func (fetch *FetchAllCommand) printError(errs []error) {
 	}
 }
 
-func (fetch *FetchAllCommand) execFetch(db *common.Database, fetchOptions *FetchOptions) int {
+func (fetch *FetchAllCommand) execFetch(db *common.Database, fetchOptions *fetchOptions) int {
 	var onError = db.Config.GetValue(common.RrhOnError)
 
 	var fetch2 = FetchCommand{}
@@ -84,8 +84,8 @@ func (fetch *FetchAllCommand) execFetch(db *common.Database, fetchOptions *Fetch
 	return 0
 }
 
-func (fetch *FetchAllCommand) parse(args []string) (*FetchOptions, error) {
-	var options = FetchOptions{"origin", []string{}}
+func (fetch *FetchAllCommand) parse(args []string) (*fetchOptions, error) {
+	var options = fetchOptions{"origin", []string{}}
 	flags := flag.NewFlagSet("fetch-all", flag.ExitOnError)
 	flags.Usage = func() { fmt.Println(fetch.Help()) }
 	flags.StringVar(&options.remote, "r", "origin", "remote name")
