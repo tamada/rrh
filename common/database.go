@@ -170,6 +170,10 @@ func (db *Database) CreateRepository(repoID string, path string, remotes []Remot
 	return &repo, nil
 }
 
+/*
+AutoCreateGroup returns the group by creating the given parameters and store it to the database
+by satisfying the config value of RrhAutoCreateGroup is true.
+*/
 func (db *Database) AutoCreateGroup(groupID string, description string, omitList bool) (*Group, error) {
 	if db.HasGroup(groupID) {
 		return db.FindGroup(groupID), nil
@@ -258,10 +262,10 @@ func (db *Database) ContainsCount(groupID string) int {
 /*
 FindRelationsOfGroup returns the repository ids belonging to the specified group.
 */
-func (db *Database) FindRelationsOfGroup(groupId string) []string {
+func (db *Database) FindRelationsOfGroup(groupID string) []string {
 	var repositories = []string{}
 	for _, relation := range db.Relations {
-		if relation.GroupName == groupId {
+		if relation.GroupName == groupID {
 			repositories = append(repositories, relation.RepositoryID)
 		}
 	}
@@ -313,7 +317,7 @@ func (db *Database) UnrelateRepository(repoID string) {
 }
 
 /*
-UnrelateGroup deletes all relations about the specified group.
+UnrelateFromGroup deletes all relations about the specified group.
 */
 func (db *Database) UnrelateFromGroup(groupID string) {
 	var newRelations = []Relation{}

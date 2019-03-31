@@ -41,6 +41,9 @@ func Strftime(before time.Time, config *Config) string {
 	return humanize.Time(before)
 }
 
+/*
+IsExistAndGitRepository checks the given absPath is exist and shows the git repository.
+*/
 func IsExistAndGitRepository(absPath string, path string) error {
 	var fmode, err = os.Stat(absPath)
 	if err != nil {

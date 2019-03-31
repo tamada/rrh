@@ -91,9 +91,10 @@ func ExampleConfigCommand() {
 	// RRH_DATABASE_PATH: ../testdata/database.json (environment)
 	// RRH_DEFAULT_GROUP_NAME: no-group (default)
 	// RRH_ON_ERROR: WARN (default)
-	// RRH_TIME_FORMAT: relative (default)
 	// RRH_AUTO_CREATE_GROUP: true (config_file)
 	// RRH_AUTO_DELETE_GROUP: false (config_file)
+	// RRH_TIME_FORMAT: relative (default)
+	// RRH_CLONE_DESTINATION: . (default)
 	// RRH_SORT_ON_UPDATING: true (config_file)
 }
 func ExampleConfigCommand_Run() {
@@ -107,9 +108,10 @@ func ExampleConfigCommand_Run() {
 	// RRH_DATABASE_PATH: ../testdata/database.json (environment)
 	// RRH_DEFAULT_GROUP_NAME: no-group (default)
 	// RRH_ON_ERROR: WARN (default)
-	// RRH_TIME_FORMAT: relative (default)
 	// RRH_AUTO_CREATE_GROUP: true (config_file)
 	// RRH_AUTO_DELETE_GROUP: false (config_file)
+	// RRH_TIME_FORMAT: relative (default)
+	// RRH_CLONE_DESTINATION: . (default)
 	// RRH_SORT_ON_UPDATING: true (config_file)
 }
 func Example_configListCommand_Run() {
@@ -123,9 +125,10 @@ func Example_configListCommand_Run() {
 	// RRH_DATABASE_PATH: ../testdata/database.json (environment)
 	// RRH_DEFAULT_GROUP_NAME: no-group (default)
 	// RRH_ON_ERROR: WARN (default)
-	// RRH_TIME_FORMAT: relative (default)
 	// RRH_AUTO_CREATE_GROUP: true (config_file)
 	// RRH_AUTO_DELETE_GROUP: false (config_file)
+	// RRH_TIME_FORMAT: relative (default)
+	// RRH_CLONE_DESTINATION: . (default)
 	// RRH_SORT_ON_UPDATING: true (config_file)
 }
 
@@ -264,6 +267,7 @@ func TestOpenConfig(t *testing.T) {
 		{RrhConfigPath, fmt.Sprintf("%s/.rrh/config.json", home)},
 		{RrhDatabasePath, fmt.Sprintf("%s/.rrh/database.json", home)},
 		{RrhDefaultGroupName, "no-group"},
+		{RrhCloneDestination, "."},
 		{RrhOnError, Warn},
 		{RrhAutoCreateGroup, "false"},
 		{RrhAutoDeleteGroup, "false"},
@@ -283,7 +287,7 @@ func TestOpenConfig(t *testing.T) {
 	assert(t, config.GetDefaultValue("unknown"), "")
 }
 
-func TestFromatVariableAndValue(t *testing.T) {
+func TestFormatVariableAndValue(t *testing.T) {
 	var config = OpenConfig()
 	assert(t, config.formatVariableAndValue(RrhDefaultGroupName), "RRH_DEFAULT_GROUP_NAME: no-group (default)")
 }

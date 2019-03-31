@@ -16,15 +16,16 @@ VERSION shows the version of RRH.
 const VERSION = "0.2"
 
 const (
-	RrhHome             = "RRH_HOME"
+	RrhAutoDeleteGroup  = "RRH_AUTO_DELETE_GROUP"
+	RrhAutoCreateGroup  = "RRH_AUTO_CREATE_GROUP"
+	RrhCloneDestination = "RRH_CLONE_DESTINATION"
 	RrhConfigPath       = "RRH_CONFIG_PATH"
 	RrhDatabasePath     = "RRH_DATABASE_PATH"
 	RrhDefaultGroupName = "RRH_DEFAULT_GROUP_NAME"
+	RrhHome             = "RRH_HOME"
 	RrhOnError          = "RRH_ON_ERROR"
-	RrhAutoDeleteGroup  = "RRH_AUTO_DELETE_GROUP"
-	RrhAutoCreateGroup  = "RRH_AUTO_CREATE_GROUP"
-	RrhTimeFormat       = "RRH_TIME_FORMAT"
 	RrhSortOnUpdating   = "RRH_SORT_ON_UPDATING"
+	RrhTimeFormat       = "RRH_TIME_FORMAT"
 )
 
 const (
@@ -46,15 +47,16 @@ const (
 Config shows the values of configuration variables.
 */
 type Config struct {
-	Home             string `json:"rrh_home"`
 	AutoDeleteGroup  string `json:"rrh_auto_delete_group"`
 	AutoCreateGroup  string `json:"rrh_auto_create_group"`
+	CloneDestination string `json:"rrh_clone_destination"`
 	ConfigPath       string `json:"rrh_config_path"`
 	DatabasePath     string `json:"rrh_database_path"`
 	DefaultGroupName string `json:"rrh_default_group_name"`
-	TimeFormat       string `json:"rrh_time_format"`
+	Home             string `json:"rrh_home"`
 	OnError          string `json:"rrh_on_error"`
 	SortOnUpdating   string `json:"rrh_sort_on_updating"`
+	TimeFormat       string `json:"rrh_time_format"`
 }
 
 func (config *Config) isOnErrorIgnoreOrWarn() bool {
@@ -127,6 +129,9 @@ func (config *Config) Update(label string, value string) error {
 	case RrhDatabasePath:
 		config.DatabasePath = value
 		return nil
+	case RrhCloneDestination:
+		config.CloneDestination = value
+		return nil
 	case RrhDefaultGroupName:
 		config.DefaultGroupName = value
 		return nil
@@ -185,6 +190,8 @@ func (config *Config) GetString(label string) (value string, readFrom string) {
 		return config.getStringFromEnv(RrhHome, config.Home)
 	case RrhConfigPath:
 		return config.getStringFromEnv(RrhConfigPath, config.ConfigPath)
+	case RrhCloneDestination:
+		return config.getStringFromEnv(RrhCloneDestination, config.CloneDestination)
 	case RrhDefaultGroupName:
 		return config.getStringFromEnv(RrhDefaultGroupName, config.DefaultGroupName)
 	case RrhDatabasePath:
@@ -218,6 +225,8 @@ func (config *Config) findDefaultValue(label string) (value string, readFrom str
 		return fmt.Sprintf("%s/.rrh/config.json", home), Default
 	case RrhDatabasePath:
 		return fmt.Sprintf("%s/.rrh/database.json", home), Default
+	case RrhCloneDestination:
+		return ".", Default
 	case RrhDefaultGroupName:
 		return "no-group", Default
 	case RrhOnError:

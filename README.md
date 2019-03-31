@@ -352,6 +352,9 @@ We can see those variables by running `rrh config` sub-command.
 * `RRH_DEFAULT_GROUP_NAME`
     * specifies the default group name.
     * default: `no-group`
+* `RRH_CLONE_DESTINATION`
+    * specifies the destination by cloning the repository.
+    * default: `.`
 * `RRH_ON_ERROR`
     * specifies the behaviors of RRH on error.
     * default: `WARN`

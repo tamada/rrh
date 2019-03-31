@@ -123,10 +123,9 @@ func (command *ImportCommand) copyRepository(repository common.Repository, to *c
 func (command *ImportCommand) copyRepositoryImpl(repository common.Repository, to *common.Database) []error {
 	if err := common.IsExistAndGitRepository(repository.Path, repository.ID); err != nil {
 		return []error{err}
-	} else {
-		to.CreateRepository(repository.ID, repository.Path, repository.Remotes)
-		command.options.printIfNeeded(fmt.Sprintf("%s: create repository", repository.ID))
 	}
+	to.CreateRepository(repository.ID, repository.Path, repository.Remotes)
+	command.options.printIfNeeded(fmt.Sprintf("%s: create repository", repository.ID))
 	return []error{}
 }
 
