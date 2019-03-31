@@ -10,6 +10,9 @@ import (
 	"github.com/mitchellh/go-homedir"
 )
 
+/*
+VERSION shows the version of RRH.
+*/
 const VERSION = "0.2"
 
 const (
@@ -39,6 +42,9 @@ const (
 	Ignore          = "IGNORE"
 )
 
+/*
+Config shows the values of configuration variables.
+*/
 type Config struct {
 	Home             string `json:"rrh_home"`
 	AutoDeleteGroup  string `json:"rrh_auto_delete_group"`
@@ -56,6 +62,10 @@ func (config *Config) isOnErrorIgnoreOrWarn() bool {
 	return onError == Ignore || onError == Warn
 }
 
+/*
+PrintErrors prints errors and returns the status code by following the value of RrhOnError.
+If the value of RrhOnError is Ignore or Warn, this method returns 0, otherwise, non-zero value.
+*/
 func (config *Config) PrintErrors(errs []error) int {
 	if config.GetValue(RrhOnError) != Ignore {
 		for _, err := range errs {
@@ -85,6 +95,9 @@ func availableValueOnError(value string) (string, error) {
 	return "", fmt.Errorf("%s: Unknown value of RRH_ON_ERROR (must be %s, %s, %s, or %s)", value, Fail, FailImmediately, Warn, Ignore)
 }
 
+/*
+Update method updates the config value with the given `value`.
+*/
 func (config *Config) Update(label string, value string) error {
 	switch label {
 	case RrhAutoDeleteGroup:
@@ -124,11 +137,15 @@ func (config *Config) Update(label string, value string) error {
 		}
 		return err
 	case RrhConfigPath:
-		return fmt.Errorf("%s: does not set on config file. set on environment.", label)
+		return fmt.Errorf("%s: does not set on config file. set on environment", label)
 	}
 	return fmt.Errorf("%s: Unknown variable name", label)
 }
 
+/*
+IsSet returns the bool value of the given label.
+If the label is not RrhAutoCreateGroup, RrhAutoDeleteGroup, and RrhSortOnUpdating, this method always returns false.
+*/
 func (config *Config) IsSet(label string) bool {
 	var value = config.GetValue(label)
 	if label != RrhAutoCreateGroup && label != RrhAutoDeleteGroup && label != RrhSortOnUpdating {
@@ -137,16 +154,25 @@ func (config *Config) IsSet(label string) bool {
 	return strings.ToLower(value) == "true"
 }
 
+/*
+GetValue returns the value of the given variable name.
+*/
 func (config *Config) GetValue(label string) string {
 	var value, _ = config.GetString(label)
 	return value
 }
 
+/*
+GetDefaultValue returns the default value of the given variable name.
+*/
 func (config *Config) GetDefaultValue(label string) string {
 	var value, _ = config.findDefaultValue(label)
 	return value
 }
 
+/*
+GetString returns the value of the given variable name and the definition part of the value.
+*/
 func (config *Config) GetString(label string) (value string, readFrom string) {
 	switch label {
 	case RrhAutoDeleteGroup:
@@ -215,6 +241,9 @@ func configPath() string {
 	return home
 }
 
+/*
+StoreConfig saves the store.
+*/
 func (config *Config) StoreConfig() error {
 	var configPath = config.GetValue(RrhConfigPath)
 	var err1 = CreateParentDir(configPath)
@@ -228,6 +257,10 @@ func (config *Config) StoreConfig() error {
 	return err2
 }
 
+/*
+OpenConfig reads the config file and returns it.
+The load path is based on `RrhConfigPath` of the environment variables.
+*/
 func OpenConfig() *Config {
 	bytes, err := ioutil.ReadFile(configPath())
 	if err != nil {

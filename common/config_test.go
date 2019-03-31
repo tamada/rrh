@@ -80,7 +80,7 @@ func TestConfigUnset(t *testing.T) {
 	baseConfig.StoreConfig()
 }
 
-func ExampleConfigCommand_Run() {
+func ExampleConfigCommand() {
 	os.Setenv(RrhConfigPath, "../testdata/config.json")
 	os.Setenv(RrhHome, "../testdata/")
 	var command, _ = ConfigCommandFactory()
@@ -96,7 +96,7 @@ func ExampleConfigCommand_Run() {
 	// RRH_AUTO_DELETE_GROUP: false (config_file)
 	// RRH_SORT_ON_UPDATING: true (config_file)
 }
-func ExampleConfigCommand_Run_2() {
+func ExampleConfigCommand_Run() {
 	os.Setenv(RrhConfigPath, "../testdata/config.json")
 	os.Setenv(RrhHome, "../testdata/")
 	var command, _ = ConfigCommandFactory()
