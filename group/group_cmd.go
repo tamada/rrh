@@ -45,9 +45,10 @@ func groupRemoveCommandFactory() (cli.Command, error) {
 func (gac *groupAddCommand) Help() string {
 	return `rrh group add [OPTIONS] <GROUPS...>
 OPTIONS
-    -d, --desc <DESC>    give the description of the group
+    -d, --desc <DESC>        gives the description of the group.
+    -o, --omit-list <FLAG>   gives the omit list flag of the group.
 ARGUMENTS
-    GROUPS               gives group names.`
+    GROUPS                   gives group names.`
 }
 
 func (glc *groupListCommand) Help() string {
@@ -61,9 +62,9 @@ OPTIONS
 func (grc *groupRemoveCommand) Help() string {
 	return `rrh group rm [OPTIONS] <GROUPS...>
 OPTIONS
-    -f, --force      force remove
-    -i, --inquery    inquiry mode
-    -v, --verbose    verbose mode
+    -f, --force      force remove.
+    -i, --inquery    inquiry mode.
+    -v, --verbose    verbose mode.
 ARGUMENTS
     GROUPS           target group names.`
 }
@@ -87,7 +88,7 @@ SUBCOMMAND
     add       add new group.
     list      list groups (default).
     rm        remove group.
-    update    update group`
+    update    update group.`
 }
 
 /*
@@ -127,7 +128,7 @@ func (gac *groupAddCommand) buildFlagSet() (*flag.FlagSet, *addOptions) {
 	flags.StringVar(&opt.desc, "d", "", "description")
 	flags.StringVar(&opt.desc, "desc", "", "description")
 	flags.StringVar(&opt.omit, "o", "", "omit list flag")
-	flags.StringVar(&opt.omit, "omitlist", "", "omit list flag")
+	flags.StringVar(&opt.omit, "omit-list", "", "omit list flag")
 	return flags, &opt
 }
 

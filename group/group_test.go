@@ -256,9 +256,10 @@ func TestHelp(t *testing.T) {
 
 	var gacHelp = `rrh group add [OPTIONS] <GROUPS...>
 OPTIONS
-    -d, --desc <DESC>    give the description of the group
+    -d, --desc <DESC>        gives the description of the group.
+    -o, --omit-list <FLAG>   gives the omit list flag of the group.
 ARGUMENTS
-    GROUPS               gives group names.`
+    GROUPS                   gives group names.`
 
 	var glcHelp = `rrh group list [OPTIONS]
 OPTIONS
@@ -268,9 +269,9 @@ OPTIONS
 
 	var grcHelp = `rrh group rm [OPTIONS] <GROUPS...>
 OPTIONS
-    -f, --force      force remove
-    -i, --inquery    inquiry mode
-    -v, --verbose    verbose mode
+    -f, --force      force remove.
+    -i, --inquery    inquiry mode.
+    -v, --verbose    verbose mode.
 ARGUMENTS
     GROUPS           target group names.`
 
@@ -287,7 +288,7 @@ SUBCOMMAND
     add       add new group.
     list      list groups (default).
     rm        remove group.
-    update    update group`
+    update    update group.`
 
 	if gc.Help() != gcHelp {
 		t.Error("help message did not match")

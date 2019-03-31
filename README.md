@@ -184,8 +184,8 @@ rrh group <SUBCOMMAND>
 SUBCOMMAND
     add       add new group.
     list      list groups (default).
-    rm        remove group
-    update    update group
+    rm        remove group.
+    update    update group.
 ```
 
 #### `rrh group add`
@@ -195,9 +195,11 @@ Adds new group to the RRH database.
 ```sh
 rrh group add [OPTIONS] <GROUPS...>
 OPTIONS
-    -d, --desc <DESC>    give the description of the group
+    -d, --desc <DESC>        gives the description of the group.
+    -o, --omit-list <FLAG>   gives the omit list flag of the group.
 ARGUMENTS
-    GROUPS               gives group names.```
+    GROUPS                   gives group names.
+```
 
 #### `rrh group list`
 
@@ -208,7 +210,8 @@ rrh group list [OPTIONS]
 OPTIONS
     -d, --desc             show description.
     -r, --repository       show repositories in the group.
-    -o, --only-groupname   show only group name. This option is prioritized.```
+    -o, --only-groupname   show only group name. This option is prioritized.
+```
 
 #### `rrh group rm`
 
@@ -217,11 +220,12 @@ Removes groups.
 ```sh
 rrh group rm [OPTIONS] <GROUPS...>
 OPTIONS
-    -f, --force      force remove
-    -i, --inquery    inquiry mode
-    -v, --verbose    verbose mode
+    -f, --force      force remove.
+    -i, --inquery    inquiry mode.
+    -v, --verbose    verbose mode.
 ARGUMENTS
-    GROUPS           target group names.```
+    GROUPS           target group names.
+```
 
 #### `rrh group update`
 
@@ -230,11 +234,11 @@ Update the information of specified group.
 ```sh
 rrh group update [OPTIONS] <GROUP>
 OPTIONS
-    -n, --name <NAME>   change group name to NAME.
-    -d, --desc <DESC>   change description to DESC.
+    -n, --name <NAME>        change group name to NAME.
+    -d, --desc <DESC>        change description to DESC.
     -o, --omit-list <FLAG>   change omit-list of the group. FLAG must be "true" or "false".
 ARGUMENTS
-    GROUP               update target group names.```
+    GROUP                    update target group names.```
 
 ### `rrh import`
 
