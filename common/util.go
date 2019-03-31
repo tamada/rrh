@@ -2,9 +2,7 @@ package common
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,17 +10,6 @@ import (
 
 	humanize "github.com/dustin/go-humanize"
 )
-
-/*
-NormalizePath normalizes given path.
-*/
-func NormalizePath(path string) string {
-	// var home = os.Getenv("HOME")
-	// if strings.HasPrefix(path, home) {
-	// 	return strings.Replace(path, home, "~", 1)
-	// }
-	return path
-}
 
 /*
 IsInputYes print the given prompt and returns TRUE if the user inputs "yes".
@@ -33,14 +20,6 @@ func IsInputYes(prompt string) bool {
 	scanner.Scan()
 	var text = strings.ToLower(scanner.Text())
 	return text == "yes" || text == "y"
-}
-
-/*
-ToAbsolutePath returns the absolute path of the given path.
-*/
-func ToAbsolutePath(path string, config *Config) string {
-	var home = os.Getenv("HOME")
-	return strings.Replace(path, "~", home, 1)
 }
 
 /*
@@ -62,22 +41,18 @@ func Strftime(before time.Time, config *Config) string {
 	return humanize.Time(before)
 }
 
-/*
-CaptureStdout is referred from https://qiita.com/kami_zh/items/ff636f15da87dabebe6c.
-*/
-func CaptureStdout(f func()) (string, error) {
-	r, w, err := os.Pipe()
+func IsExistAndGitRepository(absPath string, path string) error {
+	var fmode, err = os.Stat(absPath)
 	if err != nil {
-		return "", err
+		return err
 	}
-	var stdout = os.Stdout
-	os.Stdout = w
-
-	f()
-
-	os.Stdout = stdout
-	w.Close()
-	var buf bytes.Buffer
-	io.Copy(&buf, r)
-	return buf.String(), nil
+	if !fmode.IsDir() {
+		return fmt.Errorf("%s: not directory", path)
+	}
+	fmode, err = os.Stat(filepath.Join(absPath, ".git"))
+	// If the repository of path is submodule, `.git` will be a file to indicate the `.git` directory.
+	if os.IsNotExist(err) {
+		return fmt.Errorf("%s: not git repository", path)
+	}
+	return nil
 }

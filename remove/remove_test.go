@@ -74,7 +74,7 @@ func TestRemoveGroup(t *testing.T) {
 func TestRemoveCommandRemoveTargetIsBothInGroupAndRepository(t *testing.T) {
 	var db = open("nulldb.json")
 
-	db.CreateGroup("groupOrRepo", "same name as Repository")
+	db.CreateGroup("groupOrRepo", "same name as Repository", false)
 	db.CreateRepository("groupOrRepo", "unknownpath", []common.Remote{})
 	var rm = RemoveCommand{&removeOptions{}}
 	var err = rm.executeRemove(db, "groupOrRepo")

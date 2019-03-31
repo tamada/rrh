@@ -2,28 +2,11 @@ package add
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/tamada/rrh/common"
 	git "gopkg.in/src-d/go-git.v4"
 )
-
-func (add *AddCommand) isExistAndGitRepository(absPath string, path string) error {
-	var fmode, err = os.Stat(absPath)
-	if err != nil {
-		return err
-	}
-	if !fmode.IsDir() {
-		return fmt.Errorf("%s: not directory", path)
-	}
-	fmode, err = os.Stat(filepath.Join(absPath, ".git"))
-	// If the repository of path is submodule, `.git` will be a file to indicate the `.git` directory.
-	if os.IsNotExist(err) {
-		return fmt.Errorf("%s: not git repository", path)
-	}
-	return nil
-}
 
 func checkDuplication(db *common.Database, repoID string, path string) error {
 	var repo = db.FindRepository(repoID)
@@ -36,10 +19,9 @@ func checkDuplication(db *common.Database, repoID string, path string) error {
 func (add *AddCommand) addRepositoryToGroup(db *common.Database, groupName string, path string, list []error) []error {
 	var absPath, _ = filepath.Abs(path)
 	var id = filepath.Base(absPath)
-	if err1 := add.isExistAndGitRepository(absPath, path); err1 != nil {
+	if err1 := common.IsExistAndGitRepository(absPath, path); err1 != nil {
 		return append(list, err1)
 	}
-	var repoPath = common.NormalizePath(absPath)
 	if err1 := checkDuplication(db, id, absPath); err1 != nil {
 		return append(list, err1)
 	}
@@ -47,7 +29,7 @@ func (add *AddCommand) addRepositoryToGroup(db *common.Database, groupName strin
 	if err2 != nil {
 		return append(list, err2)
 	}
-	db.CreateRepository(id, repoPath, remotes)
+	db.CreateRepository(id, absPath, remotes)
 
 	var err = db.Relate(groupName, id)
 	if err != nil {
@@ -60,7 +42,7 @@ func (add *AddCommand) addRepositoryToGroup(db *common.Database, groupName strin
 AddRepositoriesToGroup registers the given repositories to the specified group.
 */
 func (add *AddCommand) AddRepositoriesToGroup(db *common.Database, args []string, groupName string) []error {
-	var _, err = db.AutoCreateGroup(groupName, "")
+	var _, err = db.AutoCreateGroup(groupName, "", false)
 	if err != nil {
 		return []error{err}
 	}

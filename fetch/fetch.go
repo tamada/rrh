@@ -14,7 +14,7 @@ Ideally, fetch is performed by using go-git.
 */
 func (fetch *FetchCommand) DoFetch(repo *common.Repository, group string, config *common.Config) error {
 	var cmd = exec.Command("git", "fetch", fetch.options.remote)
-	cmd.Dir = common.ToAbsolutePath(repo.Path, config)
+	cmd.Dir = repo.Path
 	fmt.Printf("fetching %s,%s....", group, repo.ID)
 	var output, err = cmd.Output()
 	if err != nil {

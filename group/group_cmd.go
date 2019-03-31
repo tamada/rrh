@@ -45,9 +45,10 @@ func groupRemoveCommandFactory() (cli.Command, error) {
 func (gac *groupAddCommand) Help() string {
 	return `rrh group add [OPTIONS] <GROUPS...>
 OPTIONS
-    -d, --desc <DESC>    give the description of the group
+    -d, --desc <DESC>        gives the description of the group.
+    -o, --omit-list <FLAG>   gives the omit list flag of the group.
 ARGUMENTS
-    GROUPS               gives group names.`
+    GROUPS                   gives group names.`
 }
 
 func (glc *groupListCommand) Help() string {
@@ -61,9 +62,9 @@ OPTIONS
 func (grc *groupRemoveCommand) Help() string {
 	return `rrh group rm [OPTIONS] <GROUPS...>
 OPTIONS
-    -f, --force      force remove
-    -i, --inquery    inquiry mode
-    -v, --verbose    verbose mode
+    -f, --force      force remove.
+    -i, --inquery    inquiry mode.
+    -v, --verbose    verbose mode.
 ARGUMENTS
     GROUPS           target group names.`
 }
@@ -78,15 +79,21 @@ ARGUMENTS
     GROUP               update target group names.`
 }
 
+/*
+Help returns the help message of the command.
+*/
 func (group *GroupCommand) Help() string {
 	return `rrh group <SUBCOMMAND>
 SUBCOMMAND
     add       add new group.
     list      list groups (default).
     rm        remove group.
-    update    update group`
+    update    update group.`
 }
 
+/*
+Run peforms the command.
+*/
 func (group *GroupCommand) Run(args []string) int {
 	c := cli.NewCLI("rrh group", common.VERSION)
 	c.Args = args
@@ -100,31 +107,38 @@ func (group *GroupCommand) Run(args []string) int {
 	if len(args) == 0 {
 		new(groupListCommand).Run([]string{})
 		return 0
-	} else {
-		var exitStatus, err = c.Run()
-		if err != nil {
-			fmt.Println(err.Error())
-		}
-		return exitStatus
 	}
+	var exitStatus, err = c.Run()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return exitStatus
 }
 
 type addOptions struct {
 	desc string
+	omit string
 	args []string
 }
 
-func (gac *groupAddCommand) parse(args []string) (*addOptions, error) {
+func (gac *groupAddCommand) buildFlagSet() (*flag.FlagSet, *addOptions) {
 	var opt = addOptions{}
 	flags := flag.NewFlagSet("add", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(gac.Help()) }
 	flags.StringVar(&opt.desc, "d", "", "description")
 	flags.StringVar(&opt.desc, "desc", "", "description")
+	flags.StringVar(&opt.omit, "o", "", "omit list flag")
+	flags.StringVar(&opt.omit, "omit-list", "", "omit list flag")
+	return flags, &opt
+}
+
+func (gac *groupAddCommand) parse(args []string) (*addOptions, error) {
+	var flags, opt = gac.buildFlagSet()
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
 	opt.args = flags.Args()
-	return &opt, nil
+	return opt, nil
 }
 
 /*
@@ -223,10 +237,7 @@ func (glc *groupListCommand) Run(args []string) int {
 		fmt.Println(err2.Error())
 		return 2
 	}
-	var results, err3 = glc.listGroups(db, listOption)
-	if err3 != nil {
-		fmt.Println(err3.Error())
-	}
+	var results = glc.listGroups(db, listOption)
 	glc.printAll(results, listOption)
 
 	return 0

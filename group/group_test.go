@@ -19,10 +19,20 @@ func rollback(dbpath string, f func()) {
 	db.StoreAndClose()
 }
 
-func ExampleGroupCommand_Run() {
+func Example() {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	var gc, _ = GroupCommandFactory()
 	gc.Run([]string{})
+	// Output:
+	// group1,1 repository
+	// group2,0 repositories
+	// group3,1 repository
+}
+
+func ExampleGroupCommand_Run() {
+	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
+	var gc, _ = GroupCommandFactory()
+	gc.Run([]string{"list"})
 	// Output:
 	// group1,1 repository
 	// group2,0 repositories
@@ -42,8 +52,8 @@ func Example_groupListCommand_Run() {
 func TestGroupListOnlyName(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	var output, _ = common.CaptureStdout(func() {
-		var glc, _ = groupListCommandFactory()
-		glc.Run([]string{"--only-groupname"})
+		var glc, _ = GroupCommandFactory()
+		glc.Run([]string{"list", "--only-groupname"})
 	})
 	var wontOutput = `group1
 group2
@@ -53,21 +63,49 @@ group3`
 	}
 }
 
+type groupChecker struct {
+	groupName   string
+	existFlag   bool
+	description string
+	omitList    bool
+}
+
 func TestAddGroup(t *testing.T) {
-	rollback("../testdata/tmp.json", func() {
-		var gac, _ = groupAddCommandFactory()
-		if val := gac.Run([]string{"-d", "desc4", "group4"}); val != 0 {
-			t.Errorf("group add failed: %d", val)
-		}
-		var config = common.OpenConfig()
-		var db2, _ = common.Open(config)
-		if len(db2.Groups) != 4 {
-			t.Fatal("group3 was not added.")
-		}
-		if db2.Groups[3].Name != "group4" || db2.Groups[3].Description != "desc4" {
-			t.Errorf("want: group3 (desc3), got: %s (%s)", db2.Groups[3].Name, db2.Groups[3].Description)
-		}
-	})
+	var testcases = []struct {
+		args       []string
+		statusCode int
+		checkers   []groupChecker
+	}{
+		{[]string{"add", "-d", "desc4", "group4"}, 0, []groupChecker{{"group4", true, "desc4", false}}},
+		{[]string{"add", "-d", "desc4", "-o", "true", "group4"}, 0, []groupChecker{{"group4", true, "desc4", true}}},
+		{[]string{"add", "-d", "desc4", "-o", "hoge", "group4"}, 0, []groupChecker{{"group4", true, "desc4", false}}},
+		{[]string{"add", "-d", "desc4", "-o", "hoge", "group1"}, 4, []groupChecker{}},
+		{[]string{"add"}, 3, []groupChecker{}},
+	}
+	for _, testcase := range testcases {
+		rollback("../testdata/tmp.json", func() {
+			var gac, _ = GroupCommandFactory()
+			if val := gac.Run(testcase.args); val != testcase.statusCode {
+				t.Errorf("%v: test failed, wont: %d, got: %d", testcase.args, testcase.statusCode, val)
+			}
+			var config = common.OpenConfig()
+			var db2, _ = common.Open(config)
+			for _, checker := range testcase.checkers {
+				if db2.HasGroup(checker.groupName) != checker.existFlag {
+					t.Errorf("%v: group check failed: %s, wont: %v, got: %v", testcase.args, checker.groupName, checker.existFlag, !checker.existFlag)
+				}
+				if checker.existFlag {
+					var group = db2.FindGroup(checker.groupName)
+					if group != nil && group.Description != checker.description {
+						t.Errorf("%v: group description did not match: wont: %s, got: %s", testcase.args, checker.description, group.Description)
+					}
+					if group != nil && group.OmitList != checker.omitList {
+						t.Errorf("%v: group OmitList did not match: wont: %v, got: %v", testcase.args, checker.omitList, group.OmitList)
+					}
+				}
+			}
+		})
+	}
 }
 
 func TestUpdateGroupFailed(t *testing.T) {
@@ -97,42 +135,40 @@ func TestUpdateGroup(t *testing.T) {
 		repositoryID string
 		exist        bool
 	}
-	type groupExistCheck struct {
-		groupName   string
-		description string
-		omitList    bool
-		exist       bool
-	}
 	var testcases = []struct {
-		args      []string
-		gexists   []groupExistCheck
-		relations []relation
+		args       []string
+		statusCode int
+		gexists    []groupChecker
+		relations  []relation
 	}{
-		{[]string{"-d", "newdesc2", "--name", "newgroup2", "-o", "true", "group2"},
-			[]groupExistCheck{{"newgroup2", "newdesc2", true, true}, {"group2", "", false, false}},
+		{[]string{"update", "-d", "newdesc2", "--name", "newgroup2", "-o", "true", "group2"}, 0,
+			[]groupChecker{{"newgroup2", true, "newdesc2", true}, {"group2", false, "", false}},
 			[]relation{}},
-		{[]string{"-n", "newgroup3", "group3"},
-			[]groupExistCheck{{"newgroup3", "desc3", true, true}, {"group3", "desc3", false, false}},
+		{[]string{"update", "-n", "newgroup3", "group3"}, 0,
+			[]groupChecker{{"newgroup3", true, "desc3", true}, {"group3", false, "desc3", false}},
 			[]relation{{"newgroup3", "repo2", true}, {"group3", "repo2", false}},
 		},
-		{[]string{"-o", "true", "group1"},
-			[]groupExistCheck{{"group1", "desc1", true, true}},
+		{[]string{"update", "-o", "true", "group1"}, 0,
+			[]groupChecker{{"group1", true, "desc1", true}},
 			[]relation{{"group1", "repo1", true}},
 		},
+		{[]string{"update", "group4"}, 3, []groupChecker{}, []relation{}},
+		{[]string{"update"}, 1, []groupChecker{}, []relation{}},
+		{[]string{"update", "group1", "group4"}, 1, []groupChecker{}, []relation{}},
 	}
 	for _, testcase := range testcases {
 		rollback("../testdata/tmp.json", func() {
-			var guc, _ = groupUpdateCommandFactory()
-			if val := guc.Run(testcase.args); val != 0 {
-				t.Errorf("group update failed: %v", testcase.args)
+			var guc, _ = GroupCommandFactory()
+			if val := guc.Run(testcase.args); val != testcase.statusCode {
+				t.Errorf("%v: group update failed status code wont: %d, got: %d", testcase.args, testcase.statusCode, val)
 			}
 			var config = common.OpenConfig()
 			var db2, _ = common.Open(config)
 			for _, gec := range testcase.gexists {
-				if db2.HasGroup(gec.groupName) != gec.exist {
-					t.Errorf("%s: exist check failed wont: %v, got: %v", gec.groupName, gec.exist, !gec.exist)
+				if db2.HasGroup(gec.groupName) != gec.existFlag {
+					t.Errorf("%s: exist check failed wont: %v, got: %v", gec.groupName, gec.existFlag, !gec.existFlag)
 				}
-				if gec.exist {
+				if gec.existFlag {
 					var group = db2.FindGroup(gec.groupName)
 					if group.Description != gec.description {
 						t.Errorf("%s: description did not match: wont: %s, got: %s", gec.groupName, gec.description, group.Description)
@@ -152,20 +188,41 @@ func TestUpdateGroup(t *testing.T) {
 }
 
 func TestRemoveGroup(t *testing.T) {
-	rollback("../testdata/tmp.json", func() {
-		var grc, _ = groupRemoveCommandFactory()
-		if val := grc.Run([]string{"--force", "group1"}); val != 0 {
-			t.Errorf("group remove failed: %d", val)
-		}
-		var config = common.OpenConfig()
-		var db2, _ = common.Open(config)
-		if len(db2.Groups) != 2 {
-			t.Fatalf("the length of group did not match: %v", db2.Groups)
-		}
-		if db2.Groups[0].Name != "group2" || db2.Groups[0].Description != "desc2" {
-			t.Errorf("want: group2 (desc2), got: %s (%s)", db2.Groups[0].Name, db2.Groups[0].Description)
-		}
-	})
+	var testcases = []struct {
+		args       []string
+		statusCode int
+		checkers   []groupChecker
+	}{
+		{[]string{"rm", "--force", "-v", "group1"}, 0, []groupChecker{{"group1", false, "", false}}},
+		{[]string{"rm", "group2"}, 0, []groupChecker{{"group2", false, "desc2", false}}},
+		{[]string{"rm", "group1"}, 3, []groupChecker{{"group1", true, "desc1", false}}},
+		{[]string{"rm", "group4"}, 0, []groupChecker{{"group4", false, "not exist group", false}}},
+		{[]string{"rm"}, 1, []groupChecker{}},
+	}
+	for _, testcase := range testcases {
+		rollback("../testdata/tmp.json", func() {
+			var grc, _ = GroupCommandFactory()
+			if val := grc.Run(testcase.args); val != testcase.statusCode {
+				t.Errorf("%v: group remove failed: wont: %d, got: %d", testcase.args, testcase.statusCode, val)
+			}
+			var config = common.OpenConfig()
+			var db2, _ = common.Open(config)
+			for _, checker := range testcase.checkers {
+				if db2.HasGroup(checker.groupName) != checker.existFlag {
+					t.Errorf("%v: exist check failed: wont: %v, got: %v", testcase.args, checker.existFlag, !checker.existFlag)
+				}
+				if checker.existFlag {
+					var group = db2.FindGroup(checker.groupName)
+					if group != nil && group.Description != checker.description {
+						t.Errorf("%s: description did not match: wont: %s, got: %s", checker.groupName, checker.description, group.Description)
+					}
+					if group != nil && group.OmitList != checker.omitList {
+						t.Errorf("%s: omitList did not match: wont: %v, got: %v", checker.groupName, checker.omitList, !checker.omitList)
+					}
+				}
+			}
+		})
+	}
 }
 
 func TestInvalidOptionInGroupList(t *testing.T) {
@@ -199,9 +256,10 @@ func TestHelp(t *testing.T) {
 
 	var gacHelp = `rrh group add [OPTIONS] <GROUPS...>
 OPTIONS
-    -d, --desc <DESC>    give the description of the group
+    -d, --desc <DESC>        gives the description of the group.
+    -o, --omit-list <FLAG>   gives the omit list flag of the group.
 ARGUMENTS
-    GROUPS               gives group names.`
+    GROUPS                   gives group names.`
 
 	var glcHelp = `rrh group list [OPTIONS]
 OPTIONS
@@ -211,9 +269,9 @@ OPTIONS
 
 	var grcHelp = `rrh group rm [OPTIONS] <GROUPS...>
 OPTIONS
-    -f, --force      force remove
-    -i, --inquery    inquiry mode
-    -v, --verbose    verbose mode
+    -f, --force      force remove.
+    -i, --inquery    inquiry mode.
+    -v, --verbose    verbose mode.
 ARGUMENTS
     GROUPS           target group names.`
 
@@ -230,7 +288,7 @@ SUBCOMMAND
     add       add new group.
     list      list groups (default).
     rm        remove group.
-    update    update group`
+    update    update group.`
 
 	if gc.Help() != gcHelp {
 		t.Error("help message did not match")

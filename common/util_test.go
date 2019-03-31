@@ -9,6 +9,25 @@ import (
 	"time"
 )
 
+func TestGitRepositoryCheck(t *testing.T) {
+	var testcases = []struct {
+		path      string
+		errorFlag bool
+	}{
+		{"../testdata/fibonacci", false},
+		{"../testdata/database.json", true},
+		{"../testdata/other", true},
+		{"../not-exist", true},
+	}
+	for _, testcase := range testcases {
+		var absPath, _ = filepath.Abs(testcase.path)
+		var err = IsExistAndGitRepository(absPath, testcase.path)
+		if (err == nil) == testcase.errorFlag {
+			t.Errorf("%s: error wont: %v, got: %v (%v)", testcase.path, testcase.errorFlag, !testcase.errorFlag, err)
+		}
+	}
+}
+
 func TestStrftime(t *testing.T) {
 	os.Setenv(RrhTimeFormat, Relative)
 	os.Setenv(RrhConfigPath, "../testdata/config.json")
@@ -47,41 +66,5 @@ func TestCaptureStdout(t *testing.T) {
 	result = strings.TrimSpace(result)
 	if result != "Hello World" {
 		t.Errorf("wont: \"Hello World\", got: %s", result)
-	}
-}
-
-func TestNormalizePath(t *testing.T) {
-	var testcases = []struct {
-		input string
-		wont  string
-	}{
-		{"path1", "path1"},
-		{"path2", "path2"},
-		{"path3", "path3"},
-	}
-
-	for _, test := range testcases {
-		if val := NormalizePath(test.input); val != test.wont {
-			t.Errorf("wont: %s, got: %s", test.wont, val)
-		}
-	}
-}
-
-func TestToAbsolutePath(t *testing.T) {
-	var home = os.Getenv("HOME")
-	var testcases = []struct {
-		input string
-		wont  string
-	}{
-		{"~/go/src/github.com/tamada/rrh", filepath.Join(home, "go/src/github.com/tamada/rrh")},
-		{"go/src/github.com/tamada/rrh", "go/src/github.com/tamada/rrh"},
-	}
-
-	os.Setenv(RrhConfigPath, "../testdata/config.json")
-	var config = OpenConfig()
-	for _, test := range testcases {
-		if val := ToAbsolutePath(test.input, config); val != test.wont {
-			t.Errorf("wont: %s, got: %s", test.wont, val)
-		}
 	}
 }

@@ -1,0 +1,42 @@
+{
+  "last_modified": "2019-03-29T09:45:48+09:00",
+  "repositories": [
+    {
+      "repository_id": "fibonacci",
+      "repository_path": "../testdata/fibonacci",
+      "remotes": [
+        {
+          "Name": "origin",
+          "URL": "https://htamada@bitbucket.org/htamada/fibonacci.git"
+        }
+      ]
+    },
+    {
+      "repository_id": "helloworld",
+      "repository_path": "../testdata/helloworld2",
+      "remotes": [
+        {
+          "Name": "origin",
+          "URL": "https://htamada@bitbucket.org/htamada/helloworld.git"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "group_name": "test",
+      "group_desc": "",
+      "omit_list": false
+    }
+  ],
+  "relations": [
+    {
+      "repository_id": "fibonacci",
+      "group_name": "test"
+    },
+    {
+      "repository_id": "helloworld",
+      "group_name": "test"
+    }
+  ]
+}

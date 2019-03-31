@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"testing"
+
+	"github.com/mitchellh/go-homedir"
 )
 
 func assert(t *testing.T, actual string, expected string) {
@@ -83,6 +85,22 @@ func ExampleConfigCommand_Run() {
 	os.Setenv(RrhHome, "../testdata/")
 	var command, _ = ConfigCommandFactory()
 	command.Run([]string{}) // the output of no arguments are same as list subcommand.
+	// Output:
+	// RRH_HOME: ../testdata/ (environment)
+	// RRH_CONFIG_PATH: ../testdata/config.json (environment)
+	// RRH_DATABASE_PATH: ../testdata/database.json (environment)
+	// RRH_DEFAULT_GROUP_NAME: no-group (default)
+	// RRH_ON_ERROR: WARN (default)
+	// RRH_TIME_FORMAT: relative (default)
+	// RRH_AUTO_CREATE_GROUP: true (config_file)
+	// RRH_AUTO_DELETE_GROUP: false (config_file)
+	// RRH_SORT_ON_UPDATING: true (config_file)
+}
+func ExampleConfigCommand_Run_2() {
+	os.Setenv(RrhConfigPath, "../testdata/config.json")
+	os.Setenv(RrhHome, "../testdata/")
+	var command, _ = ConfigCommandFactory()
+	command.Run([]string{"list"}) // the output of no arguments are same as list subcommand.
 	// Output:
 	// RRH_HOME: ../testdata/ (environment)
 	// RRH_CONFIG_PATH: ../testdata/config.json (environment)
@@ -218,25 +236,33 @@ func TestUpdateValue(t *testing.T) {
 	if err := config.Update(RrhDefaultGroupName, "hoge3"); err != nil {
 		t.Error(err.Error())
 	}
+	if err := config.Update(RrhTimeFormat, "not-relative-string"); err != nil {
+		t.Error(err.Error())
+	}
 	assert(t, config.GetValue(RrhHome), "hoge1")
 	assert(t, config.GetValue(RrhDatabasePath), "hoge2")
 	assert(t, config.GetValue(RrhDefaultGroupName), "hoge3")
+	assert(t, config.GetValue(RrhTimeFormat), "not-relative-string")
 
 	if err := config.Update("unknown", "hoge4"); err == nil {
 		t.Error("unknown property was unknown")
+	}
+	if config.IsSet(RrhTimeFormat) {
+		t.Error("IsSet is only bool value.")
 	}
 
 	original.StoreConfig()
 }
 
 func TestOpenConfig(t *testing.T) {
+	var home, _ = homedir.Dir()
 	var testdata = []struct {
 		key  string
 		want string
 	}{
-		{RrhHome, fmt.Sprintf("%s/.rrh", os.Getenv("HOME"))},
-		{RrhConfigPath, fmt.Sprintf("%s/.rrh/config.json", os.Getenv("HOME"))},
-		{RrhDatabasePath, fmt.Sprintf("%s/.rrh/database.json", os.Getenv("HOME"))},
+		{RrhHome, fmt.Sprintf("%s/.rrh", home)},
+		{RrhConfigPath, fmt.Sprintf("%s/.rrh/config.json", home)},
+		{RrhDatabasePath, fmt.Sprintf("%s/.rrh/database.json", home)},
 		{RrhDefaultGroupName, "no-group"},
 		{RrhOnError, Warn},
 		{RrhAutoCreateGroup, "false"},

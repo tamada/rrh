@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/mitchellh/go-homedir"
 )
 
 const VERSION = "0.2"
@@ -47,6 +49,23 @@ type Config struct {
 	TimeFormat       string `json:"rrh_time_format"`
 	OnError          string `json:"rrh_on_error"`
 	SortOnUpdating   string `json:"rrh_sort_on_updating"`
+}
+
+func (config *Config) isOnErrorIgnoreOrWarn() bool {
+	var onError = config.GetValue(RrhOnError)
+	return onError == Ignore || onError == Warn
+}
+
+func (config *Config) PrintErrors(errs []error) int {
+	if config.GetValue(RrhOnError) != Ignore {
+		for _, err := range errs {
+			fmt.Println(err.Error())
+		}
+	}
+	if len(errs) == 0 || config.isOnErrorIgnoreOrWarn() {
+		return 0
+	}
+	return 5
 }
 
 func trueOrFalse(value string) (string, error) {
@@ -165,13 +184,14 @@ func (config *Config) getStringFromEnv(label string, valueFromConfigFile string)
 }
 
 func (config *Config) findDefaultValue(label string) (value string, readFrom string) {
+	var home, _ = homedir.Dir()
 	switch label {
 	case RrhHome:
-		return fmt.Sprintf("%s/.rrh", os.Getenv("HOME")), Default
+		return fmt.Sprintf("%s/.rrh", home), Default
 	case RrhConfigPath:
-		return fmt.Sprintf("%s/.rrh/config.json", os.Getenv("HOME")), Default
+		return fmt.Sprintf("%s/.rrh/config.json", home), Default
 	case RrhDatabasePath:
-		return fmt.Sprintf("%s/.rrh/database.json", os.Getenv("HOME")), Default
+		return fmt.Sprintf("%s/.rrh/database.json", home), Default
 	case RrhDefaultGroupName:
 		return "no-group", Default
 	case RrhOnError:

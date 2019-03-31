@@ -5,8 +5,12 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/mitchellh/cli"
+	"github.com/mitchellh/go-homedir"
 	"github.com/tamada/rrh/common"
 )
 
@@ -14,10 +18,12 @@ import (
 ExportCommand represents a command.
 */
 type ExportCommand struct {
+	options *exportOptions
 }
 
 type exportOptions struct {
-	NoIndent bool
+	noIndent   bool
+	noHideHome bool
 }
 
 /*
@@ -33,14 +39,15 @@ Help returns the help message of the command.
 func (export *ExportCommand) Help() string {
 	return `rrh export [OPTIONS]
 OPTIONS
-    --no-indent    print result as no indented json (Default indented json)`
+    --no-indent      print result as no indented json
+    --no-hide-home   not replace home directory to '${HOME}' keyword`
 }
 
 /*
 Run peforms the command.
 */
 func (export *ExportCommand) Run(args []string) int {
-	options, err := export.parse(args)
+	var _, err = export.parse(args)
 	if err != nil {
 		fmt.Println(err.Error())
 		return 1
@@ -51,31 +58,61 @@ func (export *ExportCommand) Run(args []string) int {
 		fmt.Println(err.Error())
 		return 2
 	}
+	return export.perform(db)
+}
 
-	var result, _ = json.Marshal(db)
-	if options.NoIndent {
-		fmt.Println(string(result))
-	} else {
-		var buffer bytes.Buffer
-		err := json.Indent(&buffer, result, "", "  ")
-		if err != nil {
-			fmt.Println(err.Error())
-			return 3
-		}
-		fmt.Println(buffer.String())
+func indentJSON(result string) (string, error) {
+	var buffer bytes.Buffer
+	var err = json.Indent(&buffer, []byte(result), "", "  ")
+	if err != nil {
+		return "", err
 	}
+	return buffer.String(), nil
+}
+
+func printError(err error) int {
+	fmt.Println(err.Error())
+	return 5
+}
+
+func hideHome(result string) string {
+	var home, err = homedir.Dir()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Warning: chould not get home directory")
+	}
+	var absPath, _ = filepath.Abs(home)
+	return strings.Replace(result, absPath, "${HOME}", -1)
+}
+
+func (export *ExportCommand) perform(db *common.Database) int {
+	var result, _ = json.Marshal(db)
+	var stringResult = string(result)
+	if !export.options.noHideHome {
+		stringResult = hideHome(stringResult)
+	}
+
+	if !export.options.noIndent {
+		var result, err = indentJSON(stringResult)
+		if err != nil {
+			return printError(err)
+		}
+		stringResult = result
+	}
+	fmt.Println(stringResult)
 	return 0
 }
 
 func (export *ExportCommand) parse(args []string) (*exportOptions, error) {
-	var options = exportOptions{false}
+	var options = exportOptions{false, false}
 	flags := flag.NewFlagSet("export", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(export.Help()) }
-	flags.BoolVar(&options.NoIndent, "no-indent", false, "print not indented result")
+	flags.BoolVar(&options.noIndent, "no-indent", false, "print not indented result")
+	flags.BoolVar(&options.noHideHome, "no-hide-home", false, "not hide home directory")
 
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
+	export.options = &options
 	return &options, nil
 }
 

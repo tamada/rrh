@@ -27,6 +27,7 @@ func buildCommandFactoryMap() map[string]cli.CommandFactory {
 		"fetch":     fetch.FetchCommandFactory,
 		"fetch-all": fetch.FetchAllCommandFactory,
 		"group":     group.GroupCommandFactory,
+		"import":    export.ImportCommandFactory,
 		"list":      list.ListCommandFactory,
 		"mv":        move.MoveCommandFactory,
 		"prune":     prune.PruneCommandFactory,
