@@ -21,10 +21,10 @@ func ExampleListCommand_Run() {
 	var list, _ = ListCommandFactory()
 	list.Run([]string{"--desc", "--path"})
 	// Output:
-	// group1
+	// group1 (1 repository)
 	//     Description  desc1
 	//     repo1        path1
-	// group2
+	// group2 (0 repositories)
 	//     Description  desc2
 	// group3 (1 repository)
 }
