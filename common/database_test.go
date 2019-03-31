@@ -22,6 +22,30 @@ func TestOpenBrokenJson(t *testing.T) {
 	}
 }
 
+func TestAutoCreateGroup(t *testing.T) {
+	var db = openDatabase()
+	var group, err = db.AutoCreateGroup("newgroup", "desc", true)
+	if err != nil {
+		t.Errorf("auto create group failed: %s", err.Error())
+	}
+	if !db.HasGroup("newgroup") && group.Description != "desc" && group.OmitList {
+		t.Errorf("auto created group did not match, wont: %v, got: %v", Group{"newgroup", "desc", true}, group)
+	}
+	var group2, err2 = db.AutoCreateGroup("no-group", "description1", false)
+	if err2 != nil {
+		t.Errorf("auto create group failed: %s", err.Error())
+	}
+	if !db.HasGroup("no-group") && group.Description != "" && group.OmitList {
+		t.Errorf("existing group did not match, wont: %v, got: %v", Group{"group1", "desc1", true}, group2)
+	}
+
+	db.Config.Update(RrhAutoCreateGroup, "false")
+	var _, err3 = db.AutoCreateGroup("failgroup", "desc", true)
+	if err3 == nil {
+		t.Errorf("auto create group should fail: %s", err3.Error())
+	}
+}
+
 func TestOpenNonExistFile(t *testing.T) {
 	os.Setenv(RrhDatabasePath, "../testdata/not-exist-file.json")
 	var config = OpenConfig()

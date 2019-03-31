@@ -89,7 +89,7 @@ func TestCloneCommand_Run(t *testing.T) {
 
 		var config = common.OpenConfig()
 		var db, _ = common.Open(config)
-		if len(db.Repositories) != 3 {
+		if !db.HasRepository("helloworld") {
 			t.Fatal("helloworld was not registered.")
 		}
 		var repo = db.FindRepository("helloworld")

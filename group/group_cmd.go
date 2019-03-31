@@ -78,6 +78,9 @@ ARGUMENTS
     GROUP               update target group names.`
 }
 
+/*
+Help returns the help message of the command.
+*/
 func (group *GroupCommand) Help() string {
 	return `rrh group <SUBCOMMAND>
 SUBCOMMAND
@@ -87,6 +90,9 @@ SUBCOMMAND
     update    update group`
 }
 
+/*
+Run peforms the command.
+*/
 func (group *GroupCommand) Run(args []string) int {
 	c := cli.NewCLI("rrh group", common.VERSION)
 	c.Args = args
@@ -100,17 +106,17 @@ func (group *GroupCommand) Run(args []string) int {
 	if len(args) == 0 {
 		new(groupListCommand).Run([]string{})
 		return 0
-	} else {
-		var exitStatus, err = c.Run()
-		if err != nil {
-			fmt.Println(err.Error())
-		}
-		return exitStatus
 	}
+	var exitStatus, err = c.Run()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return exitStatus
 }
 
 type addOptions struct {
 	desc string
+	omit string
 	args []string
 }
 
@@ -120,6 +126,8 @@ func (gac *groupAddCommand) parse(args []string) (*addOptions, error) {
 	flags.Usage = func() { fmt.Println(gac.Help()) }
 	flags.StringVar(&opt.desc, "d", "", "description")
 	flags.StringVar(&opt.desc, "desc", "", "description")
+	flags.StringVar(&opt.omit, "o", "", "omit list flag")
+	flags.StringVar(&opt.omit, "omitlist", "", "omit list flag")
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
@@ -223,10 +231,7 @@ func (glc *groupListCommand) Run(args []string) int {
 		fmt.Println(err2.Error())
 		return 2
 	}
-	var results, err3 = glc.listGroups(db, listOption)
-	if err3 != nil {
-		fmt.Println(err3.Error())
-	}
+	var results = glc.listGroups(db, listOption)
 	glc.printAll(results, listOption)
 
 	return 0

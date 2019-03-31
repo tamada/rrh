@@ -16,7 +16,7 @@ type GroupResult struct {
 	Repos       []string
 }
 
-func (group *groupListCommand) listGroups(db *common.Database, listOptions *listOptions) ([]GroupResult, error) {
+func (group *groupListCommand) listGroups(db *common.Database, listOptions *listOptions) []GroupResult {
 	var results = []GroupResult{}
 	for _, group := range db.Groups {
 		var result = GroupResult{group.Name, group.Description, []string{}}
@@ -27,12 +27,21 @@ func (group *groupListCommand) listGroups(db *common.Database, listOptions *list
 		}
 		results = append(results, result)
 	}
-	return results, nil
+	return results
+}
+
+func trueOrFalse(flag string) bool {
+	var flagString = strings.ToLower(flag)
+	if flagString == "true" {
+		return true
+	}
+	return false
 }
 
 func (group *groupAddCommand) addGroups(db *common.Database, options *addOptions) error {
-	for _, group := range options.args {
-		var _, err = db.CreateGroup(group, options.desc, false)
+	for _, groupName := range options.args {
+		var flag = trueOrFalse(options.omit)
+		var _, err = db.CreateGroup(groupName, options.desc, flag)
 		if err != nil {
 			return err
 		}

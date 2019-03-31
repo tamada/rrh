@@ -3,10 +3,30 @@ package common
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 )
+
+func TestGitRepositoryCheck(t *testing.T) {
+	var testcases = []struct {
+		path      string
+		errorFlag bool
+	}{
+		{"../testdata/fibonacci", false},
+		{"../testdata/database.json", true},
+		{"../testdata/other", true},
+		{"../not-exist", true},
+	}
+	for _, testcase := range testcases {
+		var absPath, _ = filepath.Abs(testcase.path)
+		var err = IsExistAndGitRepository(absPath, testcase.path)
+		if (err == nil) == testcase.errorFlag {
+			t.Errorf("%s: error wont: %v, got: %v (%v)", testcase.path, testcase.errorFlag, !testcase.errorFlag, err)
+		}
+	}
+}
 
 func TestStrftime(t *testing.T) {
 	os.Setenv(RrhTimeFormat, Relative)

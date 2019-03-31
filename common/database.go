@@ -182,6 +182,7 @@ func (db *Database) AutoCreateGroup(groupID string, description string, omitList
 
 /*
 CreateGroup returns the group by creating the given parameters and store it to database.
+If db has the group with the given groupID, this method returns error.
 */
 func (db *Database) CreateGroup(groupID string, description string, omitList bool) (*Group, error) {
 	if db.HasGroup(groupID) {
