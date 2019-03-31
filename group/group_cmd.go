@@ -120,7 +120,7 @@ type addOptions struct {
 	args []string
 }
 
-func (gac *groupAddCommand) parse(args []string) (*addOptions, error) {
+func (gac *groupAddCommand) buildFlagSet() (*flag.FlagSet, *addOptions) {
 	var opt = addOptions{}
 	flags := flag.NewFlagSet("add", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(gac.Help()) }
@@ -128,11 +128,16 @@ func (gac *groupAddCommand) parse(args []string) (*addOptions, error) {
 	flags.StringVar(&opt.desc, "desc", "", "description")
 	flags.StringVar(&opt.omit, "o", "", "omit list flag")
 	flags.StringVar(&opt.omit, "omitlist", "", "omit list flag")
+	return flags, &opt
+}
+
+func (gac *groupAddCommand) parse(args []string) (*addOptions, error) {
+	var flags, opt = gac.buildFlagSet()
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
 	opt.args = flags.Args()
-	return &opt, nil
+	return opt, nil
 }
 
 /*

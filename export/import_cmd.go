@@ -35,16 +35,16 @@ func (options *importOptions) printIfNeeded(message string) {
 	}
 }
 
-func (command *ImportCommand) eraseDatabase(db *common.Database) {
+func eraseDatabase(db *common.Database, command *ImportCommand) {
 	db.Groups = []common.Group{}
 	db.Repositories = []common.Repository{}
 	db.Relations = []common.Relation{}
 	command.options.printIfNeeded("The local database is cleared")
 }
 
-func (command *ImportCommand) perform(db *common.Database) int {
+func perform(db *common.Database, command *ImportCommand) int {
 	if command.options.overwrite {
-		command.eraseDatabase(db)
+		eraseDatabase(db, command)
 	}
 	var db2, err = readNewDB(command.options.database, db.Config)
 	if err != nil {
@@ -63,7 +63,7 @@ func (command *ImportCommand) perform(db *common.Database) int {
 Run peforms the command.
 */
 func (command *ImportCommand) Run(args []string) int {
-	var err1 = command.parse(args)
+	var err1 = parse(args, command)
 	if err1 != nil {
 		fmt.Println(err1)
 		return 1
@@ -73,10 +73,10 @@ func (command *ImportCommand) Run(args []string) int {
 	if err2 != nil {
 		return 2
 	}
-	return command.perform(db)
+	return perform(db, command)
 }
 
-func (command *ImportCommand) buildFlagSet() (*flag.FlagSet, *importOptions) {
+func buildFlagSet(command *ImportCommand) (*flag.FlagSet, *importOptions) {
 	var options = importOptions{false, false, false, ""}
 	var flags = flag.NewFlagSet("import", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(command.Help()) }
@@ -87,8 +87,8 @@ func (command *ImportCommand) buildFlagSet() (*flag.FlagSet, *importOptions) {
 	return flags, &options
 }
 
-func (command *ImportCommand) parse(args []string) error {
-	var flags, options = command.buildFlagSet()
+func parse(args []string, command *ImportCommand) error {
+	var flags, options = buildFlagSet(command)
 	if err := flags.Parse(args); err != nil {
 		return err
 	}
