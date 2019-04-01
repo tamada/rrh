@@ -304,7 +304,7 @@ Removes the specified groups, repositories, and relations.
 If the group has entries is removed by specifying the option `--recursive.`
 
 ```sh
-rrh rm [OPTIONS] <REPO_ID|GROUP_ID|REPO_ID/GROUP_ID...>
+rrh rm [OPTIONS] <REPO_ID|GROUP_ID|GROUP_ID/REPO_ID...>
 OPTIONS
     -i, --inquiry       inquiry mode.
     -r, --recursive     recursive mode.
@@ -322,10 +322,10 @@ ARGUMENTS
 Prints the last modified times of each branch in the repositories of the specified group.
 
 ```sh
-rrh status [OPTIONS] [GROUPS||REPOS...]
+rrh status [OPTIONS] [GROUPS|REPOS...]
 OPTIONS
     -b, --branches  show the status of the local branches.
-	-r, --remote    show the status of the remote branches.
+    -r, --remote    show the status of the remote branches.
     -c, --csv       print result in csv format.
 ARGUMENTS
     GROUPS          target groups.
