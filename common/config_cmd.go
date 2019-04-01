@@ -121,11 +121,11 @@ func (cuc *configUnsetCommand) Run(args []string) int {
 		return 1
 	}
 	var config = OpenConfig()
-	for _, arg := range args {
-		var err = config.Update(arg, config.GetDefaultValue(arg))
-		if err != nil {
-			fmt.Println(err.Error())
-			return 1
+	var err = config.Unset(args[0])
+	if err != nil {
+		var status = config.PrintErrors([]error{err})
+		if status != 0 {
+			return status
 		}
 	}
 	config.StoreConfig()
