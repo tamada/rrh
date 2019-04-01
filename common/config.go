@@ -16,23 +16,38 @@ VERSION shows the version of RRH.
 const VERSION = "0.2"
 
 const (
-	RrhHome             = "RRH_HOME"
+	RrhAutoDeleteGroup  = "RRH_AUTO_DELETE_GROUP"
+	RrhAutoCreateGroup  = "RRH_AUTO_CREATE_GROUP"
+	RrhCloneDestination = "RRH_CLONE_DESTINATION"
 	RrhConfigPath       = "RRH_CONFIG_PATH"
 	RrhDatabasePath     = "RRH_DATABASE_PATH"
 	RrhDefaultGroupName = "RRH_DEFAULT_GROUP_NAME"
+	RrhHome             = "RRH_HOME"
 	RrhOnError          = "RRH_ON_ERROR"
-	RrhAutoDeleteGroup  = "RRH_AUTO_DELETE_GROUP"
-	RrhAutoCreateGroup  = "RRH_AUTO_CREATE_GROUP"
-	RrhTimeFormat       = "RRH_TIME_FORMAT"
 	RrhSortOnUpdating   = "RRH_SORT_ON_UPDATING"
+	RrhTimeFormat       = "RRH_TIME_FORMAT"
 )
+
+var availableLabels = []string{
+	RrhAutoCreateGroup, RrhAutoDeleteGroup, RrhCloneDestination, RrhConfigPath,
+	RrhDatabasePath, RrhDefaultGroupName, RrhHome, RrhOnError, RrhSortOnUpdating,
+	RrhTimeFormat,
+}
+var boolLabels = []string{
+	RrhAutoCreateGroup, RrhAutoDeleteGroup, RrhSortOnUpdating,
+}
 
 const (
 	Default    = "default"
 	ConfigFile = "config_file"
 	Env        = "environment"
 	NotFound   = "not found"
-	Relative   = "relative"
+)
+const Relative = "relative"
+
+const (
+	trueString  = "true"
+	falseString = "false"
 )
 
 const (
@@ -45,16 +60,25 @@ const (
 /*
 Config shows the values of configuration variables.
 */
-type Config struct {
-	Home             string `json:"rrh_home"`
-	AutoDeleteGroup  string `json:"rrh_auto_delete_group"`
-	AutoCreateGroup  string `json:"rrh_auto_create_group"`
-	ConfigPath       string `json:"rrh_config_path"`
-	DatabasePath     string `json:"rrh_database_path"`
-	DefaultGroupName string `json:"rrh_default_group_name"`
-	TimeFormat       string `json:"rrh_time_format"`
-	OnError          string `json:"rrh_on_error"`
-	SortOnUpdating   string `json:"rrh_sort_on_updating"`
+type Config map[string]string
+
+/*
+ReadFrom shows the value of config load from.
+The available values are default, config_file, environment, and not found.
+*/
+type ReadFrom string
+
+var defaultValues = Config{
+	RrhAutoCreateGroup:  "false",
+	RrhAutoDeleteGroup:  "false",
+	RrhCloneDestination: ".",
+	RrhConfigPath:       "${RRH_HOME}/config.json",
+	RrhDatabasePath:     "${RRH_HOME}/database.json",
+	RrhDefaultGroupName: "no-group",
+	RrhHome:             "${HOME}/.rrh",
+	RrhOnError:          Warn,
+	RrhSortOnUpdating:   "false",
+	RrhTimeFormat:       Relative,
 }
 
 func (config *Config) isOnErrorIgnoreOrWarn() bool {
@@ -79,10 +103,10 @@ func (config *Config) PrintErrors(errs []error) int {
 }
 
 func trueOrFalse(value string) (string, error) {
-	if strings.ToLower(value) == "true" {
-		return "true", nil
-	} else if strings.ToLower(value) == "false" {
-		return "false", nil
+	if strings.ToLower(value) == trueString {
+		return trueString, nil
+	} else if strings.ToLower(value) == falseString {
+		return falseString, nil
 	}
 	return "", fmt.Errorf("given value is not true nor false: %s", value)
 }
@@ -95,51 +119,59 @@ func availableValueOnError(value string) (string, error) {
 	return "", fmt.Errorf("%s: Unknown value of RRH_ON_ERROR (must be %s, %s, %s, or %s)", value, Fail, FailImmediately, Warn, Ignore)
 }
 
+func contains(slice []string, label string) bool {
+	for _, item := range slice {
+		if label == item {
+			return true
+		}
+	}
+	return false
+}
+
+/*
+Unset method deletes the specified config value.
+*/
+func (config *Config) Unset(label string) error {
+	if !contains(availableLabels, label) {
+		return fmt.Errorf("%s: unknown variable name", label)
+	}
+	delete((*config), label)
+	return nil
+}
+
+func validateArgumentsOnUpdate(label string, value string) error {
+	if !contains(availableLabels, label) {
+		return fmt.Errorf("%s: unknown variable name", label)
+	}
+	if label == RrhConfigPath {
+		return fmt.Errorf("%s: cannot set in config file", RrhConfigPath)
+	}
+	return nil
+}
+
 /*
 Update method updates the config value with the given `value`.
 */
 func (config *Config) Update(label string, value string) error {
-	switch label {
-	case RrhAutoDeleteGroup:
-		var flag, err = trueOrFalse(value)
-		if err == nil {
-			config.AutoDeleteGroup = flag
-		}
+	if err := validateArgumentsOnUpdate(label, value); err != nil {
 		return err
-	case RrhAutoCreateGroup:
-		var flag, err = trueOrFalse(value)
-		if err == nil {
-			config.AutoCreateGroup = flag
-		}
-		return err
-	case RrhSortOnUpdating:
-		var flag, err = trueOrFalse(value)
-		if err == nil {
-			config.SortOnUpdating = flag
-		}
-		return err
-	case RrhHome:
-		config.Home = value
-		return nil
-	case RrhTimeFormat:
-		config.TimeFormat = value
-		return nil
-	case RrhDatabasePath:
-		config.DatabasePath = value
-		return nil
-	case RrhDefaultGroupName:
-		config.DefaultGroupName = value
-		return nil
-	case RrhOnError:
-		var newValue, err = availableValueOnError(value)
-		if err == nil {
-			config.OnError = newValue
-		}
-		return err
-	case RrhConfigPath:
-		return fmt.Errorf("%s: does not set on config file. set on environment", label)
 	}
-	return fmt.Errorf("%s: Unknown variable name", label)
+	if contains(boolLabels, label) {
+		var flag, err = trueOrFalse(value)
+		if err == nil {
+			(*config)[label] = string(flag)
+		}
+		return err
+	}
+	if label == RrhOnError {
+		var newValue, err = availableValueOnError(value)
+		if err != nil {
+			return err
+		}
+		value = newValue
+	}
+	(*config)[label] = value
+	return nil
 }
 
 /*
@@ -147,11 +179,10 @@ IsSet returns the bool value of the given label.
 If the label is not RrhAutoCreateGroup, RrhAutoDeleteGroup, and RrhSortOnUpdating, this method always returns false.
 */
 func (config *Config) IsSet(label string) bool {
-	var value = config.GetValue(label)
-	if label != RrhAutoCreateGroup && label != RrhAutoDeleteGroup && label != RrhSortOnUpdating {
-		return false
+	if contains(boolLabels, label) {
+		return strings.ToLower((*config)[label]) == trueString
 	}
-	return strings.ToLower(value) == "true"
+	return false
 }
 
 /*
@@ -163,82 +194,55 @@ func (config *Config) GetValue(label string) string {
 }
 
 /*
+GetString returns the value of the given variable name and the definition part of the value.
+*/
+func (config *Config) GetString(label string) (string, ReadFrom) {
+	if !contains(availableLabels, label) {
+		return "", NotFound
+	}
+	var value, ok = (*config)[label]
+	if !ok {
+		return config.getStringFromEnv(label)
+	}
+	return value, ConfigFile
+}
+
+/*
 GetDefaultValue returns the default value of the given variable name.
 */
 func (config *Config) GetDefaultValue(label string) string {
 	var value, _ = config.findDefaultValue(label)
+	if strings.Contains(value, "${HOME}") {
+		var home, _ = homedir.Dir()
+		value = strings.Replace(value, "${HOME}", home, 1)
+	}
+	if strings.Contains(value, "${RRH_HOME}") {
+		value = strings.Replace(value, "${RRH_HOME}", config.GetDefaultValue(RrhHome), 1)
+	}
 	return value
 }
 
-/*
-GetString returns the value of the given variable name and the definition part of the value.
-*/
-func (config *Config) GetString(label string) (value string, readFrom string) {
-	switch label {
-	case RrhAutoDeleteGroup:
-		return config.getStringFromEnv(RrhAutoDeleteGroup, config.AutoDeleteGroup)
-	case RrhAutoCreateGroup:
-		return config.getStringFromEnv(RrhAutoCreateGroup, config.AutoCreateGroup)
-	case RrhSortOnUpdating:
-		return config.getStringFromEnv(RrhSortOnUpdating, config.SortOnUpdating)
-	case RrhHome:
-		return config.getStringFromEnv(RrhHome, config.Home)
-	case RrhConfigPath:
-		return config.getStringFromEnv(RrhConfigPath, config.ConfigPath)
-	case RrhDefaultGroupName:
-		return config.getStringFromEnv(RrhDefaultGroupName, config.DefaultGroupName)
-	case RrhDatabasePath:
-		return config.getStringFromEnv(RrhDatabasePath, config.DatabasePath)
-	case RrhTimeFormat:
-		return config.getStringFromEnv(RrhTimeFormat, config.TimeFormat)
-	case RrhOnError:
-		return config.getStringFromEnv(RrhOnError, config.OnError)
-	default:
-		return "", NotFound
-	}
-}
-
-func (config *Config) getStringFromEnv(label string, valueFromConfigFile string) (value string, readFrom string) {
-	if valueFromConfigFile != "" {
-		return valueFromConfigFile, ConfigFile
-	}
+func (config *Config) getStringFromEnv(label string) (string, ReadFrom) {
 	var valueFromEnv = os.Getenv(label)
 	if valueFromEnv != "" {
 		return valueFromEnv, Env
 	}
 	return config.findDefaultValue(label)
+
 }
 
-func (config *Config) findDefaultValue(label string) (value string, readFrom string) {
-	var home, _ = homedir.Dir()
-	switch label {
-	case RrhHome:
-		return fmt.Sprintf("%s/.rrh", home), Default
-	case RrhConfigPath:
-		return fmt.Sprintf("%s/.rrh/config.json", home), Default
-	case RrhDatabasePath:
-		return fmt.Sprintf("%s/.rrh/database.json", home), Default
-	case RrhDefaultGroupName:
-		return "no-group", Default
-	case RrhOnError:
-		return Warn, Default
-	case RrhTimeFormat:
-		return Relative, Default
-	case RrhAutoDeleteGroup:
-		return "false", Default
-	case RrhAutoCreateGroup:
-		return "false", Default
-	case RrhSortOnUpdating:
-		return "false", Default
-	default:
+func (config *Config) findDefaultValue(label string) (string, ReadFrom) {
+	if !contains(availableLabels, label) {
 		return "", NotFound
 	}
+	var value = defaultValues[label]
+	return value, Default
 }
 
 func configPath() string {
 	var config = new(Config)
-	var home, _ = config.getStringFromEnv(RrhConfigPath, "")
-	return home
+	var configPath, _ = config.getStringFromEnv(RrhConfigPath)
+	return configPath
 }
 
 /*

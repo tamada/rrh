@@ -1,8 +1,10 @@
 package common
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/mitchellh/go-homedir"
@@ -69,15 +71,30 @@ func TestConfigUnset(t *testing.T) {
 	os.Setenv(RrhHome, "../testdata/")
 	var baseConfig = OpenConfig()
 
-	var cuc, _ = configUnsetCommandFactory()
-	cuc.Run([]string{"RRH_AUTO_CREATE_GROUP"})
-	var config = OpenConfig()
-	var value, from = config.GetString(RrhAutoCreateGroup)
-	if value != "false" || from != ConfigFile {
-		t.Errorf("%s: not unset (%s, %s)", RrhAutoCreateGroup, value, from)
+	var testcases = []struct {
+		label     string
+		status    int
+		wontValue string
+		wontFrom  ReadFrom
+	}{
+		{RrhAutoCreateGroup, 0, "false", Default},
+		{"unknown", 0, "", NotFound},
 	}
-
-	baseConfig.StoreConfig()
+	for _, tc := range testcases {
+		var cuc, _ = configUnsetCommandFactory()
+		var statusCode = cuc.Run([]string{tc.label})
+		if statusCode != tc.status {
+			t.Errorf("%v: status code did not match, wont: %d, got: %d", tc, tc.status, statusCode)
+		}
+		if statusCode == 0 {
+			var config = OpenConfig()
+			var value, from = config.GetString(tc.label)
+			if value != tc.wontValue || from != tc.wontFrom {
+				t.Errorf("%v: did not match: wont: (%s, %s), got: (%s, %s)", tc, tc.wontValue, tc.wontFrom, value, from)
+			}
+		}
+		baseConfig.StoreConfig()
+	}
 }
 
 func ExampleConfigCommand() {
@@ -91,9 +108,10 @@ func ExampleConfigCommand() {
 	// RRH_DATABASE_PATH: ../testdata/database.json (environment)
 	// RRH_DEFAULT_GROUP_NAME: no-group (default)
 	// RRH_ON_ERROR: WARN (default)
-	// RRH_TIME_FORMAT: relative (default)
 	// RRH_AUTO_CREATE_GROUP: true (config_file)
 	// RRH_AUTO_DELETE_GROUP: false (config_file)
+	// RRH_TIME_FORMAT: relative (default)
+	// RRH_CLONE_DESTINATION: . (default)
 	// RRH_SORT_ON_UPDATING: true (config_file)
 }
 func ExampleConfigCommand_Run() {
@@ -107,9 +125,10 @@ func ExampleConfigCommand_Run() {
 	// RRH_DATABASE_PATH: ../testdata/database.json (environment)
 	// RRH_DEFAULT_GROUP_NAME: no-group (default)
 	// RRH_ON_ERROR: WARN (default)
-	// RRH_TIME_FORMAT: relative (default)
 	// RRH_AUTO_CREATE_GROUP: true (config_file)
 	// RRH_AUTO_DELETE_GROUP: false (config_file)
+	// RRH_TIME_FORMAT: relative (default)
+	// RRH_CLONE_DESTINATION: . (default)
 	// RRH_SORT_ON_UPDATING: true (config_file)
 }
 func Example_configListCommand_Run() {
@@ -123,9 +142,10 @@ func Example_configListCommand_Run() {
 	// RRH_DATABASE_PATH: ../testdata/database.json (environment)
 	// RRH_DEFAULT_GROUP_NAME: no-group (default)
 	// RRH_ON_ERROR: WARN (default)
-	// RRH_TIME_FORMAT: relative (default)
 	// RRH_AUTO_CREATE_GROUP: true (config_file)
 	// RRH_AUTO_DELETE_GROUP: false (config_file)
+	// RRH_TIME_FORMAT: relative (default)
+	// RRH_CLONE_DESTINATION: . (default)
 	// RRH_SORT_ON_UPDATING: true (config_file)
 }
 
@@ -143,7 +163,7 @@ func TestLoadConfigFile(t *testing.T) {
 	var testdata = []struct {
 		key   string
 		value string
-		from  string
+		from  ReadFrom
 	}{
 		{RrhAutoDeleteGroup, "false", ConfigFile},
 		{RrhAutoCreateGroup, "true", ConfigFile},
@@ -264,6 +284,7 @@ func TestOpenConfig(t *testing.T) {
 		{RrhConfigPath, fmt.Sprintf("%s/.rrh/config.json", home)},
 		{RrhDatabasePath, fmt.Sprintf("%s/.rrh/database.json", home)},
 		{RrhDefaultGroupName, "no-group"},
+		{RrhCloneDestination, "."},
 		{RrhOnError, Warn},
 		{RrhAutoCreateGroup, "false"},
 		{RrhAutoDeleteGroup, "false"},
@@ -283,7 +304,40 @@ func TestOpenConfig(t *testing.T) {
 	assert(t, config.GetDefaultValue("unknown"), "")
 }
 
-func TestFromatVariableAndValue(t *testing.T) {
+func TestPrintErrors(t *testing.T) {
+	var testcases = []struct {
+		onError    string
+		error      []error
+		wontStatus int
+		someOutput bool
+	}{
+		{Ignore, []error{}, 0, false},
+		{Ignore, []error{errors.New("error")}, 0, false},
+		{Warn, []error{}, 0, false},
+		{Warn, []error{errors.New("error")}, 0, true},
+		{Fail, []error{}, 0, false},
+		{Fail, []error{errors.New("error")}, 5, true},
+		{FailImmediately, []error{}, 0, false},
+		{FailImmediately, []error{errors.New("error")}, 5, true},
+	}
+
+	var config = Config{}
+	for _, tc := range testcases {
+		config.Update(RrhOnError, tc.onError)
+		var output, _ = CaptureStdout(func() {
+			var statusCode = config.PrintErrors(tc.error)
+			if statusCode != tc.wontStatus {
+				t.Errorf("%v: status code did not match, wont: %d, got: %d", tc, tc.wontStatus, statusCode)
+			}
+		})
+		output = strings.TrimSpace(output)
+		if (output == "") == tc.someOutput {
+			t.Errorf("%v: output did not match, wont: %v, got: %v (%s)", tc, tc.someOutput, !tc.someOutput, output)
+		}
+	}
+}
+
+func TestFormatVariableAndValue(t *testing.T) {
 	var config = OpenConfig()
 	assert(t, config.formatVariableAndValue(RrhDefaultGroupName), "RRH_DEFAULT_GROUP_NAME: no-group (default)")
 }

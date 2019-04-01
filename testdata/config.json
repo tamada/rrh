@@ -1,5 +1,5 @@
 {
-  "rrh_auto_delete_group": "false",
-  "rrh_auto_create_group": "true",
-  "rrh_sort_on_updating": "true"
+  "RRH_AUTO_CREATE_GROUP":"true",
+  "RRH_AUTO_DELETE_GROUP":"false",
+  "RRH_SORT_ON_UPDATING":"true"
 }

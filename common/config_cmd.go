@@ -121,11 +121,11 @@ func (cuc *configUnsetCommand) Run(args []string) int {
 		return 1
 	}
 	var config = OpenConfig()
-	for _, arg := range args {
-		var err = config.Update(arg, config.GetDefaultValue(arg))
-		if err != nil {
-			fmt.Println(err.Error())
-			return 1
+	var err = config.Unset(args[0])
+	if err != nil {
+		var status = config.PrintErrors([]error{err})
+		if status != 0 {
+			return status
 		}
 	}
 	config.StoreConfig()
@@ -142,9 +142,10 @@ func (clc *configListCommand) Run(args []string) int {
 	fmt.Println(config.formatVariableAndValue(RrhDatabasePath))
 	fmt.Println(config.formatVariableAndValue(RrhDefaultGroupName))
 	fmt.Println(config.formatVariableAndValue(RrhOnError))
-	fmt.Println(config.formatVariableAndValue(RrhTimeFormat))
 	fmt.Println(config.formatVariableAndValue(RrhAutoCreateGroup))
 	fmt.Println(config.formatVariableAndValue(RrhAutoDeleteGroup))
+	fmt.Println(config.formatVariableAndValue(RrhTimeFormat))
+	fmt.Println(config.formatVariableAndValue(RrhCloneDestination))
 	fmt.Println(config.formatVariableAndValue(RrhSortOnUpdating))
 	return 0
 }

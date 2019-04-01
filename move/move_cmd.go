@@ -10,7 +10,7 @@ import (
 )
 
 /*
-PruneCommand represents a command.
+MoveCommand represents a command.
 */
 type MoveCommand struct {
 	Options *moveOptions

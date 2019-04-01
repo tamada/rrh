@@ -104,14 +104,15 @@ func printResult(count int, dest string, group string) {
 }
 
 func (clone *CloneCommand) buildFlagSets(config *common.Config) (*flag.FlagSet, *cloneOptions) {
-	var defaultGroup = config.GetDefaultValue(common.RrhDefaultGroupName)
+	var defaultGroup = config.GetValue(common.RrhDefaultGroupName)
+	var destination = config.GetValue(common.RrhCloneDestination)
 	var options = cloneOptions{defaultGroup, ".", false}
 	flags := flag.NewFlagSet("clone", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(clone.Help()) }
 	flags.StringVar(&options.group, "g", defaultGroup, "belonging group")
 	flags.StringVar(&options.group, "group", defaultGroup, "belonging group")
-	flags.StringVar(&options.dest, "d", ".", "destination")
-	flags.StringVar(&options.dest, "dest", ".", "destination")
+	flags.StringVar(&options.dest, "d", destination, "destination")
+	flags.StringVar(&options.dest, "dest", destination, "destination")
 	flags.BoolVar(&options.verbose, "v", false, "verbose mode")
 	flags.BoolVar(&options.verbose, "verbose", false, "verbose mode")
 	return flags, &options
