@@ -61,7 +61,7 @@ func TestSimpleResults(t *testing.T) {
 			}
 		})
 		result = strings.TrimSpace(result)
-		result = strings.ReplaceAll(result, "\n", ",")
+		result = strings.Replace(result, "\n", ",", -1)
 		if result != tc.result {
 			t.Errorf("%v: result did not match: wont: %s, got: %s", tc.args, tc.result, result)
 		}

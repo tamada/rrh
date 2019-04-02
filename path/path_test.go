@@ -55,7 +55,7 @@ func TestPathCommand(t *testing.T) {
 		})
 		if tc.status == 0 {
 			output = strings.TrimSpace(output)
-			output = strings.ReplaceAll(output, "\n", ",")
+			output = strings.Replace(output, "\n", ",", -1)
 			if output != tc.results {
 				t.Errorf("%v: output did not match: wont: %s, got: %s", tc.args, tc.results, output)
 			}

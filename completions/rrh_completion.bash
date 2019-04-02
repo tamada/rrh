@@ -16,7 +16,7 @@ __rrh_add() {
     elif [ "$2" = "-g" ] || [ "$2" = "--group" ]; then
         groups="$(__rrh_groups)"
         COMPREPLY=($(compgen -W "$groups" -- "$1"))
-    elif [ "$4" = "$2" ];  then
+    else
         compopt -o filenames
         COMPREPLY=($(compgen -d -- "$1"))
     fi

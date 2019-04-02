@@ -58,17 +58,18 @@ func (path *PathCommand) perform(db *common.Database) int {
 	return 0
 }
 
+func (options *pathOptions) matchEach(id string, arg string) bool {
+	if options.partialMatch {
+		return strings.Contains(id, arg)
+	}
+	return id == arg
+}
+
 func (options *pathOptions) match(id string) bool {
 	for _, arg := range options.args {
-		if options.partialMatch {
-			var flag = strings.Contains(id, arg)
-			if flag {
-				return true
-			}
-		} else {
-			if id == arg {
-				return true
-			}
+		var bool = options.matchEach(id, arg)
+		if bool {
+			return true
 		}
 	}
 	return len(options.args) == 0
