@@ -112,7 +112,7 @@ func TestFindResults(t *testing.T) {
 	}
 
 	for _, data := range testdata {
-		list.Options.args = data.targets
+		list.options.args = data.targets
 		var results, err = list.FindResults(db)
 		if err != nil {
 			t.Errorf("%v: group not found.", data.targets)

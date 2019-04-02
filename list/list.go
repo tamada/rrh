@@ -56,7 +56,7 @@ func (list *ListCommand) findAllGroupNames(db *common.Database) []string {
 FindResults returns the result list of list command.
 */
 func (list *ListCommand) FindResults(db *common.Database) ([]ListResult, error) {
-	var groups = list.Options.args
+	var groups = list.options.args
 	if len(groups) == 0 {
 		groups = list.findAllGroupNames(db)
 	}

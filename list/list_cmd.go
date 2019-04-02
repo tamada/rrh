@@ -24,7 +24,7 @@ type listOptions struct {
 ListCommand represents a command.
 */
 type ListCommand struct {
-	Options *listOptions
+	options *listOptions
 }
 
 /*
@@ -175,7 +175,7 @@ func (list *ListCommand) Run(args []string) int {
 		fmt.Println(err.Error())
 		return 3
 	}
-	return list.Options.printResults(results)
+	return list.options.printResults(results)
 }
 
 /*
@@ -204,7 +204,7 @@ ARGUMENTS
 }
 
 func (list *ListCommand) buildFlagSet() (*flag.FlagSet, *listOptions) {
-	var options = listOptions{false, false, false, false, false, false, false, false, []string{}}
+	var options = listOptions{args: []string{}}
 	flags := flag.NewFlagSet("list", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(list.Help()) }
 	flags.BoolVar(&options.all, "A", false, "show all entries")
@@ -234,6 +234,6 @@ func (list *ListCommand) parse(args []string) (*listOptions, error) {
 		options.localPath = true
 	}
 	options.args = flags.Args()
-	list.Options = options
+	list.options = options
 	return options, nil
 }
