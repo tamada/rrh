@@ -162,7 +162,7 @@ __rrh_path() {
         COMPREPLY=($(compgen -W "-m --partial-match -p --show-only-path" -- "${cur}"))
     else
         repos="$(__rrh_repositories)"
-        COMPREPLY+=($(compgen -W "$repos" -- "${cur}"))
+        COMPREPLY=($(compgen -W "$repos" -- "${cur}"))
     fi
 }
 
@@ -263,5 +263,12 @@ __rrh_completions()
     fi
 }
 
+__cdrrh_completions() {
+    local opts cur prev subcom
+    _get_comp_words_by_ref -n : cur prev cword
+    repos="$(__rrh_repositories)"
+    COMPREPLY+=($(compgen -W "$repos" -- "${cur}"))
+}
+
 complete -F __rrh_completions rrh
-complete -F __rrh_repositories cdrrh
+complete -F __cdrrh_completions cdrrh
