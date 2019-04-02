@@ -16,6 +16,16 @@ func open(jsonName string) *common.Database {
 	return db
 }
 
+func ExampleListCommand() {
+	os.Setenv(common.RrhDatabasePath, "../testdata/database.json")
+	var list, _ = ListCommandFactory()
+	list.Run([]string{})
+	// Output:
+	// no-group (1 repository)
+	//     rrh          ~/go/src/github.com/tamada/rrh
+	// 1 group, 1 repository
+}
+
 func ExampleListCommand_Run() {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	var list, _ = ListCommandFactory()
@@ -27,6 +37,7 @@ func ExampleListCommand_Run() {
 	// group2 (0 repositories)
 	//     Description  desc2
 	// group3 (1 repository)
+	// 3 groups, 2 repositories
 }
 
 func TestRunByCsvOutput(t *testing.T) {

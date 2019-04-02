@@ -104,16 +104,17 @@ func (options *listOptions) isPrintSimple(result ListResult) bool {
 	return !options.noOmit && result.OmitList && len(options.args) == 0
 }
 
-func (options *listOptions) printRepositoryName(result ListResult) {
+func (options *listOptions) printGroupName(result ListResult) int {
 	if len(result.Repos) == 1 {
 		fmt.Printf("%s (1 repository)\n", result.GroupName)
 	} else {
 		fmt.Printf("%s (%d repositories)\n", result.GroupName, len(result.Repos))
 	}
+	return len(result.Repos)
 }
 
-func (options *listOptions) printResult(result ListResult) {
-	options.printRepositoryName(result)
+func (options *listOptions) printResult(result ListResult) int {
+	var repoCount = options.printGroupName(result)
 	if !options.isPrintSimple(result) {
 		if options.description || options.all {
 			fmt.Printf("    Description  %s", result.Description)
@@ -124,6 +125,7 @@ func (options *listOptions) printResult(result ListResult) {
 			options.printRepo(repo, result, formatString)
 		}
 	}
+	return repoCount
 }
 
 func (options *listOptions) printSimpleResult(repo Repo, result ListResult) {
@@ -143,15 +145,29 @@ func (options *listOptions) printSimpleResults(results []ListResult) int {
 	return 0
 }
 
+func printGroupAndRepoCount(groupCount int, repoCount int) {
+	var groupLabel = "groups"
+	var repoLabel = "repositories"
+	if groupCount == 1 {
+		groupLabel = "group"
+	}
+	if repoCount == 1 {
+		repoLabel = "repository"
+	}
+	fmt.Printf("%d %s, %d %s\n", groupCount, groupLabel, repoCount, repoLabel)
+}
+
 func (options *listOptions) printResults(results []ListResult) int {
 	if options.csv {
 		return options.printResultsAsCsv(results)
 	} else if options.repoNameOnly || options.groupRepoName {
 		return options.printSimpleResults(results)
 	}
+	var repoCount int
 	for _, result := range results {
-		options.printResult(result)
+		repoCount += options.printResult(result)
 	}
+	printGroupAndRepoCount(len(results), repoCount)
 	return 0
 }
 
