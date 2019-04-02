@@ -115,7 +115,7 @@ __rrh_group() {
         case "${subsub}" in
             add)
                 __rrh_group_add "$1" "$2" "$3" "$4" "$subsub"
-                ;; 
+                ;;
             list)
                 __rrh_group_list "$1" "$2" "$3" "$4" "$subsub"
                 ;;
@@ -140,7 +140,7 @@ __rrh_import() {
 __rrh_list() {
     if [[ "$1" =~ ^\- ]]; then
         COMPREPLY=($(compgen -W "-d --desc -p --path -r --remote -A --all-entries -a --all -c --csv" -- "${cur}"))
-    else 
+    else
         groups="$(__rrh_groups)"
         COMPREPLY=($(compgen -W "$groups" -- "${cur}"))
     fi
@@ -157,10 +157,19 @@ __rrh_mv() {
     fi
 }
 
+__rrh_path() {
+    if [[ "$1" =~ ^\- ]]; then
+        COMPREPLY=($(compgen -W "-m --partial-match -p --show-only-path" -- "${cur}"))
+    else
+        repos="$(__rrh_repositories)"
+        COMPREPLY+=($(compgen -W "$repos" -- "${cur}"))
+    fi
+}
+
 __rrh_rm() {
     if [[ "$1" =~ ^\- ]]; then
         COMPREPLY=($(compgen -W "-i --inquiry -r --recursive -v --verbose" -- "${cur}"))
-    else 
+    else
         groups="$(__rrh_groups)"
         repos="$(__rrh_repositories)"
         gandr="$(__rrh_group_repo_forms)"
@@ -173,7 +182,7 @@ __rrh_rm() {
 __rrh_status() {
     if [[ "$1" =~ ^\- ]]; then
         COMPREPLY=($(compgen -W "-b --branches -r --remote -c --csv" -- "${cur}"))
-    else 
+    else
         groups="$(__rrh_groups)"
         repos="$(__rrh_repositories)"
         COMPREPLY=($(compgen -W "$groups" -- "${cur}"))
@@ -227,6 +236,10 @@ __rrh_completions()
             ;;
         mv)
             __rrh_mv  "$cur" "$prev" "$cword" "$subcom"
+            return 0
+            ;;
+        path)
+            __rrh_path  "$cur" "$prev" "$cword" "$subcom"
             return 0
             ;;
         prune)

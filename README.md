@@ -41,6 +41,7 @@ RRH is now growing. Please hack RRH itself.
         * [`rrh import`](#rrh-import)
         * [`rrh list`](#rrh-list)
         * [`rrh mv`](#rrh-mv)
+        * [`rrh path`](#rrh-path)
         * [`rrh prune`](#rrh-prune)
         * [`rrh rm`](#rrh-rm)
         * [`rrh status`](#rrh-status)
@@ -48,6 +49,7 @@ RRH is now growing. Please hack RRH itself.
     * [Database](#database)
 * [Utilities](#utilities)
     * [`cdrrh`](#cdrrh)
+    * [`rrhpeco`](#rrhpeco)
 * [Development Policy](#development-policy)
 * [Why the project name RRH?](#why-the-project-name-rrh)
 * [Discussion](#discussion)
@@ -87,6 +89,7 @@ Available commands are:
     group        add/list/update/remove groups.
     list         print managed repositories and their groups.
     mv           move the repositories from groups to another group.
+    path         print paths of specified repositories.
     prune        prune unnecessary repositories and groups.
     rm           remove given repository from database.
     status       show git status of repositories.
@@ -288,6 +291,19 @@ ARGUMENTS
     TO              specifies move to, formatted in <GROUP_NAME>
 ```
 
+### `rrh path`
+
+Prints paths of the specified repositories.
+
+```sh
+rrh path [OPTIONS] <REPOSITORIES...>
+OPTIONS
+    -m, --partial-match    treats the arguments as the patterns.
+    -p, --show-only-path   show path only.
+ARGUMENTS
+    REPOSITORIES           repository ids.
+```
+
 ### `rrh prune`
 
 Deletes unnecessary groups and repositories.
@@ -432,11 +448,21 @@ Also, the configuration file is on `$RRH_ROOT/config.json`
 
 ## `cdrrh`
 
+changes directory to the specified repository.
+
+```sh
+cdrrh(){
+    cd $(rrh path -p $1)
+}
+```
+
+## `rrhpeco`
+
 list repositories, and filtering them by [`peco`](https://github.com/peco/peco),
 then change directory to the filtering result.
 
 ```sh
-cdrrh(){
+rrhpeco(){
   csv=$(rrh list --path --csv | peco)
   cd $(echo $csv | awk -F , '{ print $3 }')
   pwd
