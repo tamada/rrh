@@ -238,7 +238,8 @@ OPTIONS
     -d, --desc <DESC>        change description to DESC.
     -o, --omit-list <FLAG>   change omit-list of the group. FLAG must be "true" or "false".
 ARGUMENTS
-    GROUP                    update target group names.```
+    GROUP                    update target group names.
+```
 
 ### `rrh import`
 

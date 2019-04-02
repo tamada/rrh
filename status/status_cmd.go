@@ -45,7 +45,7 @@ func (status *StatusCommand) Help() string {
 	return `rrh status [OPTIONS] [REPOSITORIES|GROUPS...]
 OPTIONS
     -b, --branches  show the status of the local branches.
-	-r, --remote    show the status of the remote branches.
+    -r, --remote    show the status of the remote branches.
     -c, --csv       print result in csv format.
 ARGUMENTS
     REPOSITORIES    target repositories.  If no repository was specified
@@ -143,7 +143,7 @@ func (status *StatusCommand) buildFlagSet() (*flag.FlagSet, *statusOptions) {
 	flags.BoolVar(&options.remote, "r", false, "remote branch status")
 	flags.BoolVar(&options.remote, "remote", false, "remote branch status")
 	flags.BoolVar(&options.branch, "b", false, "local branch status")
-	flags.BoolVar(&options.branch, "branch", false, "local branch status")
+	flags.BoolVar(&options.branch, "branches", false, "local branch status")
 	return flags, &options
 }
 
