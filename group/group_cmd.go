@@ -63,7 +63,7 @@ func (grc *groupRemoveCommand) Help() string {
 	return `rrh group rm [OPTIONS] <GROUPS...>
 OPTIONS
     -f, --force      force remove.
-    -i, --inquery    inquiry mode.
+    -i, --inquiry    inquiry mode.
     -v, --verbose    verbose mode.
 ARGUMENTS
     GROUPS           target group names.`

@@ -103,16 +103,16 @@ func ExampleConfigCommand() {
 	var command, _ = ConfigCommandFactory()
 	command.Run([]string{}) // the output of no arguments are same as list subcommand.
 	// Output:
-	// RRH_HOME: ../testdata/ (environment)
+	// RRH_AUTO_CREATE_GROUP: true (config_file)
+	// RRH_AUTO_DELETE_GROUP: false (config_file)
+	// RRH_CLONE_DESTINATION: . (default)
 	// RRH_CONFIG_PATH: ../testdata/config.json (environment)
 	// RRH_DATABASE_PATH: ../testdata/database.json (environment)
 	// RRH_DEFAULT_GROUP_NAME: no-group (default)
+	// RRH_HOME: ../testdata/ (environment)
 	// RRH_ON_ERROR: WARN (default)
-	// RRH_AUTO_CREATE_GROUP: true (config_file)
-	// RRH_AUTO_DELETE_GROUP: false (config_file)
-	// RRH_TIME_FORMAT: relative (default)
-	// RRH_CLONE_DESTINATION: . (default)
 	// RRH_SORT_ON_UPDATING: true (config_file)
+	// RRH_TIME_FORMAT: relative (default)
 }
 func ExampleConfigCommand_Run() {
 	os.Setenv(RrhConfigPath, "../testdata/config.json")
@@ -120,16 +120,16 @@ func ExampleConfigCommand_Run() {
 	var command, _ = ConfigCommandFactory()
 	command.Run([]string{"list"}) // the output of no arguments are same as list subcommand.
 	// Output:
-	// RRH_HOME: ../testdata/ (environment)
+	// RRH_AUTO_CREATE_GROUP: true (config_file)
+	// RRH_AUTO_DELETE_GROUP: false (config_file)
+	// RRH_CLONE_DESTINATION: . (default)
 	// RRH_CONFIG_PATH: ../testdata/config.json (environment)
 	// RRH_DATABASE_PATH: ../testdata/database.json (environment)
 	// RRH_DEFAULT_GROUP_NAME: no-group (default)
+	// RRH_HOME: ../testdata/ (environment)
 	// RRH_ON_ERROR: WARN (default)
-	// RRH_AUTO_CREATE_GROUP: true (config_file)
-	// RRH_AUTO_DELETE_GROUP: false (config_file)
-	// RRH_TIME_FORMAT: relative (default)
-	// RRH_CLONE_DESTINATION: . (default)
 	// RRH_SORT_ON_UPDATING: true (config_file)
+	// RRH_TIME_FORMAT: relative (default)
 }
 func Example_configListCommand_Run() {
 	os.Setenv(RrhConfigPath, "../testdata/config.json")
@@ -137,16 +137,16 @@ func Example_configListCommand_Run() {
 	var clc, _ = configListCommandFactory()
 	clc.Run([]string{})
 	// Output:
-	// RRH_HOME: ../testdata/ (environment)
+	// RRH_AUTO_CREATE_GROUP: true (config_file)
+	// RRH_AUTO_DELETE_GROUP: false (config_file)
+	// RRH_CLONE_DESTINATION: . (default)
 	// RRH_CONFIG_PATH: ../testdata/config.json (environment)
 	// RRH_DATABASE_PATH: ../testdata/database.json (environment)
 	// RRH_DEFAULT_GROUP_NAME: no-group (default)
+	// RRH_HOME: ../testdata/ (environment)
 	// RRH_ON_ERROR: WARN (default)
-	// RRH_AUTO_CREATE_GROUP: true (config_file)
-	// RRH_AUTO_DELETE_GROUP: false (config_file)
-	// RRH_TIME_FORMAT: relative (default)
-	// RRH_CLONE_DESTINATION: . (default)
 	// RRH_SORT_ON_UPDATING: true (config_file)
+	// RRH_TIME_FORMAT: relative (default)
 }
 
 func TestOpenConfigBrokenJson(t *testing.T) {

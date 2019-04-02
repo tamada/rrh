@@ -58,7 +58,7 @@ func TestCloneCommand_MultipleProjects(t *testing.T) {
 
 		var config = common.OpenConfig()
 		var db, _ = common.Open(config)
-		if len(db.Repositories) != 4 {
+		if !db.HasRepository("helloworld") && !db.HasRepository("fibonacci") {
 			t.Fatal("helloworld and fibonacci were not registered.")
 		}
 		var hwRepo = db.FindRepository("helloworld")
@@ -69,7 +69,7 @@ func TestCloneCommand_MultipleProjects(t *testing.T) {
 		if message := validate(*fiboRepo, "fibonacci", "../testdata/hoge/fibonacci"); message != "" {
 			t.Error(message)
 		}
-		if !db.HasGroup("not-exist-group") || len(db.Groups) != 4 {
+		if !db.HasGroup("not-exist-group") {
 			t.Fatalf("not-exist-group: group not found: %v", db.Groups)
 		}
 		var group = db.FindGroup("not-exist-group")

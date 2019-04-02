@@ -185,12 +185,25 @@ func (config *Config) IsSet(label string) bool {
 	return false
 }
 
+func (config *Config) replaceHome(value string, rrhHomeGetter func(*Config) string) string {
+	if strings.Contains(value, "${HOME}") {
+		var home, _ = homedir.Dir()
+		value = strings.Replace(value, "${HOME}", home, 1)
+	}
+	if strings.Contains(value, "${RRH_HOME}") {
+		value = strings.Replace(value, "${RRH_HOME}", rrhHomeGetter(config), 1)
+	}
+	return value
+}
+
 /*
 GetValue returns the value of the given variable name.
 */
 func (config *Config) GetValue(label string) string {
 	var value, _ = config.GetString(label)
-	return value
+	return config.replaceHome(value, func(c *Config) string {
+		return c.GetValue(RrhHome)
+	})
 }
 
 /*
@@ -212,23 +225,19 @@ GetDefaultValue returns the default value of the given variable name.
 */
 func (config *Config) GetDefaultValue(label string) string {
 	var value, _ = config.findDefaultValue(label)
-	if strings.Contains(value, "${HOME}") {
-		var home, _ = homedir.Dir()
-		value = strings.Replace(value, "${HOME}", home, 1)
-	}
-	if strings.Contains(value, "${RRH_HOME}") {
-		value = strings.Replace(value, "${RRH_HOME}", config.GetDefaultValue(RrhHome), 1)
-	}
 	return value
 }
 
 func (config *Config) getStringFromEnv(label string) (string, ReadFrom) {
 	var valueFromEnv = os.Getenv(label)
 	if valueFromEnv != "" {
+		valueFromEnv = config.replaceHome(valueFromEnv, func(c *Config) string {
+			var val, _ = c.getStringFromEnv(RrhHome)
+			return val
+		})
 		return valueFromEnv, Env
 	}
 	return config.findDefaultValue(label)
-
 }
 
 func (config *Config) findDefaultValue(label string) (string, ReadFrom) {
@@ -236,6 +245,9 @@ func (config *Config) findDefaultValue(label string) (string, ReadFrom) {
 		return "", NotFound
 	}
 	var value = defaultValues[label]
+	value = config.replaceHome(value, func(c *Config) string {
+		return c.GetDefaultValue(RrhHome)
+	})
 	return value, Default
 }
 

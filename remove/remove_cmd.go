@@ -97,7 +97,7 @@ func (rm *RemoveCommand) parse(args []string) (*removeOptions, error) {
 Help returns the help message.
 */
 func (rm *RemoveCommand) Help() string {
-	return `rrh rm [OPTIONS] <REPO_ID|GROUP_ID|REPO_ID/GROUP_ID...>
+	return `rrh rm [OPTIONS] <REPO_ID|GROUP_ID|GROUP_ID/REPO_ID...>
 OPTIONS
     -i, --inquiry       inquiry mode.
     -r, --recursive     recursive mode.

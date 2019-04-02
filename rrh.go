@@ -13,6 +13,7 @@ import (
 	"github.com/tamada/rrh/group"
 	"github.com/tamada/rrh/list"
 	"github.com/tamada/rrh/move"
+	"github.com/tamada/rrh/path"
 	"github.com/tamada/rrh/prune"
 	"github.com/tamada/rrh/remove"
 	"github.com/tamada/rrh/status"
@@ -30,6 +31,7 @@ func buildCommandFactoryMap() map[string]cli.CommandFactory {
 		"import":    export.ImportCommandFactory,
 		"list":      list.ListCommandFactory,
 		"mv":        move.MoveCommandFactory,
+		"path":      path.PathCommandFactory,
 		"prune":     prune.PruneCommandFactory,
 		"rm":        remove.RemoveCommandFactory,
 		"status":    status.StatusCommandFactory,

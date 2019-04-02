@@ -43,6 +43,31 @@ func TestRunByCsvOutput(t *testing.T) {
 	}
 }
 
+func TestSimpleResults(t *testing.T) {
+	var testcases = []struct {
+		args   []string
+		status int
+		result string
+	}{
+		{[]string{"--only-repositoryname"}, 0, "repo1,repo2"},
+		{[]string{"--group-repository-form"}, 0, "group1/repo1,group3/repo2"},
+	}
+	for _, tc := range testcases {
+		var result, _ = common.CaptureStdout(func() {
+			var list, _ = ListCommandFactory()
+			var status = list.Run(tc.args)
+			if status != tc.status {
+				t.Errorf("%v: status code did not match: wont: %d, got: %d", tc.args, tc.status, status)
+			}
+		})
+		result = strings.TrimSpace(result)
+		result = strings.Replace(result, "\n", ",", -1)
+		if result != tc.result {
+			t.Errorf("%v: result did not match: wont: %s, got: %s", tc.args, tc.result, result)
+		}
+	}
+}
+
 func TestFailedByUnknownOption(t *testing.T) {
 	common.CaptureStdout(func() {
 		var list, _ = ListCommandFactory()
@@ -87,7 +112,7 @@ func TestFindResults(t *testing.T) {
 	}
 
 	for _, data := range testdata {
-		list.Options.args = data.targets
+		list.options.args = data.targets
 		var results, err = list.FindResults(db)
 		if err != nil {
 			t.Errorf("%v: group not found.", data.targets)

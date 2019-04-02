@@ -41,6 +41,7 @@ RRH is now growing. Please hack RRH itself.
         * [`rrh import`](#rrh-import)
         * [`rrh list`](#rrh-list)
         * [`rrh mv`](#rrh-mv)
+        * [`rrh path`](#rrh-path)
         * [`rrh prune`](#rrh-prune)
         * [`rrh rm`](#rrh-rm)
         * [`rrh status`](#rrh-status)
@@ -48,6 +49,7 @@ RRH is now growing. Please hack RRH itself.
     * [Database](#database)
 * [Utilities](#utilities)
     * [`cdrrh`](#cdrrh)
+    * [`rrhpeco`](#rrhpeco)
 * [Development Policy](#development-policy)
 * [Why the project name RRH?](#why-the-project-name-rrh)
 * [Discussion](#discussion)
@@ -87,6 +89,7 @@ Available commands are:
     group        add/list/update/remove groups.
     list         print managed repositories and their groups.
     mv           move the repositories from groups to another group.
+    path         print paths of specified repositories.
     prune        prune unnecessary repositories and groups.
     rm           remove given repository from database.
     status       show git status of repositories.
@@ -238,7 +241,8 @@ OPTIONS
     -d, --desc <DESC>        change description to DESC.
     -o, --omit-list <FLAG>   change omit-list of the group. FLAG must be "true" or "false".
 ARGUMENTS
-    GROUP                    update target group names.```
+    GROUP                    update target group names.
+```
 
 ### `rrh import`
 
@@ -287,6 +291,19 @@ ARGUMENTS
     TO              specifies move to, formatted in <GROUP_NAME>
 ```
 
+### `rrh path`
+
+Prints paths of the specified repositories.
+
+```sh
+rrh path [OPTIONS] <REPOSITORIES...>
+OPTIONS
+    -m, --partial-match    treats the arguments as the patterns.
+    -p, --show-only-path   show path only.
+ARGUMENTS
+    REPOSITORIES           repository ids.
+```
+
 ### `rrh prune`
 
 Deletes unnecessary groups and repositories.
@@ -304,7 +321,7 @@ Removes the specified groups, repositories, and relations.
 If the group has entries is removed by specifying the option `--recursive.`
 
 ```sh
-rrh rm [OPTIONS] <REPO_ID|GROUP_ID|REPO_ID/GROUP_ID...>
+rrh rm [OPTIONS] <REPO_ID|GROUP_ID|GROUP_ID/REPO_ID...>
 OPTIONS
     -i, --inquiry       inquiry mode.
     -r, --recursive     recursive mode.
@@ -322,10 +339,10 @@ ARGUMENTS
 Prints the last modified times of each branch in the repositories of the specified group.
 
 ```sh
-rrh status [OPTIONS] [GROUPS||REPOS...]
+rrh status [OPTIONS] [GROUPS|REPOS...]
 OPTIONS
     -b, --branches  show the status of the local branches.
-	-r, --remote    show the status of the remote branches.
+    -r, --remote    show the status of the remote branches.
     -c, --csv       print result in csv format.
 ARGUMENTS
     GROUPS          target groups.
@@ -431,11 +448,21 @@ Also, the configuration file is on `$RRH_ROOT/config.json`
 
 ## `cdrrh`
 
+changes directory to the specified repository.
+
+```sh
+cdrrh(){
+    cd $(rrh path -p $1)
+}
+```
+
+## `rrhpeco`
+
 list repositories, and filtering them by [`peco`](https://github.com/peco/peco),
 then change directory to the filtering result.
 
 ```sh
-cdrrh(){
+rrhpeco(){
   csv=$(rrh list --path --csv | peco)
   cd $(echo $csv | awk -F , '{ print $3 }')
   pwd

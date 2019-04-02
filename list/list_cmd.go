@@ -9,20 +9,22 @@ import (
 )
 
 type listOptions struct {
-	all         bool
-	description bool
-	localPath   bool
-	remoteURL   bool
-	csv         bool
-	noOmit      bool
-	args        []string
+	all           bool
+	description   bool
+	localPath     bool
+	remoteURL     bool
+	csv           bool
+	noOmit        bool
+	repoNameOnly  bool
+	groupRepoName bool
+	args          []string
 }
 
 /*
 ListCommand represents a command.
 */
 type ListCommand struct {
-	Options *listOptions
+	options *listOptions
 }
 
 /*
@@ -124,9 +126,28 @@ func (options *listOptions) printResult(result ListResult) {
 	}
 }
 
+func (options *listOptions) printSimpleResult(repo Repo, result ListResult) {
+	if options.repoNameOnly {
+		fmt.Println(repo.Name)
+	} else if options.groupRepoName {
+		fmt.Printf("%s/%s\n", result.GroupName, repo.Name)
+	}
+}
+
+func (options *listOptions) printSimpleResults(results []ListResult) int {
+	for _, result := range results {
+		for _, repo := range result.Repos {
+			options.printSimpleResult(repo, result)
+		}
+	}
+	return 0
+}
+
 func (options *listOptions) printResults(results []ListResult) int {
 	if options.csv {
 		return options.printResultsAsCsv(results)
+	} else if options.repoNameOnly || options.groupRepoName {
+		return options.printSimpleResults(results)
 	}
 	for _, result := range results {
 		options.printResult(result)
@@ -154,7 +175,7 @@ func (list *ListCommand) Run(args []string) int {
 		fmt.Println(err.Error())
 		return 3
 	}
-	return list.Options.printResults(results)
+	return list.options.printResults(results)
 }
 
 /*
@@ -183,7 +204,7 @@ ARGUMENTS
 }
 
 func (list *ListCommand) buildFlagSet() (*flag.FlagSet, *listOptions) {
-	var options = listOptions{false, false, false, false, false, false, []string{}}
+	var options = listOptions{args: []string{}}
 	flags := flag.NewFlagSet("list", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(list.Help()) }
 	flags.BoolVar(&options.all, "A", false, "show all entries")
@@ -198,6 +219,8 @@ func (list *ListCommand) buildFlagSet() (*flag.FlagSet, *listOptions) {
 	flags.BoolVar(&options.noOmit, "all", false, "no omit repositories")
 	flags.BoolVar(&options.csv, "c", false, "print as csv format")
 	flags.BoolVar(&options.csv, "csv", false, "print as csv format")
+	flags.BoolVar(&options.repoNameOnly, "only-repositoryname", false, "show only repository names")
+	flags.BoolVar(&options.groupRepoName, "group-repository-form", false, "show group and repository pair form")
 	return flags, &options
 }
 
@@ -211,6 +234,6 @@ func (list *ListCommand) parse(args []string) (*listOptions, error) {
 		options.localPath = true
 	}
 	options.args = flags.Args()
-	list.Options = options
+	list.options = options
 	return options, nil
 }

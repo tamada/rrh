@@ -100,10 +100,9 @@ func (status *StatusCommand) findTime(db *common.Database, path string, repoID s
 	return fi.ModTime()
 }
 
-func (status *StatusCommand) flagChecker(db *common.Database, rname string, key string, lastModified *time.Time) *time.Time {
-	var time = status.findTime(db, key, rname)
+func (status *StatusCommand) flagChecker(time *time.Time, lastModified *time.Time) *time.Time {
 	if lastModified == nil || time.After(*lastModified) {
-		return &time
+		return time
 	}
 	return lastModified
 }
@@ -121,7 +120,7 @@ func checkUpdateFlag(status git.StatusCode) bool {
 	return status != git.Unmodified && status != git.Untracked
 }
 
-func (status *StatusCommand) findWorktree(name repo, r *git.Repository, db *common.Database) (*StatusResult, error) {
+func findStatus(r *git.Repository) (git.Status, error) {
 	var worktree, err = r.Worktree()
 	if err != nil {
 		return nil, err
@@ -130,12 +129,21 @@ func (status *StatusCommand) findWorktree(name repo, r *git.Repository, db *comm
 	if err2 != nil {
 		return nil, err2
 	}
+	return s, nil
+}
+
+func (status *StatusCommand) findWorktree(name repo, r *git.Repository, db *common.Database) (*StatusResult, error) {
+	var s, err = findStatus(r)
+	if err != nil {
+		return nil, err
+	}
 	var lastModified *time.Time
 	var staging, changesNotAdded = false, false
 	for key, value := range s {
 		staging = staging || checkUpdateFlag(value.Staging)
 		changesNotAdded = changesNotAdded || checkUpdateFlag(value.Worktree)
-		lastModified = status.flagChecker(db, name.rname, key, lastModified)
+		var time = status.findTime(db, key, name.rname)
+		lastModified = status.flagChecker(&time, lastModified)
 	}
 	return &StatusResult{name.gname, name.rname, "WORKTREE", lastModified, status.generateMessage(staging, changesNotAdded)}, nil
 }
