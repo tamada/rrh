@@ -137,16 +137,9 @@ Run performs the command.
 */
 func (clc *configListCommand) Run(args []string) int {
 	var config = OpenConfig()
-	fmt.Println(config.formatVariableAndValue(RrhHome))
-	fmt.Println(config.formatVariableAndValue(RrhConfigPath))
-	fmt.Println(config.formatVariableAndValue(RrhDatabasePath))
-	fmt.Println(config.formatVariableAndValue(RrhDefaultGroupName))
-	fmt.Println(config.formatVariableAndValue(RrhOnError))
-	fmt.Println(config.formatVariableAndValue(RrhAutoCreateGroup))
-	fmt.Println(config.formatVariableAndValue(RrhAutoDeleteGroup))
-	fmt.Println(config.formatVariableAndValue(RrhTimeFormat))
-	fmt.Println(config.formatVariableAndValue(RrhCloneDestination))
-	fmt.Println(config.formatVariableAndValue(RrhSortOnUpdating))
+	for _, label := range availableLabels {
+		fmt.Println(config.formatVariableAndValue(label))
+	}
 	return 0
 }
 

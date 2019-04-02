@@ -195,7 +195,7 @@ __rrh_completions()
     local opts cur prev subcom
     _get_comp_words_by_ref -n : cur prev cword
     subcom="${COMP_WORDS[1]}"
-    opts="add clone config export fetch fetch-all group import list mv prune rm status"
+    opts="add clone config export fetch fetch-all group import list mv path prune rm status"
 
     case "${subcom}" in
         add)
