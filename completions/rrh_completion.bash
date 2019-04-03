@@ -95,6 +95,11 @@ __rrh_group_rm() {
     fi
 }
 
+__rrh_group_of() {
+    repos="$(__rrh_repositories)"
+    COMPREPLY=($(compgen -W "$repos" -- "${cur}"))
+}
+
 __rrh_group_update() {
     if [[ "$1" =~ ^\- ]]; then
         COMPREPLY=($(compgen -W "-n --name -d --desc -o --omit-list" -- "${cur}"))
@@ -118,6 +123,9 @@ __rrh_group() {
                 ;;
             list)
                 __rrh_group_list "$1" "$2" "$3" "$4" "$subsub"
+                ;;
+            of)
+                __rrh_group_of "$1" "$2" "$3" "$4" "$subsub"
                 ;;
             rm)
                 __rrh_group_rm "$1" "$2" "$3" "$4" "$subsub"

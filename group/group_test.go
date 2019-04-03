@@ -49,6 +49,14 @@ func Example_groupListCommand_Run() {
 	// group3,desc3,[repo2],1 repository
 }
 
+func Example_groupOfCommand_Run() {
+	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
+	var goc, _ = groupOfCommandFactory()
+	goc.Run([]string{"repo1"})
+	// Output:
+	// repo1, [group1]
+}
+
 func TestGroupListOnlyName(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	var output, _ = common.CaptureStdout(func() {
@@ -60,6 +68,29 @@ group2
 group3`
 	if strings.TrimSpace(output) != wontOutput {
 		t.Errorf("the result with option only-groupname did not match\nwont: %s, got: %s", wontOutput, output)
+	}
+}
+
+func TestGroupOfCommand(t *testing.T) {
+	var testcases = []struct {
+		args   []string
+		output string
+	}{
+		{[]string{"unknown-repo"}, "unknown-repo: repository not found"},
+		{[]string{"repo2"}, "repo2, [group3]"},
+		{[]string{}, `rrh group of <REPOSITORY_ID>
+ARGUMENTS
+    REPOSITORY_ID     show the groups of the repository.`},
+	}
+	for _, tc := range testcases {
+		var output, _ = common.CaptureStdout(func() {
+			var command, _ = groupOfCommandFactory()
+			command.Run(tc.args)
+		})
+		output = strings.TrimSpace(output)
+		if output != tc.output {
+			t.Errorf("%v: output did not match, wont: %s, got: %s", tc.args, tc.output, output)
+		}
 	}
 }
 
@@ -252,6 +283,7 @@ func TestHelp(t *testing.T) {
 	var glc, _ = groupListCommandFactory()
 	var grc, _ = groupRemoveCommandFactory()
 	var guc, _ = groupUpdateCommandFactory()
+	var goc, _ = groupOfCommandFactory()
 	var gc, _ = GroupCommandFactory()
 
 	var gacHelp = `rrh group add [OPTIONS] <GROUPS...>
@@ -283,10 +315,15 @@ OPTIONS
 ARGUMENTS
     GROUP               update target group names.`
 
+	var gocHelp = `rrh group of <REPOSITORY_ID>
+ARGUMENTS
+    REPOSITORY_ID     show the groups of the repository.`
+
 	var gcHelp = `rrh group <SUBCOMMAND>
 SUBCOMMAND
     add       add new group.
     list      list groups (default).
+    of        shows groups of the specified repository.
     rm        remove group.
     update    update group.`
 
@@ -302,6 +339,9 @@ SUBCOMMAND
 	if gac.Help() != gacHelp {
 		t.Error("help message did not match")
 	}
+	if goc.Help() != gocHelp {
+		t.Error("help message did not match")
+	}
 	if grc.Help() != grcHelp {
 		t.Error("help message did not match")
 	}
@@ -309,10 +349,9 @@ SUBCOMMAND
 
 func TestSynopsis(t *testing.T) {
 	var gc, _ = GroupCommandFactory()
-	if gc.Synopsis() != "add/list/update/remove groups." {
+	if gc.Synopsis() != "add/list/update/remove groups and show groups of the repository." {
 		t.Error("synopsis did not match")
 	}
-
 	var guc, _ = groupUpdateCommandFactory()
 	if guc.Synopsis() != "update group." {
 		t.Error("synopsis did not match")
@@ -327,6 +366,10 @@ func TestSynopsis(t *testing.T) {
 	}
 	var glc, _ = groupListCommandFactory()
 	if glc.Synopsis() != "list groups." {
+		t.Error("synopsis did not match")
+	}
+	var goc, _ = groupOfCommandFactory()
+	if goc.Synopsis() != "show groups of the repository." {
 		t.Error("synopsis did not match")
 	}
 }
