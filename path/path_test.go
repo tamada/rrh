@@ -2,7 +2,6 @@ package path
 
 import (
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/tamada/rrh/common"
@@ -54,8 +53,7 @@ func TestPathCommand(t *testing.T) {
 			}
 		})
 		if tc.status == 0 {
-			output = strings.TrimSpace(output)
-			output = strings.Replace(output, "\n", ",", -1)
+			output = common.ReplaceNewline(output, ",")
 			if output != tc.results {
 				t.Errorf("%v: output did not match: wont: %s, got: %s", tc.args, tc.results, output)
 			}

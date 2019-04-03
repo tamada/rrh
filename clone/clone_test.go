@@ -16,14 +16,6 @@ func cleanup(dirs []string) {
 	}
 }
 
-func rollback(f func()) {
-	var config = common.OpenConfig()
-	var db, _ = common.Open(config)
-	defer db.StoreAndClose()
-
-	f()
-}
-
 func validate(repo common.Repository, repoID string, repoPath string) string {
 	var dir, _ = filepath.Abs(repoPath)
 	if repo.ID != repoID || repo.Path != dir {
@@ -49,7 +41,7 @@ func TestCloneCommand_MultipleProjects(t *testing.T) {
 	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 
-	rollback(func() {
+	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 		var clone, _ = CloneCommandFactory()
 		clone.Run([]string{"-d", "../testdata/hoge", "-g", "not-exist-group",
 			"../testdata/helloworld",
@@ -82,7 +74,7 @@ func TestCloneCommand_MultipleProjects(t *testing.T) {
 func TestCloneCommand_Run(t *testing.T) {
 	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	rollback(func() {
+	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 		var clone, _ = CloneCommandFactory()
 		clone.Run([]string{"https://htamada@bitbucket.org/htamada/helloworld.git"})
 		defer cleanup([]string{"./helloworld"})
@@ -105,7 +97,7 @@ func TestCloneCommand_Run(t *testing.T) {
 func TestCloneCommand_SpecifyingId(t *testing.T) {
 	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	rollback(func() {
+	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 		var clone, _ = CloneCommandFactory()
 		clone.Run([]string{"-d", "../testdata/newid", "../testdata/helloworld"})
 		defer cleanup([]string{"../testdata/newid"})

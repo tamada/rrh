@@ -8,17 +8,6 @@ import (
 	"github.com/tamada/rrh/common"
 )
 
-func rollback(dbpath string, f func()) {
-	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
-	os.Setenv(common.RrhDatabasePath, dbpath)
-	var config = common.OpenConfig()
-	var db, _ = common.Open(config)
-
-	f()
-
-	db.StoreAndClose()
-}
-
 func Example() {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	var gc, _ = GroupCommandFactory()
@@ -114,7 +103,7 @@ func TestAddGroup(t *testing.T) {
 		{[]string{"add"}, 3, []groupChecker{}},
 	}
 	for _, testcase := range testcases {
-		rollback("../testdata/tmp.json", func() {
+		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 			var gac, _ = GroupCommandFactory()
 			if val := gac.Run(testcase.args); val != testcase.statusCode {
 				t.Errorf("%v: test failed, wont: %d, got: %d", testcase.args, testcase.statusCode, val)
@@ -150,13 +139,15 @@ func TestUpdateGroupFailed(t *testing.T) {
 		{updateOptions{"newName", "desc", "omitList", "target"}, true},
 	}
 	for _, testcase := range testcases {
-		var guc = groupUpdateCommand{}
-		var config = common.OpenConfig()
-		var db, _ = common.Open(config)
-		var err = guc.updateGroup(db, &testcase.opt)
-		if (err != nil) != testcase.errFlag {
-			t.Errorf("%v: test failed: err wont: %v, got: %v: err (%v)", testcase.opt, testcase.errFlag, !testcase.errFlag, err)
-		}
+		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+			var guc = groupUpdateCommand{}
+			var config = common.OpenConfig()
+			var db, _ = common.Open(config)
+			var err = guc.updateGroup(db, &testcase.opt)
+			if (err != nil) != testcase.errFlag {
+				t.Errorf("%v: test failed: err wont: %v, got: %v: err (%v)", testcase.opt, testcase.errFlag, !testcase.errFlag, err)
+			}
+		})
 	}
 }
 
@@ -188,7 +179,7 @@ func TestUpdateGroup(t *testing.T) {
 		{[]string{"update", "group1", "group4"}, 1, []groupChecker{}, []relation{}},
 	}
 	for _, testcase := range testcases {
-		rollback("../testdata/tmp.json", func() {
+		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 			var guc, _ = GroupCommandFactory()
 			if val := guc.Run(testcase.args); val != testcase.statusCode {
 				t.Errorf("%v: group update failed status code wont: %d, got: %d", testcase.args, testcase.statusCode, val)
@@ -231,7 +222,7 @@ func TestRemoveGroup(t *testing.T) {
 		{[]string{"rm"}, 1, []groupChecker{}},
 	}
 	for _, testcase := range testcases {
-		rollback("../testdata/tmp.json", func() {
+		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 			var grc, _ = GroupCommandFactory()
 			if val := grc.Run(testcase.args); val != testcase.statusCode {
 				t.Errorf("%v: group remove failed: wont: %d, got: %d", testcase.args, testcase.statusCode, val)

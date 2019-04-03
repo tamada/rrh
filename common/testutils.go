@@ -4,19 +4,31 @@ import (
 	"bytes"
 	"io"
 	"os"
+	"strings"
 )
 
 /*
-Rollback rollback database after executing f.
+Rollback rollbacks database after executing function f.
 */
-func Rollback(dbpath string, f func()) {
+func Rollback(dbpath, configPath string, f func()) {
+	os.Setenv(RrhConfigPath, configPath)
 	os.Setenv(RrhDatabasePath, dbpath)
 	var config = OpenConfig()
 	var db, _ = Open(config)
+	defer db.StoreAndClose()
 
 	f()
+}
 
-	db.StoreAndClose()
+/*
+ReplaceNewline trims spaces and converts the return codes in `originalString` to `replaceTo` string.
+*/
+func ReplaceNewline(originalString, replaceTo string) string {
+	return strings.NewReplacer(
+		"\r\n", replaceTo,
+		"\r", replaceTo,
+		"\n", replaceTo,
+	).Replace(strings.TrimSpace(originalString))
 }
 
 /*
