@@ -29,6 +29,9 @@ RRH is now growing. Please hack RRH itself.
 # Table of Contents
 
 * [Installation](#installation)
+    * [Homebrew](#homebrew)
+    * [Golang](#golang)
+    * [Requirements](#requirements)
 * [Usage](#usage)
     * [Subcommands](#subcommands)
         * [`rrh add`](#rrh-add)
@@ -66,13 +69,25 @@ $ brew install rrh
 ```
 
 
-## Go lang
+## Golang
 
 To install cli, simply run:
 
 ```
 $ go get git@github.com/tamada/rrh.git
 ```
+
+## Requirements
+
+* Runtime
+    * Bash 4.x or after, for completion.
+        * [zsh](http://www.zsh.org/)?, and [fish](https://fishshell.com/)?, I do not use them, so I do not know.
+        * For macOS user, the default shell of the macOS is bash 3.x, therefore, the completion is not work enough.
+             * `rrh` is maybe work on Windows, and Linux. I do not use them.
+* Development
+    * [golang/dep](https://github.com/golang/dep)
+    * See `Gopkg.toml`
+
 
 # Usage
 
@@ -126,6 +141,8 @@ OPTIONS
 ARGUMENTS
     REMOTE_REPOS          repository urls
 ```
+
+The destination of cloned repository is located based on [`RRH_CLONE_DESTINATION`](#rrh_clone_destination)
 
 ### `rrh config`
 
@@ -355,61 +372,80 @@ ARGUMENTS
 
 We can see those variables by running `rrh config` sub-command.
 
-* `RRH_HOME`
-    * specifies the location of the RRH database and config file.
-    * default: `/Users/tamada/.rrh`
-* `RRH_CONFIG_PATH`
-    * specifies the location of the location path.
-        * RRH ignores to specify `RRH_CONFIG_PATH` in the config file.
-          This variable availables only environment variable.
-    * default: `${RRH_HOME}/config.json`
-* `RRH_DATABASE_PATH`
-    * specifies the location of the database path.
-    * default: `${RRH_HOME}/database.json`
-* `RRH_DEFAULT_GROUP_NAME`
-    * specifies the default group name.
-    * default: `no-group`
-* `RRH_CLONE_DESTINATION`
-    * specifies the destination by cloning the repository.
-    * default: `.`
-* `RRH_ON_ERROR`
-    * specifies the behaviors of RRH on error.
-    * default: `WARN`
-    * Available values: `FAIL_IMMEDIATELY`, `FAIL`, `WARN`, and `IGNORE`
-        * `FAIL_IMMEDIATELY`
-            * reports error immediately and quits RRH with a non-zero status.
-        * `FAIL`
-            * runs through all targets and reports errors if needed, then quits RRH with a non-zero status.
-        * `WARN`
-            * runs through all targets and reports errors if needed, then quits RRH successfully.
-        * `IGNORE`
-            * runs all targets and no reports errors.
-* `RRH_TIME_FORMAT`
-    * specifies the time format for `status` command.
-    * default: `relative`
-    * Available value: `relative` and the time format for Go lang.
-        * `relative`
-            * shows times by humanized format (e.g., 2 weeks ago)
-        * Other strings
-            * regard as formatting layout and give to `Format` method of the time.
-                * see [Time.Format](https://golang.org/pkg/time/#Time.Format), for more detail.
-* `RRH_AUTO_CREATE_GROUP`
-    * specifies to create the group when the not existing group was specified, and it needs to create.
-    * default: false
-* `RRH_AUTO_DELETE_GROUP`
-    * specifies to delete the group when some group was no more needed.
-    * default: false
-* `RRH_SORT_ON_UPDATING`
-    * specifies to sort database entries on updating database.
-    * default: false
+### `RRH_HOME`
+
+* specifies the location of the RRH database and config file.
+* default: `/Users/tamada/.rrh`
+
+### `RRH_CONFIG_PATH`
+
+* specifies the location of the location path.
+    * RRH ignores to specify `RRH_CONFIG_PATH` in the config file.
+      This variable availables only environment variable.
+* default: `${RRH_HOME}/config.json`
+
+### `RRH_DATABASE_PATH`
+
+* specifies the location of the database path.
+* default: `${RRH_HOME}/database.json`
+
+### `RRH_DEFAULT_GROUP_NAME`
+
+* specifies the default group name.
+* default: `no-group`
+
+### `RRH_CLONE_DESTINATION`
+
+* specifies the destination by cloning the repository.
+* default: `.`
+
+### `RRH_ON_ERROR`
+
+* specifies the behaviors of RRH on error.
+* default: `WARN`
+* Available values: `FAIL_IMMEDIATELY`, `FAIL`, `WARN`, and `IGNORE`
+    * `FAIL_IMMEDIATELY`
+        * reports error immediately and quits RRH with a non-zero status.
+    * `FAIL`
+        * runs through all targets and reports errors if needed, then quits RRH with a non-zero status.
+    * `WARN`
+        * runs through all targets and reports errors if needed, then quits RRH successfully.
+    * `IGNORE`
+        * runs all targets and no reports errors.
+
+### `RRH_TIME_FORMAT`
+
+* specifies the time format for `status` command.
+* default: `relative`
+* Available value: `relative` and the time format for Go lang.
+    * `relative`
+        * shows times by humanized format (e.g., 2 weeks ago)
+    * Other strings
+        * regard as formatting layout and give to `Format` method of the time.
+            * see [Time.Format](https://golang.org/pkg/time/#Time.Format), for more detail.
+
+### `RRH_AUTO_CREATE_GROUP`
+
+* specifies to create the group when the not existing group was specified, and it needs to create.
+* default: false
+
+### `RRH_AUTO_DELETE_GROUP`
+
+* specifies to delete the group when some group was no more needed.
+* default: false
+
+### `RRH_SORT_ON_UPDATING`
+
+* specifies to sort database entries on updating database.
+* default: false
 
 ## Database
 
 The database for managed repositories is formatted in JSON.
 The JSON format is as follows.
-The JSON file is placed on `$RRH_ROOT/database.json`.
-If `$RRH_ROOT` was not set, `$HOME` is used as `$RRH_ROOT`.
-Also, the configuration file is on `$RRH_ROOT/config.json`
+The JSON file is placed on `$RRH_HOME/database.json`.
+If `$RRH_HOME` was not set, `$HOME/.rrh` is used as `$RRH_HOME`.
+Also, the configuration file is on `$RRH_HOME/config.json`
 
 ```js
 {
@@ -482,7 +518,7 @@ rrhpeco(){
 At first, the name of this project was GRIM (Git Repository Integrated Manager).
 However, the means of `grim` is not good, and there are many commands which start with `gr`.
 Therefore, we changed the project name to RRH.
-RRH is not the abbreviation of the red riding hood.
+RRH means "Repositories, Ready to Hack," is not the abbreviation of the Red Riding Hood.
 
 # Discussion
 

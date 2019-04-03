@@ -1,50 +1,45 @@
+GO=go
 NAME := rrh
-VERSION := "0.1"
+VERSION := "0.3"
 REVISION := $(shell git rev-parse --short HEAD)
 LDFLAGS := -X 'main.version=$(VERSION)'
 	-X 'main.revision=$(REVISION)'
 
-setup:
-	go get golang.org/x/lint/golint
-	go get golang.org/x/tools/cmd/goimports
-	go get github.com/golang/dep/cmd/dep
+all: test build
 
-	go get github.com/posener/complete/gocomplete
-	go get golang.org/x/tools/cmd/cover
-	go get github.com/mattn/goveralls
+deps:
+	$(GO) get golang.org/x/lint/golint
+	$(GO) get golang.org/x/tools/cmd/goimports
+	$(GO) get github.com/golang/dep/cmd/dep
+
+	$(GO) get golang.org/x/tools/cmd/cover
+	$(GO) get github.com/mattn/goveralls
 
 	dep ensure -vendor-only
 
-test: update
-	go test -covermode=count -coverprofile=coverage.out $$(go list ./... | grep -v vendor)
-	git checkout -- testdata
-
-update: setup
+setup: deps
 	git submodule update --init
 
-build: update test
-	go build
+test: setup lint format
+	$(GO) test -covermode=count -coverprofile=coverage.out $$(go list ./... | grep -v vendor)
+	git checkout -- testdata
+
+build: setup
+	$(GO) build -o $(NAME) -v
 
 lint: setup
-	go vet $$(go list ./... | grep -v vendor)
+	$(GO) vet $$(go list ./... | grep -v vendor)
 	for pkg in $$(go list ./... | grep -v vendor); do \
 		golint -set_exit_status $$pkg || exit $$?; \
 	done
 
-fmt: setup
+format: setup
 	goimports -w $$(go list ./... | grep -v vendor)
 
-bin/%: cmd/%/rrh.go deps
-	go build -ldflags "$(LDFLAGS)" -o $@ <$
-
-install: deps
+install: test build
 	$(GO) install $(LDFLAGS)
+	. ./completions/rrh_completion.bash
 
-bump-minor:
-	git diff --quiet && git diff --cached --quiet
-	new_version=$$(gobump minor -w -r -v) && \
-	test -n "$$new_version" && \
-	git commit -a -m "bump version to $$new_version" && \
-	git tag v$$new_version
-
-.PHONY: setup deps update test lint
+clean:
+	$(GO) clean
+	rm -rf $(NAME)

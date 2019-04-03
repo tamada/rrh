@@ -13,7 +13,7 @@ import (
 /*
 VERSION shows the version of RRH.
 */
-const VERSION = "0.2"
+const VERSION = "0.3"
 
 const (
 	RrhAutoDeleteGroup  = "RRH_AUTO_DELETE_GROUP"
