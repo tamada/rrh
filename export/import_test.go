@@ -47,7 +47,7 @@ func TestImport(t *testing.T) {
 
 	for _, testcase := range testcases {
 		os.Setenv(common.RrhConfigPath, "../testdata/config.json")
-		common.Rollback("../testdata/tmp.json", func() {
+		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 			var command, _ = ImportCommandFactory()
 			var statusCode = command.Run(testcase.args)
 			if statusCode != testcase.statusCode {

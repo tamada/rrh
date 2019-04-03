@@ -16,43 +16,50 @@ func open(jsonName string) *common.Database {
 }
 
 func ExampleRemoveCommand_Run() {
-	var db = open("tmp.json")
-	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var rm, _ = RemoveCommandFactory()
-	rm.Run([]string{"-v", "group2", "repo1"})
+	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+		var rm, _ = RemoveCommandFactory()
+		rm.Run([]string{"-v", "group2", "repo1"})
+	})
 	// Output: group2: group removed
 	// repo1: repository removed
-
-	db.StoreAndClose()
 }
 
 func TestRemoveCommandUnknownGroupAndRepository(t *testing.T) {
-	var db = open("tmp.json")
-
-	var rm = RemoveCommand{}
-	var err = rm.executeRemove(db, "not_exist_group_and_repository")
-	if err.Error() != "not_exist_group_and_repository: not found in repositories and groups" {
-		t.Error("not exist group and repository found!?")
-	}
-
-	db.StoreAndClose()
+	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+		var db = open("tmp.json")
+		var rm = RemoveCommand{}
+		var err = rm.executeRemove(db, "not_exist_group_and_repository")
+		if err.Error() != "not_exist_group_and_repository: not found in repositories and groups" {
+			t.Error("not exist group and repository found!?")
+		}
+	})
 }
 
 func TestRemoveRepository(t *testing.T) {
-	var db = open("tmp.json")
-	var rm = RemoveCommand{&removeOptions{}}
-	if err := rm.executeRemoveRepository(db, "unknown-repo"); err == nil {
-		t.Error("unknown-repo: found")
+	var testcases = []struct {
+		repositoryName   string
+		removeSuccess    bool
+		belongedGroup    string
+		repoCountInGroup int
+	}{
+		{"unknown-repo", false, "", 0},
+		{"repo1", true, "group1", 0},
 	}
-	var err = rm.executeRemoveRepository(db, "repo1")
-	if err != nil || len(db.Repositories) != 1 {
-		t.Errorf("repo1 did not remove?: %s", err.Error())
-	}
-	if len(db.Groups) != 3 {
-		t.Error("the number of groups changed")
-	}
-	if db.ContainsCount("group1") != 0 || db.ContainsCount("group2") != 0 {
-		t.Error("Unrelate repo was failed?")
+	for _, tc := range testcases {
+		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+			var db = open("tmp.json")
+			var rm = RemoveCommand{&removeOptions{}}
+			var err = rm.executeRemoveRepository(db, tc.repositoryName)
+			if (err == nil) != tc.removeSuccess {
+				t.Errorf("%v: remove result not match: wont: %v, got: %v", tc.repositoryName, tc.removeSuccess, !tc.removeSuccess)
+			}
+			if tc.belongedGroup != "" {
+				var count = db.ContainsCount(tc.belongedGroup)
+				if count != tc.repoCountInGroup {
+					t.Errorf("%v: repo count in group %s did not match: wont: %d, got: %d", tc.repositoryName, tc.belongedGroup, tc.repoCountInGroup, count)
+				}
+			}
+		})
 	}
 }
 

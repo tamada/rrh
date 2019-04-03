@@ -11,5 +11,5 @@ before_script:
     - export TZ=Asia/Tokyo
 
 script:
-    - make update test
+    - make test
     - $GOPATH/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN

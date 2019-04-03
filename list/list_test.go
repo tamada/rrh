@@ -3,7 +3,6 @@ package list
 import (
 	"fmt"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/tamada/rrh/common"
@@ -47,10 +46,10 @@ func TestRunByCsvOutput(t *testing.T) {
 		var list, _ = ListCommandFactory()
 		list.Run([]string{"--all-entries", "--csv"})
 	})
-	result = strings.TrimSpace(result)
-	var want = "group1,desc1,repo1,path1\ngroup3,desc3,repo2,path2"
+	result = common.ReplaceNewline(result, "&")
+	var want = "group1,desc1,repo1,path1&group3,desc3,repo2,path2"
 	if result != want {
-		t.Errorf("result did not match\ngot: %s\nwont: %s", result, want)
+		t.Errorf("result did not match, wont: %s, got: %s", want, result)
 	}
 }
 
@@ -71,8 +70,7 @@ func TestSimpleResults(t *testing.T) {
 				t.Errorf("%v: status code did not match: wont: %d, got: %d", tc.args, tc.status, status)
 			}
 		})
-		result = strings.TrimSpace(result)
-		result = strings.Replace(result, "\n", ",", -1)
+		result = common.ReplaceNewline(result, ",")
 		if result != tc.result {
 			t.Errorf("%v: result did not match: wont: %s, got: %s", tc.args, tc.result, result)
 		}
