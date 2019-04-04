@@ -47,7 +47,7 @@ func TestPathCommand(t *testing.T) {
 
 	for _, tc := range testcases {
 		var path, _ = PathCommandFactory()
-		var output, _ = common.CaptureStdout(func() {
+		var output = common.CaptureStdout(func() {
 			var status = path.Run(tc.args)
 			if status != tc.status {
 				t.Errorf("%v: status code did not match: wont: %d, got: %d", tc.args, tc.status, status)

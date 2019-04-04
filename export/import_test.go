@@ -99,7 +99,7 @@ flag provided but not defined: -unknown-option`},
 	}
 
 	for _, testcase := range testcases {
-		var got, _ = common.CaptureStdout(func() {
+		var got = common.CaptureStdout(func() {
 			var command, _ = ImportCommandFactory()
 			command.Run(testcase.args)
 		})

@@ -42,7 +42,7 @@ func ExampleListCommand_Run() {
 func TestRunByCsvOutput(t *testing.T) {
 	os.Setenv(common.RrhDefaultGroupName, "group1")
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var result, _ = common.CaptureStdout(func() {
+	var result = common.CaptureStdout(func() {
 		var list, _ = ListCommandFactory()
 		list.Run([]string{"--all-entries", "--csv"})
 	})
@@ -63,7 +63,7 @@ func TestSimpleResults(t *testing.T) {
 		{[]string{"--group-repository-form"}, 0, "group1/repo1,group3/repo2"},
 	}
 	for _, tc := range testcases {
-		var result, _ = common.CaptureStdout(func() {
+		var result = common.CaptureStdout(func() {
 			var list, _ = ListCommandFactory()
 			var status = list.Run(tc.args)
 			if status != tc.status {

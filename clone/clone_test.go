@@ -117,7 +117,7 @@ func TestCloneCommand_SpecifyingId(t *testing.T) {
 func TestUnknownOption(t *testing.T) {
 	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var output, _ = common.CaptureStdout(func() {
+	var output = common.CaptureStdout(func() {
 		var clone, _ = CloneCommandFactory()
 		clone.Run([]string{})
 	})
@@ -131,7 +131,7 @@ func TestCloneNotGitRepository(t *testing.T) {
 	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	os.Setenv(common.RrhOnError, "FAIL")
-	var output, _ = common.CaptureStdout(func() {
+	var output = common.CaptureStdout(func() {
 		var clone, _ = CloneCommandFactory()
 		clone.Run([]string{"../testdata"})
 	})

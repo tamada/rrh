@@ -48,7 +48,7 @@ func Example_groupOfCommand_Run() {
 
 func TestGroupListOnlyName(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var output, _ = common.CaptureStdout(func() {
+	var output = common.CaptureStdout(func() {
 		var glc, _ = GroupCommandFactory()
 		glc.Run([]string{"list", "--only-groupname"})
 	})
@@ -72,7 +72,7 @@ ARGUMENTS
     REPOSITORY_ID     show the groups of the repository.`},
 	}
 	for _, tc := range testcases {
-		var output, _ = common.CaptureStdout(func() {
+		var output = common.CaptureStdout(func() {
 			var command, _ = groupOfCommandFactory()
 			command.Run(tc.args)
 		})

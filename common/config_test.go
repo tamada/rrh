@@ -100,6 +100,7 @@ func TestConfigUnset(t *testing.T) {
 func ExampleConfigCommand() {
 	os.Setenv(RrhConfigPath, "../testdata/config.json")
 	os.Setenv(RrhHome, "../testdata/")
+	os.Setenv(RrhDatabasePath, "${RRH_HOME}/tmp.json")
 	var command, _ = ConfigCommandFactory()
 	command.Run([]string{}) // the output of no arguments are same as list subcommand.
 	// Output:
@@ -107,7 +108,7 @@ func ExampleConfigCommand() {
 	// RRH_AUTO_DELETE_GROUP: false (config_file)
 	// RRH_CLONE_DESTINATION: . (default)
 	// RRH_CONFIG_PATH: ../testdata/config.json (environment)
-	// RRH_DATABASE_PATH: ../testdata/database.json (environment)
+	// RRH_DATABASE_PATH: ../testdata/tmp.json (environment)
 	// RRH_DEFAULT_GROUP_NAME: no-group (default)
 	// RRH_HOME: ../testdata/ (environment)
 	// RRH_ON_ERROR: WARN (default)
@@ -117,6 +118,7 @@ func ExampleConfigCommand() {
 func ExampleConfigCommand_Run() {
 	os.Setenv(RrhConfigPath, "../testdata/config.json")
 	os.Setenv(RrhHome, "../testdata/")
+	os.Setenv(RrhDatabasePath, "${RRH_HOME}/database.json")
 	var command, _ = ConfigCommandFactory()
 	command.Run([]string{"list"}) // the output of no arguments are same as list subcommand.
 	// Output:
@@ -134,6 +136,7 @@ func ExampleConfigCommand_Run() {
 func Example_configListCommand_Run() {
 	os.Setenv(RrhConfigPath, "../testdata/config.json")
 	os.Setenv(RrhHome, "../testdata/")
+	os.Unsetenv(RrhDatabasePath)
 	var clc, _ = configListCommandFactory()
 	clc.Run([]string{})
 	// Output:
@@ -141,7 +144,7 @@ func Example_configListCommand_Run() {
 	// RRH_AUTO_DELETE_GROUP: false (config_file)
 	// RRH_CLONE_DESTINATION: . (default)
 	// RRH_CONFIG_PATH: ../testdata/config.json (environment)
-	// RRH_DATABASE_PATH: ../testdata/database.json (environment)
+	// RRH_DATABASE_PATH: ../testdata/database.json (default)
 	// RRH_DEFAULT_GROUP_NAME: no-group (default)
 	// RRH_HOME: ../testdata/ (environment)
 	// RRH_ON_ERROR: WARN (default)
@@ -275,6 +278,9 @@ func TestUpdateValue(t *testing.T) {
 }
 
 func TestOpenConfig(t *testing.T) {
+	os.Unsetenv(RrhHome)
+	os.Unsetenv(RrhDatabasePath)
+	os.Unsetenv(RrhConfigPath)
 	var home, _ = homedir.Dir()
 	var testdata = []struct {
 		key  string
@@ -324,7 +330,7 @@ func TestPrintErrors(t *testing.T) {
 	var config = Config{}
 	for _, tc := range testcases {
 		config.Update(RrhOnError, tc.onError)
-		var output, _ = CaptureStdout(func() {
+		var output = CaptureStdout(func() {
 			var statusCode = config.PrintErrors(tc.error)
 			if statusCode != tc.wontStatus {
 				t.Errorf("%v: status code did not match, wont: %d, got: %d", tc, tc.wontStatus, statusCode)
