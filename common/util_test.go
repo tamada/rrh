@@ -59,8 +59,47 @@ func TestStrftime(t *testing.T) {
 	os.Unsetenv(RrhConfigPath)
 }
 
+func TestRollback(t *testing.T) {
+	Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+		var db, _ = Open(OpenConfig())
+		db.ForceDeleteGroup("group1")
+		db.ForceDeleteGroup("group2")
+		db.DeleteRepository("repo1")
+		db.DeleteRepository("repo2")
+		db.StoreAndClose()
+	})
+
+	var db, _ = Open(OpenConfig())
+	if !db.HasGroup("group1") || !db.HasGroup("group2") {
+		t.Errorf("database did not rollbacked")
+	}
+	if !db.HasRepository("repo1") || !db.HasRepository("repo2") {
+		t.Errorf("database did not rollbacked")
+	}
+}
+
+func TestReplaceNewline(t *testing.T) {
+	var testcases = []struct {
+		give      string
+		replaceTo string
+		wont      string
+	}{
+		{"a\nb\nc", ",", "a,b,c"},
+		{"a\rb\n", ",", "a,b"},
+		{"a\nb\rc\r\n", ",", "a,b,c"},
+		{"a\nb\rc\r\n", ", ", "a, b, c"},
+	}
+
+	for _, tc := range testcases {
+		var got = ReplaceNewline(tc.give, tc.replaceTo)
+		if got != tc.wont {
+			t.Errorf("ReplaceNewLine(%s, %s) wont: %s, got: %s", tc.give, tc.replaceTo, tc.wont, got)
+		}
+	}
+}
+
 func TestCaptureStdout(t *testing.T) {
-	var result, _ = CaptureStdout(func() {
+	var result = CaptureStdout(func() {
 		fmt.Println("Hello World")
 	})
 	result = strings.TrimSpace(result)

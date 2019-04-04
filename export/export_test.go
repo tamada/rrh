@@ -49,7 +49,7 @@ func TestBrokenDatabase(t *testing.T) {
 
 func TestNullDB(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/nulldb.json")
-	var result, _ = common.CaptureStdout(func() {
+	var result = common.CaptureStdout(func() {
 		var export, _ = ExportCommandFactory()
 		export.Run([]string{})
 	})
@@ -66,7 +66,7 @@ func TestNullDB(t *testing.T) {
 
 func TestNullDBNoIndent(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/nulldb.json")
-	var result, _ = common.CaptureStdout(func() {
+	var result = common.CaptureStdout(func() {
 		var export, _ = ExportCommandFactory()
 		export.Run([]string{"--no-indent"})
 	})
@@ -77,7 +77,7 @@ func TestNullDBNoIndent(t *testing.T) {
 
 func TestTmpDBNoIndent(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var result, _ = common.CaptureStdout(func() {
+	var result = common.CaptureStdout(func() {
 		var export, _ = ExportCommandFactory()
 		export.Run([]string{"--no-indent"})
 	})

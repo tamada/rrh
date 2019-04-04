@@ -8,17 +8,6 @@ import (
 	"github.com/tamada/rrh/common"
 )
 
-func rollback(dbpath string, f func()) {
-	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
-	os.Setenv(common.RrhDatabasePath, dbpath)
-	var config = common.OpenConfig()
-	var db, _ = common.Open(config)
-
-	f()
-
-	db.StoreAndClose()
-}
-
 func Example() {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	var gc, _ = GroupCommandFactory()
@@ -49,9 +38,17 @@ func Example_groupListCommand_Run() {
 	// group3,desc3,[repo2],1 repository
 }
 
+func Example_groupOfCommand_Run() {
+	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
+	var goc, _ = groupOfCommandFactory()
+	goc.Run([]string{"repo1"})
+	// Output:
+	// repo1, [group1]
+}
+
 func TestGroupListOnlyName(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var output, _ = common.CaptureStdout(func() {
+	var output = common.CaptureStdout(func() {
 		var glc, _ = GroupCommandFactory()
 		glc.Run([]string{"list", "--only-groupname"})
 	})
@@ -60,6 +57,29 @@ group2
 group3`
 	if strings.TrimSpace(output) != wontOutput {
 		t.Errorf("the result with option only-groupname did not match\nwont: %s, got: %s", wontOutput, output)
+	}
+}
+
+func TestGroupOfCommand(t *testing.T) {
+	var testcases = []struct {
+		args   []string
+		output string
+	}{
+		{[]string{"unknown-repo"}, "unknown-repo: repository not found"},
+		{[]string{"repo2"}, "repo2, [group3]"},
+		{[]string{}, `rrh group of <REPOSITORY_ID>
+ARGUMENTS
+    REPOSITORY_ID     show the groups of the repository.`},
+	}
+	for _, tc := range testcases {
+		var output = common.CaptureStdout(func() {
+			var command, _ = groupOfCommandFactory()
+			command.Run(tc.args)
+		})
+		output = strings.TrimSpace(output)
+		if output != tc.output {
+			t.Errorf("%v: output did not match, wont: %s, got: %s", tc.args, tc.output, output)
+		}
 	}
 }
 
@@ -83,7 +103,7 @@ func TestAddGroup(t *testing.T) {
 		{[]string{"add"}, 3, []groupChecker{}},
 	}
 	for _, testcase := range testcases {
-		rollback("../testdata/tmp.json", func() {
+		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 			var gac, _ = GroupCommandFactory()
 			if val := gac.Run(testcase.args); val != testcase.statusCode {
 				t.Errorf("%v: test failed, wont: %d, got: %d", testcase.args, testcase.statusCode, val)
@@ -119,13 +139,15 @@ func TestUpdateGroupFailed(t *testing.T) {
 		{updateOptions{"newName", "desc", "omitList", "target"}, true},
 	}
 	for _, testcase := range testcases {
-		var guc = groupUpdateCommand{}
-		var config = common.OpenConfig()
-		var db, _ = common.Open(config)
-		var err = guc.updateGroup(db, &testcase.opt)
-		if (err != nil) != testcase.errFlag {
-			t.Errorf("%v: test failed: err wont: %v, got: %v: err (%v)", testcase.opt, testcase.errFlag, !testcase.errFlag, err)
-		}
+		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+			var guc = groupUpdateCommand{}
+			var config = common.OpenConfig()
+			var db, _ = common.Open(config)
+			var err = guc.updateGroup(db, &testcase.opt)
+			if (err != nil) != testcase.errFlag {
+				t.Errorf("%v: test failed: err wont: %v, got: %v: err (%v)", testcase.opt, testcase.errFlag, !testcase.errFlag, err)
+			}
+		})
 	}
 }
 
@@ -157,7 +179,7 @@ func TestUpdateGroup(t *testing.T) {
 		{[]string{"update", "group1", "group4"}, 1, []groupChecker{}, []relation{}},
 	}
 	for _, testcase := range testcases {
-		rollback("../testdata/tmp.json", func() {
+		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 			var guc, _ = GroupCommandFactory()
 			if val := guc.Run(testcase.args); val != testcase.statusCode {
 				t.Errorf("%v: group update failed status code wont: %d, got: %d", testcase.args, testcase.statusCode, val)
@@ -200,7 +222,7 @@ func TestRemoveGroup(t *testing.T) {
 		{[]string{"rm"}, 1, []groupChecker{}},
 	}
 	for _, testcase := range testcases {
-		rollback("../testdata/tmp.json", func() {
+		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 			var grc, _ = GroupCommandFactory()
 			if val := grc.Run(testcase.args); val != testcase.statusCode {
 				t.Errorf("%v: group remove failed: wont: %d, got: %d", testcase.args, testcase.statusCode, val)
@@ -252,6 +274,7 @@ func TestHelp(t *testing.T) {
 	var glc, _ = groupListCommandFactory()
 	var grc, _ = groupRemoveCommandFactory()
 	var guc, _ = groupUpdateCommandFactory()
+	var goc, _ = groupOfCommandFactory()
 	var gc, _ = GroupCommandFactory()
 
 	var gacHelp = `rrh group add [OPTIONS] <GROUPS...>
@@ -283,10 +306,15 @@ OPTIONS
 ARGUMENTS
     GROUP               update target group names.`
 
+	var gocHelp = `rrh group of <REPOSITORY_ID>
+ARGUMENTS
+    REPOSITORY_ID     show the groups of the repository.`
+
 	var gcHelp = `rrh group <SUBCOMMAND>
 SUBCOMMAND
     add       add new group.
     list      list groups (default).
+    of        shows groups of the specified repository.
     rm        remove group.
     update    update group.`
 
@@ -302,6 +330,9 @@ SUBCOMMAND
 	if gac.Help() != gacHelp {
 		t.Error("help message did not match")
 	}
+	if goc.Help() != gocHelp {
+		t.Error("help message did not match")
+	}
 	if grc.Help() != grcHelp {
 		t.Error("help message did not match")
 	}
@@ -309,10 +340,9 @@ SUBCOMMAND
 
 func TestSynopsis(t *testing.T) {
 	var gc, _ = GroupCommandFactory()
-	if gc.Synopsis() != "add/list/update/remove groups." {
+	if gc.Synopsis() != "add/list/update/remove groups and show groups of the repository." {
 		t.Error("synopsis did not match")
 	}
-
 	var guc, _ = groupUpdateCommandFactory()
 	if guc.Synopsis() != "update group." {
 		t.Error("synopsis did not match")
@@ -327,6 +357,10 @@ func TestSynopsis(t *testing.T) {
 	}
 	var glc, _ = groupListCommandFactory()
 	if glc.Synopsis() != "list groups." {
+		t.Error("synopsis did not match")
+	}
+	var goc, _ = groupOfCommandFactory()
+	if goc.Synopsis() != "show groups of the repository." {
 		t.Error("synopsis did not match")
 	}
 }

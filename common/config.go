@@ -13,7 +13,7 @@ import (
 /*
 VERSION shows the version of RRH.
 */
-const VERSION = "0.2"
+const VERSION = "0.3"
 
 const (
 	RrhAutoDeleteGroup  = "RRH_AUTO_DELETE_GROUP"
@@ -185,13 +185,14 @@ func (config *Config) IsSet(label string) bool {
 	return false
 }
 
-func (config *Config) replaceHome(value string, rrhHomeGetter func(*Config) string) string {
+func (config *Config) replaceHome(value string) string {
 	if strings.Contains(value, "${HOME}") {
 		var home, _ = homedir.Dir()
 		value = strings.Replace(value, "${HOME}", home, 1)
 	}
 	if strings.Contains(value, "${RRH_HOME}") {
-		value = strings.Replace(value, "${RRH_HOME}", rrhHomeGetter(config), 1)
+		var rrhHome = config.GetValue(RrhHome)
+		value = strings.Replace(value, "${RRH_HOME}", strings.TrimRight(rrhHome, "/"), -1)
 	}
 	return value
 }
@@ -201,9 +202,7 @@ GetValue returns the value of the given variable name.
 */
 func (config *Config) GetValue(label string) string {
 	var value, _ = config.GetString(label)
-	return config.replaceHome(value, func(c *Config) string {
-		return c.GetValue(RrhHome)
-	})
+	return config.replaceHome(value)
 }
 
 /*
@@ -217,7 +216,7 @@ func (config *Config) GetString(label string) (string, ReadFrom) {
 	if !ok {
 		return config.getStringFromEnv(label)
 	}
-	return value, ConfigFile
+	return config.replaceHome(value), ConfigFile
 }
 
 /*
@@ -231,10 +230,7 @@ func (config *Config) GetDefaultValue(label string) string {
 func (config *Config) getStringFromEnv(label string) (string, ReadFrom) {
 	var valueFromEnv = os.Getenv(label)
 	if valueFromEnv != "" {
-		valueFromEnv = config.replaceHome(valueFromEnv, func(c *Config) string {
-			var val, _ = c.getStringFromEnv(RrhHome)
-			return val
-		})
+		valueFromEnv = config.replaceHome(valueFromEnv)
 		return valueFromEnv, Env
 	}
 	return config.findDefaultValue(label)
@@ -245,9 +241,7 @@ func (config *Config) findDefaultValue(label string) (string, ReadFrom) {
 		return "", NotFound
 	}
 	var value = defaultValues[label]
-	value = config.replaceHome(value, func(c *Config) string {
-		return c.GetDefaultValue(RrhHome)
-	})
+	value = config.replaceHome(value)
 	return value, Default
 }
 

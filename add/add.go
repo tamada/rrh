@@ -16,26 +16,26 @@ func checkDuplication(db *common.Database, repoID string, path string) error {
 	return nil
 }
 
-func (add *AddCommand) addRepositoryToGroup(db *common.Database, groupName string, path string, list []error) []error {
+func (add *AddCommand) addRepositoryToGroup(db *common.Database, groupName string, path string) []error {
 	var absPath, _ = filepath.Abs(path)
 	var id = filepath.Base(absPath)
 	if err1 := common.IsExistAndGitRepository(absPath, path); err1 != nil {
-		return append(list, err1)
+		return []error{err1}
 	}
 	if err1 := checkDuplication(db, id, absPath); err1 != nil {
-		return append(list, err1)
+		return []error{err1}
 	}
 	var remotes, err2 = FindRemotes(absPath)
 	if err2 != nil {
-		return append(list, err2)
+		return []error{err2}
 	}
 	db.CreateRepository(id, absPath, remotes)
 
 	var err = db.Relate(groupName, id)
 	if err != nil {
-		return append(list, fmt.Errorf("%s: cannot create relation to group %s", id, groupName))
+		return []error{fmt.Errorf("%s: cannot create relation to group %s", id, groupName)}
 	}
-	return list
+	return []error{}
 }
 
 /*
@@ -48,7 +48,8 @@ func (add *AddCommand) AddRepositoriesToGroup(db *common.Database, args []string
 	}
 	var errorlist = []error{}
 	for _, item := range args {
-		errorlist = add.addRepositoryToGroup(db, groupName, item, errorlist)
+		var list = add.addRepositoryToGroup(db, groupName, item)
+		errorlist = append(errorlist, list...)
 	}
 	return errorlist
 }

@@ -3,7 +3,6 @@ package list
 import (
 	"fmt"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/tamada/rrh/common"
@@ -14,6 +13,16 @@ func open(jsonName string) *common.Database {
 	var config = common.OpenConfig()
 	var db, _ = common.Open(config)
 	return db
+}
+
+func ExampleListCommand() {
+	os.Setenv(common.RrhDatabasePath, "../testdata/database.json")
+	var list, _ = ListCommandFactory()
+	list.Run([]string{})
+	// Output:
+	// no-group (1 repository)
+	//     rrh          ~/go/src/github.com/tamada/rrh
+	// 1 group, 1 repository
 }
 
 func ExampleListCommand_Run() {
@@ -27,19 +36,20 @@ func ExampleListCommand_Run() {
 	// group2 (0 repositories)
 	//     Description  desc2
 	// group3 (1 repository)
+	// 3 groups, 2 repositories
 }
 
 func TestRunByCsvOutput(t *testing.T) {
 	os.Setenv(common.RrhDefaultGroupName, "group1")
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var result, _ = common.CaptureStdout(func() {
+	var result = common.CaptureStdout(func() {
 		var list, _ = ListCommandFactory()
 		list.Run([]string{"--all-entries", "--csv"})
 	})
-	result = strings.TrimSpace(result)
-	var want = "group1,desc1,repo1,path1\ngroup3,desc3,repo2,path2"
+	result = common.ReplaceNewline(result, "&")
+	var want = "group1,desc1,repo1,path1&group3,desc3,repo2,path2"
 	if result != want {
-		t.Errorf("result did not match\ngot: %s\nwont: %s", result, want)
+		t.Errorf("result did not match, wont: %s, got: %s", want, result)
 	}
 }
 
@@ -53,15 +63,14 @@ func TestSimpleResults(t *testing.T) {
 		{[]string{"--group-repository-form"}, 0, "group1/repo1,group3/repo2"},
 	}
 	for _, tc := range testcases {
-		var result, _ = common.CaptureStdout(func() {
+		var result = common.CaptureStdout(func() {
 			var list, _ = ListCommandFactory()
 			var status = list.Run(tc.args)
 			if status != tc.status {
 				t.Errorf("%v: status code did not match: wont: %d, got: %d", tc.args, tc.status, status)
 			}
 		})
-		result = strings.TrimSpace(result)
-		result = strings.Replace(result, "\n", ",", -1)
+		result = common.ReplaceNewline(result, ",")
 		if result != tc.result {
 			t.Errorf("%v: result did not match: wont: %s, got: %s", tc.args, tc.result, result)
 		}

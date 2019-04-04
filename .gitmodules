@@ -4,3 +4,6 @@
 [submodule "testdata/helloworld"]
 	path = testdata/helloworld
 	url = https://htamada@bitbucket.org/htamada/helloworld.git
+[submodule "testdata/helloworld2"]
+	path = testdata/other/helloworld
+	url = https://htamada@bitbucket.org/htamada/helloworld2.git

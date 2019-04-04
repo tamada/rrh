@@ -8,14 +8,6 @@ import (
 	"github.com/tamada/rrh/common"
 )
 
-func rollback(dbpath string, f func()) {
-	var db = open(dbpath)
-
-	f()
-
-	db.StoreAndClose()
-}
-
 func open(jsonName string) *common.Database {
 	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
 	os.Setenv(common.RrhDatabasePath, fmt.Sprintf("../testdata/%s", jsonName))
@@ -83,7 +75,7 @@ func TestMoveCommand(t *testing.T) {
 			{"group1", "repo1", false}}},
 	}
 	for _, item := range cases {
-		rollback("tmp.json", func() {
+		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 			var mv, _ = MoveCommandFactory()
 			mv.Run(item.args)
 			var db = open("tmp.json")

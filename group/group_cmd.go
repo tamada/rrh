@@ -14,6 +14,7 @@ GroupCommand represents a command.
 type GroupCommand struct{}
 type groupAddCommand struct{}
 type groupListCommand struct{}
+type groupOfCommand struct{}
 type groupUpdateCommand struct{}
 type groupRemoveCommand struct {
 	Options *removeOptions
@@ -28,6 +29,10 @@ func GroupCommandFactory() (cli.Command, error) {
 
 func groupAddCommandFactory() (cli.Command, error) {
 	return &groupAddCommand{}, nil
+}
+
+func groupOfCommandFactory() (cli.Command, error) {
+	return &groupOfCommand{}, nil
 }
 
 func groupListCommandFactory() (cli.Command, error) {
@@ -59,6 +64,12 @@ OPTIONS
     -o, --only-groupname   show only group name. This option is prioritized.`
 }
 
+func (goc *groupOfCommand) Help() string {
+	return `rrh group of <REPOSITORY_ID>
+ARGUMENTS
+    REPOSITORY_ID     show the groups of the repository.`
+}
+
 func (grc *groupRemoveCommand) Help() string {
 	return `rrh group rm [OPTIONS] <GROUPS...>
 OPTIONS
@@ -87,6 +98,7 @@ func (group *GroupCommand) Help() string {
 SUBCOMMAND
     add       add new group.
     list      list groups (default).
+    of        shows groups of the specified repository.
     rm        remove group.
     update    update group.`
 }
@@ -101,6 +113,7 @@ func (group *GroupCommand) Run(args []string) int {
 	c.Commands = map[string]cli.CommandFactory{
 		"add":    groupAddCommandFactory,
 		"update": groupUpdateCommandFactory,
+		"of":     groupOfCommandFactory,
 		"rm":     groupRemoveCommandFactory,
 		"list":   groupListCommandFactory,
 	}
@@ -193,6 +206,30 @@ func (glc *groupListCommand) parse(args []string) (*listOptions, error) {
 		return nil, err
 	}
 	return opt, nil
+}
+
+func (goc *groupOfCommand) perform(db *common.Database, repositoryID string) int {
+	if !db.HasRepository(repositoryID) {
+		fmt.Printf("%s: repository not found\n", repositoryID)
+		return 3
+	}
+	var groups = db.FindRelationsOfRepository(repositoryID)
+	fmt.Printf("%s, %v\n", repositoryID, groups)
+	return 0
+}
+
+func (goc *groupOfCommand) Run(args []string) int {
+	if len(args) != 1 {
+		fmt.Println(goc.Help())
+		return 1
+	}
+	var config = common.OpenConfig()
+	var db, err = common.Open(config)
+	if err != nil {
+		fmt.Println(err.Error())
+		return 2
+	}
+	return goc.perform(db, args[0])
 }
 
 func printRepositoryCount(count int) {
@@ -377,7 +414,7 @@ func (guc *groupUpdateCommand) parse(args []string) (*updateOptions, error) {
 Synopsis returns the help message of the command.
 */
 func (group *GroupCommand) Synopsis() string {
-	return "add/list/update/remove groups."
+	return "add/list/update/remove groups and show groups of the repository."
 }
 
 /*
@@ -392,6 +429,10 @@ Synopsis returns the help message of the command.
 */
 func (glc *groupListCommand) Synopsis() string {
 	return "list groups."
+}
+
+func (goc *groupOfCommand) Synopsis() string {
+	return "show groups of the repository."
 }
 
 /*

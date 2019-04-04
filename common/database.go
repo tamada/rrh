@@ -273,6 +273,19 @@ func (db *Database) FindRelationsOfGroup(groupID string) []string {
 }
 
 /*
+FindRelationsOfRepository returns the group names of the specified repository.
+*/
+func (db *Database) FindRelationsOfRepository(repositoryID string) []string {
+	var groups = []string{}
+	for _, relation := range db.Relations {
+		if relation.RepositoryID == repositoryID {
+			groups = append(groups, relation.GroupName)
+		}
+	}
+	return groups
+}
+
+/*
 HasRelation returns true if the group and the repository has relation.
 The group and the repository are specified by the given parameters.
 */

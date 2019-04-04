@@ -67,11 +67,16 @@ func TestAdd(t *testing.T) {
 			[]repositoryChecker{{"fibonacci", true}, {"helloworld", true}, {"not-exist-dir", false}},
 			[]relationChecker{{"no-group", "fibonacci", true}, {"no-group", "helloworld", true}},
 		},
+		{[]string{"../testdata/helloworld", "../testdata/other/helloworld"}, 0,
+			[]groupChecker{},
+			[]repositoryChecker{{"helloworld", true}},
+			[]relationChecker{{"no-group", "helloworld", true}},
+		},
 	}
 
 	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
 	for _, testcase := range testcases {
-		common.Rollback("../testdata/tmp.json", func() {
+		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 			var command, _ = AddCommandFactory()
 			var status = command.Run(testcase.args)
 
@@ -102,7 +107,7 @@ func TestAdd(t *testing.T) {
 
 func TestAddToDifferentGroup(t *testing.T) {
 	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
-	common.Rollback("../testdata/tmp.json", func() {
+	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 		var command, _ = AddCommandFactory()
 		command.Run([]string{"../testdata/fibonacci"})
 		command.Run([]string{"-g", "group1", "../testdata/fibonacci"})
