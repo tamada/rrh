@@ -17,10 +17,10 @@ func TestHelp(t *testing.T) {
 	var path = PathCommand{}
 	var message = `rrh path [OPTIONS] <REPOSITORIES...>
 OPTIONS
-    -m, --partial-match    treats the arguments as the patterns.
-    -p, --show-only-path   show path only.
+    -m, --partial-match        treats the arguments as the patterns.
+    -r, --show-repository-id   show repository name.
 ARGUMENTS
-    REPOSITORIES           repository ids.`
+    REPOSITORIES               repository ids.`
 	if path.Help() != message {
 		t.Error("Help message is not matched.")
 	}
@@ -34,14 +34,15 @@ func TestPathCommand(t *testing.T) {
 		status  int
 		results string
 	}{
-		{[]string{}, 0, "repo1 path1,repo2 path2"},
-		{[]string{"repo1"}, 0, "repo1 path1"},
-		{[]string{"repo3"}, 0, ""},
-		{[]string{"-p"}, 0, "path1,path2"},
-		{[]string{"--partial-match", "2"}, 0, "repo2 path2"},
-		{[]string{"--partial-match"}, 0, "repo1 path1,repo2 path2"},
-		{[]string{"-p", "-m", "1"}, 0, "path1"},
+		{[]string{}, 0, "path1,path2"},
+		{[]string{"repo1"}, 0, "path1"},
+		{[]string{"repo3"}, 5, ""},
+		{[]string{"-r"}, 0, "repo1 path1,repo2 path2"},
+		{[]string{"--partial-match", "2"}, 0, "path2"},
+		{[]string{"--partial-match", "-r", "r"}, 0, "repo1 path1,repo2 path2"},
+		{[]string{"-r", "-m"}, 0, "repo1 path1,repo2 path2"},
 		{[]string{"--unknown-option"}, 1, ""},
+		{[]string{"-m", "gg"}, 5, ""},
 	}
 
 	for _, tc := range testcases {

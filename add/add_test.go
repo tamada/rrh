@@ -67,6 +67,11 @@ func TestAdd(t *testing.T) {
 			[]repositoryChecker{{"fibonacci", true}, {"helloworld", true}, {"not-exist-dir", false}},
 			[]relationChecker{{"no-group", "fibonacci", true}, {"no-group", "helloworld", true}},
 		},
+		{[]string{"../testdata/helloworld", "../testdata/other/helloworld"}, 0,
+			[]groupChecker{},
+			[]repositoryChecker{{"helloworld", true}},
+			[]relationChecker{{"no-group", "helloworld", true}},
+		},
 	}
 
 	os.Setenv(common.RrhConfigPath, "../testdata/config.json")

@@ -18,7 +18,7 @@ type PathCommand struct {
 
 type pathOptions struct {
 	partialMatch bool
-	showPath     bool
+	showRepoID   bool
 	args         []string
 }
 
@@ -45,17 +45,29 @@ func (options *pathOptions) buildFormatter(results []pathResult) string {
 	return fmt.Sprintf("%%-%ds", maxLength)
 }
 
+func (options *pathOptions) showErrorIfNeeded(results []pathResult) int {
+	if len(results) != 0 {
+		return 0
+	}
+	var message = "found"
+	if options.partialMatch {
+		message = "match"
+	}
+	fmt.Printf("%s: repository not %s", message, options.args[0])
+	return 5
+}
+
 func (path *PathCommand) perform(db *common.Database) int {
 	var results = path.findResult(db)
 	var formatter = path.options.buildFormatter(results)
 	for _, r := range results {
-		if path.options.showPath {
-			fmt.Println(r.path)
-		} else {
+		if path.options.showRepoID {
 			fmt.Printf(formatter+" %s\n", r.id, r.path)
+		} else {
+			fmt.Println(r.path)
 		}
 	}
-	return 0
+	return path.options.showErrorIfNeeded(results)
 }
 
 func (options *pathOptions) matchEach(id string, arg string) bool {
@@ -91,8 +103,8 @@ func (path *PathCommand) buildFlagSet() (*flag.FlagSet, *pathOptions) {
 	flags.Usage = func() { fmt.Println(path.Help()) }
 	flags.BoolVar(&options.partialMatch, "m", false, "partial match mode")
 	flags.BoolVar(&options.partialMatch, "partial-match", false, "partial match mode")
-	flags.BoolVar(&options.showPath, "p", false, "show path only")
-	flags.BoolVar(&options.showPath, "show-only-path", false, "show path only")
+	flags.BoolVar(&options.showRepoID, "r", false, "show path only")
+	flags.BoolVar(&options.showRepoID, "show-repository-id", false, "show path only")
 	return flags, &options
 }
 
@@ -130,10 +142,10 @@ Help function shows the help message.
 func (path *PathCommand) Help() string {
 	return `rrh path [OPTIONS] <REPOSITORIES...>
 OPTIONS
-    -m, --partial-match    treats the arguments as the patterns.
-    -p, --show-only-path   show path only.
+    -m, --partial-match        treats the arguments as the patterns.
+    -r, --show-repository-id   show repository name.
 ARGUMENTS
-    REPOSITORIES           repository ids.`
+    REPOSITORIES               repository ids.`
 }
 
 /*

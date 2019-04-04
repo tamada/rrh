@@ -204,6 +204,7 @@ rrh group <SUBCOMMAND>
 SUBCOMMAND
     add       add new group.
     list      list groups (default).
+    of        shows groups of the specified repository.
     rm        remove group.
     update    update group.
 ```
@@ -231,6 +232,16 @@ OPTIONS
     -d, --desc             show description.
     -r, --repository       show repositories in the group.
     -o, --only-groupname   show only group name. This option is prioritized.
+```
+
+#### `rrh group of`
+
+Displays group of the specified repositories.
+
+```sh
+rrh group of <REPOSITORY_ID>
+ARGUMENTS
+    REPOSITORY_ID     show the groups of the repository.
 ```
 
 #### `rrh group rm`
@@ -315,10 +326,10 @@ Prints paths of the specified repositories.
 ```sh
 rrh path [OPTIONS] <REPOSITORIES...>
 OPTIONS
-    -m, --partial-match    treats the arguments as the patterns.
-    -p, --show-only-path   show path only.
+    -m, --partial-match        treats the arguments as the patterns.
+    -r, --show-repository-id   show repository name.
 ARGUMENTS
-    REPOSITORIES           repository ids.
+    REPOSITORIES               repository ids.
 ```
 
 ### `rrh prune`
@@ -488,7 +499,13 @@ changes directory to the specified repository.
 
 ```sh
 cdrrh(){
-    cd $(rrh path -p $1)
+    path=$(rrh path $1)
+    if [ $? -eq 0 ]; then
+        cd $path
+        pwd
+    else
+        echo "$1: repository not found"
+    fi
 }
 ```
 
