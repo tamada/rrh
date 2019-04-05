@@ -8,7 +8,7 @@ import (
 	"github.com/tamada/rrh/common"
 )
 
-type removeOptions struct {
+type options struct {
 	inquiry   bool
 	recursive bool
 	verbose   bool
@@ -16,28 +16,28 @@ type removeOptions struct {
 }
 
 /*
-RemoveCommand represents a command.
+Command represents a command.
 */
-type RemoveCommand struct {
-	Options *removeOptions
+type Command struct {
+	options *options
 }
 
 /*
-RemoveCommandFactory returns an instance of the RemoveCommand.
+CommandFactory returns an instance of the RemoveCommand.
 */
-func RemoveCommandFactory() (cli.Command, error) {
-	return &RemoveCommand{&removeOptions{}}, nil
+func CommandFactory() (cli.Command, error) {
+	return &Command{&options{}}, nil
 }
 
-func (options *removeOptions) printIfVerbose(message string) {
+func (options *options) printIfVerbose(message string) {
 	if options.verbose {
 		fmt.Println(message)
 	}
 }
 
-func (rm *RemoveCommand) perform(db *common.Database) int {
+func (rm *Command) perform(db *common.Database) int {
 	var result = 0
-	for _, target := range rm.Options.args {
+	for _, target := range rm.options.args {
 		var err = rm.executeRemove(db, target)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -56,12 +56,12 @@ func (rm *RemoveCommand) perform(db *common.Database) int {
 /*
 Run performs the command.
 */
-func (rm *RemoveCommand) Run(args []string) int {
+func (rm *Command) Run(args []string) int {
 	var options, err = rm.parse(args)
 	if err != nil {
 		return 1
 	}
-	rm.Options = options
+	rm.options = options
 	var config = common.OpenConfig()
 	var db, err1 = common.Open(config)
 	if err1 != nil {
@@ -71,8 +71,8 @@ func (rm *RemoveCommand) Run(args []string) int {
 	return rm.perform(db)
 }
 
-func (rm *RemoveCommand) buildFlagSet() (*flag.FlagSet, *removeOptions) {
-	var options = removeOptions{false, false, false, []string{}}
+func (rm *Command) buildFlagSet() (*flag.FlagSet, *options) {
+	var options = options{false, false, false, []string{}}
 	flags := flag.NewFlagSet("rm", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(rm.Help()) }
 	flags.BoolVar(&options.inquiry, "i", false, "inquiry flag")
@@ -84,7 +84,7 @@ func (rm *RemoveCommand) buildFlagSet() (*flag.FlagSet, *removeOptions) {
 	return flags, &options
 }
 
-func (rm *RemoveCommand) parse(args []string) (*removeOptions, error) {
+func (rm *Command) parse(args []string) (*options, error) {
 	var flags, options = rm.buildFlagSet()
 	if err := flags.Parse(args); err != nil {
 		return nil, err
@@ -96,7 +96,7 @@ func (rm *RemoveCommand) parse(args []string) (*removeOptions, error) {
 /*
 Help returns the help message.
 */
-func (rm *RemoveCommand) Help() string {
+func (rm *Command) Help() string {
 	return `rrh rm [OPTIONS] <REPO_ID|GROUP_ID|GROUP_ID/REPO_ID...>
 OPTIONS
     -i, --inquiry       inquiry mode.
@@ -113,6 +113,6 @@ ARGUMENTS
 /*
 Synopsis returns the help message of the command.
 */
-func (rm *RemoveCommand) Synopsis() string {
+func (rm *Command) Synopsis() string {
 	return "remove given repository from database."
 }

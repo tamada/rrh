@@ -33,7 +33,7 @@ func buildCommandFactoryMap() map[string]cli.CommandFactory {
 		"mv":        move.CommandFactory,
 		"path":      path.CommandFactory,
 		"prune":     prune.CommandFactory,
-		"rm":        remove.RemoveCommandFactory,
+		"rm":        remove.CommandFactory,
 		"status":    status.CommandFactory,
 	}
 }

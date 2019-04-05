@@ -15,19 +15,19 @@ func open(jsonName string) *common.Database {
 	return db
 }
 
-func ExampleRemoveCommand_Run() {
+func ExampleCommand_Run() {
 	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
-		var rm, _ = RemoveCommandFactory()
+		var rm, _ = CommandFactory()
 		rm.Run([]string{"-v", "group2", "repo1"})
 	})
 	// Output: group2: group removed
 	// repo1: repository removed
 }
 
-func TestRemoveCommandUnknownGroupAndRepository(t *testing.T) {
+func TestCommandUnknownGroupAndRepository(t *testing.T) {
 	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 		var db = open("tmp.json")
-		var rm = RemoveCommand{}
+		var rm = Command{}
 		var err = rm.executeRemove(db, "not_exist_group_and_repository")
 		if err.Error() != "not_exist_group_and_repository: not found in repositories and groups" {
 			t.Error("not exist group and repository found!?")
@@ -48,7 +48,7 @@ func TestRemoveRepository(t *testing.T) {
 	for _, tc := range testcases {
 		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 			var db = open("tmp.json")
-			var rm = RemoveCommand{&removeOptions{}}
+			var rm = Command{&options{}}
 			var err = rm.executeRemoveRepository(db, tc.repositoryName)
 			if (err == nil) != tc.removeSuccess {
 				t.Errorf("%v: remove result not match: wont: %v, got: %v", tc.repositoryName, tc.removeSuccess, !tc.removeSuccess)
@@ -65,14 +65,14 @@ func TestRemoveRepository(t *testing.T) {
 
 func TestRemoveGroup(t *testing.T) {
 	var db = open("tmp.json")
-	var rm = RemoveCommand{&removeOptions{}}
+	var rm = Command{&options{}}
 	if err := rm.executeRemoveGroup(db, "unknown-group"); err == nil {
 		t.Error("unknown-group: found")
 	}
 	if err := rm.executeRemoveGroup(db, "group1"); err == nil {
 		t.Error("group1 has a entry!")
 	}
-	rm.Options.recursive = true
+	rm.options.recursive = true
 	if err := rm.executeRemoveGroup(db, "group1"); err != nil {
 		t.Error("group1 cannot remove recursively.")
 	}
@@ -83,7 +83,7 @@ func TestRemoveCommandRemoveTargetIsBothInGroupAndRepository(t *testing.T) {
 
 	db.CreateGroup("groupOrRepo", "same name as Repository", false)
 	db.CreateRepository("groupOrRepo", "unknownpath", []common.Remote{})
-	var rm = RemoveCommand{&removeOptions{}}
+	var rm = Command{&options{}}
 	var err = rm.executeRemove(db, "groupOrRepo")
 	if err.Error() != "groupOrRepo: exists in repositories and groups" {
 		t.Error("not failed!?")
@@ -92,7 +92,7 @@ func TestRemoveCommandRemoveTargetIsBothInGroupAndRepository(t *testing.T) {
 
 func TestRemoveEntryFailed(t *testing.T) {
 	var db = open("tmp.json")
-	var rm = RemoveCommand{&removeOptions{}}
+	var rm = Command{&options{}}
 	var err = rm.executeRemoveFromGroup(db, "group2", "repo2")
 	if err != nil {
 		t.Error("Successfully remove unrelated group and repository.")
@@ -102,7 +102,7 @@ func TestRemoveEntryFailed(t *testing.T) {
 func TestRemoveRelation(t *testing.T) {
 	var db = open("tmp.json")
 
-	var rm, _ = RemoveCommandFactory()
+	var rm, _ = CommandFactory()
 	rm.Run([]string{"-v", "group1/repo1"})
 	var db2 = open("tmp.json")
 	if len(db2.Repositories) != 2 && len(db2.Groups) != 3 {
@@ -118,7 +118,7 @@ func TestRemoveRelation(t *testing.T) {
 func TestRunRemoveRepository(t *testing.T) {
 	var db = open("tmp.json")
 
-	var rm, _ = RemoveCommandFactory()
+	var rm, _ = CommandFactory()
 	rm.Run([]string{"-v", "group2", "repo1"})
 	var db2 = open("tmp.json")
 	if len(db2.Repositories) != 1 && len(db2.Groups) != 2 {
@@ -134,7 +134,7 @@ func TestRunRemoveRepository(t *testing.T) {
 func TestRemoveRepository2(t *testing.T) {
 	var db = open("tmp.json")
 
-	var rm, _ = RemoveCommandFactory()
+	var rm, _ = CommandFactory()
 	os.Setenv(common.RrhAutoDeleteGroup, "true")
 	rm.Run([]string{"-v", "group2", "repo1"})
 	var db2 = open("tmp.json")
@@ -147,7 +147,7 @@ func TestRemoveRepository2(t *testing.T) {
 
 func TestBrokenDatabase(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/broken.json")
-	var rm, _ = RemoveCommandFactory()
+	var rm, _ = CommandFactory()
 	if result := rm.Run([]string{}); result != 2 {
 		t.Errorf("broken database are successfully read!?")
 	}
@@ -156,7 +156,7 @@ func TestBrokenDatabase(t *testing.T) {
 func TestUnknownOptions(t *testing.T) {
 	var db = open("tmp.json")
 
-	var rm, _ = RemoveCommandFactory()
+	var rm, _ = CommandFactory()
 	if result := rm.Run([]string{"--unknown"}); result != 1 {
 		t.Errorf("unknown option was not failed: %d", result)
 	}
@@ -176,14 +176,14 @@ ARGUMENTS
     GROUP_ID            group name. if the group contains repositories,
                         remove will fail without '-r' option.
     GROUP_ID/REPO_ID    remove the relation between the given REPO_ID and GROUP_ID.`
-	var rm, _ = RemoveCommandFactory()
+	var rm, _ = CommandFactory()
 	if rm.Help() != helpMessage {
 		t.Error("help message did not match.")
 	}
 }
 
 func TestSynopsis(t *testing.T) {
-	var rm, _ = RemoveCommandFactory()
+	var rm, _ = CommandFactory()
 	if rm.Synopsis() != "remove given repository from database." {
 		t.Error("synopsis did not match")
 	}

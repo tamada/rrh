@@ -47,7 +47,7 @@ func TestTruePrune(t *testing.T) {
 	}
 }
 
-func TestPruneCommandRunFailedByBrokenDBFile(t *testing.T) {
+func TestCommandRunFailedByBrokenDBFile(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/broken.json")
 	var prune, _ = CommandFactory()
 	if prune.Run([]string{}) != 1 {
@@ -55,7 +55,7 @@ func TestPruneCommandRunFailedByBrokenDBFile(t *testing.T) {
 	}
 }
 
-func ExamplePruneCommand_Run() {
+func ExampleCommand_Run() {
 	var db = open("tmp.json")
 
 	var prune, _ = CommandFactory()
