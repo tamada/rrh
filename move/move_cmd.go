@@ -10,13 +10,13 @@ import (
 )
 
 /*
-MoveCommand represents a command.
+Command represents a command.
 */
-type MoveCommand struct {
-	Options *moveOptions
+type Command struct {
+	options *options
 }
 
-type moveOptions struct {
+type options struct {
 	inquiry bool
 	verbose bool
 	from    []string
@@ -24,13 +24,13 @@ type moveOptions struct {
 }
 
 /*
-MoveCommandFactory returns an instance of the MoveCommand.
+CommandFactory returns an instance of the MoveCommand.
 */
-func MoveCommandFactory() (cli.Command, error) {
-	return &MoveCommand{&moveOptions{false, false, []string{}, ""}}, nil
+func CommandFactory() (cli.Command, error) {
+	return &Command{&options{false, false, []string{}, ""}}, nil
 }
 
-func (options *moveOptions) printIfNeeded(message string) {
+func (options *options) printIfNeeded(message string) {
 	if options.verbose {
 		fmt.Println(message)
 	}
@@ -49,6 +49,9 @@ func printError(config *common.Config, errs []error) int {
 	return 0
 }
 
+/*
+the target type values
+*/
 const (
 	GroupType = iota
 	RepositoryType
@@ -115,6 +118,9 @@ func mergeType(types []int) (int, error) {
 	return t, nil
 }
 
+/*
+Move type values
+*/
 const (
 	GroupToGroup = iota
 	GroupsToGroup
@@ -195,7 +201,7 @@ func convertToTarget(db *common.Database, froms []string, to string) ([]target, 
 	return targetFrom, targetTo
 }
 
-func (mv *MoveCommand) performImpl(db *common.Database, targets targets, executionType int) []error {
+func (mv *Command) performImpl(db *common.Database, targets targets, executionType int) []error {
 	switch executionType {
 	case GroupToGroup:
 		return mv.moveGroupToGroup(db, targets.froms[0], targets.to)
@@ -214,8 +220,8 @@ func (mv *MoveCommand) performImpl(db *common.Database, targets targets, executi
 	return []error{}
 }
 
-func (mv *MoveCommand) perform(db *common.Database) int {
-	var from, to = convertToTarget(db, mv.Options.from, mv.Options.to)
+func (mv *Command) perform(db *common.Database) int {
+	var from, to = convertToTarget(db, mv.options.from, mv.options.to)
 	var executionType, err = verifyArguments(db, from, to)
 	if err != nil {
 		return printError(db.Config, []error{err})
@@ -231,7 +237,7 @@ func (mv *MoveCommand) perform(db *common.Database) int {
 /*
 Run performs the command.
 */
-func (mv *MoveCommand) Run(args []string) int {
+func (mv *Command) Run(args []string) int {
 	var _, err1 = mv.parse(args)
 	if err1 != nil {
 		fmt.Println(err1.Error())
@@ -247,8 +253,8 @@ func (mv *MoveCommand) Run(args []string) int {
 	return mv.perform(db)
 }
 
-func buildFlagSet(mv *MoveCommand) (*flag.FlagSet, *moveOptions) {
-	var options = moveOptions{false, false, []string{}, ""}
+func buildFlagSet(mv *Command) (*flag.FlagSet, *options) {
+	var options = options{false, false, []string{}, ""}
 	flags := flag.NewFlagSet("mv", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(mv.Help()) }
 	flags.BoolVar(&options.verbose, "v", false, "verbose mode")
@@ -256,7 +262,7 @@ func buildFlagSet(mv *MoveCommand) (*flag.FlagSet, *moveOptions) {
 	return flags, &options
 }
 
-func (mv *MoveCommand) parse(args []string) (*moveOptions, error) {
+func (mv *Command) parse(args []string) (*options, error) {
 	var flagSet, options = buildFlagSet(mv)
 	if err := flagSet.Parse(args); err != nil {
 		return nil, err
@@ -268,14 +274,14 @@ func (mv *MoveCommand) parse(args []string) (*moveOptions, error) {
 	var len = len(newArgs) - 1
 	options.from = newArgs[:len]
 	options.to = newArgs[len]
-	mv.Options = options
+	mv.options = options
 	return options, nil
 }
 
 /*
 Help function shows the help message.
 */
-func (mv *MoveCommand) Help() string {
+func (mv *Command) Help() string {
 	return `rrh mv [OPTIONS] <FROMS...> <TO>
 OPTIONS
     -v, --verbose   verbose mode
@@ -288,6 +294,6 @@ ARGUMENTS
 /*
 Synopsis returns the help message of the command.
 */
-func (mv *MoveCommand) Synopsis() string {
+func (mv *Command) Synopsis() string {
 	return "move the repositories from groups to another group."
 }
