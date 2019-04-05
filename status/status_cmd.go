@@ -30,7 +30,6 @@ type options struct {
 	branch bool
 	remote bool
 	format string
-	args   []string
 }
 
 func (options *options) strftime(time *time.Time, config *common.Config) string {
@@ -56,7 +55,7 @@ func (options *options) isBranchTarget(name plumbing.ReferenceName) bool {
 CommandFactory returns an instance of the StatusCommand.
 */
 func CommandFactory() (cli.Command, error) {
-	return &Command{&options{false, false, false, "relative", []string{}}}, nil
+	return &Command{&options{false, false, false, notSpecified}}, nil
 }
 
 /*
@@ -140,7 +139,7 @@ Run performs the command.
 */
 func (status *Command) Run(args []string) int {
 	var config = common.OpenConfig()
-	options, err := status.parse(args, config)
+	arguments, err := status.parse(args, config)
 	if err != nil {
 		fmt.Println(err.Error())
 		return 1
@@ -151,7 +150,7 @@ func (status *Command) Run(args []string) int {
 		return 1
 	}
 	var errorFlag = 0
-	for _, arg := range options.args {
+	for _, arg := range arguments {
 		errorFlag += status.runStatus(db, arg)
 	}
 
@@ -159,7 +158,7 @@ func (status *Command) Run(args []string) int {
 }
 
 func (status *Command) buildFlagSet() (*flag.FlagSet, *options) {
-	var options = options{false, false, false, notSpecified, []string{}}
+	var options = options{false, false, false, notSpecified}
 	flags := flag.NewFlagSet("status", flag.ExitOnError)
 	flags.Usage = func() { fmt.Println(status.Help()) }
 	flags.BoolVar(&options.csv, "c", false, "csv format")
@@ -173,17 +172,16 @@ func (status *Command) buildFlagSet() (*flag.FlagSet, *options) {
 	return flags, &options
 }
 
-func (status *Command) parse(args []string, config *common.Config) (*options, error) {
+func (status *Command) parse(args []string, config *common.Config) ([]string, error) {
 	var flags, options = status.buildFlagSet()
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
-	options.args = flags.Args()
-	if len(options.args) == 0 {
-		options.args = []string{config.GetValue(common.RrhDefaultGroupName)}
-	}
 	status.options = options
-	return options, nil
+	if len(flags.Args()) == 0 {
+		return []string{config.GetValue(common.RrhDefaultGroupName)}, nil
+	}
+	return flags.Args(), nil
 }
 
 /*
