@@ -162,6 +162,14 @@ func validateArgumentsOnUpdate(label string, value string) error {
 	return nil
 }
 
+func (config *Config) updateBoolValue(label string, value string) error {
+	var flag, err = trueOrFalse(value)
+	if err == nil {
+		(*config)[label] = string(flag)
+	}
+	return err
+}
+
 /*
 Update method updates the config value with the given `value`.
 */
@@ -170,11 +178,7 @@ func (config *Config) Update(label string, value string) error {
 		return err
 	}
 	if contains(boolLabels, label) {
-		var flag, err = trueOrFalse(value)
-		if err == nil {
-			(*config)[label] = string(flag)
-		}
-		return err
+		return config.updateBoolValue(label, value)
 	}
 	if label == RrhOnError {
 		var newValue, err = availableValueOnError(value)

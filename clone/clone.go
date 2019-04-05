@@ -12,6 +12,22 @@ import (
 	"github.com/tamada/rrh/common"
 )
 
+func registerPath(db *common.Database, dest string, repoID string) (*common.Repository, error) {
+	var path, err = filepath.Abs(dest)
+	if err != nil {
+		return nil, err
+	}
+	var remotes, err2 = add.FindRemotes(path)
+	if err2 != nil {
+		return nil, err2
+	}
+	var repo, err3 = db.CreateRepository(repoID, path, remotes)
+	if err3 != nil {
+		return nil, err3
+	}
+	return repo, nil
+}
+
 func (clone *Command) toDir(db *common.Database, URL string, dest string, repoID string) (*common.Repository, error) {
 	clone.printIfVerbose(fmt.Sprintf("git clone %s %s (%s)", URL, dest, repoID))
 	var cmd = exec.Command("git", "clone", URL, dest)
@@ -19,20 +35,7 @@ func (clone *Command) toDir(db *common.Database, URL string, dest string, repoID
 	if err != nil {
 		return nil, fmt.Errorf("%s: clone error (%s)", URL, err.Error())
 	}
-
-	path, err := filepath.Abs(dest)
-	if err != nil {
-		return nil, err
-	}
-	remotes, err := add.FindRemotes(path)
-	if err != nil {
-		return nil, err
-	}
-	repo, err := db.CreateRepository(repoID, path, remotes)
-	if err != nil {
-		return nil, err
-	}
-	return repo, nil
+	return registerPath(db, dest, repoID)
 }
 
 func (clone *Command) isExistDir(path string) bool {
