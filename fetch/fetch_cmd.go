@@ -9,23 +9,23 @@ import (
 )
 
 /*
-FetchCommand represents a command.
+Command represents a command.
 */
-type FetchCommand struct {
-	options *fetchOptions
+type Command struct {
+	options *options
 }
 
 /*
-FetchCommandFactory returns an instance of command.
+CommandFactory returns an instance of command.
 */
-func FetchCommandFactory() (cli.Command, error) {
-	return &FetchCommand{&fetchOptions{}}, nil
+func CommandFactory() (cli.Command, error) {
+	return &Command{&options{}}, nil
 }
 
 /*
 Help returns the help message of the command.
 */
-func (fetch *FetchCommand) Help() string {
+func (fetch *Command) Help() string {
 	return `rrh fetch [OPTIONS] [GROUPS...]
 OPTIONS
     -r, --remote <REMOTE>   specify the remote name. Default is "origin."
@@ -37,22 +37,22 @@ ARGUMENTS
 /*
 Synopsis returns the help message of the command.
 */
-func (fetch *FetchCommand) Synopsis() string {
+func (fetch *Command) Synopsis() string {
 	return "run \"git fetch\" on the given groups."
 }
 
 /*
 Run performs the command.
 */
-func (fetch *FetchCommand) Run(args []string) int {
-	var fetchOptions, err = fetch.parse(args)
+func (fetch *Command) Run(args []string) int {
+	var options, err = fetch.parse(args)
 	if err != nil {
 		fmt.Println(err.Error())
 		return 1
 	}
 	var config = common.OpenConfig()
-	if len(fetchOptions.args) == 0 {
-		fetchOptions.args = []string{config.GetValue(common.RrhDefaultGroupName)}
+	if len(options.args) == 0 {
+		options.args = []string{config.GetValue(common.RrhDefaultGroupName)}
 	}
 	var db, err2 = common.Open(config)
 	if err2 != nil {
@@ -62,7 +62,7 @@ func (fetch *FetchCommand) Run(args []string) int {
 	return fetch.perform(db)
 }
 
-func (fetch *FetchCommand) perform(db *common.Database) int {
+func (fetch *Command) perform(db *common.Database) int {
 	var errorFlag = 0
 	var onError = db.Config.GetValue(common.RrhOnError)
 	for _, groupName := range fetch.options.args {
@@ -80,7 +80,7 @@ func (fetch *FetchCommand) perform(db *common.Database) int {
 	return errorFlag
 }
 
-type fetchOptions struct {
+type options struct {
 	remote string
 	// key      string
 	// userName string
@@ -88,8 +88,8 @@ type fetchOptions struct {
 	args []string
 }
 
-func (fetch *FetchCommand) parse(args []string) (*fetchOptions, error) {
-	var options = fetchOptions{"origin", []string{}}
+func (fetch *Command) parse(args []string) (*options, error) {
+	var options = options{"origin", []string{}}
 	flags := flag.NewFlagSet("fetch", flag.ExitOnError)
 	flags.Usage = func() { fmt.Println(fetch.Help()) }
 	flags.StringVar(&options.remote, "r", "origin", "remote name")

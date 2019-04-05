@@ -12,7 +12,7 @@ DoFetch exec fetch operation of git.
 Currently, fetch is conducted by the system call.
 Ideally, fetch is performed by using go-git.
 */
-func (fetch *FetchCommand) DoFetch(repo *common.Repository, group string, config *common.Config) error {
+func (fetch *Command) DoFetch(repo *common.Repository, group string, config *common.Config) error {
 	var cmd = exec.Command("git", "fetch", fetch.options.remote)
 	cmd.Dir = repo.Path
 	fmt.Printf("fetching %s,%s....", group, repo.ID)
@@ -24,7 +24,7 @@ func (fetch *FetchCommand) DoFetch(repo *common.Repository, group string, config
 	return nil
 }
 
-func (fetch *FetchCommand) fetchRepository(db *common.Database, groupName string, repoID string) error {
+func (fetch *Command) fetchRepository(db *common.Database, groupName string, repoID string) error {
 	var repository = db.FindRepository(repoID)
 	if repository == nil {
 		return fmt.Errorf("%s,%s: repository not found", groupName, repoID)
@@ -35,7 +35,7 @@ func (fetch *FetchCommand) fetchRepository(db *common.Database, groupName string
 /*
 FetchGroup performs `git fetch` command in the repositories belonging in the specified group.
 */
-func (fetch *FetchCommand) FetchGroup(db *common.Database, groupName string) []error {
+func (fetch *Command) FetchGroup(db *common.Database, groupName string) []error {
 	var list = []error{}
 	var group = db.FindGroup(groupName)
 	if group == nil {
@@ -54,7 +54,7 @@ func (fetch *FetchCommand) FetchGroup(db *common.Database, groupName string) []e
 	return list
 }
 
-func (fetch *FetchCommand) executeFetch(db *common.Database, groupName string, relation common.Relation) error {
+func (fetch *Command) executeFetch(db *common.Database, groupName string, relation common.Relation) error {
 	if relation.GroupName == groupName {
 		var err = fetch.fetchRepository(db, groupName, relation.RepositoryID)
 		if err != nil {
