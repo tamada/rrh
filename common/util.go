@@ -38,6 +38,13 @@ func Strftime(before time.Time, config *Config) string {
 	if format != Relative {
 		return before.Format(format)
 	}
+	return HumanizeTime(before)
+}
+
+/*
+HumanizeTime convert the given time to human friendly formatted string.
+*/
+func HumanizeTime(before time.Time) string {
 	return humanize.Time(before)
 }
 
