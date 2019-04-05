@@ -167,7 +167,7 @@ func (status *Command) buildFlagSet() (*flag.FlagSet, *options) {
 	flags.BoolVar(&options.remote, "remote", false, "remote branch status")
 	flags.BoolVar(&options.branch, "b", false, "local branch status")
 	flags.BoolVar(&options.branch, "branches", false, "local branch status")
-	flags.StringVar(&options.format, "time-format", "relative", "specifies time format")
+	flags.StringVar(&options.format, "time-format", notSpecified, "specifies time format")
 	flags.StringVar(&options.format, "f", notSpecified, "specifies time format")
 	return flags, &options
 }
