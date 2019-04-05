@@ -10,38 +10,38 @@ import (
 )
 
 /*
-StatusCommand represents a command.
+Command represents a command.
 */
-type StatusCommand struct {
-	Options *statusOptions
+type Command struct {
+	options *options
 }
 
-type statusOptions struct {
+type options struct {
 	csv    bool
 	branch bool
 	remote bool
 	args   []string
 }
 
-func (options *statusOptions) isRemoteTarget(name plumbing.ReferenceName) bool {
+func (options *options) isRemoteTarget(name plumbing.ReferenceName) bool {
 	return options.remote && name.IsRemote()
 }
 
-func (options *statusOptions) isBranchTarget(name plumbing.ReferenceName) bool {
+func (options *options) isBranchTarget(name plumbing.ReferenceName) bool {
 	return options.branch && name.IsBranch()
 }
 
 /*
-StatusCommandFactory returns an instance of the StatusCommand.
+CommandFactory returns an instance of the StatusCommand.
 */
-func StatusCommandFactory() (cli.Command, error) {
-	return &StatusCommand{&statusOptions{false, false, false, []string{}}}, nil
+func CommandFactory() (cli.Command, error) {
+	return &Command{&options{false, false, false, []string{}}}, nil
 }
 
 /*
 Help returns the help message for the user.
 */
-func (status *StatusCommand) Help() string {
+func (status *Command) Help() string {
 	return `rrh status [OPTIONS] [REPOSITORIES|GROUPS...]
 OPTIONS
     -b, --branches  show the status of the local branches.
@@ -54,7 +54,7 @@ ARGUMENTS
                     the command shows the result of the default group.`
 }
 
-func (status *StatusCommand) parseFmtString(results []StatusResult) string {
+func (status *Command) parseFmtString(results []result) string {
 	var max = 0
 	for _, result := range results {
 		var len = len(result.BranchName)
@@ -65,13 +65,13 @@ func (status *StatusCommand) parseFmtString(results []StatusResult) string {
 	return fmt.Sprintf("        %%-%ds    %%-12s    %%s\n", max)
 }
 
-func (status *StatusCommand) printResultInCsv(results []StatusResult, config *common.Config) {
+func (status *Command) printResultInCsv(results []result, config *common.Config) {
 	for _, result := range results {
 		fmt.Printf("%s,%s,%s,%s,%s\n", result.GroupName, result.RepositoryName, result.BranchName, common.Strftime(*result.LastModified, config), result.Description)
 	}
 }
 
-func (status *StatusCommand) printResult(results []StatusResult, config *common.Config) {
+func (status *Command) printResult(results []result, config *common.Config) {
 	var groupName = results[0].GroupName
 	var repositoryName = results[0].RepositoryName
 	fmt.Printf("%s\n    %s\n", groupName, repositoryName)
@@ -93,7 +93,7 @@ func (status *StatusCommand) printResult(results []StatusResult, config *common.
 	}
 }
 
-func (status *StatusCommand) runStatus(db *common.Database, arg string) int {
+func (status *Command) runStatus(db *common.Database, arg string) int {
 	var errorFlag = 0
 	var result, err = status.executeStatus(db, arg)
 	if len(err) != 0 {
@@ -102,7 +102,7 @@ func (status *StatusCommand) runStatus(db *common.Database, arg string) int {
 			errorFlag = 1
 		}
 	} else {
-		if status.Options.csv {
+		if status.options.csv {
 			status.printResultInCsv(result, db.Config)
 		} else {
 			status.printResult(result, db.Config)
@@ -114,7 +114,7 @@ func (status *StatusCommand) runStatus(db *common.Database, arg string) int {
 /*
 Run performs the command.
 */
-func (status *StatusCommand) Run(args []string) int {
+func (status *Command) Run(args []string) int {
 	var config = common.OpenConfig()
 	options, err := status.parse(args, config)
 	if err != nil {
@@ -134,8 +134,8 @@ func (status *StatusCommand) Run(args []string) int {
 	return errorFlag
 }
 
-func (status *StatusCommand) buildFlagSet() (*flag.FlagSet, *statusOptions) {
-	var options = statusOptions{false, false, false, []string{}}
+func (status *Command) buildFlagSet() (*flag.FlagSet, *options) {
+	var options = options{false, false, false, []string{}}
 	flags := flag.NewFlagSet("status", flag.ExitOnError)
 	flags.Usage = func() { fmt.Println(status.Help()) }
 	flags.BoolVar(&options.csv, "c", false, "csv format")
@@ -147,7 +147,7 @@ func (status *StatusCommand) buildFlagSet() (*flag.FlagSet, *statusOptions) {
 	return flags, &options
 }
 
-func (status *StatusCommand) parse(args []string, config *common.Config) (*statusOptions, error) {
+func (status *Command) parse(args []string, config *common.Config) (*options, error) {
 	var flags, options = status.buildFlagSet()
 	if err := flags.Parse(args); err != nil {
 		return nil, err
@@ -156,13 +156,13 @@ func (status *StatusCommand) parse(args []string, config *common.Config) (*statu
 	if len(options.args) == 0 {
 		options.args = []string{config.GetValue(common.RrhDefaultGroupName)}
 	}
-	status.Options = options
+	status.options = options
 	return options, nil
 }
 
 /*
 Synopsis returns the help message of the command.
 */
-func (status *StatusCommand) Synopsis() string {
+func (status *Command) Synopsis() string {
 	return "show git status of repositories."
 }
