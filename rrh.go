@@ -21,7 +21,7 @@ import (
 
 func buildCommandFactoryMap() map[string]cli.CommandFactory {
 	return map[string]cli.CommandFactory{
-		"add":       add.AddCommandFactory,
+		"add":       add.CommandFactory,
 		"clone":     clone.CloneCommandFactory,
 		"config":    common.ConfigCommandFactory,
 		"export":    export.ExportCommandFactory,

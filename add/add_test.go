@@ -9,7 +9,7 @@ import (
 
 func TestInvalidOptions(t *testing.T) {
 	common.CaptureStdout(func() {
-		var command, _ = AddCommandFactory()
+		var command, _ = CommandFactory()
 		var flag = command.Run([]string{"--invalid-option"})
 		if flag != 1 {
 			t.Errorf("parse option failed.")
@@ -18,7 +18,7 @@ func TestInvalidOptions(t *testing.T) {
 }
 
 func TestHelpAndSynopsis(t *testing.T) {
-	var command, _ = AddCommandFactory()
+	var command, _ = CommandFactory()
 	if command.Synopsis() != "add repositories on the local path to RRH." {
 		t.Error("synopsis did not match")
 	}
@@ -77,7 +77,7 @@ func TestAdd(t *testing.T) {
 	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
 	for _, testcase := range testcases {
 		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
-			var command, _ = AddCommandFactory()
+			var command, _ = CommandFactory()
 			var status = command.Run(testcase.args)
 
 			var config = common.OpenConfig()
@@ -108,7 +108,7 @@ func TestAdd(t *testing.T) {
 func TestAddToDifferentGroup(t *testing.T) {
 	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
 	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
-		var command, _ = AddCommandFactory()
+		var command, _ = CommandFactory()
 		command.Run([]string{"../testdata/fibonacci"})
 		command.Run([]string{"-g", "group1", "../testdata/fibonacci"})
 
@@ -134,7 +134,7 @@ func TestAddFailed(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	os.Setenv(common.RrhAutoCreateGroup, "false")
 
-	var add = AddCommand{}
+	var add = Command{}
 	var config = common.OpenConfig()
 	var db, _ = common.Open(config)
 

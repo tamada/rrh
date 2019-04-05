@@ -16,7 +16,7 @@ func checkDuplication(db *common.Database, repoID string, path string) error {
 	return nil
 }
 
-func (add *AddCommand) addRepositoryToGroup(db *common.Database, groupName string, path string) []error {
+func (add *Command) addRepositoryToGroup(db *common.Database, groupName string, path string) []error {
 	var absPath, _ = filepath.Abs(path)
 	var id = filepath.Base(absPath)
 	if err1 := common.IsExistAndGitRepository(absPath, path); err1 != nil {
@@ -41,7 +41,7 @@ func (add *AddCommand) addRepositoryToGroup(db *common.Database, groupName strin
 /*
 AddRepositoriesToGroup registers the given repositories to the specified group.
 */
-func (add *AddCommand) AddRepositoriesToGroup(db *common.Database, args []string, groupName string) []error {
+func (add *Command) AddRepositoriesToGroup(db *common.Database, args []string, groupName string) []error {
 	var _, err = db.AutoCreateGroup(groupName, "", false)
 	if err != nil {
 		return []error{err}
