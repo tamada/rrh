@@ -17,7 +17,7 @@ func open(jsonName string) *common.Database {
 }
 
 func TestHelpAndSynopsis(t *testing.T) {
-	var export = ExportCommand{}
+	var export = Command{}
 	var help = export.Help()
 	var helpMessage = `rrh export [OPTIONS]
 OPTIONS
@@ -33,7 +33,7 @@ OPTIONS
 }
 
 func TestUnknownOptions(t *testing.T) {
-	var export, _ = ExportCommandFactory()
+	var export, _ = CommandFactory()
 	if export.Run([]string{"--unknown-option"}) != 1 {
 		t.Error("--unknown-option was not failed.")
 	}
@@ -41,7 +41,7 @@ func TestUnknownOptions(t *testing.T) {
 
 func TestBrokenDatabase(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/broken.json")
-	var export, _ = ExportCommandFactory()
+	var export, _ = CommandFactory()
 	if val := export.Run([]string{}); val != 2 {
 		t.Errorf("broken json successfully read!?: %d", val)
 	}
@@ -50,7 +50,7 @@ func TestBrokenDatabase(t *testing.T) {
 func TestNullDB(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/nulldb.json")
 	var result = common.CaptureStdout(func() {
-		var export, _ = ExportCommandFactory()
+		var export, _ = CommandFactory()
 		export.Run([]string{})
 	})
 	var actually = `{
@@ -67,7 +67,7 @@ func TestNullDB(t *testing.T) {
 func TestNullDBNoIndent(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/nulldb.json")
 	var result = common.CaptureStdout(func() {
-		var export, _ = ExportCommandFactory()
+		var export, _ = CommandFactory()
 		export.Run([]string{"--no-indent"})
 	})
 	if strings.TrimSpace(result) != "{\"last_modified\":\"1970-01-01T09:00:00+09:00\",\"repositories\":[],\"groups\":[],\"relations\":[]}" {
@@ -78,7 +78,7 @@ func TestNullDBNoIndent(t *testing.T) {
 func TestTmpDBNoIndent(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	var result = common.CaptureStdout(func() {
-		var export, _ = ExportCommandFactory()
+		var export, _ = CommandFactory()
 		export.Run([]string{"--no-indent"})
 	})
 	result = strings.TrimSpace(result)

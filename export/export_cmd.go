@@ -15,28 +15,28 @@ import (
 )
 
 /*
-ExportCommand represents a command.
+Command represents a command.
 */
-type ExportCommand struct {
-	options *exportOptions
+type Command struct {
+	options *options
 }
 
-type exportOptions struct {
+type options struct {
 	noIndent   bool
 	noHideHome bool
 }
 
 /*
-ExportCommandFactory generate the command struct.
+CommandFactory generate the command struct.
 */
-func ExportCommandFactory() (cli.Command, error) {
-	return &ExportCommand{}, nil
+func CommandFactory() (cli.Command, error) {
+	return &Command{}, nil
 }
 
 /*
 Help returns the help message of the command.
 */
-func (export *ExportCommand) Help() string {
+func (export *Command) Help() string {
 	return `rrh export [OPTIONS]
 OPTIONS
     --no-indent      print result as no indented json
@@ -46,7 +46,7 @@ OPTIONS
 /*
 Run peforms the command.
 */
-func (export *ExportCommand) Run(args []string) int {
+func (export *Command) Run(args []string) int {
 	var _, err = export.parse(args)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -84,7 +84,7 @@ func hideHome(result string) string {
 	return strings.Replace(result, absPath, "${HOME}", -1)
 }
 
-func (export *ExportCommand) perform(db *common.Database) int {
+func (export *Command) perform(db *common.Database) int {
 	var result, _ = json.Marshal(db)
 	var stringResult = string(result)
 	if !export.options.noHideHome {
@@ -102,8 +102,8 @@ func (export *ExportCommand) perform(db *common.Database) int {
 	return 0
 }
 
-func (export *ExportCommand) parse(args []string) (*exportOptions, error) {
-	var options = exportOptions{false, false}
+func (export *Command) parse(args []string) (*options, error) {
+	var options = options{false, false}
 	flags := flag.NewFlagSet("export", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(export.Help()) }
 	flags.BoolVar(&options.noIndent, "no-indent", false, "print not indented result")
@@ -119,6 +119,6 @@ func (export *ExportCommand) parse(args []string) (*exportOptions, error) {
 /*
 Synopsis returns the simple help message of the command.
 */
-func (export *ExportCommand) Synopsis() string {
+func (export *Command) Synopsis() string {
 	return "export RRH database to stdout."
 }
