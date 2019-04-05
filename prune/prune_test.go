@@ -17,13 +17,13 @@ func open(jsonName string) *common.Database {
 }
 
 func TestSynopsis(t *testing.T) {
-	var prune, _ = PruneCommandFactory()
+	var prune, _ = CommandFactory()
 	if prune.Synopsis() != "prune unnecessary repositories and groups." {
 		t.Error("Synopsis message is not matched.")
 	}
 }
 func TestHelp(t *testing.T) {
-	var prune = PruneCommand{}
+	var prune = Command{}
 	if prune.Help() != "rrh prune" {
 		t.Error("Help message is not matched.")
 	}
@@ -39,7 +39,7 @@ func TestPrune(t *testing.T) {
 
 func TestTruePrune(t *testing.T) {
 	var db = open("tmp.json")
-	var prune = PruneCommand{}
+	var prune = Command{}
 	prune.perform(db)
 
 	if len(db.Repositories) != 0 && len(db.Groups) != 0 {
@@ -49,7 +49,7 @@ func TestTruePrune(t *testing.T) {
 
 func TestPruneCommandRunFailedByBrokenDBFile(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/broken.json")
-	var prune, _ = PruneCommandFactory()
+	var prune, _ = CommandFactory()
 	if prune.Run([]string{}) != 1 {
 		t.Error("broken database read successfully.")
 	}
@@ -58,7 +58,7 @@ func TestPruneCommandRunFailedByBrokenDBFile(t *testing.T) {
 func ExamplePruneCommand_Run() {
 	var db = open("tmp.json")
 
-	var prune, _ = PruneCommandFactory()
+	var prune, _ = CommandFactory()
 	prune.Run([]string{})
 	// Output: Pruned 3 groups, 2 repositories
 

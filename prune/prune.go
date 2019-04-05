@@ -6,7 +6,7 @@ import (
 	"github.com/tamada/rrh/common"
 )
 
-func (prune *PruneCommand) removeNotExistRepository(db *common.Database) int {
+func (prune *Command) removeNotExistRepository(db *common.Database) int {
 	var removeRepos = []string{}
 	for _, repo := range db.Repositories {
 		var _, err = os.Stat(repo.Path)

@@ -8,19 +8,19 @@ import (
 )
 
 /*
-PruneCommand represents a command.
+Command represents a command.
 */
-type PruneCommand struct {
+type Command struct {
 }
 
 /*
-PruneCommandFactory returns an instance of the PruneCommand.
+CommandFactory returns an instance of the PruneCommand.
 */
-func PruneCommandFactory() (cli.Command, error) {
-	return &PruneCommand{}, nil
+func CommandFactory() (cli.Command, error) {
+	return &Command{}, nil
 }
 
-func (prune *PruneCommand) perform(db *common.Database) bool {
+func (prune *Command) perform(db *common.Database) bool {
 	var count = prune.removeNotExistRepository(db)
 	var gCount, rCount = db.Prune()
 	fmt.Printf("Pruned %d groups, %d repositories\n", gCount, rCount+count)
@@ -30,14 +30,14 @@ func (prune *PruneCommand) perform(db *common.Database) bool {
 /*
 Help function shows the help message.
 */
-func (prune *PruneCommand) Help() string {
+func (prune *Command) Help() string {
 	return `rrh prune`
 }
 
 /*
 Run performs the command.
 */
-func (prune *PruneCommand) Run(args []string) int {
+func (prune *Command) Run(args []string) int {
 	var config = common.OpenConfig()
 	var db, err = common.Open(config)
 	if err != nil {
@@ -53,6 +53,6 @@ func (prune *PruneCommand) Run(args []string) int {
 /*
 Synopsis returns the help message of the command.
 */
-func (prune *PruneCommand) Synopsis() string {
+func (prune *Command) Synopsis() string {
 	return "prune unnecessary repositories and groups."
 }
