@@ -22,12 +22,12 @@ import (
 func buildCommandFactoryMap() map[string]cli.CommandFactory {
 	return map[string]cli.CommandFactory{
 		"add":       add.CommandFactory,
-		"clone":     clone.CloneCommandFactory,
-		"config":    common.ConfigCommandFactory,
-		"export":    export.ExportCommandFactory,
-		"fetch":     fetch.FetchCommandFactory,
-		"fetch-all": fetch.FetchAllCommandFactory,
-		"group":     group.GroupCommandFactory,
+		"clone":     clone.CommandFactory,
+		"config":    common.CommandFactory,
+		"export":    export.CommandFactory,
+		"fetch":     fetch.CommandFactory,
+		"fetch-all": fetch.AllCommandFactory,
+		"group":     group.CommandFactory,
 		"import":    export.ImportCommandFactory,
 		"list":      list.ListCommandFactory,
 		"mv":        move.MoveCommandFactory,

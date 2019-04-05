@@ -10,7 +10,7 @@ import (
 
 func Example() {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var gc, _ = GroupCommandFactory()
+	var gc, _ = CommandFactory()
 	gc.Run([]string{})
 	// Output:
 	// group1,1 repository
@@ -18,9 +18,9 @@ func Example() {
 	// group3,1 repository
 }
 
-func ExampleGroupCommand_Run() {
+func ExampleCommand_Run() {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var gc, _ = GroupCommandFactory()
+	var gc, _ = CommandFactory()
 	gc.Run([]string{"list"})
 	// Output:
 	// group1,1 repository
@@ -28,9 +28,9 @@ func ExampleGroupCommand_Run() {
 	// group3,1 repository
 }
 
-func Example_groupListCommand_Run() {
+func Example_listCommand_Run() {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var glc, _ = groupListCommandFactory()
+	var glc, _ = listCommandFactory()
 	glc.Run([]string{"-d", "-r"})
 	// Output:
 	// group1,desc1,[repo1],1 repository
@@ -38,9 +38,9 @@ func Example_groupListCommand_Run() {
 	// group3,desc3,[repo2],1 repository
 }
 
-func Example_groupOfCommand_Run() {
+func Example_ofCommand_Run() {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var goc, _ = groupOfCommandFactory()
+	var goc, _ = ofCommandFactory()
 	goc.Run([]string{"repo1"})
 	// Output:
 	// repo1, [group1]
@@ -49,7 +49,7 @@ func Example_groupOfCommand_Run() {
 func TestGroupListOnlyName(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	var output = common.CaptureStdout(func() {
-		var glc, _ = GroupCommandFactory()
+		var glc, _ = CommandFactory()
 		glc.Run([]string{"list", "--only-groupname"})
 	})
 	var wontOutput = `group1
@@ -73,7 +73,7 @@ ARGUMENTS
 	}
 	for _, tc := range testcases {
 		var output = common.CaptureStdout(func() {
-			var command, _ = groupOfCommandFactory()
+			var command, _ = ofCommandFactory()
 			command.Run(tc.args)
 		})
 		output = strings.TrimSpace(output)
@@ -104,7 +104,7 @@ func TestAddGroup(t *testing.T) {
 	}
 	for _, testcase := range testcases {
 		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
-			var gac, _ = GroupCommandFactory()
+			var gac, _ = CommandFactory()
 			if val := gac.Run(testcase.args); val != testcase.statusCode {
 				t.Errorf("%v: test failed, wont: %d, got: %d", testcase.args, testcase.statusCode, val)
 			}
@@ -140,7 +140,7 @@ func TestUpdateGroupFailed(t *testing.T) {
 	}
 	for _, testcase := range testcases {
 		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
-			var guc = groupUpdateCommand{}
+			var guc = updateCommand{}
 			var config = common.OpenConfig()
 			var db, _ = common.Open(config)
 			var err = guc.updateGroup(db, &testcase.opt)
@@ -180,7 +180,7 @@ func TestUpdateGroup(t *testing.T) {
 	}
 	for _, testcase := range testcases {
 		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
-			var guc, _ = GroupCommandFactory()
+			var guc, _ = CommandFactory()
 			if val := guc.Run(testcase.args); val != testcase.statusCode {
 				t.Errorf("%v: group update failed status code wont: %d, got: %d", testcase.args, testcase.statusCode, val)
 			}
@@ -223,7 +223,7 @@ func TestRemoveGroup(t *testing.T) {
 	}
 	for _, testcase := range testcases {
 		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
-			var grc, _ = GroupCommandFactory()
+			var grc, _ = CommandFactory()
 			if val := grc.Run(testcase.args); val != testcase.statusCode {
 				t.Errorf("%v: group remove failed: wont: %d, got: %d", testcase.args, testcase.statusCode, val)
 			}
@@ -250,19 +250,19 @@ func TestRemoveGroup(t *testing.T) {
 func TestInvalidOptionInGroupList(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	common.CaptureStdout(func() {
-		var glc, _ = groupListCommandFactory()
+		var glc, _ = listCommandFactory()
 		if val := glc.Run([]string{"--unknown-option"}); val != 1 {
 			t.Error("list subcommand accept unknown-option!")
 		}
-		var gac, _ = groupAddCommandFactory()
+		var gac, _ = addCommandFactory()
 		if val := gac.Run([]string{"--unknown-option"}); val != 1 {
 			t.Error("add subcommand accept unknown-option!")
 		}
-		var grc, _ = groupRemoveCommandFactory()
+		var grc, _ = removeCommandFactory()
 		if val := grc.Run([]string{"--unknown-option"}); val != 1 {
 			t.Error("remove subcommand accept unknown-option!")
 		}
-		var guc, _ = groupUpdateCommandFactory()
+		var guc, _ = updateCommandFactory()
 		if val := guc.Run([]string{"--unknown-option"}); val != 1 {
 			t.Error("update subcommand accept unknown-option!")
 		}
@@ -270,12 +270,12 @@ func TestInvalidOptionInGroupList(t *testing.T) {
 }
 
 func TestHelp(t *testing.T) {
-	var gac, _ = groupAddCommandFactory()
-	var glc, _ = groupListCommandFactory()
-	var grc, _ = groupRemoveCommandFactory()
-	var guc, _ = groupUpdateCommandFactory()
-	var goc, _ = groupOfCommandFactory()
-	var gc, _ = GroupCommandFactory()
+	var gac, _ = addCommandFactory()
+	var glc, _ = listCommandFactory()
+	var grc, _ = removeCommandFactory()
+	var guc, _ = updateCommandFactory()
+	var goc, _ = ofCommandFactory()
+	var gc, _ = CommandFactory()
 
 	var gacHelp = `rrh group add [OPTIONS] <GROUPS...>
 OPTIONS
@@ -339,27 +339,27 @@ SUBCOMMAND
 }
 
 func TestSynopsis(t *testing.T) {
-	var gc, _ = GroupCommandFactory()
+	var gc, _ = CommandFactory()
 	if gc.Synopsis() != "add/list/update/remove groups and show groups of the repository." {
 		t.Error("synopsis did not match")
 	}
-	var guc, _ = groupUpdateCommandFactory()
+	var guc, _ = updateCommandFactory()
 	if guc.Synopsis() != "update group." {
 		t.Error("synopsis did not match")
 	}
-	var grc, _ = groupRemoveCommandFactory()
+	var grc, _ = removeCommandFactory()
 	if grc.Synopsis() != "remove given group." {
 		t.Error("synopsis did not match")
 	}
-	var gac, _ = groupAddCommandFactory()
+	var gac, _ = addCommandFactory()
 	if gac.Synopsis() != "add group." {
 		t.Error("synopsis did not match")
 	}
-	var glc, _ = groupListCommandFactory()
+	var glc, _ = listCommandFactory()
 	if glc.Synopsis() != "list groups." {
 		t.Error("synopsis did not match")
 	}
-	var goc, _ = groupOfCommandFactory()
+	var goc, _ = ofCommandFactory()
 	if goc.Synopsis() != "show groups of the repository." {
 		t.Error("synopsis did not match")
 	}
