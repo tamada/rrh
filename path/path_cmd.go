@@ -10,31 +10,31 @@ import (
 )
 
 /*
-PathCommand represents a command.
+Command represents a command.
 */
-type PathCommand struct {
-	options *pathOptions
+type Command struct {
+	options *options
 }
 
-type pathOptions struct {
+type options struct {
 	partialMatch bool
 	showRepoID   bool
 	args         []string
 }
 
-type pathResult struct {
+type result struct {
 	id   string
 	path string
 }
 
 /*
-PathCommandFactory returns an instance of the PruneCommand.
+CommandFactory returns an instance of the PruneCommand.
 */
-func PathCommandFactory() (cli.Command, error) {
-	return &PathCommand{}, nil
+func CommandFactory() (cli.Command, error) {
+	return &Command{}, nil
 }
 
-func (options *pathOptions) buildFormatter(results []pathResult) string {
+func (options *options) buildFormatter(results []result) string {
 	var maxLength = 0
 	for _, r := range results {
 		var len = len(r.id)
@@ -45,7 +45,7 @@ func (options *pathOptions) buildFormatter(results []pathResult) string {
 	return fmt.Sprintf("%%-%ds", maxLength)
 }
 
-func (options *pathOptions) showErrorIfNeeded(results []pathResult) int {
+func (options *options) showErrorIfNeeded(results []result) int {
 	if len(results) != 0 {
 		return 0
 	}
@@ -57,7 +57,7 @@ func (options *pathOptions) showErrorIfNeeded(results []pathResult) int {
 	return 5
 }
 
-func (path *PathCommand) perform(db *common.Database) int {
+func (path *Command) perform(db *common.Database) int {
 	var results = path.findResult(db)
 	var formatter = path.options.buildFormatter(results)
 	for _, r := range results {
@@ -70,14 +70,14 @@ func (path *PathCommand) perform(db *common.Database) int {
 	return path.options.showErrorIfNeeded(results)
 }
 
-func (options *pathOptions) matchEach(id string, arg string) bool {
+func (options *options) matchEach(id string, arg string) bool {
 	if options.partialMatch {
 		return strings.Contains(id, arg)
 	}
 	return id == arg
 }
 
-func (options *pathOptions) match(id string) bool {
+func (options *options) match(id string) bool {
 	for _, arg := range options.args {
 		var bool = options.matchEach(id, arg)
 		if bool {
@@ -87,18 +87,18 @@ func (options *pathOptions) match(id string) bool {
 	return len(options.args) == 0
 }
 
-func (path *PathCommand) findResult(db *common.Database) []pathResult {
-	var results = []pathResult{}
+func (path *Command) findResult(db *common.Database) []result {
+	var results = []result{}
 	for _, repo := range db.Repositories {
 		if path.options.match(repo.ID) {
-			results = append(results, pathResult{id: repo.ID, path: repo.Path})
+			results = append(results, result{id: repo.ID, path: repo.Path})
 		}
 	}
 	return results
 }
 
-func (path *PathCommand) buildFlagSet() (*flag.FlagSet, *pathOptions) {
-	var options = pathOptions{partialMatch: false, args: []string{}}
+func (path *Command) buildFlagSet() (*flag.FlagSet, *options) {
+	var options = options{partialMatch: false, args: []string{}}
 	flags := flag.NewFlagSet("path", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(path.Help()) }
 	flags.BoolVar(&options.partialMatch, "m", false, "partial match mode")
@@ -108,7 +108,7 @@ func (path *PathCommand) buildFlagSet() (*flag.FlagSet, *pathOptions) {
 	return flags, &options
 }
 
-func (path *PathCommand) parse(args []string) error {
+func (path *Command) parse(args []string) error {
 	var flags, options = path.buildFlagSet()
 	if err := flags.Parse(args); err != nil {
 		return err
@@ -121,7 +121,7 @@ func (path *PathCommand) parse(args []string) error {
 /*
 Run performs the command.
 */
-func (path *PathCommand) Run(args []string) int {
+func (path *Command) Run(args []string) int {
 	var err = path.parse(args)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -139,7 +139,7 @@ func (path *PathCommand) Run(args []string) int {
 /*
 Help function shows the help message.
 */
-func (path *PathCommand) Help() string {
+func (path *Command) Help() string {
 	return `rrh path [OPTIONS] <REPOSITORIES...>
 OPTIONS
     -m, --partial-match        treats the arguments as the patterns.
@@ -151,6 +151,6 @@ ARGUMENTS
 /*
 Synopsis returns the help message of the command.
 */
-func (path *PathCommand) Synopsis() string {
+func (path *Command) Synopsis() string {
 	return "print paths of specified repositories."
 }
