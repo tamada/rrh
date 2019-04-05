@@ -8,7 +8,7 @@ import (
 	"github.com/tamada/rrh/common"
 )
 
-type listOptions struct {
+type options struct {
 	all           bool
 	description   bool
 	localPath     bool
@@ -21,24 +21,24 @@ type listOptions struct {
 }
 
 /*
-ListCommand represents a command.
+Command represents a command.
 */
-type ListCommand struct {
-	options *listOptions
+type Command struct {
+	options *options
 }
 
 /*
-ListCommandFactory returns an instance of the ListCommand.
+CommandFactory returns an instance of the ListCommand.
 */
-func ListCommandFactory() (cli.Command, error) {
-	return &ListCommand{&listOptions{}}, nil
+func CommandFactory() (cli.Command, error) {
+	return &Command{&options{}}, nil
 }
 
-func (options *listOptions) isChecked(target bool) bool {
+func (options *options) isChecked(target bool) bool {
 	return target || options.all
 }
 
-func (options *listOptions) printResultAsCsv(result ListResult, repo Repo, remote *common.Remote) {
+func (options *options) printResultAsCsv(result Result, repo Repo, remote *common.Remote) {
 	fmt.Printf("%s", result.GroupName)
 	if options.isChecked(options.description) {
 		fmt.Printf(",%s", result.Description)
@@ -53,7 +53,7 @@ func (options *listOptions) printResultAsCsv(result ListResult, repo Repo, remot
 	fmt.Println()
 }
 
-func (options *listOptions) printRepoAsCsv(repo Repo, result ListResult) {
+func (options *options) printRepoAsCsv(repo Repo, result Result) {
 	if len(repo.Remotes) > 0 && (options.remoteURL || options.all) {
 		for _, remote := range repo.Remotes {
 			options.printResultAsCsv(result, repo, &remote)
@@ -63,7 +63,7 @@ func (options *listOptions) printRepoAsCsv(repo Repo, result ListResult) {
 	}
 }
 
-func (options *listOptions) printResultsAsCsv(results []ListResult) int {
+func (options *options) printResultsAsCsv(results []Result) int {
 	for _, result := range results {
 		for _, repo := range result.Repos {
 			options.printRepoAsCsv(repo, result)
@@ -75,7 +75,7 @@ func (options *listOptions) printResultsAsCsv(results []ListResult) int {
 /*
 generateFormatString returns the formatter for `Printf` to arrange the length of repository names.
 */
-func (options *listOptions) generateFormatString(repos []Repo) string {
+func (options *options) generateFormatString(repos []Repo) string {
 	var max = len("Description")
 	for _, repo := range repos {
 		var len = len(repo.Name)
@@ -86,7 +86,7 @@ func (options *listOptions) generateFormatString(repos []Repo) string {
 	return fmt.Sprintf("    %%-%ds", max)
 }
 
-func (options *listOptions) printRepo(repo Repo, result ListResult, formatString string) {
+func (options *options) printRepo(repo Repo, result Result, formatString string) {
 	fmt.Printf(formatString, repo.Name)
 	if options.localPath || options.all {
 		fmt.Printf("  %s", repo.Path)
@@ -100,11 +100,11 @@ func (options *listOptions) printRepo(repo Repo, result ListResult, formatString
 	fmt.Println()
 }
 
-func (options *listOptions) isPrintSimple(result ListResult) bool {
+func (options *options) isPrintSimple(result Result) bool {
 	return !options.noOmit && result.OmitList && len(options.args) == 0
 }
 
-func (options *listOptions) printGroupName(result ListResult) int {
+func (options *options) printGroupName(result Result) int {
 	if len(result.Repos) == 1 {
 		fmt.Printf("%s (1 repository)\n", result.GroupName)
 	} else {
@@ -113,7 +113,7 @@ func (options *listOptions) printGroupName(result ListResult) int {
 	return len(result.Repos)
 }
 
-func (options *listOptions) printResult(result ListResult) int {
+func (options *options) printResult(result Result) int {
 	var repoCount = options.printGroupName(result)
 	if !options.isPrintSimple(result) {
 		if options.description || options.all {
@@ -128,7 +128,7 @@ func (options *listOptions) printResult(result ListResult) int {
 	return repoCount
 }
 
-func (options *listOptions) printSimpleResult(repo Repo, result ListResult) {
+func (options *options) printSimpleResult(repo Repo, result Result) {
 	if options.repoNameOnly {
 		fmt.Println(repo.Name)
 	} else if options.groupRepoName {
@@ -136,7 +136,7 @@ func (options *listOptions) printSimpleResult(repo Repo, result ListResult) {
 	}
 }
 
-func (options *listOptions) printSimpleResults(results []ListResult) int {
+func (options *options) printSimpleResults(results []Result) int {
 	for _, result := range results {
 		for _, repo := range result.Repos {
 			options.printSimpleResult(repo, result)
@@ -157,7 +157,7 @@ func printGroupAndRepoCount(groupCount int, repoCount int) {
 	fmt.Printf("%d %s, %d %s\n", groupCount, groupLabel, repoCount, repoLabel)
 }
 
-func (options *listOptions) printResults(results []ListResult) int {
+func (options *options) printResults(results []Result) int {
 	if options.csv {
 		return options.printResultsAsCsv(results)
 	} else if options.repoNameOnly || options.groupRepoName {
@@ -174,7 +174,7 @@ func (options *listOptions) printResults(results []ListResult) int {
 /*
 Run performs the command.
 */
-func (list *ListCommand) Run(args []string) int {
+func (list *Command) Run(args []string) int {
 	var _, err = list.parse(args)
 	if err != nil {
 		fmt.Printf(list.Help())
@@ -197,14 +197,14 @@ func (list *ListCommand) Run(args []string) int {
 /*
 Synopsis returns the help message of the command.
 */
-func (list *ListCommand) Synopsis() string {
+func (list *Command) Synopsis() string {
 	return "print managed repositories and their groups."
 }
 
 /*
 Help function shows the help message.
 */
-func (list *ListCommand) Help() string {
+func (list *Command) Help() string {
 	return `rrh list [OPTIONS] [GROUPS...]
 OPTIONS
     -d, --desc          print description of group.
@@ -219,8 +219,8 @@ ARGUMENTS
               if no groups are specified, all groups are printed.`
 }
 
-func (list *ListCommand) buildFlagSet() (*flag.FlagSet, *listOptions) {
-	var options = listOptions{args: []string{}}
+func (list *Command) buildFlagSet() (*flag.FlagSet, *options) {
+	var options = options{args: []string{}}
 	flags := flag.NewFlagSet("list", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(list.Help()) }
 	flags.BoolVar(&options.all, "A", false, "show all entries")
@@ -240,7 +240,7 @@ func (list *ListCommand) buildFlagSet() (*flag.FlagSet, *listOptions) {
 	return flags, &options
 }
 
-func (list *ListCommand) parse(args []string) (*listOptions, error) {
+func (list *Command) parse(args []string) (*options, error) {
 	var flags, options = list.buildFlagSet()
 
 	if err := flags.Parse(args); err != nil {

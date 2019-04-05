@@ -9,22 +9,22 @@ import (
 )
 
 /*
-AddCommand shows the subcommand of rrh.
+Command shows the subcommand of rrh.
 */
-type AddCommand struct {
+type Command struct {
 }
 
 /*
-AddCommandFactory generates the object of AddCommand.
+CommandFactory generates the object of AddCommand.
 */
-func AddCommandFactory() (cli.Command, error) {
-	return &AddCommand{}, nil
+func CommandFactory() (cli.Command, error) {
+	return &Command{}, nil
 }
 
 /*
 Help function shows the help message.
 */
-func (add *AddCommand) Help() string {
+func (add *Command) Help() string {
 	return `rrh add [OPTIONS] <REPOSITORY_PATHS...>
 OPTIONS
     -g, --group <GROUP>    add repository to RRH database.
@@ -32,7 +32,7 @@ ARGUMENTS
     REPOSITORY_PATHS       the local path list of the git repositories`
 }
 
-func (add *AddCommand) showError(errorlist []error, onError string) {
+func (add *Command) showError(errorlist []error, onError string) {
 	if len(errorlist) == 0 || onError == common.Ignore {
 		return
 	}
@@ -41,7 +41,7 @@ func (add *AddCommand) showError(errorlist []error, onError string) {
 	}
 }
 
-func (add *AddCommand) perform(db *common.Database, args []string, groupName string) int {
+func (add *Command) perform(db *common.Database, args []string, groupName string) int {
 	var onError = db.Config.GetValue(common.RrhOnError)
 
 	var errorlist = add.AddRepositoriesToGroup(db, args, groupName)
@@ -62,7 +62,7 @@ func (add *AddCommand) perform(db *common.Database, args []string, groupName str
 /*
 Run function performs the command.
 */
-func (add *AddCommand) Run(args []string) int {
+func (add *Command) Run(args []string) int {
 	var config = common.OpenConfig()
 	var opt, err = add.parse(args, config)
 	if err != nil {
@@ -78,13 +78,13 @@ func (add *AddCommand) Run(args []string) int {
 	return add.perform(db, opt.args, opt.group)
 }
 
-type addOptions struct {
+type options struct {
 	group string
 	args  []string
 }
 
-func (add *AddCommand) parse(args []string, config *common.Config) (*addOptions, error) {
-	var opt = addOptions{}
+func (add *Command) parse(args []string, config *common.Config) (*options, error) {
+	var opt = options{}
 	var defaultGroup = config.GetValue(common.RrhDefaultGroupName)
 	flags := flag.NewFlagSet("add", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(add.Help()) }
@@ -101,6 +101,6 @@ func (add *AddCommand) parse(args []string, config *common.Config) (*addOptions,
 /*
 Synopsis returns the simple help message of the command.
 */
-func (add *AddCommand) Synopsis() string {
+func (add *Command) Synopsis() string {
 	return "add repositories on the local path to RRH."
 }

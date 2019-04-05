@@ -12,9 +12,9 @@ import (
 )
 
 /*
-StatusResult shows the result of the `rrh status` command.
+result shows the result of the `rrh status` command.
 */
-type StatusResult struct {
+type result struct {
 	GroupName      string
 	RepositoryName string
 	BranchName     string
@@ -22,12 +22,12 @@ type StatusResult struct {
 	Description    string
 }
 
-type repo struct {
+type relation struct {
 	gname string
 	rname string
 }
 
-func (status *StatusCommand) lastCommitOnLocalBranch(name repo, r *git.Repository, ref *plumbing.Reference) (*StatusResult, error) {
+func (status *Command) lastCommitOnLocalBranch(name relation, r *git.Repository, ref *plumbing.Reference) (*result, error) {
 	iter, err := r.Log(&git.LogOptions{From: ref.Hash()})
 	if err != nil {
 		return nil, err
@@ -37,10 +37,10 @@ func (status *StatusCommand) lastCommitOnLocalBranch(name repo, r *git.Repositor
 		return nil, err
 	}
 	var signature = commit.Author
-	return &StatusResult{name.gname, name.rname, ref.Name().String(), &signature.When, ""}, nil
+	return &result{name.gname, name.rname, ref.Name().String(), &signature.When, ""}, nil
 }
 
-func (status *StatusCommand) openRepository(db *common.Database, repoID string) (*git.Repository, error) {
+func (status *Command) openRepository(db *common.Database, repoID string) (*git.Repository, error) {
 	var repo = db.FindRepository(repoID)
 	if repo == nil {
 		return nil, fmt.Errorf("%s: repository not found", repoID)
@@ -52,29 +52,29 @@ func (status *StatusCommand) openRepository(db *common.Database, repoID string) 
 	return r, nil
 }
 
-func isTarget(options *statusOptions, ref *plumbing.Reference) bool {
+func isTarget(options *options, ref *plumbing.Reference) bool {
 	var refName = ref.Name()
 	return refName.String() == "HEAD" || options.isRemoteTarget(refName) || options.isBranchTarget(refName)
 }
 
-func (status *StatusCommand) findLocalBranches(name repo, r *git.Repository) ([]StatusResult, error) {
-	var results = []StatusResult{}
+func (status *Command) findLocalBranches(name relation, r *git.Repository) ([]result, error) {
+	var results = []result{}
 	var iter, err2 = r.References()
 	if err2 != nil {
 		return results, err2
 	}
 
 	iter.ForEach(func(ref *plumbing.Reference) error {
-		if isTarget(status.Options, ref) {
-			var result, err = status.lastCommitOnLocalBranch(name, r, ref)
+		if isTarget(status.options, ref) {
+			var branchResult, err = status.lastCommitOnLocalBranch(name, r, ref)
 			if err != nil {
 				return err
 			}
-			if result.BranchName == "HEAD" {
-				var others = []StatusResult{*result}
+			if branchResult.BranchName == "HEAD" {
+				var others = []result{*branchResult}
 				results = append(others, results...)
 			} else {
-				results = append(results, *result)
+				results = append(results, *branchResult)
 			}
 		}
 		return nil
@@ -82,7 +82,7 @@ func (status *StatusCommand) findLocalBranches(name repo, r *git.Repository) ([]
 	return results, nil
 }
 
-func (status *StatusCommand) findTime(db *common.Database, path string, repoID string) time.Time {
+func (status *Command) findTime(db *common.Database, path string, repoID string) time.Time {
 	var repo = db.FindRepository(repoID)
 	var target = filepath.Join(repo.Path, path)
 
@@ -100,14 +100,14 @@ func (status *StatusCommand) findTime(db *common.Database, path string, repoID s
 	return fi.ModTime()
 }
 
-func (status *StatusCommand) flagChecker(time *time.Time, lastModified *time.Time) *time.Time {
+func (status *Command) flagChecker(time *time.Time, lastModified *time.Time) *time.Time {
 	if lastModified == nil || time.After(*lastModified) {
 		return time
 	}
 	return lastModified
 }
 
-func (status *StatusCommand) generateMessage(staging bool, changesNotAdded bool) string {
+func (status *Command) generateMessage(staging bool, changesNotAdded bool) string {
 	if staging && changesNotAdded {
 		return "Changes in staging"
 	} else if !staging && changesNotAdded {
@@ -132,7 +132,7 @@ func findStatus(r *git.Repository) (git.Status, error) {
 	return s, nil
 }
 
-func (status *StatusCommand) findWorktree(name repo, r *git.Repository, db *common.Database) (*StatusResult, error) {
+func (status *Command) findWorktree(name relation, r *git.Repository, db *common.Database) (*result, error) {
 	var s, err = findStatus(r)
 	if err != nil {
 		return nil, err
@@ -145,15 +145,15 @@ func (status *StatusCommand) findWorktree(name repo, r *git.Repository, db *comm
 		var time = status.findTime(db, key, name.rname)
 		lastModified = status.flagChecker(&time, lastModified)
 	}
-	return &StatusResult{name.gname, name.rname, "WORKTREE", lastModified, status.generateMessage(staging, changesNotAdded)}, nil
+	return &result{name.gname, name.rname, "WORKTREE", lastModified, status.generateMessage(staging, changesNotAdded)}, nil
 }
 
-func (status *StatusCommand) executeStatusOnRepository(db *common.Database, name repo) ([]StatusResult, error) {
+func (status *Command) executeStatusOnRepository(db *common.Database, name relation) ([]result, error) {
 	var r, err = status.openRepository(db, name.rname)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %s", name.rname, err.Error())
 	}
-	var results = []StatusResult{}
+	var results = []result{}
 	var worktree, err2 = status.findWorktree(name, r, db)
 	if err2 != nil {
 		return nil, err2
@@ -168,9 +168,9 @@ func (status *StatusCommand) executeStatusOnRepository(db *common.Database, name
 	return results, nil
 }
 
-func (status *StatusCommand) executeStatus(db *common.Database, name string) ([]StatusResult, []error) {
+func (status *Command) executeStatus(db *common.Database, name string) ([]result, []error) {
 	if db.HasRepository(name) {
-		var results, err = status.executeStatusOnRepository(db, repo{"unknown-group", name})
+		var results, err = status.executeStatusOnRepository(db, relation{"unknown-group", name})
 		if err != nil {
 			return results, []error{err}
 		}
@@ -181,15 +181,15 @@ func (status *StatusCommand) executeStatus(db *common.Database, name string) ([]
 	return nil, []error{fmt.Errorf("%s: group and repository not found", name)}
 }
 
-func (status *StatusCommand) executeStatusOnGroup(db *common.Database, groupName string) ([]StatusResult, []error) {
+func (status *Command) executeStatusOnGroup(db *common.Database, groupName string) ([]result, []error) {
 	var group = db.FindGroup(groupName)
 	if group == nil {
 		return nil, []error{fmt.Errorf("%s: group not found", groupName)}
 	}
 	var errors = []error{}
-	var results = []StatusResult{}
+	var results = []result{}
 	for _, repoID := range db.FindRelationsOfGroup(groupName) {
-		var sr, err = status.executeStatusOnRepository(db, repo{groupName, repoID})
+		var sr, err = status.executeStatusOnRepository(db, relation{groupName, repoID})
 		if err != nil {
 			errors = append(errors, err)
 		} else {

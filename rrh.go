@@ -21,20 +21,20 @@ import (
 
 func buildCommandFactoryMap() map[string]cli.CommandFactory {
 	return map[string]cli.CommandFactory{
-		"add":       add.AddCommandFactory,
-		"clone":     clone.CloneCommandFactory,
-		"config":    common.ConfigCommandFactory,
-		"export":    export.ExportCommandFactory,
-		"fetch":     fetch.FetchCommandFactory,
-		"fetch-all": fetch.FetchAllCommandFactory,
-		"group":     group.GroupCommandFactory,
+		"add":       add.CommandFactory,
+		"clone":     clone.CommandFactory,
+		"config":    common.CommandFactory,
+		"export":    export.CommandFactory,
+		"fetch":     fetch.CommandFactory,
+		"fetch-all": fetch.AllCommandFactory,
+		"group":     group.CommandFactory,
 		"import":    export.ImportCommandFactory,
-		"list":      list.ListCommandFactory,
-		"mv":        move.MoveCommandFactory,
-		"path":      path.PathCommandFactory,
-		"prune":     prune.PruneCommandFactory,
-		"rm":        remove.RemoveCommandFactory,
-		"status":    status.StatusCommandFactory,
+		"list":      list.CommandFactory,
+		"mv":        move.CommandFactory,
+		"path":      path.CommandFactory,
+		"prune":     prune.CommandFactory,
+		"rm":        remove.CommandFactory,
+		"status":    status.CommandFactory,
 	}
 }
 

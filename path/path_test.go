@@ -8,13 +8,13 @@ import (
 )
 
 func TestSynopsis(t *testing.T) {
-	var path, _ = PathCommandFactory()
+	var path, _ = CommandFactory()
 	if path.Synopsis() != "print paths of specified repositories." {
 		t.Error("Synopsis message is not matched.")
 	}
 }
 func TestHelp(t *testing.T) {
-	var path = PathCommand{}
+	var path = Command{}
 	var message = `rrh path [OPTIONS] <REPOSITORIES...>
 OPTIONS
     -m, --partial-match        treats the arguments as the patterns.
@@ -46,7 +46,7 @@ func TestPathCommand(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		var path, _ = PathCommandFactory()
+		var path, _ = CommandFactory()
 		var output = common.CaptureStdout(func() {
 			var status = path.Run(tc.args)
 			if status != tc.status {

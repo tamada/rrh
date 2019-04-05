@@ -16,16 +16,16 @@ type Repo struct {
 }
 
 /*
-ListResult represents the result for showing.
+Result represents the result for showing.
 */
-type ListResult struct {
+type Result struct {
 	GroupName   string
 	Description string
 	OmitList    bool
 	Repos       []Repo
 }
 
-func (list *ListCommand) findList(db *common.Database, groupName string) (*ListResult, error) {
+func (list *Command) findList(db *common.Database, groupName string) (*Result, error) {
 	var repos = []Repo{}
 	var group = db.FindGroup(groupName)
 	if group == nil {
@@ -41,10 +41,10 @@ func (list *ListCommand) findList(db *common.Database, groupName string) (*ListR
 		}
 	}
 
-	return &ListResult{group.Name, group.Description, group.OmitList, repos}, nil
+	return &Result{group.Name, group.Description, group.OmitList, repos}, nil
 }
 
-func (list *ListCommand) findAllGroupNames(db *common.Database) []string {
+func (list *Command) findAllGroupNames(db *common.Database) []string {
 	var names = []string{}
 	for _, group := range db.Groups {
 		names = append(names, group.Name)
@@ -55,12 +55,12 @@ func (list *ListCommand) findAllGroupNames(db *common.Database) []string {
 /*
 FindResults returns the result list of list command.
 */
-func (list *ListCommand) FindResults(db *common.Database) ([]ListResult, error) {
+func (list *Command) FindResults(db *common.Database) ([]Result, error) {
 	var groups = list.options.args
 	if len(groups) == 0 {
 		groups = list.findAllGroupNames(db)
 	}
-	var results = []ListResult{}
+	var results = []Result{}
 	for _, group := range groups {
 		var list, err = list.findList(db, group)
 		if err != nil {

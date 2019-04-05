@@ -9,20 +9,20 @@ import (
 )
 
 /*
-CloneCommand represents a command.
+Command represents a command.
 */
-type CloneCommand struct {
-	Options *cloneOptions
+type Command struct {
+	options *options
 }
 
 /*
-CloneCommandFactory returns an instance of the CloneCommand.
+CommandFactory returns an instance of the CloneCommand.
 */
-func CloneCommandFactory() (cli.Command, error) {
-	return &CloneCommand{&cloneOptions{}}, nil
+func CommandFactory() (cli.Command, error) {
+	return &Command{&options{}}, nil
 }
 
-type cloneOptions struct {
+type options struct {
 	group   string
 	dest    string
 	verbose bool
@@ -31,7 +31,7 @@ type cloneOptions struct {
 /*
 Help function shows the help message.
 */
-func (clone *CloneCommand) Help() string {
+func (clone *Command) Help() string {
 	return `rrh clone [OPTIONS] <REMOTE_REPOS...>
 OPTIONS
     -g, --group <GROUP>   print managed repositories categorized in the group.
@@ -44,17 +44,17 @@ ARGUMENTS
 /*
 Synopsis returns the help message of the command.
 */
-func (clone *CloneCommand) Synopsis() string {
+func (clone *Command) Synopsis() string {
 	return "run \"git clone\" and register it to a group."
 }
 
-func (clone *CloneCommand) printIfVerbose(message string) {
-	if clone.Options.verbose {
+func (clone *Command) printIfVerbose(message string) {
+	if clone.options.verbose {
 		fmt.Println(message)
 	}
 }
 
-func (options *cloneOptions) showError(list []error) {
+func (options *options) showError(list []error) {
 	for _, err := range list {
 		fmt.Println(err.Error())
 	}
@@ -63,7 +63,7 @@ func (options *cloneOptions) showError(list []error) {
 /*
 Run performs the command.
 */
-func (clone *CloneCommand) Run(args []string) int {
+func (clone *Command) Run(args []string) int {
 	var config = common.OpenConfig()
 	arguments, err := clone.parse(args, config)
 	if err != nil || len(arguments) == 0 {
@@ -78,17 +78,17 @@ func (clone *CloneCommand) Run(args []string) int {
 	return clone.perform(db, arguments)
 }
 
-func (clone *CloneCommand) perform(db *common.Database, arguments []string) int {
+func (clone *Command) perform(db *common.Database, arguments []string) int {
 	var count, list = clone.DoClone(db, arguments)
 	if len(list) != 0 {
-		clone.Options.showError(list)
+		clone.options.showError(list)
 		var onError = db.Config.GetValue(common.RrhOnError)
 		if onError == common.Fail || onError == common.FailImmediately {
 			return 1
 		}
 	}
 	db.StoreAndClose()
-	printResult(count, clone.Options.dest, clone.Options.group)
+	printResult(count, clone.options.dest, clone.options.group)
 	return 0
 }
 
@@ -103,10 +103,10 @@ func printResult(count int, dest string, group string) {
 	}
 }
 
-func (clone *CloneCommand) buildFlagSets(config *common.Config) (*flag.FlagSet, *cloneOptions) {
+func (clone *Command) buildFlagSets(config *common.Config) (*flag.FlagSet, *options) {
 	var defaultGroup = config.GetValue(common.RrhDefaultGroupName)
 	var destination = config.GetValue(common.RrhCloneDestination)
-	var options = cloneOptions{defaultGroup, ".", false}
+	var options = options{defaultGroup, ".", false}
 	flags := flag.NewFlagSet("clone", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(clone.Help()) }
 	flags.StringVar(&options.group, "g", defaultGroup, "belonging group")
@@ -118,12 +118,12 @@ func (clone *CloneCommand) buildFlagSets(config *common.Config) (*flag.FlagSet, 
 	return flags, &options
 }
 
-func (clone *CloneCommand) parse(args []string, config *common.Config) ([]string, error) {
+func (clone *Command) parse(args []string, config *common.Config) ([]string, error) {
 	var flags, options = clone.buildFlagSets(config)
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
-	clone.Options = options
+	clone.options = options
 
 	return flags.Args(), nil
 }

@@ -20,7 +20,7 @@ deps:
 setup: deps
 	git submodule update --init
 
-test: setup format
+test: setup format lint
 	$(GO) test -covermode=count -coverprofile=coverage.out $$(go list ./... | grep -v vendor)
 	git checkout -- testdata
 
@@ -28,9 +28,6 @@ build: setup
 	$(GO) build -o $(NAME) -v
 
 lint: setup
-# golint will failed because source codes have stutter names.
-# Therefore, we omit the lint from dependencies of test task.
-# The problem will solve at v0.4.
 	$(GO) vet $$(go list ./... | grep -v vendor)
 	for pkg in $$(go list ./... | grep -v vendor); do \
 		golint -set_exit_status $$pkg || exit $$?; \

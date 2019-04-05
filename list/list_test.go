@@ -15,9 +15,9 @@ func open(jsonName string) *common.Database {
 	return db
 }
 
-func ExampleListCommand() {
+func ExampleCommand() {
 	os.Setenv(common.RrhDatabasePath, "../testdata/database.json")
-	var list, _ = ListCommandFactory()
+	var list, _ = CommandFactory()
 	list.Run([]string{})
 	// Output:
 	// no-group (1 repository)
@@ -25,9 +25,9 @@ func ExampleListCommand() {
 	// 1 group, 1 repository
 }
 
-func ExampleListCommand_Run() {
+func ExampleCommand_Run() {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var list, _ = ListCommandFactory()
+	var list, _ = CommandFactory()
 	list.Run([]string{"--desc", "--path"})
 	// Output:
 	// group1 (1 repository)
@@ -43,7 +43,7 @@ func TestRunByCsvOutput(t *testing.T) {
 	os.Setenv(common.RrhDefaultGroupName, "group1")
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	var result = common.CaptureStdout(func() {
-		var list, _ = ListCommandFactory()
+		var list, _ = CommandFactory()
 		list.Run([]string{"--all-entries", "--csv"})
 	})
 	result = common.ReplaceNewline(result, "&")
@@ -64,7 +64,7 @@ func TestSimpleResults(t *testing.T) {
 	}
 	for _, tc := range testcases {
 		var result = common.CaptureStdout(func() {
-			var list, _ = ListCommandFactory()
+			var list, _ = CommandFactory()
 			var status = list.Run(tc.args)
 			if status != tc.status {
 				t.Errorf("%v: status code did not match: wont: %d, got: %d", tc.args, tc.status, status)
@@ -79,15 +79,15 @@ func TestSimpleResults(t *testing.T) {
 
 func TestFailedByUnknownOption(t *testing.T) {
 	common.CaptureStdout(func() {
-		var list, _ = ListCommandFactory()
+		var list, _ = CommandFactory()
 		if val := list.Run([]string{"--unknown"}); val != 1 {
 			t.Error("unknown option parsed!?")
 		}
 	})
 }
 
-func TestListCommandHelpAndSynopsis(t *testing.T) {
-	var list = ListCommand{&listOptions{}}
+func TestCommandHelpAndSynopsis(t *testing.T) {
+	var list = Command{&options{}}
 	var helpMessage = `rrh list [OPTIONS] [GROUPS...]
 OPTIONS
     -d, --desc          print description of group.
@@ -111,13 +111,13 @@ ARGUMENTS
 
 func TestFindResults(t *testing.T) {
 	var db = open("tmp.json")
-	var list = ListCommand{&listOptions{}}
+	var list = Command{&options{}}
 	var testdata = []struct {
 		targets []string
-		want    []ListResult
+		want    []Result
 	}{
-		{[]string{"group1"}, []ListResult{{"group1", "desc1", false, []Repo{{"repo1", "path1", []common.Remote{}}}}}},
-		{[]string{"group2"}, []ListResult{{"group2", "desc2", false, []Repo{}}}},
+		{[]string{"group1"}, []Result{{"group1", "desc1", false, []Repo{{"repo1", "path1", []common.Remote{}}}}}},
+		{[]string{"group2"}, []Result{{"group2", "desc2", false, []Repo{}}}},
 	}
 
 	for _, data := range testdata {

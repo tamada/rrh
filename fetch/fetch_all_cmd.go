@@ -9,21 +9,21 @@ import (
 )
 
 /*
-FetchAllCommand represents a command.
+AllCommand represents a command.
 */
-type FetchAllCommand struct{}
+type AllCommand struct{}
 
 /*
-FetchAllCommandFactory returns an instance of the FetchAllCommand.
+AllCommandFactory returns an instance of the FetchAllCommand.
 */
-func FetchAllCommandFactory() (cli.Command, error) {
-	return &FetchAllCommand{}, nil
+func AllCommandFactory() (cli.Command, error) {
+	return &AllCommand{}, nil
 }
 
 /*
 Help returns the help message.
 */
-func (fetch *FetchAllCommand) Help() string {
+func (fetch *AllCommand) Help() string {
 	return `rrh fetch-all [OPTIONS]
 OPTIONS
     -r, --remote <REMOTE>   specify the remote name. Default is "origin."`
@@ -32,15 +32,15 @@ OPTIONS
 /*
 Run performs the command.
 */
-func (fetch *FetchAllCommand) Run(args []string) int {
+func (fetch *AllCommand) Run(args []string) int {
 	var config = common.OpenConfig()
 
-	var fetchOptions, err = fetch.parse(args)
+	var options, err = fetch.parse(args)
 	if err != nil {
 		fmt.Println(err.Error())
 		return 1
 	}
-	if len(fetchOptions.args) != 0 {
+	if len(options.args) != 0 {
 		fmt.Println(fetch.Help())
 		return 1
 	}
@@ -49,20 +49,20 @@ func (fetch *FetchAllCommand) Run(args []string) int {
 		fmt.Println(err2.Error())
 		return 1
 	}
-	return fetch.execFetch(db, fetchOptions)
+	return fetch.execFetch(db, options)
 }
 
-func (fetch *FetchAllCommand) printError(errs []error) {
+func (fetch *AllCommand) printError(errs []error) {
 	for _, err := range errs {
 		fmt.Println(err.Error())
 	}
 }
 
-func (fetch *FetchAllCommand) execFetch(db *common.Database, fetchOptions *fetchOptions) int {
+func (fetch *AllCommand) execFetch(db *common.Database, options *options) int {
 	var onError = db.Config.GetValue(common.RrhOnError)
 
-	var fetch2 = FetchCommand{}
-	fetch2.options = fetchOptions
+	var fetch2 = Command{}
+	fetch2.options = options
 	var errorlist = []error{}
 	for _, group := range db.Groups {
 		var errs = fetch2.FetchGroup(db, group.Name)
@@ -84,8 +84,8 @@ func (fetch *FetchAllCommand) execFetch(db *common.Database, fetchOptions *fetch
 	return 0
 }
 
-func (fetch *FetchAllCommand) parse(args []string) (*fetchOptions, error) {
-	var options = fetchOptions{"origin", []string{}}
+func (fetch *AllCommand) parse(args []string) (*options, error) {
+	var options = options{"origin", []string{}}
 	flags := flag.NewFlagSet("fetch-all", flag.ExitOnError)
 	flags.Usage = func() { fmt.Println(fetch.Help()) }
 	flags.StringVar(&options.remote, "r", "origin", "remote name")
@@ -103,6 +103,6 @@ func (fetch *FetchAllCommand) parse(args []string) (*fetchOptions, error) {
 /*
 Synopsis returns the help message of the command.
 */
-func (fetch *FetchAllCommand) Synopsis() string {
+func (fetch *AllCommand) Synopsis() string {
 	return "run \"git fetch\" in the all repositories."
 }

@@ -8,18 +8,18 @@ import (
 )
 
 /*
-GroupResult represents a group to show as the result.
+Result represents a group to show as the result.
 */
-type GroupResult struct {
+type Result struct {
 	Name        string
 	Description string
 	Repos       []string
 }
 
-func (group *groupListCommand) listGroups(db *common.Database, listOptions *listOptions) []GroupResult {
-	var results = []GroupResult{}
+func (group *listCommand) listGroups(db *common.Database, listOptions *listOptions) []Result {
+	var results = []Result{}
 	for _, group := range db.Groups {
-		var result = GroupResult{group.Name, group.Description, []string{}}
+		var result = Result{group.Name, group.Description, []string{}}
 		for _, relation := range db.Relations {
 			if relation.GroupName == group.Name {
 				result.Repos = append(result.Repos, relation.RepositoryID)
@@ -38,7 +38,7 @@ func trueOrFalse(flag string) bool {
 	return false
 }
 
-func (group *groupAddCommand) addGroups(db *common.Database, options *addOptions) error {
+func (group *addCommand) addGroups(db *common.Database, options *addOptions) error {
 	for _, groupName := range options.args {
 		var flag = trueOrFalse(options.omit)
 		var _, err = db.CreateGroup(groupName, options.desc, flag)
@@ -49,8 +49,8 @@ func (group *groupAddCommand) addGroups(db *common.Database, options *addOptions
 	return nil
 }
 
-func (grc *groupRemoveCommand) removeGroupsImpl(db *common.Database, groupName string) error {
-	if grc.Options.force {
+func (grc *removeCommand) removeGroupsImpl(db *common.Database, groupName string) error {
+	if grc.options.force {
 		db.ForceDeleteGroup(groupName)
 		grc.printIfVerbose(fmt.Sprintf("%s: group removed", groupName))
 	} else if db.ContainsCount(groupName) == 0 {
@@ -62,8 +62,8 @@ func (grc *groupRemoveCommand) removeGroupsImpl(db *common.Database, groupName s
 	return nil
 }
 
-func (grc *groupRemoveCommand) removeGroups(db *common.Database) error {
-	for _, groupName := range grc.Options.args {
+func (grc *removeCommand) removeGroups(db *common.Database) error {
+	for _, groupName := range grc.options.args {
 		if !db.HasGroup(groupName) || !grc.Inquiry(groupName) {
 			return nil
 		}
@@ -88,7 +88,7 @@ func createNewGroup(opt *updateOptions, prevGroup *common.Group) common.Group {
 	return newGroup
 }
 
-func (group *groupUpdateCommand) updateGroup(db *common.Database, opt *updateOptions) error {
+func (group *updateCommand) updateGroup(db *common.Database, opt *updateOptions) error {
 	if !db.HasGroup(opt.target) {
 		return fmt.Errorf("%s: group not found", opt.target)
 	}

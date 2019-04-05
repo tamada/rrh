@@ -32,7 +32,7 @@ func TestParseError(t *testing.T) {
 
 	common.CaptureStdout(func() {
 		for _, testcase := range testcases {
-			var mv, _ = MoveCommandFactory()
+			var mv, _ = CommandFactory()
 			var status = mv.Run(testcase.args)
 			if status != testcase.statusCode {
 				t.Errorf("args: %v, statusCode: wont: %d, got: %d", testcase.args, testcase.statusCode, status)
@@ -76,7 +76,7 @@ func TestMoveCommand(t *testing.T) {
 	}
 	for _, item := range cases {
 		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
-			var mv, _ = MoveCommandFactory()
+			var mv, _ = CommandFactory()
 			mv.Run(item.args)
 			var db = open("tmp.json")
 			for _, rel := range item.relations {
@@ -166,14 +166,14 @@ func TestMergeType(t *testing.T) {
 }
 
 func TestSynopsis(t *testing.T) {
-	var mv, _ = MoveCommandFactory()
+	var mv, _ = CommandFactory()
 	if mv.Synopsis() != "move the repositories from groups to another group." {
 		t.Error("Synopsis message is not matched")
 	}
 }
 
 func TestHelp(t *testing.T) {
-	var mv = MoveCommand{}
+	var mv = Command{}
 	const helpMessage = `rrh mv [OPTIONS] <FROMS...> <TO>
 OPTIONS
     -v, --verbose   verbose mode

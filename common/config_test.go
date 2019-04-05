@@ -17,7 +17,7 @@ func assert(t *testing.T, actual string, expected string) {
 }
 
 func TestHelps(t *testing.T) {
-	var command, _ = ConfigCommandFactory()
+	var command, _ = CommandFactory()
 	if command.Help() != `rrh config <COMMAND> [ARGUMENTS]
 COMMAND
     set <ENV_NAME> <VALUE>  set ENV_NAME to VALUE
@@ -25,17 +25,17 @@ COMMAND
     list                    list all of ENVs (default)` {
 		t.Errorf("help message did not match")
 	}
-	var clc, _ = configListCommandFactory()
+	var clc, _ = listCommandFactory()
 	if clc.Help() != `rrh config list` {
 		t.Errorf("help message did not match")
 	}
-	var cuc, _ = configUnsetCommandFactory()
+	var cuc, _ = unsetCommandFactory()
 	if cuc.Help() != `rrh config unset <ENV_NAME...>
 ARGUMENTS
     ENV_NAME   environment name.` {
 		t.Errorf("help message did not match")
 	}
-	var csc, _ = configSetCommandFactory()
+	var csc, _ = setCommandFactory()
 	if csc.Help() != `rrh config set <ENV_NAME> <VALUE>
 ARGUMENTS
     ENV_NAME   environment name.
@@ -45,22 +45,22 @@ ARGUMENTS
 }
 
 func TestSynopsises(t *testing.T) {
-	var command, _ = ConfigCommandFactory()
+	var command, _ = CommandFactory()
 	if command.Synopsis() != "set/unset and list configuration of RRH." {
 		t.Errorf("synopsis did not match")
 	}
 
-	var clc, _ = configListCommandFactory()
+	var clc, _ = listCommandFactory()
 	if clc.Synopsis() != "list the environment and its value." {
 		t.Errorf("synopsis did not match")
 	}
 
-	var cuc, _ = configUnsetCommandFactory()
+	var cuc, _ = unsetCommandFactory()
 	if cuc.Synopsis() != "reset the given environment." {
 		t.Errorf("synopsis did not match")
 	}
 
-	var csc, _ = configSetCommandFactory()
+	var csc, _ = setCommandFactory()
 	if csc.Synopsis() != "set the environment with the given value." {
 		t.Errorf("synopsis did not match")
 	}
@@ -81,7 +81,7 @@ func TestConfigUnset(t *testing.T) {
 		{"unknown", 0, "", NotFound},
 	}
 	for _, tc := range testcases {
-		var cuc, _ = configUnsetCommandFactory()
+		var cuc, _ = unsetCommandFactory()
 		var statusCode = cuc.Run([]string{tc.label})
 		if statusCode != tc.status {
 			t.Errorf("%v: status code did not match, wont: %d, got: %d", tc, tc.status, statusCode)
@@ -97,11 +97,11 @@ func TestConfigUnset(t *testing.T) {
 	}
 }
 
-func ExampleConfigCommand() {
+func ExampleCommand() {
 	os.Setenv(RrhConfigPath, "../testdata/config.json")
 	os.Setenv(RrhHome, "../testdata/")
 	os.Setenv(RrhDatabasePath, "${RRH_HOME}/tmp.json")
-	var command, _ = ConfigCommandFactory()
+	var command, _ = CommandFactory()
 	command.Run([]string{}) // the output of no arguments are same as list subcommand.
 	// Output:
 	// RRH_AUTO_CREATE_GROUP: true (config_file)
@@ -115,11 +115,11 @@ func ExampleConfigCommand() {
 	// RRH_SORT_ON_UPDATING: true (config_file)
 	// RRH_TIME_FORMAT: relative (default)
 }
-func ExampleConfigCommand_Run() {
+func ExampleCommand_Run() {
 	os.Setenv(RrhConfigPath, "../testdata/config.json")
 	os.Setenv(RrhHome, "../testdata/")
 	os.Setenv(RrhDatabasePath, "${RRH_HOME}/database.json")
-	var command, _ = ConfigCommandFactory()
+	var command, _ = CommandFactory()
 	command.Run([]string{"list"}) // the output of no arguments are same as list subcommand.
 	// Output:
 	// RRH_AUTO_CREATE_GROUP: true (config_file)
@@ -133,11 +133,11 @@ func ExampleConfigCommand_Run() {
 	// RRH_SORT_ON_UPDATING: true (config_file)
 	// RRH_TIME_FORMAT: relative (default)
 }
-func Example_configListCommand_Run() {
+func Example_listCommand_Run() {
 	os.Setenv(RrhConfigPath, "../testdata/config.json")
 	os.Setenv(RrhHome, "../testdata/")
 	os.Unsetenv(RrhDatabasePath)
-	var clc, _ = configListCommandFactory()
+	var clc, _ = listCommandFactory()
 	clc.Run([]string{})
 	// Output:
 	// RRH_AUTO_CREATE_GROUP: true (config_file)
