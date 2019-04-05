@@ -37,12 +37,9 @@ func contains(slice []string, checkItem string) bool {
 	return false
 }
 
-func TestCloneCommand_MultipleProjects(t *testing.T) {
-	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
-	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-
+func TestCommand_MultipleProjects(t *testing.T) {
 	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
-		var clone, _ = CloneCommandFactory()
+		var clone, _ = CommandFactory()
 		clone.Run([]string{"-d", "../testdata/hoge", "-g", "not-exist-group",
 			"../testdata/helloworld",
 			"../testdata/fibonacci"})
@@ -71,11 +68,9 @@ func TestCloneCommand_MultipleProjects(t *testing.T) {
 	})
 }
 
-func TestCloneCommand_Run(t *testing.T) {
-	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
-	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
+func TestCommand_Run(t *testing.T) {
 	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
-		var clone, _ = CloneCommandFactory()
+		var clone, _ = CommandFactory()
 		clone.Run([]string{"https://htamada@bitbucket.org/htamada/helloworld.git"})
 		defer cleanup([]string{"./helloworld"})
 
@@ -94,11 +89,9 @@ func TestCloneCommand_Run(t *testing.T) {
 	})
 }
 
-func TestCloneCommand_SpecifyingId(t *testing.T) {
-	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
-	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
+func TestCommand_SpecifyingId(t *testing.T) {
 	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
-		var clone, _ = CloneCommandFactory()
+		var clone, _ = CommandFactory()
 		clone.Run([]string{"-d", "../testdata/newid", "../testdata/helloworld"})
 		defer cleanup([]string{"../testdata/newid"})
 
@@ -118,10 +111,10 @@ func TestUnknownOption(t *testing.T) {
 	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	var output = common.CaptureStdout(func() {
-		var clone, _ = CloneCommandFactory()
+		var clone, _ = CommandFactory()
 		clone.Run([]string{})
 	})
-	var cm = CloneCommand{}
+	var cm = Command{}
 	if output != cm.Help() {
 		t.Error("no arguments were allowed")
 	}
@@ -132,7 +125,7 @@ func TestCloneNotGitRepository(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	os.Setenv(common.RrhOnError, "FAIL")
 	var output = common.CaptureStdout(func() {
-		var clone, _ = CloneCommandFactory()
+		var clone, _ = CommandFactory()
 		clone.Run([]string{"../testdata"})
 	})
 	output = strings.TrimSpace(output)
@@ -151,7 +144,7 @@ OPTIONS
 ARGUMENTS
     REMOTE_REPOS          repository urls`
 
-	var clone, _ = CloneCommandFactory()
+	var clone, _ = CommandFactory()
 	if clone.Help() != helpMessage {
 		t.Error("help message did not match")
 	}
