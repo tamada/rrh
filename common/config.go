@@ -15,6 +15,9 @@ VERSION shows the version of RRH.
 */
 const VERSION = "0.3"
 
+/*
+The environment variable names.
+*/
 const (
 	RrhAutoDeleteGroup  = "RRH_AUTO_DELETE_GROUP"
 	RrhAutoCreateGroup  = "RRH_AUTO_CREATE_GROUP"
@@ -37,12 +40,19 @@ var boolLabels = []string{
 	RrhAutoCreateGroup, RrhAutoDeleteGroup, RrhSortOnUpdating,
 }
 
+/*
+The the 2nd return value of GetString method (ReadFrom).
+*/
 const (
 	Default    = "default"
 	ConfigFile = "config_file"
 	Env        = "environment"
 	NotFound   = "not found"
 )
+
+/*
+Relative shows the default value of RrhTimeFormat.
+*/
 const Relative = "relative"
 
 const (
@@ -50,6 +60,9 @@ const (
 	falseString = "false"
 )
 
+/*
+The values of RrhOnError.
+*/
 const (
 	Fail            = "FAIL"
 	FailImmediately = "FAIL_IMMEDIATELY"
