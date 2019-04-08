@@ -60,9 +60,9 @@ func parse(colorSettings string) {
 	groupColor = ""
 	for _, c := range colors {
 		if strings.HasPrefix(c, "repository:") {
-			repoColor = color.ParseCodeFromAttr(strings.ReplaceAll(c, "repository:", ""))
+			repoColor = color.ParseCodeFromAttr(strings.Replace(c, "repository:", "", -1))
 		} else if strings.HasPrefix(c, "group:") {
-			groupColor = color.ParseCodeFromAttr(strings.ReplaceAll(c, "group:", ""))
+			groupColor = color.ParseCodeFromAttr(strings.Replace(c, "group:", "", -1))
 		}
 	}
 	updateFuncs()
