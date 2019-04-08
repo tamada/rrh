@@ -240,8 +240,8 @@ func printRepositoryCount(count int) {
 	}
 }
 
-func (glc *listCommand) printResult(result Result, options *listOptions, config *common.Config) {
-	fmt.Print(common.ColorrizedGroupName(result.Name, config))
+func (glc *listCommand) printResult(result Result, options *listOptions) {
+	fmt.Print(common.ColorrizedGroupName(result.Name))
 	if !options.nameOnly && options.desc {
 		fmt.Printf(",%s", result.Description)
 	}
@@ -254,9 +254,9 @@ func (glc *listCommand) printResult(result Result, options *listOptions, config 
 	fmt.Println()
 }
 
-func (glc *listCommand) printAll(results []Result, options *listOptions, config *common.Config) {
+func (glc *listCommand) printAll(results []Result, options *listOptions) {
 	for _, result := range results {
-		glc.printResult(result, options, config)
+		glc.printResult(result, options)
 	}
 }
 
@@ -275,7 +275,7 @@ func (glc *listCommand) Run(args []string) int {
 		return 2
 	}
 	var results = glc.listGroups(db, listOption)
-	glc.printAll(results, listOption, config)
+	glc.printAll(results, listOption)
 
 	return 0
 }

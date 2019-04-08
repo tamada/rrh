@@ -295,6 +295,7 @@ func OpenConfig() *Config {
 	if err := json.Unmarshal(bytes, &config); err != nil {
 		return nil
 	}
+	InitializeColor(&config)
 	return &config
 }
 

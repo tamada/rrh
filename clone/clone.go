@@ -12,14 +12,7 @@ import (
 	"github.com/tamada/rrh/common"
 )
 
-func (clone *Command) toDir(db *common.Database, URL string, dest string, repoID string) (*common.Repository, error) {
-	clone.printIfVerbose(fmt.Sprintf("git clone %s %s (%s)", URL, dest, repoID))
-	var cmd = exec.Command("git", "clone", URL, dest)
-	var err = cmd.Run()
-	if err != nil {
-		return nil, fmt.Errorf("%s: clone error (%s)", URL, err.Error())
-	}
-
+func createRepository(db *common.Database, repoID, dest string) (*common.Repository, error) {
 	path, err := filepath.Abs(dest)
 	if err != nil {
 		return nil, err
@@ -29,6 +22,20 @@ func (clone *Command) toDir(db *common.Database, URL string, dest string, repoID
 		return nil, err
 	}
 	repo, err := db.CreateRepository(repoID, path, remotes)
+	if err != nil {
+		return nil, err
+	}
+	return repo, nil
+}
+
+func (clone *Command) toDir(db *common.Database, URL string, dest string, repoID string) (*common.Repository, error) {
+	clone.printIfVerbose(fmt.Sprintf("git clone %s %s (%s)", URL, dest, repoID))
+	var cmd = exec.Command("git", "clone", URL, dest)
+	var err = cmd.Run()
+	if err != nil {
+		return nil, fmt.Errorf("%s: clone error (%s)", URL, err.Error())
+	}
+	repo, err := createRepository(db, repoID, dest)
 	if err != nil {
 		return nil, err
 	}

@@ -37,20 +37,14 @@ var supportedBackColor = map[string]color.Color{
 /*
 ColorrizedRepositoryID returns the colorrized repository id string from configuration.
 */
-func ColorrizedRepositoryID(repoID string, config *Config) string {
-	if repoColorFunc == nil {
-		updateColor(config)
-	}
+func ColorrizedRepositoryID(repoID string) string {
 	return repoColorFunc(repoID)
 }
 
 /*
 ColorrizedGroupName returns the colorrized group name string from configuration.
 */
-func ColorrizedGroupName(groupName string, config *Config) string {
-	if groupColorFunc == nil {
-		updateColor(config)
-	}
+func ColorrizedGroupName(groupName string) string {
 	return groupColorFunc(groupName)
 }
 
@@ -99,7 +93,11 @@ func updateGroupFunc(groupColor string) {
 	}
 }
 
-func updateColor(config *Config) {
+/*
+InitializeColor is the initialization function of the colorized output.
+The function is automatically called on loading the config file.
+*/
+func InitializeColor(config *Config) {
 	var colorSetting = config.GetValue(RrhColor)
 	if colorSetting != "" {
 		parse(colorSetting)

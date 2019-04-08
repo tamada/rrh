@@ -24,6 +24,6 @@ func TestParse(t *testing.T) {
 		if groupColor != tc.group {
 			t.Errorf("%v: group color did not match, wont: %s, got: %s", tc.givenString, tc.group, groupColor)
 		}
-		fmt.Printf("repo: %s, group: %s\n", ColorrizedRepositoryID("repository", nil), ColorrizedGroupName("groupName", nil))
+		fmt.Printf("repo: %s, group: %s\n", ColorrizedRepositoryID("repository"), ColorrizedGroupName("groupName"))
 	}
 }
