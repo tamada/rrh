@@ -22,6 +22,7 @@ const (
 	RrhAutoDeleteGroup  = "RRH_AUTO_DELETE_GROUP"
 	RrhAutoCreateGroup  = "RRH_AUTO_CREATE_GROUP"
 	RrhCloneDestination = "RRH_CLONE_DESTINATION"
+	RrhColor            = "RRH_COLOR"
 	RrhConfigPath       = "RRH_CONFIG_PATH"
 	RrhDatabasePath     = "RRH_DATABASE_PATH"
 	RrhDefaultGroupName = "RRH_DEFAULT_GROUP_NAME"
@@ -32,9 +33,9 @@ const (
 )
 
 var availableLabels = []string{
-	RrhAutoCreateGroup, RrhAutoDeleteGroup, RrhCloneDestination, RrhConfigPath,
-	RrhDatabasePath, RrhDefaultGroupName, RrhHome, RrhOnError, RrhSortOnUpdating,
-	RrhTimeFormat,
+	RrhAutoCreateGroup, RrhAutoDeleteGroup, RrhCloneDestination, RrhColor,
+	RrhConfigPath, RrhDatabasePath, RrhDefaultGroupName, RrhHome, RrhOnError,
+	RrhSortOnUpdating, RrhTimeFormat,
 }
 var boolLabels = []string{
 	RrhAutoCreateGroup, RrhAutoDeleteGroup, RrhSortOnUpdating,
@@ -85,6 +86,7 @@ var defaultValues = Config{
 	RrhAutoCreateGroup:  "false",
 	RrhAutoDeleteGroup:  "false",
 	RrhCloneDestination: ".",
+	RrhColor:            "",
 	RrhConfigPath:       "${RRH_HOME}/config.json",
 	RrhDatabasePath:     "${RRH_HOME}/database.json",
 	RrhDefaultGroupName: "no-group",

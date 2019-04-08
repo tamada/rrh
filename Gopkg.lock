@@ -49,6 +49,14 @@
   version = "v1.7.0"
 
 [[projects]]
+  digest = "1:723aa81f50d50bb5e5e67c3076c0cb498c07cbb74dbcac462c2e8973a84df90c"
+  name = "github.com/gookit/color"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "03c3187105615d576d255124f688cee79b8e25b5"
+  version = "v1.1.6"
+
+[[projects]]
   digest = "1:0ade334594e69404d80d9d323445d2297ff8161637f9b2d347cc6973d2d6f05b"
   name = "github.com/hashicorp/errwrap"
   packages = ["."]
@@ -284,6 +292,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/dustin/go-humanize",
+    "github.com/gookit/color",
     "github.com/mitchellh/cli",
     "github.com/mitchellh/go-homedir",
     "gopkg.in/src-d/go-git.v4",

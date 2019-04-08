@@ -86,8 +86,8 @@ func (options *options) generateFormatString(repos []Repo) string {
 	return fmt.Sprintf("    %%-%ds", max)
 }
 
-func (options *options) printRepo(repo Repo, result Result, formatString string) {
-	fmt.Printf(formatString, repo.Name)
+func (options *options) printRepo(repo Repo, result Result, formatString string, config *common.Config) {
+	fmt.Printf(formatString, common.RepositoryID(repo.Name, config))
 	if options.localPath || options.all {
 		fmt.Printf("  %s", repo.Path)
 	}
@@ -104,17 +104,17 @@ func (options *options) isPrintSimple(result Result) bool {
 	return !options.noOmit && result.OmitList && len(options.args) == 0
 }
 
-func (options *options) printGroupName(result Result) int {
+func (options *options) printGroupName(result Result, config *common.Config) int {
 	if len(result.Repos) == 1 {
-		fmt.Printf("%s (1 repository)\n", result.GroupName)
+		fmt.Printf("%s (1 repository)\n", common.GroupName(result.GroupName, config))
 	} else {
-		fmt.Printf("%s (%d repositories)\n", result.GroupName, len(result.Repos))
+		fmt.Printf("%s (%d repositories)\n", common.GroupName(result.GroupName, config), len(result.Repos))
 	}
 	return len(result.Repos)
 }
 
-func (options *options) printResult(result Result) int {
-	var repoCount = options.printGroupName(result)
+func (options *options) printResult(result Result, config *common.Config) int {
+	var repoCount = options.printGroupName(result, config)
 	if !options.isPrintSimple(result) {
 		if options.description || options.all {
 			fmt.Printf("    Description  %s", result.Description)
@@ -122,7 +122,7 @@ func (options *options) printResult(result Result) int {
 		}
 		var formatString = options.generateFormatString(result.Repos)
 		for _, repo := range result.Repos {
-			options.printRepo(repo, result, formatString)
+			options.printRepo(repo, result, formatString, config)
 		}
 	}
 	return repoCount
@@ -157,7 +157,7 @@ func printGroupAndRepoCount(groupCount int, repoCount int) {
 	fmt.Printf("%d %s, %d %s\n", groupCount, groupLabel, repoCount, repoLabel)
 }
 
-func (options *options) printResults(results []Result) int {
+func (options *options) printResults(results []Result, config *common.Config) int {
 	if options.csv {
 		return options.printResultsAsCsv(results)
 	} else if options.repoNameOnly || options.groupRepoName {
@@ -165,7 +165,7 @@ func (options *options) printResults(results []Result) int {
 	}
 	var repoCount int
 	for _, result := range results {
-		repoCount += options.printResult(result)
+		repoCount += options.printResult(result, config)
 	}
 	printGroupAndRepoCount(len(results), repoCount)
 	return 0
@@ -191,7 +191,7 @@ func (list *Command) Run(args []string) int {
 		fmt.Println(err.Error())
 		return 3
 	}
-	return list.options.printResults(results)
+	return list.options.printResults(results, config)
 }
 
 /*

@@ -169,14 +169,14 @@ func (status *Command) executeStatusOnRepository(db *common.Database, name relat
 }
 
 func (status *Command) executeStatus(db *common.Database, name string) ([]result, []error) {
-	if db.HasRepository(name) {
+	if db.HasGroup(name) {
+		return status.executeStatusOnGroup(db, name)
+	} else if db.HasRepository(name) {
 		var results, err = status.executeStatusOnRepository(db, relation{"unknown-group", name})
 		if err != nil {
 			return results, []error{err}
 		}
 		return results, nil
-	} else if db.HasGroup(name) {
-		return status.executeStatusOnGroup(db, name)
 	}
 	return nil, []error{fmt.Errorf("%s: group and repository not found", name)}
 }
