@@ -3,6 +3,7 @@ package status
 import (
 	"flag"
 	"fmt"
+	"time"
 
 	"github.com/mitchellh/cli"
 	"github.com/tamada/rrh/common"
@@ -16,11 +17,30 @@ type Command struct {
 	options *options
 }
 
+const timeformat = "2006-01-02 03:04:05-07"
+
+const (
+	relative     = "relative"
+	absolute     = "absolute"
+	notSpecified = "not_specified"
+)
+
 type options struct {
 	csv    bool
 	branch bool
 	remote bool
-	args   []string
+	format string
+}
+
+func (options *options) strftime(time *time.Time, config *common.Config) string {
+	if time == nil {
+		return ""
+	} else if options.format == notSpecified {
+		return common.Strftime(*time, config)
+	} else if options.format == relative {
+		return common.HumanizeTime(*time)
+	}
+	return time.Format(timeformat)
 }
 
 func (options *options) isRemoteTarget(name plumbing.ReferenceName) bool {
@@ -35,7 +55,7 @@ func (options *options) isBranchTarget(name plumbing.ReferenceName) bool {
 CommandFactory returns an instance of the StatusCommand.
 */
 func CommandFactory() (cli.Command, error) {
-	return &Command{&options{false, false, false, []string{}}}, nil
+	return &Command{&options{false, false, false, notSpecified}}, nil
 }
 
 /*
@@ -44,14 +64,16 @@ Help returns the help message for the user.
 func (status *Command) Help() string {
 	return `rrh status [OPTIONS] [REPOSITORIES|GROUPS...]
 OPTIONS
-    -b, --branches  show the status of the local branches.
-    -r, --remote    show the status of the remote branches.
-    -c, --csv       print result in csv format.
+    -b, --branches               show the status of the local branches.
+    -r, --remote                 show the status of the remote branches.
+    -c, --csv                    print result in csv format.
+    -f, --time-format <FORMAT>   specifies time format. Available value is
+                                 'relative' ad 'absolute'
 ARGUMENTS
-    REPOSITORIES    target repositories.  If no repository was specified
-                    the command shows the result of the default group.
-    GROUPS          target groups.  If no group was specified,
-                    the command shows the result of the default group.`
+    REPOSITORIES                 target repositories.  If no repository was specified
+                                 the command shows the result of the default group.
+    GROUPS                       target groups.  If no group was specified,
+                                 the command shows the result of the default group.`
 }
 
 func (status *Command) parseFmtString(results []result) string {
@@ -62,12 +84,13 @@ func (status *Command) parseFmtString(results []result) string {
 			max = len
 		}
 	}
-	return fmt.Sprintf("        %%-%ds    %%-12s    %%s\n", max)
+	return fmt.Sprintf("        %%-%ds    %%-22s    %%s\n", max)
 }
 
 func (status *Command) printResultInCsv(results []result, config *common.Config) {
 	for _, result := range results {
-		fmt.Printf("%s,%s,%s,%s,%s\n", result.GroupName, result.RepositoryName, result.BranchName, common.Strftime(*result.LastModified, config), result.Description)
+		var timeString = status.options.strftime(result.LastModified, config)
+		fmt.Printf("%s,%s,%s,%s,%s\n", result.GroupName, result.RepositoryName, result.BranchName, timeString, result.Description)
 	}
 }
 
@@ -87,7 +110,7 @@ func (status *Command) printResult(results []result, config *common.Config) {
 		}
 		var time = ""
 		if result.LastModified != nil {
-			time = common.Strftime(*result.LastModified, config)
+			time = status.options.strftime(result.LastModified, config)
 		}
 		fmt.Printf(fmtString, result.BranchName, time, result.Description)
 	}
@@ -116,7 +139,7 @@ Run performs the command.
 */
 func (status *Command) Run(args []string) int {
 	var config = common.OpenConfig()
-	options, err := status.parse(args, config)
+	arguments, err := status.parse(args, config)
 	if err != nil {
 		fmt.Println(err.Error())
 		return 1
@@ -127,7 +150,7 @@ func (status *Command) Run(args []string) int {
 		return 1
 	}
 	var errorFlag = 0
-	for _, arg := range options.args {
+	for _, arg := range arguments {
 		errorFlag += status.runStatus(db, arg)
 	}
 
@@ -135,7 +158,7 @@ func (status *Command) Run(args []string) int {
 }
 
 func (status *Command) buildFlagSet() (*flag.FlagSet, *options) {
-	var options = options{false, false, false, []string{}}
+	var options = options{false, false, false, notSpecified}
 	flags := flag.NewFlagSet("status", flag.ExitOnError)
 	flags.Usage = func() { fmt.Println(status.Help()) }
 	flags.BoolVar(&options.csv, "c", false, "csv format")
@@ -144,20 +167,21 @@ func (status *Command) buildFlagSet() (*flag.FlagSet, *options) {
 	flags.BoolVar(&options.remote, "remote", false, "remote branch status")
 	flags.BoolVar(&options.branch, "b", false, "local branch status")
 	flags.BoolVar(&options.branch, "branches", false, "local branch status")
+	flags.StringVar(&options.format, "time-format", notSpecified, "specifies time format")
+	flags.StringVar(&options.format, "f", notSpecified, "specifies time format")
 	return flags, &options
 }
 
-func (status *Command) parse(args []string, config *common.Config) (*options, error) {
+func (status *Command) parse(args []string, config *common.Config) ([]string, error) {
 	var flags, options = status.buildFlagSet()
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
-	options.args = flags.Args()
-	if len(options.args) == 0 {
-		options.args = []string{config.GetValue(common.RrhDefaultGroupName)}
-	}
 	status.options = options
-	return options, nil
+	if len(flags.Args()) == 0 {
+		return []string{config.GetValue(common.RrhDefaultGroupName)}, nil
+	}
+	return flags.Args(), nil
 }
 
 /*
