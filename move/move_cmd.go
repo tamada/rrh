@@ -165,16 +165,20 @@ func verifyArgumentsOneToOne(db *common.Database, from target, to target) (int, 
 	return Invalid, fmt.Errorf("Specifying arguments did not accept")
 }
 
+func findFromTypes(froms []target) (int, error) {
+	var fromTypes = []int{}
+	for _, from := range froms {
+		fromTypes = append(fromTypes, from.targetType)
+	}
+	return mergeType(fromTypes)
+}
+
 func verifyArgumentsMoreToOne(db *common.Database, froms []target, to target) (int, error) {
 	if to.targetType != GroupType && to.targetType != GroupOrRepoType {
 		return Invalid, fmt.Errorf("types of froms and to did not match: from: %v, to: %v (%d)", froms, to.original, to.targetType)
 	}
 
-	var fromTypes = []int{}
-	for _, from := range froms {
-		fromTypes = append(fromTypes, from.targetType)
-	}
-	var fromType, err2 = mergeType(fromTypes)
+	var fromType, err2 = findFromTypes(froms)
 	if err2 != nil {
 		return Invalid, err2
 	}
