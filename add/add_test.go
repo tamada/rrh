@@ -24,9 +24,11 @@ func TestHelpAndSynopsis(t *testing.T) {
 	}
 	if command.Help() != `rrh add [OPTIONS] <REPOSITORY_PATHS...>
 OPTIONS
-    -g, --group <GROUP>    add repository to RRH database.
+    -g, --group <GROUP>        add repository to RRH database.
+    -r, --repository-id <ID>   specified repository id of the given repository path.
+                               Specifying this option fails with multiple arguments.
 ARGUMENTS
-    REPOSITORY_PATHS       the local path list of the git repositories` {
+    REPOSITORY_PATHS           the local path list of the git repositories.` {
 		t.Error("help did not match")
 	}
 }
@@ -71,6 +73,16 @@ func TestAdd(t *testing.T) {
 			[]groupChecker{},
 			[]repositoryChecker{{"helloworld", true}},
 			[]relationChecker{{"no-group", "helloworld", true}},
+		},
+		{[]string{"--repository-id", "hw", "../testdata/other/helloworld"}, 0,
+			[]groupChecker{},
+			[]repositoryChecker{{"hw", true}},
+			[]relationChecker{{"no-group", "hw", true}},
+		},
+		{[]string{"--repository-id", "fails", "../testdata/other/helloworld", "../testdata/fibonacci"}, 0,
+			[]groupChecker{},
+			[]repositoryChecker{},
+			[]relationChecker{},
 		},
 	}
 
@@ -138,16 +150,13 @@ func TestAddFailed(t *testing.T) {
 	var config = common.OpenConfig()
 	var db, _ = common.Open(config)
 
-	var data = []struct {
-		args      []string
-		groupName string
-	}{
-		{[]string{"../not-exist-dir"}, "no-group"},
-		{[]string{"../testdata/fibonacci"}, "not-exist-group"},
+	var data = []options{
+		{args: []string{"../not-exist-dir"}, group: "no-group"},
+		{args: []string{"../testdata/fibonacci"}, group: "not-exist-group"},
 	}
 
 	for _, datum := range data {
-		var list = add.AddRepositoriesToGroup(db, datum.args, datum.groupName)
+		var list = add.AddRepositoriesToGroup(db, &datum)
 		if len(list) == 0 {
 			t.Errorf("successfully add in invalid data: %v", datum)
 		}

@@ -119,9 +119,11 @@ Registers the repositories which specified the given paths to the RRH database a
 ```sh
 rrh add [OPTIONS] <REPOSITORY_PATHS...>
 OPTIONS
-    -g, --group <GROUP>    add repository to RRH database.
+    -g, --group <GROUP>        add repository to RRH database.
+    -r, --repository-id <ID>   specified repository id of the given repository path.
+                               Specifying this option fails with multiple arguments.
 ARGUMENTS
-    REPOSITORY_PATHS       the local path list of the git repositories
+    REPOSITORY_PATHS           the local path list of the git repositories.
 ```
 
 ### `rrh clone`
