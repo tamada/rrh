@@ -386,34 +386,34 @@ We can see those variables by running `rrh config` sub-command.
 ### `RRH_HOME`
 
 * specifies the location of the RRH database and config file.
-* default: `/Users/tamada/.rrh`
+* Default: `/Users/tamada/.rrh`
 
 ### `RRH_CONFIG_PATH`
 
 * specifies the location of the location path.
     * RRH ignores to specify `RRH_CONFIG_PATH` in the config file.
       This variable availables only environment variable.
-* default: `${RRH_HOME}/config.json`
+* Default: `${RRH_HOME}/config.json`
 
 ### `RRH_DATABASE_PATH`
 
 * specifies the location of the database path.
-* default: `${RRH_HOME}/database.json`
+* Default: `${RRH_HOME}/database.json`
 
 ### `RRH_DEFAULT_GROUP_NAME`
 
 * specifies the default group name.
-* default: `no-group`
+* Default: `no-group`
 
 ### `RRH_CLONE_DESTINATION`
 
 * specifies the destination by cloning the repository.
-* default: `.`
+* Default: `.`
 
 ### `RRH_ON_ERROR`
 
 * specifies the behaviors of RRH on error.
-* default: `WARN`
+* Default: `WARN`
 * Available values: `FAIL_IMMEDIATELY`, `FAIL`, `WARN`, and `IGNORE`
     * `FAIL_IMMEDIATELY`
         * reports error immediately and quits RRH with a non-zero status.
@@ -427,7 +427,7 @@ We can see those variables by running `rrh config` sub-command.
 ### `RRH_TIME_FORMAT`
 
 * specifies the time format for `status` command.
-* default: `relative`
+* Default: `relative`
 * Available value: `relative` and the time format for Go lang.
     * `relative`
         * shows times by humanized format (e.g., 2 weeks ago)
@@ -438,17 +438,33 @@ We can see those variables by running `rrh config` sub-command.
 ### `RRH_AUTO_CREATE_GROUP`
 
 * specifies to create the group when the not existing group was specified, and it needs to create.
-* default: false
+* Default: false
 
 ### `RRH_AUTO_DELETE_GROUP`
 
 * specifies to delete the group when some group was no more needed.
-* default: false
+* Default: false
 
 ### `RRH_SORT_ON_UPDATING`
 
 * specifies to sort database entries on updating database.
-* default: false
+* Default: false
+
+### `RRH_COLOR`
+
+* specifies the colors of the output.
+* Default: `""` (empty string)
+* Format: `"repository:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+GROUP:fg=<COLOR>;bg=<COLOR>;op=<STYLE>"`
+    * Available `COLOR`s
+        * red, cyan, gray, blue, black, green, white, yellow, magenta.
+    * Available `STYLE`s
+        * bold, underscore.
+    * Delimiter of repository and group is `+`, delimiter of type and value is `:`, delimiter of each label is `;`, and delimiter of each value is `,`.
+* Examples:
+    * `RRH_COLOR: repository:fg=red+group:fg=cyan;op=bold,underscore`
+        * Repository: red, Group: cyan in bold with underscore.
+* Note
+    * The colorized output does not support to arrange the output indentation.
 
 ## Database
 
