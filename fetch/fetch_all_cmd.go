@@ -33,7 +33,7 @@ func (fetchAll *AllCommand) validateArguments(args []string) (*options, error) {
 	var options, err = fetchAll.parse(args)
 	if err == nil {
 		if len(options.args) != 0 {
-			return nil, fmt.Errorf("fetch-all must be no arguments.")
+			return nil, fmt.Errorf("fetch-all must be no arguments")
 		}
 	}
 	return options, err
