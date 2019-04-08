@@ -48,18 +48,29 @@ func ColorrizedGroupName(groupName string) string {
 	return groupColorFunc(groupName)
 }
 
+/*
+ClearColorize clears the color settings.
+*/
+func ClearColorize() {
+	parse("")
+}
+
 func parse(colorSettings string) {
 	var colors = strings.Split(colorSettings, "+")
 	repoColor = ""
 	groupColor = ""
 	for _, c := range colors {
-		if strings.HasPrefix(c, "repository:") {
-			repoColor = color.ParseCodeFromAttr(strings.Replace(c, "repository:", "", -1))
-		} else if strings.HasPrefix(c, "group:") {
-			groupColor = color.ParseCodeFromAttr(strings.Replace(c, "group:", "", -1))
-		}
+		parseEach(c)
 	}
 	updateFuncs()
+}
+
+func parseEach(c string) {
+	if strings.HasPrefix(c, "repository:") {
+		repoColor = color.ParseCodeFromAttr(strings.Replace(c, "repository:", "", -1))
+	} else if strings.HasPrefix(c, "group:") {
+		groupColor = color.ParseCodeFromAttr(strings.Replace(c, "group:", "", -1))
+	}
 }
 
 func updateFuncs() {

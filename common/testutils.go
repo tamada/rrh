@@ -5,12 +5,16 @@ import (
 	"io"
 	"os"
 	"strings"
+	"sync"
 )
+
+var mutex = new(sync.Mutex)
 
 /*
 Rollback rollbacks database after executing function f.
 */
 func Rollback(dbpath, configPath string, f func()) {
+	mutex.Lock()
 	os.Setenv(RrhConfigPath, configPath)
 	os.Setenv(RrhDatabasePath, dbpath)
 	var config = OpenConfig()
@@ -18,6 +22,7 @@ func Rollback(dbpath, configPath string, f func()) {
 	defer db.StoreAndClose()
 
 	f()
+	defer mutex.Unlock()
 }
 
 /*

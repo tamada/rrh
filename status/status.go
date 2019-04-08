@@ -176,7 +176,7 @@ func (status *Command) executeStatus(db *common.Database, name string) ([]result
 		if err != nil {
 			return results, []error{err}
 		}
-		return results, nil
+		return results, []error{}
 	}
 	return nil, []error{fmt.Errorf("%s: group and repository not found", name)}
 }
