@@ -241,7 +241,7 @@ func printRepositoryCount(count int) {
 }
 
 func (glc *listCommand) printResult(result Result, options *listOptions, config *common.Config) {
-	fmt.Print(common.GroupName(result.Name, config))
+	fmt.Print(common.ColorrizedGroupName(result.Name, config))
 	if !options.nameOnly && options.desc {
 		fmt.Printf(",%s", result.Description)
 	}

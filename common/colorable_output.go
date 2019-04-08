@@ -6,8 +6,8 @@ import (
 	"github.com/gookit/color"
 )
 
-var repoColorFunc func(r string) string = nil
-var groupColorFunc func(r string) string = nil
+var repoColorFunc func(r string) string
+var groupColorFunc func(r string) string
 
 var repoColor = ""
 var groupColor = ""
@@ -34,14 +34,20 @@ var supportedBackColor = map[string]color.Color{
 	"magenta": color.BgMagenta,
 }
 
-func RepositoryID(repoID string, config *Config) string {
+/*
+ColorrizedRepositoryID returns the colorrized repository id string from configuration.
+*/
+func ColorrizedRepositoryID(repoID string, config *Config) string {
 	if repoColorFunc == nil {
 		updateColor(config)
 	}
 	return repoColorFunc(repoID)
 }
 
-func GroupName(groupName string, config *Config) string {
+/*
+ColorrizedGroupName returns the colorrized group name string from configuration.
+*/
+func ColorrizedGroupName(groupName string, config *Config) string {
 	if groupColorFunc == nil {
 		updateColor(config)
 	}

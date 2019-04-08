@@ -87,7 +87,7 @@ func (options *options) generateFormatString(repos []Repo) string {
 }
 
 func (options *options) printRepo(repo Repo, result Result, formatString string, config *common.Config) {
-	fmt.Printf(formatString, common.RepositoryID(repo.Name, config))
+	fmt.Printf(formatString, common.ColorrizedRepositoryID(repo.Name, config))
 	if options.localPath || options.all {
 		fmt.Printf("  %s", repo.Path)
 	}
@@ -106,9 +106,9 @@ func (options *options) isPrintSimple(result Result) bool {
 
 func (options *options) printGroupName(result Result, config *common.Config) int {
 	if len(result.Repos) == 1 {
-		fmt.Printf("%s (1 repository)\n", common.GroupName(result.GroupName, config))
+		fmt.Printf("%s (1 repository)\n", common.ColorrizedGroupName(result.GroupName, config))
 	} else {
-		fmt.Printf("%s (%d repositories)\n", common.GroupName(result.GroupName, config), len(result.Repos))
+		fmt.Printf("%s (%d repositories)\n", common.ColorrizedGroupName(result.GroupName, config), len(result.Repos))
 	}
 	return len(result.Repos)
 }
