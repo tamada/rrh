@@ -11,8 +11,8 @@ import (
 Remote represents remote of the git repository.
 */
 type Remote struct {
-	Name string
-	URL  string
+	Name string `json:"name"`
+	URL  string `json:"url"`
 }
 
 /*

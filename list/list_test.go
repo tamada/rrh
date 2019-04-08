@@ -49,7 +49,7 @@ func TestRunByCsvOutput(t *testing.T) {
 			list.Run([]string{"--all-entries", "--csv"})
 		})
 		result = common.ReplaceNewline(result, "&")
-		var want = "group1,desc1,repo1,path1&group3,desc3,repo2,path2"
+		var want = "group1,desc1,repo1,path1&group3,desc3,repo2,path2,origin,git@github.com:example/repo2.git"
 		if result != want {
 			t.Errorf("result did not match, wont: %s, got: %s", want, result)
 		}
