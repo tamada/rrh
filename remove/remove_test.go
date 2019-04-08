@@ -100,49 +100,43 @@ func TestRemoveEntryFailed(t *testing.T) {
 }
 
 func TestRemoveRelation(t *testing.T) {
-	var db = open("tmp.json")
-
-	var rm, _ = CommandFactory()
-	rm.Run([]string{"-v", "group1/repo1"})
-	var db2 = open("tmp.json")
-	if len(db2.Repositories) != 2 && len(db2.Groups) != 3 {
-		t.Error("repositories and groups are removed!")
-	}
-	if db2.ContainsCount("group1") != 0 || db2.ContainsCount("group2") != 0 {
-		t.Error("relation was not removed")
-	}
-
-	db.StoreAndClose()
+	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+		var rm, _ = CommandFactory()
+		rm.Run([]string{"-v", "group1/repo1"})
+		var db2 = open("tmp.json")
+		if len(db2.Repositories) != 2 && len(db2.Groups) != 3 {
+			t.Error("repositories and groups are removed!")
+		}
+		if db2.ContainsCount("group1") != 0 || db2.ContainsCount("group2") != 0 {
+			t.Error("relation was not removed")
+		}
+	})
 }
 
 func TestRunRemoveRepository(t *testing.T) {
-	var db = open("tmp.json")
-
-	var rm, _ = CommandFactory()
-	rm.Run([]string{"-v", "group2", "repo1"})
-	var db2 = open("tmp.json")
-	if len(db2.Repositories) != 1 && len(db2.Groups) != 2 {
-		t.Errorf("repositories: %d, groups: %d\n", len(db2.Repositories), len(db2.Groups))
-	}
-	if db2.ContainsCount("group1") != 0 {
-		t.Errorf("database was broken")
-	}
-
-	db.StoreAndClose()
+	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+		var rm, _ = CommandFactory()
+		rm.Run([]string{"-v", "group2", "repo1"})
+		var db2 = open("tmp.json")
+		if len(db2.Repositories) != 1 && len(db2.Groups) != 2 {
+			t.Errorf("repositories: %d, groups: %d\n", len(db2.Repositories), len(db2.Groups))
+		}
+		if db2.ContainsCount("group1") != 0 {
+			t.Errorf("database was broken")
+		}
+	})
 }
 
 func TestRemoveRepository2(t *testing.T) {
-	var db = open("tmp.json")
-
-	var rm, _ = CommandFactory()
-	os.Setenv(common.RrhAutoDeleteGroup, "true")
-	rm.Run([]string{"-v", "group2", "repo1"})
-	var db2 = open("tmp.json")
-	if len(db2.Repositories) != 1 && len(db2.Groups) != 0 {
-		t.Errorf("repositories: %d, groups: %d\n", len(db2.Repositories), len(db2.Groups))
-	}
-
-	db.StoreAndClose()
+	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+		var rm, _ = CommandFactory()
+		os.Setenv(common.RrhAutoDeleteGroup, "true")
+		rm.Run([]string{"-v", "group2", "repo1"})
+		var db2 = open("tmp.json")
+		if len(db2.Repositories) != 1 && len(db2.Groups) != 0 {
+			t.Errorf("repositories: %d, groups: %d\n", len(db2.Repositories), len(db2.Groups))
+		}
+	})
 }
 
 func TestBrokenDatabase(t *testing.T) {
@@ -154,14 +148,12 @@ func TestBrokenDatabase(t *testing.T) {
 }
 
 func TestUnknownOptions(t *testing.T) {
-	var db = open("tmp.json")
-
-	var rm, _ = CommandFactory()
-	if result := rm.Run([]string{"--unknown"}); result != 1 {
-		t.Errorf("unknown option was not failed: %d", result)
-	}
-
-	db.StoreAndClose()
+	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+		var rm, _ = CommandFactory()
+		if result := rm.Run([]string{"--unknown"}); result != 1 {
+			t.Errorf("unknown option was not failed: %d", result)
+		}
+	})
 }
 
 func TestHelp(t *testing.T) {

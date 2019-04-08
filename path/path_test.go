@@ -1,7 +1,6 @@
 package path
 
 import (
-	"os"
 	"testing"
 
 	"github.com/tamada/rrh/common"
@@ -27,8 +26,6 @@ ARGUMENTS
 }
 
 func TestPathCommand(t *testing.T) {
-	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
-	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	var testcases = []struct {
 		args    []string
 		status  int
@@ -46,18 +43,20 @@ func TestPathCommand(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		var path, _ = CommandFactory()
-		var output = common.CaptureStdout(func() {
-			var status = path.Run(tc.args)
-			if status != tc.status {
-				t.Errorf("%v: status code did not match: wont: %d, got: %d", tc.args, tc.status, status)
+		common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+			var path, _ = CommandFactory()
+			var output = common.CaptureStdout(func() {
+				var status = path.Run(tc.args)
+				if status != tc.status {
+					t.Errorf("%v: status code did not match: wont: %d, got: %d", tc.args, tc.status, status)
+				}
+			})
+			if tc.status == 0 {
+				output = common.ReplaceNewline(output, ",")
+				if output != tc.results {
+					t.Errorf("%v: output did not match: wont: %s, got: %s", tc.args, tc.results, output)
+				}
 			}
 		})
-		if tc.status == 0 {
-			output = common.ReplaceNewline(output, ",")
-			if output != tc.results {
-				t.Errorf("%v: output did not match: wont: %s, got: %s", tc.args, tc.results, output)
-			}
-		}
 	}
 }

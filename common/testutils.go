@@ -11,18 +11,30 @@ import (
 var mutex = new(sync.Mutex)
 
 /*
-Rollback rollbacks database after executing function f.
+WithDatabase introduce mutex for using database for only one routine at once.
 */
-func Rollback(dbpath, configPath string, f func()) {
+func WithDatabase(dbpath, configPath string, f func()) {
 	mutex.Lock()
 	os.Setenv(RrhConfigPath, configPath)
 	os.Setenv(RrhDatabasePath, dbpath)
-	var config = OpenConfig()
-	var db, _ = Open(config)
-	defer db.StoreAndClose()
 
 	f()
+
 	defer mutex.Unlock()
+}
+
+/*
+Rollback rollbacks database after executing function f.
+*/
+func Rollback(dbpath, configPath string, f func()) {
+	WithDatabase(dbpath, configPath, func() {
+		var config = OpenConfig()
+		config.Update(RrhDatabasePath, dbpath)
+		var db, _ = Open(config)
+		defer db.StoreAndClose()
+
+		f()
+	})
 }
 
 /*
