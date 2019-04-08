@@ -12,6 +12,7 @@ import (
 Command shows the subcommand of rrh.
 */
 type Command struct {
+	options *options
 }
 
 /*
@@ -27,9 +28,11 @@ Help function shows the help message.
 func (add *Command) Help() string {
 	return `rrh add [OPTIONS] <REPOSITORY_PATHS...>
 OPTIONS
-    -g, --group <GROUP>    add repository to RRH database.
+    -g, --group <GROUP>        add repository to RRH database.
+    -r, --repository-id <ID>   specified repository id of the given repository path.
+                               Specifying this option fails with multiple arguments.
 ARGUMENTS
-    REPOSITORY_PATHS       the local path list of the git repositories`
+    REPOSITORY_PATHS           the local path list of the git repositories.`
 }
 
 func (add *Command) showError(errorlist []error, onError string) {
@@ -41,10 +44,10 @@ func (add *Command) showError(errorlist []error, onError string) {
 	}
 }
 
-func (add *Command) perform(db *common.Database, args []string, groupName string) int {
+func (add *Command) perform(db *common.Database, opt *options) int {
 	var onError = db.Config.GetValue(common.RrhOnError)
 
-	var errorlist = add.AddRepositoriesToGroup(db, args, groupName)
+	var errorlist = add.AddRepositoriesToGroup(db, opt)
 
 	add.showError(errorlist, onError)
 
@@ -75,12 +78,13 @@ func (add *Command) Run(args []string) int {
 		fmt.Println(err2.Error())
 		return 2
 	}
-	return add.perform(db, opt.args, opt.group)
+	return add.perform(db, opt)
 }
 
 type options struct {
-	group string
-	args  []string
+	group  string
+	repoID string
+	args   []string
 }
 
 func (add *Command) parse(args []string, config *common.Config) (*options, error) {
@@ -90,10 +94,13 @@ func (add *Command) parse(args []string, config *common.Config) (*options, error
 	flags.Usage = func() { fmt.Println(add.Help()) }
 	flags.StringVar(&opt.group, "g", defaultGroup, "target group")
 	flags.StringVar(&opt.group, "group", defaultGroup, "target group")
+	flags.StringVar(&opt.repoID, "r", "", "specifying repository id")
+	flags.StringVar(&opt.repoID, "repository-id", "", "specifying repository id")
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
 	opt.args = flags.Args()
+	add.options = &opt
 
 	return &opt, nil
 }
