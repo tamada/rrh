@@ -35,7 +35,7 @@ __rrh_clone() {
 }
 
 __rrh_config(){
-    local rrhenvs="RRH_HOME RRH_CONFIG_PATH RRH_DATABASE_PATH RRH_DEFAULT_GROUP_NAME RRH_CLONE_DESTINATION RRH_ON_ERROR RRH_TIME_FORMAT RRH_AUTO_CREATE_GROUP RRH_AUTO_DELETE_GROUP RRH_SORT_ON_UPDATING"
+    local rrhenvs="RRH_HOME RRH_CONFIG_PATH RRH_DATABASE_PATH RRH_DEFAULT_GROUP_NAME RRH_CLONE_DESTINATION RRH_ON_ERROR RRH_TIME_FORMAT RRH_AUTO_CREATE_GROUP RRH_AUTO_DELETE_GROUP RRH_SORT_ON_UPDATING RRH_COLOR RRH_ENABLE_COLORIZED"
 
     if [ "$4" = "$2" ]; then
         COMPREPLY=($(compgen -W "unset set list" -- $1))
@@ -43,7 +43,7 @@ __rrh_config(){
         COMPREPLY=($(compgen -W rrhenvs $1))
     elif [ "$2" = "RRH_ON_ERROR" ] && [ "${COMP_WORDS[2]}" = "set" ]; then
         COMPREPLY=($(compgen -W "IGNORE WARN FAIL FAIL_IMMEDIATELY" -- $1))
-    elif [ "$2" = "RRH_AUTO_CREATE_GROUP" -o "$2" = "RRH_AUTO_DELETE_GROUP" -o "$2" = "RRH_SORT_ON_UPDATING" ] && [ "${COMP_WORDS[2]}" = "set" ]; then
+    elif [ "$2" = "RRH_AUTO_CREATE_GROUP" -o "$2" = "RRH_AUTO_DELETE_GROUP" -o "$2" = "RRH_SORT_ON_UPDATING" -o "$2" = "RRH_ENABLE_COLORIZED" ] && [ "${COMP_WORDS[2]}" = "set" ]; then
         COMPREPLY=($(compgen -W "true false" -- $1))
     fi
 }

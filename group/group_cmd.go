@@ -240,8 +240,15 @@ func printRepositoryCount(count int) {
 	}
 }
 
+func findGroupName(name string, nameOnlyFlag bool) string {
+	if nameOnlyFlag {
+		return name
+	}
+	return common.ColorizedGroupName(name)
+}
+
 func (glc *listCommand) printResult(result Result, options *listOptions) {
-	fmt.Print(result.Name)
+	fmt.Print(findGroupName(result.Name, options.nameOnly))
 	if !options.nameOnly && options.desc {
 		fmt.Printf(",%s", result.Description)
 	}

@@ -16,9 +16,10 @@ func open(jsonName string) *common.Database {
 }
 
 func ExampleCommand() {
-	os.Setenv(common.RrhDatabasePath, "../testdata/database.json")
-	var list, _ = CommandFactory()
-	list.Run([]string{})
+	common.WithDatabase("../testdata/database.json", "../testdata/config.json", func() {
+		var list, _ = CommandFactory()
+		list.Run([]string{})
+	})
 	// Output:
 	// no-group (1 repository)
 	//     rrh          ~/go/src/github.com/tamada/rrh
@@ -26,9 +27,10 @@ func ExampleCommand() {
 }
 
 func ExampleCommand_Run() {
-	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var list, _ = CommandFactory()
-	list.Run([]string{"--desc", "--path"})
+	common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		var list, _ = CommandFactory()
+		list.Run([]string{"--desc", "--path"})
+	})
 	// Output:
 	// group1 (1 repository)
 	//     Description  desc1
@@ -41,16 +43,17 @@ func ExampleCommand_Run() {
 
 func TestRunByCsvOutput(t *testing.T) {
 	os.Setenv(common.RrhDefaultGroupName, "group1")
-	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var result = common.CaptureStdout(func() {
-		var list, _ = CommandFactory()
-		list.Run([]string{"--all-entries", "--csv"})
+	common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		var result = common.CaptureStdout(func() {
+			var list, _ = CommandFactory()
+			list.Run([]string{"--all-entries", "--csv"})
+		})
+		result = common.ReplaceNewline(result, "&")
+		var want = "group1,desc1,repo1,path1&group3,desc3,repo2,path2,origin,git@github.com:example/repo2.git"
+		if result != want {
+			t.Errorf("result did not match, wont: %s, got: %s", want, result)
+		}
 	})
-	result = common.ReplaceNewline(result, "&")
-	var want = "group1,desc1,repo1,path1&group3,desc3,repo2,path2"
-	if result != want {
-		t.Errorf("result did not match, wont: %s, got: %s", want, result)
-	}
 }
 
 func TestSimpleResults(t *testing.T) {
@@ -63,17 +66,19 @@ func TestSimpleResults(t *testing.T) {
 		{[]string{"--group-repository-form"}, 0, "group1/repo1,group3/repo2"},
 	}
 	for _, tc := range testcases {
-		var result = common.CaptureStdout(func() {
-			var list, _ = CommandFactory()
-			var status = list.Run(tc.args)
-			if status != tc.status {
-				t.Errorf("%v: status code did not match: wont: %d, got: %d", tc.args, tc.status, status)
+		common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+			var result = common.CaptureStdout(func() {
+				var list, _ = CommandFactory()
+				var status = list.Run(tc.args)
+				if status != tc.status {
+					t.Errorf("%v: status code did not match: wont: %d, got: %d", tc.args, tc.status, status)
+				}
+			})
+			result = common.ReplaceNewline(result, ",")
+			if result != tc.result {
+				t.Errorf("%v: result did not match: wont: %s, got: %s", tc.args, tc.result, result)
 			}
 		})
-		result = common.ReplaceNewline(result, ",")
-		if result != tc.result {
-			t.Errorf("%v: result did not match: wont: %s, got: %s", tc.args, tc.result, result)
-		}
 	}
 }
 
@@ -121,27 +126,29 @@ func TestFindResults(t *testing.T) {
 	}
 
 	for _, data := range testdata {
-		list.options.args = data.targets
-		var results, err = list.FindResults(db)
-		if err != nil {
-			t.Errorf("%v: group not found.", data.targets)
-		}
-		if results[0].GroupName != data.want[0].GroupName {
-			t.Errorf("group name: want: %s, got:%s", data.want[0].GroupName, results[0].GroupName)
-		}
-		if results[0].Description != data.want[0].Description {
-			t.Errorf("description: want: %s, got: %s", data.want[0].Description, results[0].Description)
-		}
-		if len(results[0].Repos) != len(data.want[0].Repos) {
-			t.Errorf("# of repositories did not match: want: %d, got: %d\n", len(data.want[0].Repos), len(results[0].Repos))
-		}
-		if len(results[0].Repos) > 0 {
-			if results[0].Repos[0].Name != data.want[0].Repos[0].Name {
-				t.Errorf("repo name: want: %s, got:%s", data.want[0].Repos[0].Name, results[0].Repos[0].Name)
+		common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+			list.options.args = data.targets
+			var results, err = list.FindResults(db)
+			if err != nil {
+				t.Errorf("%v: group not found.", data.targets)
 			}
-			if results[0].Repos[0].Path != data.want[0].Repos[0].Path {
-				t.Errorf("repo path: want: %s, got:%s", data.want[0].Repos[0].Path, results[0].Repos[0].Path)
+			if results[0].GroupName != data.want[0].GroupName {
+				t.Errorf("group name: want: %s, got:%s", data.want[0].GroupName, results[0].GroupName)
 			}
-		}
+			if results[0].Description != data.want[0].Description {
+				t.Errorf("description: want: %s, got: %s", data.want[0].Description, results[0].Description)
+			}
+			if len(results[0].Repos) != len(data.want[0].Repos) {
+				t.Errorf("# of repositories did not match: want: %d, got: %d\n", len(data.want[0].Repos), len(results[0].Repos))
+			}
+			if len(results[0].Repos) > 0 {
+				if results[0].Repos[0].Name != data.want[0].Repos[0].Name {
+					t.Errorf("repo name: want: %s, got:%s", data.want[0].Repos[0].Name, results[0].Repos[0].Name)
+				}
+				if results[0].Repos[0].Path != data.want[0].Repos[0].Path {
+					t.Errorf("repo path: want: %s, got:%s", data.want[0].Repos[0].Path, results[0].Repos[0].Path)
+				}
+			}
+		})
 	}
 }

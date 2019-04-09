@@ -40,11 +40,12 @@ func TestUnknownOptions(t *testing.T) {
 }
 
 func TestBrokenDatabase(t *testing.T) {
-	os.Setenv(common.RrhDatabasePath, "../testdata/broken.json")
-	var export, _ = CommandFactory()
-	if val := export.Run([]string{}); val != 2 {
-		t.Errorf("broken json successfully read!?: %d", val)
-	}
+	common.WithDatabase("../testdata/broken.json", "../testdata/config.json", func() {
+		var export, _ = CommandFactory()
+		if val := export.Run([]string{}); val != 2 {
+			t.Errorf("broken json successfully read!?: %d", val)
+		}
+	})
 }
 
 func TestNullDB(t *testing.T) {
@@ -76,17 +77,18 @@ func TestNullDBNoIndent(t *testing.T) {
 }
 
 func TestTmpDBNoIndent(t *testing.T) {
-	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var result = common.CaptureStdout(func() {
-		var export, _ = CommandFactory()
-		export.Run([]string{"--no-indent"})
-	})
-	result = strings.TrimSpace(result)
+	common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		var result = common.CaptureStdout(func() {
+			var export, _ = CommandFactory()
+			export.Run([]string{"--no-indent"})
+		})
+		result = strings.TrimSpace(result)
 
-	if !strings.HasPrefix(result, "{\"last_modified\":") &&
-		!strings.HasSuffix(result, `"repositories":[{"repository_id":"repo1","repository_path":"path1","remotes":[]},{"repository_id":"repo2","repository_path":"path2","remotes":[]}],"groups":[{"group_name":"group1","group_desc":"desc1"},{"group_name":"group2","group_desc":"desc2"}],"relations":[{"repository_id":"repo1","group_name":"group1"}]}`) {
-		t.Errorf("tmp.json was not matched.\ngot: %s", result)
-	}
+		if !strings.HasPrefix(result, "{\"last_modified\":") ||
+			!strings.HasSuffix(result, `"repositories":[{"repository_id":"repo1","repository_path":"path1","remotes":[]},{"repository_id":"repo2","repository_path":"path2","remotes":[{"name":"origin","url":"git@github.com:example/repo2.git"}]}],"groups":[{"group_name":"group1","group_desc":"desc1","omit_list":false},{"group_name":"group2","group_desc":"desc2","omit_list":false},{"group_name":"group3","group_desc":"desc3","omit_list":true}],"relations":[{"repository_id":"repo1","group_name":"group1"},{"repository_id":"repo2","group_name":"group3"}]}`) {
+			t.Errorf("tmp.json was not matched.\ngot: %s", result)
+		}
+	})
 	// In example testing, how do I ignore the part of output, like below?
 	// Output:
 	// {"last_modified":".*",repositories":[{"repository_id":"repo1","repository_path":"path1","remotes":[]},{"repository_id":"repo2","repository_path":"path2","remotes":[]}],"groups":[{"group_name":"group1","group_desc":"desc1","group_items":["repo1"]},{"group_name":"group2","group_desc":"desc2","group_items":[]}]}

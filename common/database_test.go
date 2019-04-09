@@ -76,34 +76,34 @@ func TestOpenNullDatabase(t *testing.T) {
 }
 
 func TestStore(t *testing.T) {
-	os.Setenv(RrhDatabasePath, "../testdata/tmp.json")
-	var config = OpenConfig()
-	var db, _ = Open(config)
+	Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+		var config = OpenConfig()
+		var db, _ = Open(config)
 
-	db.CreateGroup("group1", "desc1", false)
-	db.CreateGroup("group2", "desc2", false)
-	db.CreateRepository("repo1", "path1", []Remote{})
-	db.CreateRepository("repo2", "path2", []Remote{})
-	db.Relate("group1", "repo1")
-	db.StoreAndClose()
+		db.CreateGroup("group1", "desc1", false)
+		db.CreateGroup("group2", "desc2", false)
+		db.CreateRepository("repo1", "path1", []Remote{})
+		db.CreateRepository("repo2", "path2", []Remote{})
+		db.Relate("group1", "repo1")
+		db.StoreAndClose()
 
-	var db2, _ = Open(config)
-	if !db2.HasGroup("group1") {
-		t.Error("group1 not found!")
-	}
-	if !db2.HasGroup("group2") {
-		t.Error("group2 not found!")
-	}
-	if !db2.HasRepository("repo1") {
-		t.Error("repo1 not found!")
-	}
-	if !db2.HasRepository("repo2") {
-		t.Error("repo2 not found!")
-	}
-	if !db2.HasRelation("group1", "repo1") {
-		t.Error("group1 does not relate with repo1")
-	}
-
+		var db2, _ = Open(config)
+		if !db2.HasGroup("group1") {
+			t.Error("group1 not found!")
+		}
+		if !db2.HasGroup("group2") {
+			t.Error("group2 not found!")
+		}
+		if !db2.HasRepository("repo1") {
+			t.Error("repo1 not found!")
+		}
+		if !db2.HasRepository("repo2") {
+			t.Error("repo2 not found!")
+		}
+		if !db2.HasRelation("group1", "repo1") {
+			t.Error("group1 does not relate with repo1")
+		}
+	})
 }
 
 func TestPrune(t *testing.T) {

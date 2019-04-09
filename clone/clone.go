@@ -21,6 +21,7 @@ func registerPath(db *common.Database, dest string, repoID string) (*common.Repo
 	if err2 != nil {
 		return nil, err2
 	}
+	fmt.Printf("createRepository(%s, %s)\n", repoID, path)
 	var repo, err3 = db.CreateRepository(repoID, path, remotes)
 	if err3 != nil {
 		return nil, err3

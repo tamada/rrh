@@ -48,16 +48,18 @@ func Example_ofCommand_Run() {
 
 func TestGroupListOnlyName(t *testing.T) {
 	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var output = common.CaptureStdout(func() {
-		var glc, _ = CommandFactory()
-		glc.Run([]string{"list", "--only-groupname"})
-	})
-	var wontOutput = `group1
+	common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		var output = common.CaptureStdout(func() {
+			var glc, _ = CommandFactory()
+			glc.Run([]string{"list", "--only-groupname"})
+		})
+		var wontOutput = `group1
 group2
 group3`
-	if strings.TrimSpace(output) != wontOutput {
-		t.Errorf("the result with option only-groupname did not match\nwont: %s, got: %s", wontOutput, output)
-	}
+		if strings.TrimSpace(output) != wontOutput {
+			t.Errorf("the result with option only-groupname did not match\nwont: %s, got: %s", wontOutput, output)
+		}
+	})
 }
 
 func TestGroupOfCommand(t *testing.T) {
@@ -72,14 +74,16 @@ ARGUMENTS
     REPOSITORY_ID     show the groups of the repository.`},
 	}
 	for _, tc := range testcases {
-		var output = common.CaptureStdout(func() {
-			var command, _ = ofCommandFactory()
-			command.Run(tc.args)
+		common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+			var output = common.CaptureStdout(func() {
+				var command, _ = ofCommandFactory()
+				command.Run(tc.args)
+			})
+			output = strings.TrimSpace(output)
+			if output != tc.output {
+				t.Errorf("%v: output did not match, wont: %s, got: %s", tc.args, tc.output, output)
+			}
 		})
-		output = strings.TrimSpace(output)
-		if output != tc.output {
-			t.Errorf("%v: output did not match, wont: %s, got: %s", tc.args, tc.output, output)
-		}
 	}
 }
 

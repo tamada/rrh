@@ -9,7 +9,12 @@
     {
       "repository_id": "repo2",
       "repository_path": "path2",
-      "remotes": []
+      "remotes": [
+        {
+          "name": "origin",
+          "URL": "git@github.com:example/repo2.git"
+        }
+      ]
     }
   ],
   "groups": [

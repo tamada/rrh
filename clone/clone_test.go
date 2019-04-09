@@ -40,7 +40,7 @@ func contains(slice []string, checkItem string) bool {
 func TestCommand_MultipleProjects(t *testing.T) {
 	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 		var clone, _ = CommandFactory()
-		clone.Run([]string{"-d", "../testdata/hoge", "-g", "not-exist-group",
+		clone.Run([]string{"--verbose", "-d", "../testdata/hoge", "-g", "not-exist-group",
 			"../testdata/helloworld",
 			"../testdata/fibonacci"})
 		defer cleanup([]string{"../testdata/hoge"})

@@ -72,10 +72,7 @@ func (options *options) printResultsAsCsv(results []Result) int {
 	return 0
 }
 
-/*
-generateFormatString returns the formatter for `Printf` to arrange the length of repository names.
-*/
-func (options *options) generateFormatString(repos []Repo) string {
+func findMaxLength(repos []Repo) int {
 	var max = len("Description")
 	for _, repo := range repos {
 		var len = len(repo.Name)
@@ -83,11 +80,21 @@ func (options *options) generateFormatString(repos []Repo) string {
 			max = len
 		}
 	}
-	return fmt.Sprintf("    %%-%ds", max)
+	return max
 }
 
-func (options *options) printRepo(repo Repo, result Result, formatString string) {
-	fmt.Printf(formatString, repo.Name)
+/*
+printColoriezdRepositoryID prints the repository name in color.
+Coloring escape sequence breaks the printf position arrangement.
+Therefore, we arranges the positions by spacing behind the colored repository name.
+*/
+func printColoriezdRepositoryID(repoName string, length int) {
+	var formatter = fmt.Sprintf("    %%s%%%ds", length-len(repoName))
+	fmt.Printf(formatter, common.ColorizedRepositoryID(repoName), "")
+}
+
+func (options *options) printRepo(repo Repo, result Result, maxLength int) {
+	printColoriezdRepositoryID(repo.Name, maxLength)
 	if options.localPath || options.all {
 		fmt.Printf("  %s", repo.Path)
 	}
@@ -104,25 +111,25 @@ func (options *options) isPrintSimple(result Result) bool {
 	return !options.noOmit && result.OmitList && len(options.args) == 0
 }
 
-func (options *options) printGroupName(result Result) int {
+func printGroupName(result Result) int {
 	if len(result.Repos) == 1 {
-		fmt.Printf("%s (1 repository)\n", result.GroupName)
+		fmt.Printf("%s (1 repository)\n", common.ColorizedGroupName(result.GroupName))
 	} else {
-		fmt.Printf("%s (%d repositories)\n", result.GroupName, len(result.Repos))
+		fmt.Printf("%s (%d repositories)\n", common.ColorizedGroupName(result.GroupName), len(result.Repos))
 	}
 	return len(result.Repos)
 }
 
 func (options *options) printResult(result Result) int {
-	var repoCount = options.printGroupName(result)
+	var repoCount = printGroupName(result)
 	if !options.isPrintSimple(result) {
 		if options.description || options.all {
 			fmt.Printf("    Description  %s", result.Description)
 			fmt.Println()
 		}
-		var formatString = options.generateFormatString(result.Repos)
+		var maxLength = findMaxLength(result.Repos)
 		for _, repo := range result.Repos {
-			options.printRepo(repo, result, formatString)
+			options.printRepo(repo, result, maxLength)
 		}
 	}
 	return repoCount
@@ -157,7 +164,7 @@ func printGroupAndRepoCount(groupCount int, repoCount int) {
 	fmt.Printf("%d %s, %d %s\n", groupCount, groupLabel, repoCount, repoLabel)
 }
 
-func (options *options) printResults(results []Result) int {
+func (options *options) printResults(results []Result, config *common.Config) int {
 	if options.csv {
 		return options.printResultsAsCsv(results)
 	} else if options.repoNameOnly || options.groupRepoName {
@@ -191,7 +198,7 @@ func (list *Command) Run(args []string) int {
 		fmt.Println(err.Error())
 		return 3
 	}
-	return list.options.printResults(results)
+	return list.options.printResults(results, config)
 }
 
 /*
