@@ -466,6 +466,11 @@ We can see those variables by running `rrh config` sub-command.
 * Note
     * The colorized output does not support to arrange the output indentation.
 
+### `RRH_ENABLE_COLORIZED`
+
+* specifies to colorize the output. The colors of output were specified on [`RRH_COLOR`](#rrh_color)
+* Default: true
+
 ## Database
 
 The database for managed repositories is formatted in JSON.
