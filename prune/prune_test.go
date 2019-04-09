@@ -1,16 +1,13 @@
 package prune
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
 	"github.com/tamada/rrh/common"
 )
 
-func open(jsonName string) *common.Database {
-	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
-	os.Setenv(common.RrhDatabasePath, fmt.Sprintf("../testdata/%s", jsonName))
+func open() *common.Database {
 	var config = common.OpenConfig()
 	var db, _ = common.Open(config)
 	return db
@@ -29,22 +26,39 @@ func TestHelp(t *testing.T) {
 	}
 }
 
-func TestPrune(t *testing.T) {
-	var db = open("tmp.json")
-	db.Prune()
-	if len(db.Repositories) != 1 && len(db.Groups) != 2 {
-		t.Error("prune failed")
-	}
+type groupExistChecker struct {
+	groupName string
+	existFlag bool
 }
 
-func TestTruePrune(t *testing.T) {
-	var db = open("tmp.json")
-	var prune = Command{}
-	prune.perform(db)
+type repositoryExistChecker struct {
+	repoName  string
+	existFlag bool
+}
 
-	if len(db.Repositories) != 0 && len(db.Groups) != 0 {
-		t.Error("prune failed")
+func TestPrune(t *testing.T) {
+	var tc = struct {
+		gchecker []groupExistChecker
+		rchecker []repositoryExistChecker
+	}{
+		[]groupExistChecker{{"group1", true}, {"group2", false}, {"group3", true}},
+		[]repositoryExistChecker{{"repo1", true}, {"repo2", true}, {"repo3", false}},
 	}
+	common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		var db = open()
+		db.Prune()
+
+		for _, gc := range tc.gchecker {
+			if db.HasGroup(gc.groupName) != gc.existFlag {
+				t.Errorf("group %s exist flag did not match: wont: %v, got: %v", gc.groupName, gc.existFlag, !gc.existFlag)
+			}
+		}
+		for _, rc := range tc.rchecker {
+			if db.HasRepository(rc.repoName) != rc.existFlag {
+				t.Errorf("repository %s exist flag did not match: wont: %v, got: %v", rc.repoName, rc.existFlag, !rc.existFlag)
+			}
+		}
+	})
 }
 
 func TestCommandRunFailedByBrokenDBFile(t *testing.T) {
@@ -56,11 +70,9 @@ func TestCommandRunFailedByBrokenDBFile(t *testing.T) {
 }
 
 func ExampleCommand_Run() {
-	var db = open("tmp.json")
-
-	var prune, _ = CommandFactory()
-	prune.Run([]string{})
+	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+		var prune, _ = CommandFactory()
+		prune.Run([]string{})
+	})
 	// Output: Pruned 3 groups, 2 repositories
-
-	db.StoreAndClose()
 }

@@ -9,9 +9,10 @@ import (
 )
 
 func Example() {
-	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var gc, _ = CommandFactory()
-	gc.Run([]string{})
+	common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		var gc, _ = CommandFactory()
+		gc.Run([]string{})
+	})
 	// Output:
 	// group1,1 repository
 	// group2,0 repositories
@@ -19,9 +20,10 @@ func Example() {
 }
 
 func ExampleCommand_Run() {
-	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var gc, _ = CommandFactory()
-	gc.Run([]string{"list"})
+	common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		var gc, _ = CommandFactory()
+		gc.Run([]string{"list"})
+	})
 	// Output:
 	// group1,1 repository
 	// group2,0 repositories
@@ -29,9 +31,10 @@ func ExampleCommand_Run() {
 }
 
 func Example_listCommand_Run() {
-	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var glc, _ = listCommandFactory()
-	glc.Run([]string{"-d", "-r"})
+	common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		var glc, _ = listCommandFactory()
+		glc.Run([]string{"-d", "-r"})
+	})
 	// Output:
 	// group1,desc1,[repo1],1 repository
 	// group2,desc2,[],0 repositories
@@ -39,15 +42,15 @@ func Example_listCommand_Run() {
 }
 
 func Example_ofCommand_Run() {
-	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var goc, _ = ofCommandFactory()
-	goc.Run([]string{"repo1"})
+	common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		var goc, _ = ofCommandFactory()
+		goc.Run([]string{"repo1"})
+	})
 	// Output:
 	// repo1, [group1]
 }
 
 func TestGroupListOnlyName(t *testing.T) {
-	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
 		var output = common.CaptureStdout(func() {
 			var glc, _ = CommandFactory()
