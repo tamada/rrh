@@ -111,6 +111,7 @@ func ExampleCommand() {
 	// RRH_CONFIG_PATH: ../testdata/config.json (environment)
 	// RRH_DATABASE_PATH: ../testdata/tmp.json (environment)
 	// RRH_DEFAULT_GROUP_NAME: no-group (default)
+	// RRH_ENABLE_COLORIZED: true (default)
 	// RRH_HOME: ../testdata/ (environment)
 	// RRH_ON_ERROR: WARN (default)
 	// RRH_SORT_ON_UPDATING: true (config_file)
@@ -130,6 +131,7 @@ func ExampleCommand_Run() {
 	// RRH_CONFIG_PATH: ../testdata/config.json (environment)
 	// RRH_DATABASE_PATH: ../testdata/database.json (environment)
 	// RRH_DEFAULT_GROUP_NAME: no-group (default)
+	// RRH_ENABLE_COLORIZED: true (default)
 	// RRH_HOME: ../testdata/ (environment)
 	// RRH_ON_ERROR: WARN (default)
 	// RRH_SORT_ON_UPDATING: true (config_file)
@@ -149,6 +151,7 @@ func Example_listCommand_Run() {
 	// RRH_CONFIG_PATH: ../testdata/config.json (environment)
 	// RRH_DATABASE_PATH: ../testdata/database.json (default)
 	// RRH_DEFAULT_GROUP_NAME: no-group (default)
+	// RRH_ENABLE_COLORIZED: true (default)
 	// RRH_HOME: ../testdata/ (environment)
 	// RRH_ON_ERROR: WARN (default)
 	// RRH_SORT_ON_UPDATING: true (config_file)
@@ -177,6 +180,7 @@ func TestLoadConfigFile(t *testing.T) {
 		{RrhConfigPath, "../testdata/config.json", Env},
 		{RrhTimeFormat, Relative, Default},
 		{RrhOnError, Warn, Default},
+		{RrhEnableColorized, "true", Default},
 		{"unknown", "", NotFound},
 	}
 

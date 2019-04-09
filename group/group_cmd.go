@@ -244,7 +244,7 @@ func findGroupName(name string, nameOnlyFlag bool) string {
 	if nameOnlyFlag {
 		return name
 	}
-	return common.ColorrizedGroupName(name)
+	return common.ColorizedGroupName(name)
 }
 
 func (glc *listCommand) printResult(result Result, options *listOptions) {

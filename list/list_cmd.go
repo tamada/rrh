@@ -90,7 +90,7 @@ Therefore, we arranges the positions by spacing behind the colored repository na
 */
 func printColoriezdRepositoryID(repoName string, length int) {
 	var formatter = fmt.Sprintf("    %%s%%%ds", length-len(repoName))
-	fmt.Printf(formatter, common.ColorrizedRepositoryID(repoName), "")
+	fmt.Printf(formatter, common.ColorizedRepositoryID(repoName), "")
 }
 
 func (options *options) printRepo(repo Repo, result Result, maxLength int) {
@@ -113,9 +113,9 @@ func (options *options) isPrintSimple(result Result) bool {
 
 func printGroupName(result Result) int {
 	if len(result.Repos) == 1 {
-		fmt.Printf("%s (1 repository)\n", common.ColorrizedGroupName(result.GroupName))
+		fmt.Printf("%s (1 repository)\n", common.ColorizedGroupName(result.GroupName))
 	} else {
-		fmt.Printf("%s (%d repositories)\n", common.ColorrizedGroupName(result.GroupName), len(result.Repos))
+		fmt.Printf("%s (%d repositories)\n", common.ColorizedGroupName(result.GroupName), len(result.Repos))
 	}
 	return len(result.Repos)
 }

@@ -12,39 +12,17 @@ var groupColorFunc func(r string) string
 var repoColor = ""
 var groupColor = ""
 
-var supportedForeColor = map[string]color.Color{
-	"red":     color.FgRed,
-	"black":   color.FgBlack,
-	"white":   color.FgWhite,
-	"cyan":    color.FgCyan,
-	"blue":    color.FgBlue,
-	"green":   color.FgGreen,
-	"yellow":  color.FgYellow,
-	"magenta": color.FgMagenta,
-}
-
-var supportedBackColor = map[string]color.Color{
-	"red":     color.BgRed,
-	"black":   color.BgBlack,
-	"white":   color.BgWhite,
-	"cyan":    color.BgCyan,
-	"blue":    color.BgBlue,
-	"green":   color.BgGreen,
-	"yellow":  color.BgYellow,
-	"magenta": color.BgMagenta,
-}
-
 /*
-ColorrizedRepositoryID returns the colorrized repository id string from configuration.
+ColorizedRepositoryID returns the colorrized repository id string from configuration.
 */
-func ColorrizedRepositoryID(repoID string) string {
+func ColorizedRepositoryID(repoID string) string {
 	return repoColorFunc(repoID)
 }
 
 /*
-ColorrizedGroupName returns the colorrized group name string from configuration.
+ColorizedGroupName returns the colorrized group name string from configuration.
 */
-func ColorrizedGroupName(groupName string) string {
+func ColorizedGroupName(groupName string) string {
 	return groupColorFunc(groupName)
 }
 
@@ -110,7 +88,7 @@ The function is automatically called on loading the config file.
 */
 func InitializeColor(config *Config) {
 	var colorSetting = config.GetValue(RrhColor)
-	if colorSetting != "" {
+	if config.IsSet(RrhEnableColorized) && colorSetting != "" {
 		parse(colorSetting)
 	}
 	updateFuncs()

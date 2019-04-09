@@ -1,30 +1,38 @@
 package common
 
 import (
-	"fmt"
 	"testing"
+
+	c "github.com/gookit/color"
 )
 
 func TestParse(t *testing.T) {
 	var testcases = []struct {
 		givenString string
-		repo        string
-		group       string
+		repoColor   string
+		groupColor  string
+		wontRepo    string
+		wontGroup   string
 	}{
-		{"repository:fg=white;op=bold,underscore", "37;1;4", ""},
-		{"group: fg=red+repository:fg=white;op=bold,underscore", "37;1;4", "31"},
-		{"group: fg=red+group: fg=blue", "", "34"},
+		{"repository:fg=white;op=bold,underscore", "37;1;4", "", c.Style{c.FgWhite, c.Bold, c.OpUnderscore}.Render("repository"), "groupName"},
+		{"group: fg=red+repository:fg=white;op=bold,underscore", "37;1;4", "31", c.Style{c.FgWhite, c.Bold, c.OpUnderscore}.Render("repository"), c.FgRed.Render("groupName")},
+		{"group: fg=red+group: fg=blue", "", "34", "repository", c.FgBlue.Render("groupName")},
 	}
 
 	for _, tc := range testcases {
 		parse(tc.givenString)
-		if repoColor != tc.repo {
-			t.Errorf("%v: repo color did not match, wont: %s, got: %s", tc.givenString, tc.repo, repoColor)
+		if repoColor != tc.repoColor {
+			t.Errorf("%v: repo color did not match, wont: %s, got: %s", tc.givenString, tc.repoColor, repoColor)
 		}
-		if groupColor != tc.group {
-			t.Errorf("%v: group color did not match, wont: %s, got: %s", tc.givenString, tc.group, groupColor)
+		if groupColor != tc.groupColor {
+			t.Errorf("%v: group color did not match, wont: %s, got: %s", tc.givenString, tc.groupColor, groupColor)
 		}
-		fmt.Printf("repo: %s, group: %s\n", ColorrizedRepositoryID("repository"), ColorrizedGroupName("groupName"))
+		if name := ColorizedRepositoryID("repository"); name != tc.wontRepo {
+			t.Errorf("repository id did not match: wont: %s, got: %s", tc.wontRepo, name)
+		}
+		if name := ColorizedGroupName("groupName"); name != tc.wontGroup {
+			t.Errorf("group name did not match: wont: %s, got: %s", tc.wontGroup, name)
+		}
 		ClearColorize()
 	}
 }
