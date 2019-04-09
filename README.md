@@ -2,9 +2,15 @@
 [![Coverage Status](https://coveralls.io/repos/github/tamada/rrh/badge.svg?branch=master)](https://coveralls.io/github/tamada/rrh?branch=master)
 [![codebeat badge](https://codebeat.co/badges/15e04551-d448-4ad3-be1d-e98b1e586f1a)](https://codebeat.co/projects/github-com-tamada-rrh-master)
 [![go report](https://goreportcard.com/badge/github.com/tamada/rrh)](https://goreportcard.com/report/github.com/tamada/rrh)
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/tamada/rrh/blob/master/LICENSE)
 
 # RRH
+
+RRH is a simple manager for git repositories.
+
+[Table of contents](#table_of_contents)
+
+## Description
 
 There are too many repositories.
 We love programming; however, to manage many repositories is quite hard and bothersome tasks.
@@ -26,40 +32,9 @@ Therefore, it is glad to see the last modified date of branches.
 
 RRH is now growing. Please hack RRH itself.
 
-# Table of Contents
+## Installation
 
-* [Installation](#installation)
-    * [Homebrew](#homebrew)
-    * [Golang](#golang)
-    * [Requirements](#requirements)
-* [Usage](#usage)
-    * [Subcommands](#subcommands)
-        * [`rrh add`](#rrh-add)
-        * [`rrh clone`](#rrh-clone)
-        * [`rrh config`](#rrh-config)
-        * [`rrh export`](#rrh-export)
-        * [`rrh fetch`](#rrh-fetch)
-        * [`rrh fetch-all`](#rrh-fetch-all)
-        * [`rrh group`](#rrh-group)
-        * [`rrh import`](#rrh-import)
-        * [`rrh list`](#rrh-list)
-        * [`rrh mv`](#rrh-mv)
-        * [`rrh path`](#rrh-path)
-        * [`rrh prune`](#rrh-prune)
-        * [`rrh rm`](#rrh-rm)
-        * [`rrh status`](#rrh-status)
-    * [Environment variables](#environment-variables)
-    * [Database](#database)
-* [Utilities](#utilities)
-    * [`cdrrh`](#cdrrh)
-    * [`rrhpeco`](#rrhpeco)
-* [Development Policy](#development-policy)
-* [Why the project name RRH?](#why-the-project-name-rrh)
-* [Discussion](#discussion)
-
-# Installation
-
-## Homebrew
+### Homebrew
 
 Install rrh via [Homebrew](https://brew.sh), simply run:
 
@@ -69,7 +44,7 @@ $ brew install rrh
 ```
 
 
-## Golang
+### Golang
 
 To install cli, simply run:
 
@@ -77,7 +52,7 @@ To install cli, simply run:
 $ go get git@github.com/tamada/rrh.git
 ```
 
-## Requirements
+### Requirements
 
 * Runtime
     * Bash 4.x or after, for completion.
@@ -89,7 +64,7 @@ $ go get git@github.com/tamada/rrh.git
     * See `Gopkg.toml`
 
 
-# Usage
+## Usage
 
 ```sh
 Usage: rrh [--version] [--help] <command> [<args>]
@@ -110,9 +85,9 @@ Available commands are:
     status       show git status of repositories.
 ```
 
-## Subcommands
+### Subcommands
 
-### `rrh add`
+#### `rrh add`
 
 Registers the repositories which specified the given paths to the RRH database and categorize to the group (Default `no-group`, see [`RRH_DEFAULT_GROUP_NAME`](#rrh_default_group_name)).
 
@@ -126,7 +101,7 @@ ARGUMENTS
     REPOSITORY_PATHS           the local path list of the git repositories.
 ```
 
-### `rrh clone`
+#### `rrh clone`
 
 Runs `git clone` command and registers the cloned repository to RRH database.
 The following steps identify the id of the repository.
@@ -146,7 +121,7 @@ ARGUMENTS
 
 The destination of cloned repository is located based on [`RRH_CLONE_DESTINATION`](#rrh_clone_destination)
 
-### `rrh config`
+#### `rrh config`
 
 Handles the operations of configuration/environment variables.
 This subcommand requires sub-sub-command.
@@ -160,7 +135,7 @@ COMMAND
     list                    list all of ENVs (default)
 ```
 
-### `rrh export`
+#### `rrh export`
 
 Exports the data of RRH database by JSON format.
 
@@ -171,7 +146,7 @@ OPTiONS
     --no-hide-home   not replace home directory to '${HOME}' keyword
 ```
 
-### `rrh fetch`
+#### `rrh fetch`
 
 Runs `git fetch` command in the repositories of the specified group.
 
@@ -184,7 +159,7 @@ ARGUMENTS
                             if no value is specified, run on the default group.
 ```
 
-### `rrh fetch-all`
+#### `rrh fetch-all`
 
 Runs `git fetch` command in all repositories of managing in RRH.
 This command may make heavy network traffic; therefore, we do not recommend to run.
@@ -195,7 +170,7 @@ OPTIONS
     -r, --remote <REMOTE>   specify the remote name. Default is "origin."
 ```
 
-### `rrh group`
+#### `rrh group`
 
 Handles the operations of groups of RRH.
 This subcommand requires sub-sub-command.
@@ -211,7 +186,7 @@ SUBCOMMAND
     update    update group.
 ```
 
-#### `rrh group add`
+##### `rrh group add`
 
 Adds new group to the RRH database.
 
@@ -224,7 +199,7 @@ ARGUMENTS
     GROUPS                   gives group names.
 ```
 
-#### `rrh group list`
+##### `rrh group list`
 
 Displays group list.
 
@@ -236,7 +211,7 @@ OPTIONS
     -o, --only-groupname   show only group name. This option is prioritized.
 ```
 
-#### `rrh group of`
+##### `rrh group of`
 
 Displays group of the specified repositories.
 
@@ -246,7 +221,7 @@ ARGUMENTS
     REPOSITORY_ID     show the groups of the repository.
 ```
 
-#### `rrh group rm`
+##### `rrh group rm`
 
 Removes groups.
 
@@ -260,7 +235,7 @@ ARGUMENTS
     GROUPS           target group names.
 ```
 
-#### `rrh group update`
+##### `rrh group update`
 
 Update the information of specified group.
 
@@ -274,7 +249,7 @@ ARGUMENTS
     GROUP                    update target group names.
 ```
 
-### `rrh import`
+#### `rrh import`
 
 Import the database to the local environment.
 
@@ -288,7 +263,7 @@ ARGUMENTS
     DATABASE_JSON   the exported RRH database.
 ```
 
-### `rrh list`
+#### `rrh list`
 
 Prints the repositories of managing in RRH.
 
@@ -307,7 +282,7 @@ ARGUMENTS
               if no groups are specified, all groups are printed.
 ```
 
-### `rrh mv`
+#### `rrh mv`
 
 Move repositories to another group.
 
@@ -321,7 +296,7 @@ ARGUMENTS
     TO              specifies move to, formatted in <GROUP_NAME>
 ```
 
-### `rrh path`
+#### `rrh path`
 
 Prints paths of the specified repositories.
 
@@ -334,7 +309,7 @@ ARGUMENTS
     REPOSITORIES               repository ids.
 ```
 
-### `rrh prune`
+#### `rrh prune`
 
 Deletes unnecessary groups and repositories.
 The unnecessary groups are no repositories in them.
@@ -345,7 +320,7 @@ The unnecessary repositories are to have an invalid path.
 rrh prune
 ```
 
-### `rrh rm`
+#### `rrh rm`
 
 Removes the specified groups, repositories, and relations.
 If the group has entries is removed by specifying the option `--recursive.`
@@ -364,7 +339,7 @@ ARGUMENTS
     GROUP_ID/REPO_ID    remove the relation between the given REPO_ID and GROUP_ID.
 ```
 
-### `rrh status`
+#### `rrh status`
 
 Prints the last modified times of each branch in the repositories of the specified group.
 
@@ -381,38 +356,38 @@ ARGUMENTS
                     shows the result of default group.
 ```
 
-## Environment variables
+### Environment variables
 
 We can see those variables by running `rrh config` sub-command.
 
-### `RRH_HOME`
+#### `RRH_HOME`
 
 * specifies the location of the RRH database and config file.
 * Default: `/Users/tamada/.rrh`
 
-### `RRH_CONFIG_PATH`
+#### `RRH_CONFIG_PATH`
 
 * specifies the location of the location path.
     * RRH ignores to specify `RRH_CONFIG_PATH` in the config file.
       This variable availables only environment variable.
 * Default: `${RRH_HOME}/config.json`
 
-### `RRH_DATABASE_PATH`
+#### `RRH_DATABASE_PATH`
 
 * specifies the location of the database path.
 * Default: `${RRH_HOME}/database.json`
 
-### `RRH_DEFAULT_GROUP_NAME`
+#### `RRH_DEFAULT_GROUP_NAME`
 
 * specifies the default group name.
 * Default: `no-group`
 
-### `RRH_CLONE_DESTINATION`
+#### `RRH_CLONE_DESTINATION`
 
 * specifies the destination by cloning the repository.
 * Default: `.`
 
-### `RRH_ON_ERROR`
+#### `RRH_ON_ERROR`
 
 * specifies the behaviors of RRH on error.
 * Default: `WARN`
@@ -426,7 +401,7 @@ We can see those variables by running `rrh config` sub-command.
     * `IGNORE`
         * runs all targets and no reports errors.
 
-### `RRH_TIME_FORMAT`
+#### `RRH_TIME_FORMAT`
 
 * specifies the time format for `status` command.
 * Default: `relative`
@@ -437,22 +412,22 @@ We can see those variables by running `rrh config` sub-command.
         * regard as formatting layout and give to `Format` method of the time.
             * see [Time.Format](https://golang.org/pkg/time/#Time.Format), for more detail.
 
-### `RRH_AUTO_CREATE_GROUP`
+#### `RRH_AUTO_CREATE_GROUP`
 
 * specifies to create the group when the not existing group was specified, and it needs to create.
 * Default: false
 
-### `RRH_AUTO_DELETE_GROUP`
+#### `RRH_AUTO_DELETE_GROUP`
 
 * specifies to delete the group when some group was no more needed.
 * Default: false
 
-### `RRH_SORT_ON_UPDATING`
+#### `RRH_SORT_ON_UPDATING`
 
 * specifies to sort database entries on updating database.
 * Default: false
 
-### `RRH_COLOR`
+#### `RRH_COLOR`
 
 * specifies the colors of the output.
 * Default: `""` (empty string)
@@ -468,12 +443,12 @@ We can see those variables by running `rrh config` sub-command.
 * Note
     * The colorized output does not support to arrange the output indentation.
 
-### `RRH_ENABLE_COLORIZED`
+#### `RRH_ENABLE_COLORIZED`
 
 * specifies to colorize the output. The colors of output were specified on [`RRH_COLOR`](#rrh_color)
 * Default: true
 
-## Database
+### Database
 
 The database for managed repositories is formatted in JSON.
 The JSON format is as follows.
@@ -514,9 +489,9 @@ Also, the configuration file is on `$RRH_HOME/config.json`
 }
 ```
 
-# Utilities
+## Utilities
 
-## `cdrrh`
+### `cdrrh`
 
 changes directory to the specified repository.
 
@@ -532,7 +507,7 @@ cdrrh(){
 }
 ```
 
-## `rrhpeco`
+### `rrhpeco`
 
 list repositories, and filtering them by [`peco`](https://github.com/peco/peco),
 then change directory to the filtering result.
@@ -545,7 +520,11 @@ rrhpeco(){
 }
 ```
 
-# Development Policy
+## License
+
+[Apache License version 2.0](https://github.com/tamada/rrh/blob/master/LICENSE)
+
+## Development Policy
 
 * Separate `foo_cmd.go` and `foo.go` for implementing `foo` command.
     * `foo_cmd.go` includes functions of cli.
@@ -553,14 +532,14 @@ rrhpeco(){
 * Call `fmt.Print` methods only `foo_cmd.go` file.
 * Create test for `foo.go`.
 
-# Why the project name RRH
+## Why the project name RRH
 
 At first, the name of this project was GRIM (Git Repository Integrated Manager).
 However, the means of `grim` is not good, and there are many commands which start with `gr`.
 Therefore, we changed the project name to RRH.
 RRH means "Repositories, Ready to Hack," is not the abbreviation of the Red Riding Hood.
 
-# Discussion
+## Discussion
 
 [![Gitter](https://img.shields.io/badge/Gitter-Join_Chat-red.svg)](https://gitter.im/rrh_git/community)
 
@@ -570,3 +549,36 @@ Join our Gitter channel if you have any problem or suggestions to Rrh.
 
 For Japanese user, `misc_ja` channel has discussions in Japanese.
 The public language of other channels and GitHub pages are English.
+
+## Table of Contents
+
+* [Description](#description)
+* [Installation](#installation)
+    * [Homebrew](#homebrew)
+    * [Golang](#golang)
+    * [Requirements](#requirements)
+* [Usage](#usage)
+    * [Subcommands](#subcommands)
+        * [`rrh add`](#rrh-add)
+        * [`rrh clone`](#rrh-clone)
+        * [`rrh config`](#rrh-config)
+        * [`rrh export`](#rrh-export)
+        * [`rrh fetch`](#rrh-fetch)
+        * [`rrh fetch-all`](#rrh-fetch-all)
+        * [`rrh group`](#rrh-group)
+        * [`rrh import`](#rrh-import)
+        * [`rrh list`](#rrh-list)
+        * [`rrh mv`](#rrh-mv)
+        * [`rrh path`](#rrh-path)
+        * [`rrh prune`](#rrh-prune)
+        * [`rrh rm`](#rrh-rm)
+        * [`rrh status`](#rrh-status)
+    * [Environment variables](#environment-variables)
+    * [Database](#database)
+* [Utilities](#utilities)
+    * [`cdrrh`](#cdrrh)
+    * [`rrhpeco`](#rrhpeco)
+* [License](#license)
+* [Development Policy](#development-policy)
+* [Why the project name RRH?](#why-the-project-name-rrh)
+* [Discussion](#discussion)
