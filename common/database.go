@@ -19,9 +19,10 @@ type Remote struct {
 Repository represents a Git repository.
 */
 type Repository struct {
-	ID      string   `json:"repository_id"`
-	Path    string   `json:"repository_path"`
-	Remotes []Remote `json:"remotes"`
+	ID          string   `json:"repository_id"`
+	Path        string   `json:"repository_path"`
+	Description string   `json:"repository_desc"`
+	Remotes     []Remote `json:"remotes"`
 }
 
 /*
@@ -159,11 +160,11 @@ func sortIfNeeded(db *Database) {
 /*
 CreateRepository returns the repository by creating the given parameters and store it to database.
 */
-func (db *Database) CreateRepository(repoID string, path string, remotes []Remote) (*Repository, error) {
+func (db *Database) CreateRepository(repoID string, path string, desc string, remotes []Remote) (*Repository, error) {
 	if db.HasRepository(repoID) {
 		return nil, fmt.Errorf("%s: already registered repository", repoID)
 	}
-	var repo = Repository{repoID, path, remotes}
+	var repo = Repository{repoID, path, desc, remotes}
 	db.Repositories = append(db.Repositories, repo)
 	sortIfNeeded(db)
 
@@ -209,7 +210,7 @@ func (db *Database) UpdateGroup(groupID string, newGroup Group) bool {
 	}
 	for i, group := range db.Groups {
 		if group.Name == groupID {
-			db.updateGroupImpl(i, groupID, newGroup)
+			updateGroupImpl(db, i, newGroup)
 		}
 	}
 	sortIfNeeded(db)
@@ -217,15 +218,45 @@ func (db *Database) UpdateGroup(groupID string, newGroup Group) bool {
 	return true
 }
 
-func (db *Database) updateGroupImpl(index int, groupID string, newGroup Group) {
+func updateGroupImpl(db *Database, index int, newGroup Group) {
+	var oldGroup = db.Groups[index].Name
 	db.Groups[index].Name = newGroup.Name
 	db.Groups[index].Description = newGroup.Description
 	db.Groups[index].OmitList = newGroup.OmitList
 	for i, relation := range db.Relations {
-		if relation.GroupName == groupID {
+		if relation.GroupName == oldGroup {
 			db.Relations[i].GroupName = newGroup.Name
 		}
 	}
+}
+
+/*
+UpdateRepository updates the repository information.
+*/
+func (db *Database) UpdateRepository(repositoryID string, newRepo Repository) bool {
+	if !db.HasRepository(repositoryID) {
+		return false
+	}
+	for i, repo := range db.Repositories {
+		if repo.ID == repositoryID {
+			updateRepositoryImpl(db, i, newRepo)
+		}
+	}
+	sortIfNeeded(db)
+	return true
+}
+
+func updateRepositoryImpl(db *Database, index int, newRepo Repository) {
+	var oldID = db.Repositories[index].ID
+	db.Repositories[index].ID = newRepo.ID
+	db.Repositories[index].Description = newRepo.Description
+	db.Repositories[index].Path = newRepo.Path
+	for i, rel := range db.Relations {
+		if rel.RepositoryID == oldID {
+			db.Relations[i].RepositoryID = newRepo.ID
+		}
+	}
+
 }
 
 /*

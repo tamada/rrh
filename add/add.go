@@ -16,9 +16,16 @@ func checkDuplication(db *common.Database, repoID string, path string) error {
 	return nil
 }
 
-func (add *Command) addRepositoryToGroup(db *common.Database, groupName string, path string) []error {
+func findID(repoID string, absPath string) string {
+	if repoID == "" {
+		return filepath.Base(absPath)
+	}
+	return repoID
+}
+
+func (add *Command) addRepositoryToGroup(db *common.Database, repoID string, groupName string, path string) []error {
 	var absPath, _ = filepath.Abs(path)
-	var id = filepath.Base(absPath)
+	var id = findID(repoID, absPath)
 	if err1 := common.IsExistAndGitRepository(absPath, path); err1 != nil {
 		return []error{err1}
 	}
@@ -29,7 +36,7 @@ func (add *Command) addRepositoryToGroup(db *common.Database, groupName string, 
 	if err2 != nil {
 		return []error{err2}
 	}
-	db.CreateRepository(id, absPath, remotes)
+	db.CreateRepository(id, absPath, "", remotes)
 
 	var err = db.Relate(groupName, id)
 	if err != nil {
@@ -38,17 +45,27 @@ func (add *Command) addRepositoryToGroup(db *common.Database, groupName string, 
 	return []error{}
 }
 
+func (add *Command) validateArguments(args []string, repoID string) error {
+	if repoID != "" && len(args) > 1 {
+		return fmt.Errorf("specifying repository id do not accept multiple arguments: %v", args)
+	}
+	return nil
+}
+
 /*
 AddRepositoriesToGroup registers the given repositories to the specified group.
 */
-func (add *Command) AddRepositoriesToGroup(db *common.Database, args []string, groupName string) []error {
-	var _, err = db.AutoCreateGroup(groupName, "", false)
+func (add *Command) AddRepositoriesToGroup(db *common.Database, opt *options) []error {
+	var _, err = db.AutoCreateGroup(opt.group, "", false)
 	if err != nil {
 		return []error{err}
 	}
+	if err := add.validateArguments(opt.args, opt.repoID); err != nil {
+		return []error{err}
+	}
 	var errorlist = []error{}
-	for _, item := range args {
-		var list = add.addRepositoryToGroup(db, groupName, item)
+	for _, item := range opt.args {
+		var list = add.addRepositoryToGroup(db, opt.repoID, opt.group, item)
 		errorlist = append(errorlist, list...)
 	}
 	return errorlist

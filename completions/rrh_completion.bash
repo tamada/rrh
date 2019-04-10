@@ -3,11 +3,13 @@ __rrh_groups(){
 }
 
 __rrh_repositories(){
-    rrh list --only-repositoryname
+    rrh repository list --id
+    # rrh list --only-repositoryname
 }
 
 __rrh_group_repo_forms(){
-    rrh list --group-repository-form
+    rrh repository list --group
+    # rrh list --group-repository-form
 }
 
 __rrh_add() {
@@ -174,6 +176,45 @@ __rrh_path() {
     fi
 }
 
+__rrh_repository_update() {
+    if [[ "$1" =~ ^\- ]]; then
+        COMPREPLY=($(compgen -W "-G --color -c --csv" -- "${cur}"))
+    elif [ "$2" != "-G" ] && [ "$2" != "--color" ] && [ "$2" != "-c" ] && [ "$2" != "--csv" ]; then
+        repos="$(__rrh_repository)"
+        COMPREPLY=($(compgen -W "$repos" -- "${cur}"))
+    fi
+}
+
+__rrh_repository_update() {
+    if [[ "$1" =~ ^\- ]]; then
+        COMPREPLY=($(compgen -W "-i --id -d --desc -p --path" -- "${cur}"))
+    elif [ "$2" = "-p" ] || [ "$2" = "--path" ]; then
+        compopt -o filenames
+        COMPREPLY=($(compgen -d -- "$1"))
+    elif [ "$2" != "-p" ] && [ "$2" != "--path" ] && [ "$2" != "-d" ] && [ "$2" != "--desc" ] && [ "$2" != "-i" ] && [ "$2" != "--id" ]; then
+        repos="$(__rrh_repository)"
+        COMPREPLY=($(compgen -W "$repos" -- "${cur}"))
+    fi
+}
+
+
+__rrh_repository() {
+    if [ "$4" = "$2" ]; then
+        COMPREPLY=($(compgen -W "info update" -- "${cur}"))
+        return 0
+    else
+        local subsub="${COMP_WORDS[2]}"
+        case "${subsub}" in
+            info)
+                __rrh_repository_info "$1" "$2" "$3" "$4" "$subsub"
+                ;;
+            update)
+                __rrh_repository_update "$1" "$2" "$3" "$4" "$subsub"
+                ;;
+        esac
+    fi
+}
+
 __rrh_rm() {
     if [[ "$1" =~ ^\- ]]; then
         COMPREPLY=($(compgen -W "-i --inquiry -r --recursive -v --verbose" -- "${cur}"))
@@ -203,7 +244,7 @@ __rrh_completions()
     local opts cur prev subcom
     _get_comp_words_by_ref -n : cur prev cword
     subcom="${COMP_WORDS[1]}"
-    opts="add clone config export fetch fetch-all group import list mv path prune rm status"
+    opts="add clone config export fetch fetch-all group import list mv path prune repository rm status"
 
     case "${subcom}" in
         add)
@@ -251,6 +292,10 @@ __rrh_completions()
             return 0
             ;;
         prune)
+            return 0
+            ;;
+        repository)
+            __rrh_repository  "$cur" "$prev" "$cword" "$subcom"
             return 0
             ;;
         rm)

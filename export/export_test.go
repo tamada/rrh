@@ -85,7 +85,7 @@ func TestTmpDBNoIndent(t *testing.T) {
 		result = strings.TrimSpace(result)
 
 		if !strings.HasPrefix(result, "{\"last_modified\":") ||
-			!strings.HasSuffix(result, `"repositories":[{"repository_id":"repo1","repository_path":"path1","remotes":[]},{"repository_id":"repo2","repository_path":"path2","remotes":[{"name":"origin","url":"git@github.com:example/repo2.git"}]}],"groups":[{"group_name":"group1","group_desc":"desc1","omit_list":false},{"group_name":"group2","group_desc":"desc2","omit_list":false},{"group_name":"group3","group_desc":"desc3","omit_list":true}],"relations":[{"repository_id":"repo1","group_name":"group1"},{"repository_id":"repo2","group_name":"group3"}]}`) {
+			!strings.HasSuffix(result, `"repositories":[{"repository_id":"repo1","repository_path":"path1","repository_desc":"","remotes":[]},{"repository_id":"repo2","repository_path":"path2","repository_desc":"","remotes":[{"name":"origin","url":"git@github.com:example/repo2.git"}]}],"groups":[{"group_name":"group1","group_desc":"desc1","omit_list":false},{"group_name":"group2","group_desc":"desc2","omit_list":false},{"group_name":"group3","group_desc":"desc3","omit_list":true}],"relations":[{"repository_id":"repo1","group_name":"group1"},{"repository_id":"repo2","group_name":"group3"}]}`) {
 			t.Errorf("tmp.json was not matched.\ngot: %s", result)
 		}
 	})
