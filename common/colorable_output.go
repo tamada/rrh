@@ -50,11 +50,13 @@ func parse(colorSettings string) {
 }
 
 func parseEach(c string) {
-	if strings.HasPrefix(c, "repository:") {
+	var colors = strings.Split(c, ":")
+	switch colors[0] {
+	case "repository":
 		repoColor = color.ParseCodeFromAttr(strings.Replace(c, "repository:", "", -1))
-	} else if strings.HasPrefix(c, "group:") {
+	case "group":
 		groupColor = color.ParseCodeFromAttr(strings.Replace(c, "group:", "", -1))
-	} else if strings.HasPrefix(c, "label:") {
+	case "label":
 		labelColor = color.ParseCodeFromAttr(strings.Replace(c, "label:", "", -1))
 	}
 }

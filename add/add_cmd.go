@@ -87,7 +87,7 @@ type options struct {
 	args   []string
 }
 
-func (add *Command) parse(args []string, config *common.Config) (*options, error) {
+func (add *Command) buildFlagSet(config *common.Config) (*flag.FlagSet, *options) {
 	var opt = options{}
 	var defaultGroup = config.GetValue(common.RrhDefaultGroupName)
 	flags := flag.NewFlagSet("add", flag.ContinueOnError)
@@ -96,13 +96,18 @@ func (add *Command) parse(args []string, config *common.Config) (*options, error
 	flags.StringVar(&opt.group, "group", defaultGroup, "target group")
 	flags.StringVar(&opt.repoID, "r", "", "specifying repository id")
 	flags.StringVar(&opt.repoID, "repository-id", "", "specifying repository id")
+	return flags, &opt
+}
+
+func (add *Command) parse(args []string, config *common.Config) (*options, error) {
+	var flags, opt = add.buildFlagSet(config)
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
 	opt.args = flags.Args()
-	add.options = &opt
+	add.options = opt
 
-	return &opt, nil
+	return opt, nil
 }
 
 /*

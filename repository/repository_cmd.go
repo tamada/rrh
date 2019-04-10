@@ -156,9 +156,11 @@ func printListGroup(db *common.Database, result common.Repository) {
 func printListResult(db *common.Database, result common.Repository, options *listOptions) {
 	if options.group {
 		printListGroup(db, result)
-	} else if options.id {
+	}
+	if options.id {
 		fmt.Println(result.ID)
-	} else if options.path {
+	}
+	if options.path {
 		fmt.Println(result.Path)
 	}
 }

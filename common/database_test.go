@@ -316,6 +316,31 @@ func TestFindRelations(t *testing.T) {
 	if len(repos) != 1 || repos[0] != "rrh" {
 		t.Errorf("find relations: wont: [\"rrh\"], got: %v", repos)
 	}
+	var groups = db.FindRelationsOfRepository("rrh")
+	if len(groups) != 1 || groups[0] != "no-group" {
+		t.Errorf("find relations: wont: [\"no-group\"], got: %v", groups)
+	}
+}
+
+func TestUpdateRepository(t *testing.T) {
+	Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+		var config = OpenConfig()
+		var db, _ = Open(config)
+
+		if !db.UpdateRepository("repo1", Repository{ID: "newRepo1", Path: "newPath1", Description: "desc1"}) {
+			t.Errorf("Update failed")
+		}
+		if !db.HasRepository("newRepo1") || !db.HasRelation("group1", "newRepo1") {
+			t.Errorf("update repository failed.")
+		}
+		if db.HasRepository("repo1") || db.HasRelation("group1", "repo1") {
+			t.Errorf("old information are remained.")
+		}
+
+		if db.UpdateRepository("unknownrepo", Repository{}) {
+			t.Errorf("missing repository updation succeeded.")
+		}
+	})
 }
 
 func TestCounting(t *testing.T) {
