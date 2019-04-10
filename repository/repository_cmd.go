@@ -103,10 +103,14 @@ func printInfo(result common.Repository, options *infoOptions) {
 	fmt.Printf("%-12s %s\n", common.ColorizedLabel("Description:"), result.Description)
 	fmt.Printf("%-12s %s\n", common.ColorizedLabel("Path:"), result.Path)
 	if len(result.Remotes) > 0 {
-		fmt.Printf("%-12s\n", common.ColorizedLabel("Remote:"))
-		for _, remote := range result.Remotes {
-			fmt.Printf("    %s: %s\n", common.ColorizedLabel(remote.Name), remote.URL)
-		}
+		printRemoteInfo(result.Remotes)
+	}
+}
+
+func printRemoteInfo(remotes []common.Remote) {
+	fmt.Printf("%-12s\n", common.ColorizedLabel("Remote:"))
+	for _, remote := range remotes {
+		fmt.Printf("    %s: %s\n", common.ColorizedLabel(remote.Name), remote.URL)
 	}
 }
 
