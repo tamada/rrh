@@ -6,7 +6,17 @@
 
 # RRH
 
-RRH is a simple manager for git repositories.
+RRH is a simple git repository manager manager.
+
+
+## Table of contents
+
+* [Description](#description)
+* [Installation](#installation)
+* [Usage](#usage)
+* [Utilities](#utilities)
+* [About Project](#about-project)
+* [Discussion](#discussion)
 
 [Table of contents](#table_of_contents)
 
@@ -299,6 +309,7 @@ ARGUMENTS
 #### `rrh path`
 
 Prints paths of the specified repositories.
+This sub command is deprecated, instead of [`rrh repository`](#rrh_repository) command.
 
 ```sh
 rrh path [OPTIONS] <REPOSITORIES...>
@@ -319,6 +330,45 @@ The unnecessary repositories are to have an invalid path.
 ```sh
 rrh prune
 ```
+
+#### `rrh repository`
+
+Prints/Updates the repository.
+
+```sh
+rrh repository <SUBCOMMAND>
+SUBCOMMAND
+    info [OPTIONS] <REPO...>     shows repository information.
+    update [OPTIONS] <REPO...>   updates repository information.
+```
+
+##### `rrh repository info`
+
+prints the repository information.
+
+```sh
+rrh repository info [OPTIONS] [REPOSITORIES...]
+    -G, --color     prints the results with color.
+    -c, --csv       prints the results in the csv format.
+ARGUMENTS
+    REPOSITORIES    target repositories.  If no repositories are specified,
+                    this sub command failed.
+```
+
+##### `rrh repository update`
+
+update the information of the repository.
+
+```sh
+rrh repository update [OPTIONS] <REPOSITORY>
+OPTIONS
+    -i, --id <NEWID>     specifies new repository id.
+    -d, --desc <DESC>    specifies new description.
+    -p, --path <PATH>    specifies new path.
+ARGUMENTS
+    REPOSITORY           specifies the repository id.
+```
+
 
 #### `rrh rm`
 
@@ -440,8 +490,6 @@ We can see those variables by running `rrh config` sub-command.
 * Examples:
     * `RRH_COLOR: repository:fg=red+group:fg=cyan;op=bold,underscore`
         * Repository: red, Group: cyan in bold with underscore.
-* Note
-    * The colorized output does not support to arrange the output indentation.
 
 #### `RRH_ENABLE_COLORIZED`
 
@@ -463,6 +511,7 @@ Also, the configuration file is on `$RRH_HOME/config.json`
         {
             repository_id: 'rrh', // unique key of repository.
             repository_path: 'absolute/path/of/repository',
+            repository_desc: 'description of the repository.',
             remotes: [
                 {
                     Name: "origin",
@@ -497,7 +546,7 @@ changes directory to the specified repository.
 
 ```sh
 cdrrh(){
-    path=$(rrh path $1)
+    path=$(rrh repository list --path $1)
     if [ $? -eq 0 ]; then
         cd $path
         pwd
@@ -520,11 +569,13 @@ rrhpeco(){
 }
 ```
 
-## License
+## About Project
+
+### License
 
 [Apache License version 2.0](https://github.com/tamada/rrh/blob/master/LICENSE)
 
-## Development Policy
+### Development Policy
 
 * Separate `foo_cmd.go` and `foo.go` for implementing `foo` command.
     * `foo_cmd.go` includes functions of cli.
@@ -532,7 +583,7 @@ rrhpeco(){
 * Call `fmt.Print` methods only `foo_cmd.go` file.
 * Create test for `foo.go`.
 
-## Why the project name RRH
+### Why the project name RRH
 
 At first, the name of this project was GRIM (Git Repository Integrated Manager).
 However, the means of `grim` is not good, and there are many commands which start with `gr`.
@@ -571,6 +622,7 @@ The public language of other channels and GitHub pages are English.
         * [`rrh mv`](#rrh-mv)
         * [`rrh path`](#rrh-path)
         * [`rrh prune`](#rrh-prune)
+        * [`rrh repository`](#rrh-repository)
         * [`rrh rm`](#rrh-rm)
         * [`rrh status`](#rrh-status)
     * [Environment variables](#environment-variables)
@@ -578,7 +630,8 @@ The public language of other channels and GitHub pages are English.
 * [Utilities](#utilities)
     * [`cdrrh`](#cdrrh)
     * [`rrhpeco`](#rrhpeco)
-* [License](#license)
-* [Development Policy](#development-policy)
-* [Why the project name RRH?](#why-the-project-name-rrh)
+* [About Project](#about-project)
+    * [License](#license)
+    * [Development Policy](#development-policy)
+    * [Why the project name RRH?](#why-the-project-name-rrh)
 * [Discussion](#discussion)
