@@ -91,6 +91,7 @@ Available commands are:
     mv           move the repositories from groups to another group.
     path         print paths of specified repositories.
     prune        prune unnecessary repositories and groups.
+    repository   manages repository.
     rm           remove given repository from database.
     status       show git status of repositories.
 ```
@@ -481,12 +482,12 @@ We can see those variables by running `rrh config` sub-command.
 
 * specifies the colors of the output.
 * Default: `""` (empty string)
-* Format: `"repository:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+GROUP:fg=<COLOR>;bg=<COLOR>;op=<STYLE>"`
+* Format: `"repository:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+group:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+label:fg=<COLOR>;bg=<COLOR>;op=<STYLE>"`
     * Available `COLOR`s
         * red, cyan, gray, blue, black, green, white, yellow, magenta.
     * Available `STYLE`s
         * bold, underscore.
-    * Delimiter of repository and group is `+`, delimiter of type and value is `:`, delimiter of each label is `;`, and delimiter of each value is `,`.
+    * Delimiter of repository, group and label is `+`, delimiter of type and value is `:`, delimiter of each label is `;`, and delimiter of each value is `,`.
 * Examples:
     * `RRH_COLOR: repository:fg=red+group:fg=cyan;op=bold,underscore`
         * Repository: red, Group: cyan in bold with underscore.
