@@ -13,21 +13,29 @@ func findAll(db *common.Database, args []string) ([]common.Repository, []error) 
 	return db.Repositories, []error{}
 }
 
+func findResult(db *common.Database, arg string) (*common.Repository, error) {
+	var repo = db.FindRepository(arg)
+	if repo == nil {
+		return nil, fmt.Errorf("%s: repository not found", arg)
+	}
+	return repo, nil
+}
+
 func findResults(db *common.Database, args []string) ([]common.Repository, []error) {
-	var result = []common.Repository{}
+	var results = []common.Repository{}
 	var errs = []error{}
 	for _, arg := range args {
-		var repo = db.FindRepository(arg)
-		if repo == nil {
-			errs = append(errs, fmt.Errorf("%s: repository not found", arg))
+		var repo, err = findResult(db, arg)
+		if err != nil {
+			errs = append(errs, err)
 			if db.Config.GetValue(common.RrhOnError) == common.FailImmediately {
 				return []common.Repository{}, errs
 			}
 		} else {
-			result = append(result, *repo)
+			results = append(results, *repo)
 		}
 	}
-	return result, errs
+	return results, errs
 }
 
 func (update *updateCommand) perform(db *common.Database, targetRepoID string) error {
