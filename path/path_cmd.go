@@ -122,6 +122,7 @@ func (path *Command) parse(args []string) error {
 Run performs the command.
 */
 func (path *Command) Run(args []string) int {
+	fmt.Printf("path subcommand is deprecated.")
 	var err = path.parse(args)
 	if err != nil {
 		fmt.Println(err.Error())

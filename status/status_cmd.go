@@ -35,10 +35,12 @@ type options struct {
 func (options *options) strftime(time *time.Time, config *common.Config) string {
 	if time == nil {
 		return ""
-	} else if options.format == notSpecified {
-		return common.Strftime(*time, config)
-	} else if options.format == relative {
+	}
+	switch options.format {
+	case relative:
 		return common.HumanizeTime(*time)
+	case notSpecified:
+		return common.Strftime(*time, config)
 	}
 	return time.Format(timeformat)
 }
@@ -79,7 +81,7 @@ ARGUMENTS
 func (status *Command) parseFmtString(results []result) string {
 	var max = 0
 	for _, result := range results {
-		var len = len(result.BranchName)
+		var len = len(result.branchName)
 		if len > max {
 			max = len
 		}
@@ -89,30 +91,30 @@ func (status *Command) parseFmtString(results []result) string {
 
 func (status *Command) printResultInCsv(results []result, config *common.Config) {
 	for _, result := range results {
-		var timeString = status.options.strftime(result.LastModified, config)
-		fmt.Printf("%s,%s,%s,%s,%s\n", result.GroupName, result.RepositoryName, result.BranchName, timeString, result.Description)
+		var timeString = status.options.strftime(result.lastModified, config)
+		fmt.Printf("%s,%s,%s,%s,%s\n", result.relation.gname, result.relation.rname, result.branchName, timeString, result.description)
 	}
 }
 
 func (status *Command) printResult(results []result, config *common.Config) {
-	var groupName = results[0].GroupName
-	var repositoryName = results[0].RepositoryName
+	var groupName = results[0].relation.gname
+	var repositoryName = results[0].relation.rname
 	fmt.Printf("%s\n    %s\n", common.ColorizedGroupName(groupName), common.ColorizedRepositoryID(repositoryName))
 	var fmtString = status.parseFmtString(results)
 	for _, result := range results {
-		if groupName != result.GroupName {
-			fmt.Println(common.ColorizedGroupName(result.GroupName))
-			groupName = result.GroupName
+		if groupName != result.relation.gname {
+			fmt.Println(common.ColorizedGroupName(result.relation.gname))
+			groupName = result.relation.gname
 		}
-		if repositoryName != result.RepositoryName {
-			fmt.Printf("    %s\n", common.ColorizedRepositoryID(result.RepositoryName))
-			repositoryName = result.RepositoryName
+		if repositoryName != result.relation.rname {
+			fmt.Printf("    %s\n", common.ColorizedRepositoryID(result.relation.rname))
+			repositoryName = result.relation.rname
 		}
 		var time = ""
-		if result.LastModified != nil {
-			time = status.options.strftime(result.LastModified, config)
+		if result.lastModified != nil {
+			time = status.options.strftime(result.lastModified, config)
 		}
-		fmt.Printf(fmtString, result.BranchName, time, result.Description)
+		fmt.Printf(fmtString, result.branchName, time, result.description)
 	}
 }
 
