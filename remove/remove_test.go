@@ -82,7 +82,7 @@ func TestRemoveCommandRemoveTargetIsBothInGroupAndRepository(t *testing.T) {
 	var db = open("nulldb.json")
 
 	db.CreateGroup("groupOrRepo", "same name as Repository", false)
-	db.CreateRepository("groupOrRepo", "unknownpath", []common.Remote{})
+	db.CreateRepository("groupOrRepo", "unknownpath", "desc", []common.Remote{})
 	var rm = Command{&options{}}
 	var err = rm.executeRemove(db, "groupOrRepo")
 	if err.Error() != "groupOrRepo: exists in repositories and groups" {

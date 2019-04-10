@@ -16,25 +16,27 @@ import (
 	"github.com/tamada/rrh/path"
 	"github.com/tamada/rrh/prune"
 	"github.com/tamada/rrh/remove"
+	"github.com/tamada/rrh/repository"
 	"github.com/tamada/rrh/status"
 )
 
 func buildCommandFactoryMap() map[string]cli.CommandFactory {
 	return map[string]cli.CommandFactory{
-		"add":       add.CommandFactory,
-		"clone":     clone.CommandFactory,
-		"config":    common.CommandFactory,
-		"export":    export.CommandFactory,
-		"fetch":     fetch.CommandFactory,
-		"fetch-all": fetch.AllCommandFactory,
-		"group":     group.CommandFactory,
-		"import":    export.ImportCommandFactory,
-		"list":      list.CommandFactory,
-		"mv":        move.CommandFactory,
-		"path":      path.CommandFactory,
-		"prune":     prune.CommandFactory,
-		"rm":        remove.CommandFactory,
-		"status":    status.CommandFactory,
+		"add":        add.CommandFactory,
+		"clone":      clone.CommandFactory,
+		"config":     common.CommandFactory,
+		"export":     export.CommandFactory,
+		"fetch":      fetch.CommandFactory,
+		"fetch-all":  fetch.AllCommandFactory,
+		"group":      group.CommandFactory,
+		"import":     export.ImportCommandFactory,
+		"list":       list.CommandFactory,
+		"mv":         move.CommandFactory,
+		"path":       path.CommandFactory,
+		"prune":      prune.CommandFactory,
+		"repository": repository.CommandFactory,
+		"rm":         remove.CommandFactory,
+		"status":     status.CommandFactory,
 	}
 }
 

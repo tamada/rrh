@@ -36,7 +36,7 @@ func (add *Command) addRepositoryToGroup(db *common.Database, repoID string, gro
 	if err2 != nil {
 		return []error{err2}
 	}
-	db.CreateRepository(id, absPath, remotes)
+	db.CreateRepository(id, absPath, "", remotes)
 
 	var err = db.Relate(groupName, id)
 	if err != nil {
