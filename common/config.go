@@ -88,7 +88,7 @@ var defaultValues = Config{
 	RrhAutoCreateGroup:  "false",
 	RrhAutoDeleteGroup:  "false",
 	RrhCloneDestination: ".",
-	RrhColor:            "",
+	RrhColor:            "repository:fg=red+group:fg=magenta+label:op=bold+boolTrue:fg=green+boolFalse:fg=blue",
 	RrhConfigPath:       "${RRH_HOME}/config.json",
 	RrhDatabasePath:     "${RRH_HOME}/database.json",
 	RrhDefaultGroupName: "no-group",
