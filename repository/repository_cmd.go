@@ -98,27 +98,27 @@ func (info *infoCommand) parseOptions(args []string) error {
 	return nil
 }
 
-func printInfo(result common.Repository, options *infoOptions) {
-	fmt.Printf("%-12s %s\n", common.ColorizedLabel("ID:"), common.ColorizedRepositoryID(result.ID))
-	fmt.Printf("%-12s %s\n", common.ColorizedLabel("Description:"), result.Description)
-	fmt.Printf("%-12s %s\n", common.ColorizedLabel("Path:"), result.Path)
+func (options *infoOptions) printInfo(result common.Repository, config *common.Config) {
+	fmt.Printf("%-12s %s\n", config.Color.ColorizedLabel("ID:"), config.Color.ColorizedRepositoryID(result.ID))
+	fmt.Printf("%-12s %s\n", config.Color.ColorizedLabel("Description:"), result.Description)
+	fmt.Printf("%-12s %s\n", config.Color.ColorizedLabel("Path:"), result.Path)
 	if len(result.Remotes) > 0 {
-		printRemoteInfo(result.Remotes)
+		printRemoteInfo(result.Remotes, config)
 	}
 }
 
-func printRemoteInfo(remotes []common.Remote) {
-	fmt.Printf("%-12s\n", common.ColorizedLabel("Remote:"))
+func printRemoteInfo(remotes []common.Remote, config *common.Config) {
+	fmt.Printf("%-12s\n", config.Color.ColorizedLabel("Remote:"))
 	for _, remote := range remotes {
-		fmt.Printf("    %s: %s\n", common.ColorizedLabel(remote.Name), remote.URL)
+		fmt.Printf("    %s: %s\n", config.Color.ColorizedLabel(remote.Name), remote.URL)
 	}
 }
 
-func printInfoResult(result common.Repository, options *infoOptions) {
+func (options *infoOptions) printInfoResult(result common.Repository, config *common.Config) {
 	if options.csv {
-		fmt.Printf("%s,%s,%s\n", common.ColorizedRepositoryID(result.ID), result.Description, result.Path)
+		fmt.Printf("%s,%s,%s\n", config.Color.ColorizedRepositoryID(result.ID), result.Description, result.Path)
 	} else {
-		printInfo(result, options)
+		options.printInfo(result, config)
 	}
 }
 
@@ -126,7 +126,7 @@ func (info *infoCommand) perform(db *common.Database, args []string) int {
 	var results, errs = findResults(db, args)
 	var onError = db.Config.GetValue(common.RrhOnError)
 	for _, result := range results {
-		printInfoResult(result, info.options)
+		info.options.printInfoResult(result, db.Config)
 	}
 	if len(errs) > 0 && onError != common.Ignore {
 		return printErrors(db.Config, errs)
@@ -146,7 +146,7 @@ func (info *infoCommand) Run(args []string) int {
 		fmt.Println(err2.Error())
 		return 2
 	}
-	common.SetColorize(info.options.color || !info.options.noColor)
+	config.Color.SetColorize(info.options.color || !info.options.noColor)
 	return info.perform(db, info.options.args)
 }
 

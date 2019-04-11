@@ -14,6 +14,7 @@ func openDatabase() *Database {
 }
 
 func TestOpenBrokenJson(t *testing.T) {
+	os.Setenv(RrhConfigPath, "../testdata/config.json")
 	os.Setenv(RrhDatabasePath, "../testdata/broken.json")
 	var config = OpenConfig()
 	var _, err = Open(config)
@@ -47,6 +48,7 @@ func TestAutoCreateGroup(t *testing.T) {
 }
 
 func TestOpenNonExistFile(t *testing.T) {
+	os.Setenv(RrhConfigPath, "../testdata/config.json")
 	os.Setenv(RrhDatabasePath, "../testdata/not-exist-file.json")
 	var config = OpenConfig()
 	var db, _ = Open(config)
@@ -60,6 +62,7 @@ func TestOpenNonExistFile(t *testing.T) {
 }
 
 func TestOpenNullDatabase(t *testing.T) {
+	os.Setenv(RrhConfigPath, "../testdata/config.json")
 	os.Setenv(RrhDatabasePath, "../testdata/nulldb.json")
 	var config = OpenConfig()
 	var db, _ = Open(config)

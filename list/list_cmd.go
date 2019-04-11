@@ -88,13 +88,13 @@ printColoriezdRepositoryID prints the repository name in color.
 Coloring escape sequence breaks the printf position arrangement.
 Therefore, we arranges the positions by spacing behind the colored repository name.
 */
-func printColoriezdRepositoryID(repoName string, length int) {
+func printColoriezdRepositoryID(repoName string, length int, config *common.Config) {
 	var formatter = fmt.Sprintf("    %%s%%%ds", length-len(repoName))
-	fmt.Printf(formatter, common.ColorizedRepositoryID(repoName), "")
+	fmt.Printf(formatter, config.Color.ColorizedRepositoryID(repoName), "")
 }
 
-func (options *options) printRepo(repo Repo, result Result, maxLength int) {
-	printColoriezdRepositoryID(repo.Name, maxLength)
+func (options *options) printRepo(repo Repo, result Result, maxLength int, config *common.Config) {
+	printColoriezdRepositoryID(repo.Name, maxLength, config)
 	if options.localPath || options.all {
 		fmt.Printf("  %s", repo.Path)
 	}
@@ -111,17 +111,17 @@ func (options *options) isPrintSimple(result Result) bool {
 	return !options.noOmit && result.OmitList && len(options.args) == 0
 }
 
-func printGroupName(result Result) int {
+func printGroupName(result Result, config *common.Config) int {
 	if len(result.Repos) == 1 {
-		fmt.Printf("%s (1 repository)\n", common.ColorizedGroupName(result.GroupName))
+		fmt.Printf("%s (1 repository)\n", config.Color.ColorizedGroupName(result.GroupName))
 	} else {
-		fmt.Printf("%s (%d repositories)\n", common.ColorizedGroupName(result.GroupName), len(result.Repos))
+		fmt.Printf("%s (%d repositories)\n", config.Color.ColorizedGroupName(result.GroupName), len(result.Repos))
 	}
 	return len(result.Repos)
 }
 
-func (options *options) printResult(result Result) int {
-	var repoCount = printGroupName(result)
+func (options *options) printResult(result Result, config *common.Config) int {
+	var repoCount = printGroupName(result, config)
 	if !options.isPrintSimple(result) {
 		if options.description || options.all {
 			fmt.Printf("    Description  %s", result.Description)
@@ -129,7 +129,7 @@ func (options *options) printResult(result Result) int {
 		}
 		var maxLength = findMaxLength(result.Repos)
 		for _, repo := range result.Repos {
-			options.printRepo(repo, result, maxLength)
+			options.printRepo(repo, result, maxLength, config)
 		}
 	}
 	return repoCount
@@ -172,7 +172,7 @@ func (options *options) printResults(results []Result, config *common.Config) in
 	}
 	var repoCount int
 	for _, result := range results {
-		repoCount += options.printResult(result)
+		repoCount += options.printResult(result, config)
 	}
 	printGroupAndRepoCount(len(results), repoCount)
 	return 0

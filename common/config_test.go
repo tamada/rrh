@@ -107,7 +107,7 @@ func ExampleCommand() {
 	// RRH_AUTO_CREATE_GROUP: true (config_file)
 	// RRH_AUTO_DELETE_GROUP: false (config_file)
 	// RRH_CLONE_DESTINATION: . (default)
-	// RRH_COLOR:  (default)
+	// RRH_COLOR: repository:fg=red+group:fg=magenta+label:op=bold+boolTrue:fg=green+boolFalse:fg=blue (default)
 	// RRH_CONFIG_PATH: ../testdata/config.json (environment)
 	// RRH_DATABASE_PATH: ../testdata/tmp.json (environment)
 	// RRH_DEFAULT_GROUP_NAME: no-group (default)
@@ -127,7 +127,7 @@ func ExampleCommand_Run() {
 	// RRH_AUTO_CREATE_GROUP: true (config_file)
 	// RRH_AUTO_DELETE_GROUP: false (config_file)
 	// RRH_CLONE_DESTINATION: . (default)
-	// RRH_COLOR:  (default)
+	// RRH_COLOR: repository:fg=red+group:fg=magenta+label:op=bold+boolTrue:fg=green+boolFalse:fg=blue (default)
 	// RRH_CONFIG_PATH: ../testdata/config.json (environment)
 	// RRH_DATABASE_PATH: ../testdata/database.json (environment)
 	// RRH_DEFAULT_GROUP_NAME: no-group (default)
@@ -147,7 +147,7 @@ func Example_listCommand_Run() {
 	// RRH_AUTO_CREATE_GROUP: true (config_file)
 	// RRH_AUTO_DELETE_GROUP: false (config_file)
 	// RRH_CLONE_DESTINATION: . (default)
-	// RRH_COLOR:  (default)
+	// RRH_COLOR: repository:fg=red+group:fg=magenta+label:op=bold+boolTrue:fg=green+boolFalse:fg=blue (default)
 	// RRH_CONFIG_PATH: ../testdata/config.json (environment)
 	// RRH_DATABASE_PATH: ../testdata/database.json (default)
 	// RRH_DEFAULT_GROUP_NAME: no-group (default)
@@ -334,7 +334,7 @@ func TestPrintErrors(t *testing.T) {
 		{FailImmediately, []error{errors.New("error")}, 5, true},
 	}
 
-	var config = Config{}
+	var config = NewConfig()
 	for _, tc := range testcases {
 		config.Update(RrhOnError, tc.onError)
 		var output = CaptureStdout(func() {
@@ -351,6 +351,7 @@ func TestPrintErrors(t *testing.T) {
 }
 
 func TestFormatVariableAndValue(t *testing.T) {
+	os.Setenv(RrhConfigPath, "../testdata/config.json")
 	var config = OpenConfig()
 	assert(t, config.formatVariableAndValue(RrhDefaultGroupName), "RRH_DEFAULT_GROUP_NAME: no-group (default)")
 }
