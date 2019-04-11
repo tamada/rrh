@@ -9,6 +9,9 @@ import (
 type colorSettings map[string]string
 type colorFuncs map[string](func(r string) string)
 
+/*
+Color struct shows the color settings of RRH.
+*/
 type Color struct {
 	settings colorSettings
 	funcs    colorFuncs

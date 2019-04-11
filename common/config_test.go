@@ -334,7 +334,7 @@ func TestPrintErrors(t *testing.T) {
 		{FailImmediately, []error{errors.New("error")}, 5, true},
 	}
 
-	var config = Config{}
+	var config = NewConfig()
 	for _, tc := range testcases {
 		config.Update(RrhOnError, tc.onError)
 		var output = CaptureStdout(func() {
@@ -351,6 +351,7 @@ func TestPrintErrors(t *testing.T) {
 }
 
 func TestFormatVariableAndValue(t *testing.T) {
+	os.Setenv(RrhConfigPath, "../testdata/config.json")
 	var config = OpenConfig()
 	assert(t, config.formatVariableAndValue(RrhDefaultGroupName), "RRH_DEFAULT_GROUP_NAME: no-group (default)")
 }

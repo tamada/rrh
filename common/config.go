@@ -76,7 +76,10 @@ const (
 /*
 Config shows the values of configuration variables.
 */
-type Config map[string]string
+type Config struct {
+	values map[string]string
+	Color  *Color
+}
 
 /*
 ReadFrom shows the value of config load from.
@@ -85,18 +88,21 @@ The available values are default, config_file, environment, and not found.
 type ReadFrom string
 
 var defaultValues = Config{
-	RrhAutoCreateGroup:  "false",
-	RrhAutoDeleteGroup:  "false",
-	RrhCloneDestination: ".",
-	RrhColor:            "repository:fg=red+group:fg=magenta+label:op=bold+boolTrue:fg=green+boolFalse:fg=blue",
-	RrhConfigPath:       "${RRH_HOME}/config.json",
-	RrhDatabasePath:     "${RRH_HOME}/database.json",
-	RrhDefaultGroupName: "no-group",
-	RrhEnableColorized:  "true",
-	RrhHome:             "${HOME}/.rrh",
-	RrhOnError:          Warn,
-	RrhSortOnUpdating:   "false",
-	RrhTimeFormat:       Relative,
+	values: map[string]string{
+		RrhAutoCreateGroup:  "false",
+		RrhAutoDeleteGroup:  "false",
+		RrhCloneDestination: ".",
+		RrhColor:            "repository:fg=red+group:fg=magenta+label:op=bold+boolTrue:fg=green+boolFalse:fg=blue",
+		RrhConfigPath:       "${RRH_HOME}/config.json",
+		RrhDatabasePath:     "${RRH_HOME}/database.json",
+		RrhDefaultGroupName: "no-group",
+		RrhEnableColorized:  "true",
+		RrhHome:             "${HOME}/.rrh",
+		RrhOnError:          Warn,
+		RrhSortOnUpdating:   "false",
+		RrhTimeFormat:       Relative,
+	},
+	Color: &Color{},
 }
 
 func (config *Config) isOnErrorIgnoreOrWarn() bool {
@@ -153,7 +159,7 @@ func (config *Config) Unset(label string) error {
 	if !contains(availableLabels, label) {
 		return fmt.Errorf("%s: unknown variable name", label)
 	}
-	delete((*config), label)
+	delete(config.values, label)
 	return nil
 }
 
@@ -170,7 +176,7 @@ func validateArgumentsOnUpdate(label string, value string) error {
 func (config *Config) updateBoolValue(label string, value string) error {
 	var flag, err = trueOrFalse(value)
 	if err == nil {
-		(*config)[label] = string(flag)
+		config.values[label] = string(flag)
 	}
 	return err
 }
@@ -192,7 +198,7 @@ func (config *Config) Update(label string, value string) error {
 		}
 		value = newValue
 	}
-	(*config)[label] = value
+	config.values[label] = value
 	return nil
 }
 
@@ -202,7 +208,7 @@ If the label is not RrhAutoCreateGroup, RrhAutoDeleteGroup, and RrhSortOnUpdatin
 */
 func (config *Config) IsSet(label string) bool {
 	if contains(boolLabels, label) {
-		return strings.ToLower((*config)[label]) == trueString
+		return strings.ToLower(config.values[label]) == trueString
 	}
 	return false
 }
@@ -234,7 +240,7 @@ func (config *Config) GetString(label string) (string, ReadFrom) {
 	if !contains(availableLabels, label) {
 		return "", NotFound
 	}
-	var value, ok = (*config)[label]
+	var value, ok = config.values[label]
 	if !ok {
 		return config.getStringFromEnv(label)
 	}
@@ -262,15 +268,9 @@ func (config *Config) findDefaultValue(label string) (string, ReadFrom) {
 	if !contains(availableLabels, label) {
 		return "", NotFound
 	}
-	var value = defaultValues[label]
+	var value = defaultValues.values[label]
 	value = config.replaceHome(value)
 	return value, Default
-}
-
-func configPath() string {
-	var config = new(Config)
-	var configPath, _ = config.getStringFromEnv(RrhConfigPath)
-	return configPath
 }
 
 /*
@@ -282,7 +282,7 @@ func (config *Config) StoreConfig() error {
 	if err1 != nil {
 		return err1
 	}
-	var bytes, err2 = json.Marshal(*config)
+	var bytes, err2 = json.Marshal(config.values)
 	if err2 == nil {
 		return ioutil.WriteFile(configPath, bytes, 0644)
 	}
@@ -290,23 +290,39 @@ func (config *Config) StoreConfig() error {
 }
 
 /*
+NewConfig generates the new Config instance.
+*/
+func NewConfig() *Config {
+	return &Config{values: map[string]string{}, Color: &Color{colorSettings{}, colorFuncs{}}}
+}
+
+/*
 OpenConfig reads the config file and returns it.
 The load path is based on `RrhConfigPath` of the environment variables.
 */
 func OpenConfig() *Config {
-	bytes, err := ioutil.ReadFile(configPath())
+	var config = NewConfig()
+	var configPath, _ = config.getStringFromEnv(RrhConfigPath)
+	bytes, err := ioutil.ReadFile(configPath)
 	if err != nil {
-		return new(Config)
+		return config
 	}
-	var config Config
-	if err := json.Unmarshal(bytes, &config); err != nil {
+	var values = map[string]string{}
+	if err := json.Unmarshal(bytes, &values); err != nil {
 		return nil
 	}
-	InitializeColor(&config)
-	return &config
+	config.values = values
+	config.Color = InitializeColor(config)
+	return config
 }
 
 func (config *Config) formatVariableAndValue(label string) string {
 	var value, readFrom = config.GetString(label)
-	return fmt.Sprintf("%s: %s (%s)", label, value, readFrom)
+	if contains(boolLabels, label) {
+		return fmt.Sprintf("%s: %s (%s)",
+			config.Color.ColorizedLabel(label),
+			config.Color.ColorizedBool(value), readFrom)
+	}
+	return fmt.Sprintf("%s: %s (%s)",
+		config.Color.ColorizedLabel(label), value, readFrom)
 }
