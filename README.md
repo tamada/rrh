@@ -6,7 +6,7 @@
 
 # RRH
 
-RRH is a simple git repository manager manager.
+RRH is a simple git repository manager.
 
 
 ## Table of contents
@@ -481,10 +481,10 @@ We can see those variables by running `rrh config` sub-command.
 #### `RRH_COLOR`
 
 * specifies the colors of the output.
-* Default: `""` (empty string)
-* Format: `"repository:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+group:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+label:fg=<COLOR>;bg=<COLOR>;op=<STYLE>"`
+* Default: `"repository:fg=red+group:fg=magenta+label:op=bold+configValue:fg=green"`
+* Format: `"repository:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+group:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+label:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+configValue:fg=<COLOR>;bg=<COLOR>;op=<STYLE>"`
     * Available `COLOR`s
-        * red, cyan, gray, blue, black, green, white, yellow, magenta.
+        * red, cyan, blue, black, green, white, yellow, magenta.
     * Available `STYLE`s
         * bold, underscore.
     * Delimiter of repository, group and label is `+`, delimiter of type and value is `:`, delimiter of each label is `;`, and delimiter of each value is `,`.
@@ -495,7 +495,7 @@ We can see those variables by running `rrh config` sub-command.
 #### `RRH_ENABLE_COLORIZED`
 
 * specifies to colorize the output. The colors of output were specified on [`RRH_COLOR`](#rrh_color)
-* Default: true
+* Default: false
 
 ### Database
 
@@ -576,13 +576,26 @@ rrhpeco(){
 
 [Apache License version 2.0](https://github.com/tamada/rrh/blob/master/LICENSE)
 
-### Development Policy
+### Code of Conduct
 
-* Separate `foo_cmd.go` and `foo.go` for implementing `foo` command.
-    * `foo_cmd.go` includes functions of cli.
-    * `foo.go` includes essential functions for `foo`.
-* Call `fmt.Print` methods only `foo_cmd.go` file.
-* Create test for `foo.go`.
+[See the file](https://github.com/tamada/rrh/blob/master/CODE_OF_CONDUCT.md)
+
+### Contribution
+
+1. Fork the project. ([https://github.com/tamada/rrh/fork](https://github.com/tamada/rrh/fork))
+2. Create a feature branch. (`git checkout -b FEATURE_BRANCH_NAME`)
+3. Edit the source files and Commit your changes.
+4. Create tests and commit them.
+5. Rebase your local changes against the master branch.
+6. Run the test suite with the `make test` and confirm that passes.
+7. Create a new pull request.
+8. Confirm all checks pass.
+
+[See also the contribution guideline](https://github.com/tamada/rrh/blob/master/CONTRIBUTING.md).
+
+### Author
+
+* [Haruaki Tamada](https://github.com/tamada)
 
 ### Why the project name RRH
 
@@ -633,6 +646,8 @@ The public language of other channels and GitHub pages are English.
     * [`rrhpeco`](#rrhpeco)
 * [About Project](#about-project)
     * [License](#license)
-    * [Development Policy](#development-policy)
+    * [Code of Conduct](#code-of-conduct)
+    * [Contribution](#contribution)
+    * [Author](#author)
     * [Why the project name RRH?](#why-the-project-name-rrh)
 * [Discussion](#discussion)
