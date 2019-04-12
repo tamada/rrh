@@ -18,14 +18,17 @@ func copyfile(fromfile string) string {
 /*
 WithDatabase introduce mutex for using database for only one routine at once.
 */
-func WithDatabase(dbpath, configPath string, f func()) string {
-	var newFilePath = copyfile(dbpath)
-	os.Setenv(RrhConfigPath, configPath)
-	os.Setenv(RrhDatabasePath, newFilePath)
+func WithDatabase(dbFile, configFile string, f func()) string {
+	var newDBFile = copyfile(dbFile)
+	var newConfigFile = copyfile(configFile)
+	os.Setenv(RrhConfigPath, newConfigFile)
+	os.Setenv(RrhDatabasePath, newDBFile)
 
 	f()
 
-	return newFilePath
+	defer os.Setenv(RrhConfigPath, configFile) // replace the path of config file.
+	defer os.Remove(newConfigFile)
+	return newDBFile
 }
 
 /*
