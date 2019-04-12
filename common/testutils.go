@@ -3,33 +3,37 @@ package common
 import (
 	"bytes"
 	"io"
+	"io/ioutil"
 	"os"
 	"strings"
-	"sync"
 )
 
-var mutex = new(sync.Mutex)
+func copyfile(fromfile string) string {
+	var content, _ = ioutil.ReadFile(fromfile)
+	var file, _ = ioutil.TempFile("../testdata/", "tmp")
+	file.Write(content)
+	return file.Name()
+}
 
 /*
 WithDatabase introduce mutex for using database for only one routine at once.
 */
-func WithDatabase(dbpath, configPath string, f func()) {
-	mutex.Lock()
+func WithDatabase(dbpath, configPath string, f func()) string {
+	var newFilePath = copyfile(dbpath)
 	os.Setenv(RrhConfigPath, configPath)
-	os.Setenv(RrhDatabasePath, dbpath)
+	os.Setenv(RrhDatabasePath, newFilePath)
 
 	f()
 
-	defer mutex.Unlock()
+	return newFilePath
 }
 
 /*
 Rollback rollbacks database after executing function f.
 */
-func Rollback(dbpath, configPath string, f func()) {
-	WithDatabase(dbpath, configPath, func() {
+func Rollback(dbpath, configPath string, f func()) string {
+	return WithDatabase(dbpath, configPath, func() {
 		var config = OpenConfig()
-		config.Update(RrhDatabasePath, dbpath)
 		var db, _ = Open(config)
 		defer db.StoreAndClose()
 

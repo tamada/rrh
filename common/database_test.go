@@ -79,7 +79,7 @@ func TestOpenNullDatabase(t *testing.T) {
 }
 
 func TestStore(t *testing.T) {
-	Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+	var dbFile = Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 		var config = OpenConfig()
 		var db, _ = Open(config)
 
@@ -107,6 +107,7 @@ func TestStore(t *testing.T) {
 			t.Error("group1 does not relate with repo1")
 		}
 	})
+	defer os.Remove(dbFile)
 }
 
 func TestPrune(t *testing.T) {
@@ -326,7 +327,7 @@ func TestFindRelations(t *testing.T) {
 }
 
 func TestUpdateRepository(t *testing.T) {
-	Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+	var dbFile = Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 		var config = OpenConfig()
 		var db, _ = Open(config)
 
@@ -344,6 +345,7 @@ func TestUpdateRepository(t *testing.T) {
 			t.Errorf("missing repository updation succeeded.")
 		}
 	})
+	defer os.Remove(dbFile)
 }
 
 func TestCounting(t *testing.T) {

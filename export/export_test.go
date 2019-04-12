@@ -40,12 +40,13 @@ func TestUnknownOptions(t *testing.T) {
 }
 
 func TestBrokenDatabase(t *testing.T) {
-	common.WithDatabase("../testdata/broken.json", "../testdata/config.json", func() {
+	var dbFile = common.WithDatabase("../testdata/broken.json", "../testdata/config.json", func() {
 		var export, _ = CommandFactory()
 		if val := export.Run([]string{}); val != 2 {
 			t.Errorf("broken json successfully read!?: %d", val)
 		}
 	})
+	defer os.Remove(dbFile)
 }
 
 func TestNullDB(t *testing.T) {
@@ -77,7 +78,7 @@ func TestNullDBNoIndent(t *testing.T) {
 }
 
 func TestTmpDBNoIndent(t *testing.T) {
-	common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+	var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
 		var result = common.CaptureStdout(func() {
 			var export, _ = CommandFactory()
 			export.Run([]string{"--no-indent"})
@@ -92,4 +93,5 @@ func TestTmpDBNoIndent(t *testing.T) {
 	// In example testing, how do I ignore the part of output, like below?
 	// Output:
 	// {"last_modified":".*",repositories":[{"repository_id":"repo1","repository_path":"path1","remotes":[]},{"repository_id":"repo2","repository_path":"path2","remotes":[]}],"groups":[{"group_name":"group1","group_desc":"desc1","group_items":["repo1"]},{"group_name":"group2","group_desc":"desc2","group_items":[]}]}
+	defer os.Remove(dbFile)
 }

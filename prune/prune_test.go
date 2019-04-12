@@ -44,7 +44,7 @@ func TestPrune(t *testing.T) {
 		[]groupExistChecker{{"group1", true}, {"group2", false}, {"group3", true}},
 		[]repositoryExistChecker{{"repo1", true}, {"repo2", true}, {"repo3", false}},
 	}
-	common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+	var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
 		var db = open()
 		db.Prune()
 
@@ -59,6 +59,7 @@ func TestPrune(t *testing.T) {
 			}
 		}
 	})
+	defer os.Remove(dbFile)
 }
 
 func TestCommandRunFailedByBrokenDBFile(t *testing.T) {
@@ -70,9 +71,10 @@ func TestCommandRunFailedByBrokenDBFile(t *testing.T) {
 }
 
 func ExampleCommand_Run() {
-	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+	var dbFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 		var prune, _ = CommandFactory()
 		prune.Run([]string{})
 	})
+	defer os.Remove(dbFile)
 	// Output: Pruned 3 groups, 2 repositories
 }

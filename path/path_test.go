@@ -1,6 +1,7 @@
 package path
 
 import (
+	"os"
 	"strings"
 	"testing"
 
@@ -44,7 +45,7 @@ func TestPathCommand(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
 			var path, _ = CommandFactory()
 			var output = common.CaptureStdout(func() {
 				var status = path.Run(tc.args)
@@ -61,5 +62,6 @@ func TestPathCommand(t *testing.T) {
 				}
 			}
 		})
+		defer os.Remove(dbFile)
 	}
 }

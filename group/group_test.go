@@ -9,10 +9,11 @@ import (
 )
 
 func Example() {
-	common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+	var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
 		var gc, _ = CommandFactory()
 		gc.Run([]string{})
 	})
+	defer os.Remove(dbFile)
 	// Output:
 	// group1,1 repository
 	// group2,0 repositories
@@ -20,10 +21,11 @@ func Example() {
 }
 
 func ExampleCommand_Run() {
-	common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+	var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
 		var gc, _ = CommandFactory()
 		gc.Run([]string{"list"})
 	})
+	defer os.Remove(dbFile)
 	// Output:
 	// group1,1 repository
 	// group2,0 repositories
@@ -31,10 +33,11 @@ func ExampleCommand_Run() {
 }
 
 func Example_listCommand_Run() {
-	common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+	var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
 		var glc, _ = listCommandFactory()
 		glc.Run([]string{"-d", "-r"})
 	})
+	defer os.Remove(dbFile)
 	// Output:
 	// group1,desc1,[repo1],1 repository
 	// group2,desc2,[],0 repositories
@@ -42,16 +45,17 @@ func Example_listCommand_Run() {
 }
 
 func Example_ofCommand_Run() {
-	common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+	var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
 		var goc, _ = ofCommandFactory()
 		goc.Run([]string{"repo1"})
 	})
+	defer os.Remove(dbFile)
 	// Output:
 	// repo1, [group1]
 }
 
 func TestGroupListOnlyName(t *testing.T) {
-	common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+	var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
 		var output = common.CaptureStdout(func() {
 			var glc, _ = CommandFactory()
 			glc.Run([]string{"list", "--only-groupname"})
@@ -63,6 +67,7 @@ group3`
 			t.Errorf("the result with option only-groupname did not match\nwont: %s, got: %s", wontOutput, output)
 		}
 	})
+	defer os.Remove(dbFile)
 }
 
 func TestGroupOfCommand(t *testing.T) {
@@ -77,7 +82,7 @@ ARGUMENTS
     REPOSITORY_ID     show the groups of the repository.`},
 	}
 	for _, tc := range testcases {
-		common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
 			var output = common.CaptureStdout(func() {
 				var command, _ = ofCommandFactory()
 				command.Run(tc.args)
@@ -87,6 +92,7 @@ ARGUMENTS
 				t.Errorf("%v: output did not match, wont: %s, got: %s", tc.args, tc.output, output)
 			}
 		})
+		defer os.Remove(dbFile)
 	}
 }
 
@@ -110,7 +116,7 @@ func TestAddGroup(t *testing.T) {
 		{[]string{"add"}, 3, []groupChecker{}},
 	}
 	for _, testcase := range testcases {
-		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+		var dbFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 			var gac, _ = CommandFactory()
 			if val := gac.Run(testcase.args); val != testcase.statusCode {
 				t.Errorf("%v: test failed, wont: %d, got: %d", testcase.args, testcase.statusCode, val)
@@ -132,6 +138,7 @@ func TestAddGroup(t *testing.T) {
 				}
 			}
 		})
+		defer os.Remove(dbFile)
 	}
 }
 
@@ -146,7 +153,7 @@ func TestUpdateGroupFailed(t *testing.T) {
 		{updateOptions{"newName", "desc", "omitList", "target"}, true},
 	}
 	for _, testcase := range testcases {
-		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+		var dbFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 			var guc = updateCommand{}
 			var config = common.OpenConfig()
 			var db, _ = common.Open(config)
@@ -155,6 +162,7 @@ func TestUpdateGroupFailed(t *testing.T) {
 				t.Errorf("%v: test failed: err wont: %v, got: %v: err (%v)", testcase.opt, testcase.errFlag, !testcase.errFlag, err)
 			}
 		})
+		defer os.Remove(dbFile)
 	}
 }
 
@@ -186,7 +194,7 @@ func TestUpdateGroup(t *testing.T) {
 		{[]string{"update", "group1", "group4"}, 1, []groupChecker{}, []relation{}},
 	}
 	for _, testcase := range testcases {
-		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+		var dbFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 			var guc, _ = CommandFactory()
 			if val := guc.Run(testcase.args); val != testcase.statusCode {
 				t.Errorf("%v: group update failed status code wont: %d, got: %d", testcase.args, testcase.statusCode, val)
@@ -213,6 +221,7 @@ func TestUpdateGroup(t *testing.T) {
 				}
 			}
 		})
+		defer os.Remove(dbFile)
 	}
 }
 
@@ -229,7 +238,7 @@ func TestRemoveGroup(t *testing.T) {
 		{[]string{"rm"}, 1, []groupChecker{}},
 	}
 	for _, testcase := range testcases {
-		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+		var dbFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 			var grc, _ = CommandFactory()
 			if val := grc.Run(testcase.args); val != testcase.statusCode {
 				t.Errorf("%v: group remove failed: wont: %d, got: %d", testcase.args, testcase.statusCode, val)
@@ -251,6 +260,7 @@ func TestRemoveGroup(t *testing.T) {
 				}
 			}
 		})
+		defer os.Remove(dbFile)
 	}
 }
 

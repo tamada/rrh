@@ -17,12 +17,16 @@ deps:
 
 	dep ensure -vendor-only
 
-setup: deps
+replace_version:
+	@sed 's/const VERSION = .*/const VERSION = ${VERSION}/g' common/config.go > a
+	@mv a common/config.go
+	@echo "Replace version to ${VERSION}"
+
+setup: deps replace_version
 	git submodule update --init
 
 test: setup format lint
 	$(GO) test -covermode=count -coverprofile=coverage.out $$(go list ./... | grep -v vendor)
-	git checkout -- testdata
 
 build: setup
 	$(GO) build -o $(NAME) -v
