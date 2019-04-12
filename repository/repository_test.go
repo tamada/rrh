@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"os"
 	"strings"
 	"testing"
 
@@ -22,7 +23,7 @@ func TestRepository(t *testing.T) {
 		{[]string{"list", "--group", "repo1"}, 0, "group1/repo1", false},
 	}
 	for _, tc := range testcases {
-		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+		var dbFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 			var output = common.CaptureStdout(func() {
 				var command, _ = CommandFactory()
 				var status = command.Run(tc.args)
@@ -38,6 +39,7 @@ func TestRepository(t *testing.T) {
 				}
 			}
 		})
+		defer os.Remove(dbFile)
 	}
 }
 
@@ -58,7 +60,7 @@ func TestListRepository(t *testing.T) {
 		{[]string{"--invalid-option"}, 1, "", true},
 	}
 	for _, tc := range testcases {
-		common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
 			var output = common.CaptureStdout(func() {
 				var listCommand, _ = listCommandFactory()
 				var status = listCommand.Run(tc.args)
@@ -74,6 +76,7 @@ func TestListRepository(t *testing.T) {
 				}
 			}
 		})
+		defer os.Remove(dbFile)
 	}
 }
 
@@ -93,7 +96,7 @@ func TestInfoRepository(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
 			var output = common.CaptureStdout(func() {
 				var infoCommand, _ = infoCommandFactory()
 				var status = infoCommand.Run(tc.args)
@@ -109,6 +112,7 @@ func TestInfoRepository(t *testing.T) {
 				}
 			}
 		})
+		defer os.Remove(dbFile)
 	}
 }
 
@@ -128,7 +132,7 @@ func TestUpdateRepository(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+		var dbFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 			var updateCommand, _ = updateCommandFactory()
 			var status = updateCommand.Run(tc.args)
 			if status != tc.statusCode {
@@ -154,6 +158,7 @@ func TestUpdateRepository(t *testing.T) {
 				t.Errorf("%v: description did not match: wont: %s, got: %s", tc.args, tc.wontRepo.Description, repo.Description)
 			}
 		})
+		defer os.Remove(dbFile)
 	}
 }
 

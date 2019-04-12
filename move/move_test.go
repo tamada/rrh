@@ -1,20 +1,11 @@
 package move
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
 	"github.com/tamada/rrh/common"
 )
-
-func open(jsonName string) *common.Database {
-	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
-	os.Setenv(common.RrhDatabasePath, fmt.Sprintf("../testdata/%s", jsonName))
-	var config = common.OpenConfig()
-	var db, _ = common.Open(config)
-	return db
-}
 
 func TestParseError(t *testing.T) {
 	var testcases = []struct {
@@ -75,16 +66,18 @@ func TestMoveCommand(t *testing.T) {
 			{"group1", "repo1", false}}},
 	}
 	for _, item := range cases {
-		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+		var dbFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 			var mv, _ = CommandFactory()
 			mv.Run(item.args)
-			var db = open("tmp.json")
+
+			var db, _ = common.Open(common.OpenConfig())
 			for _, rel := range item.relations {
 				if db.HasRelation(rel.group, rel.repo) != rel.hasRelation {
 					t.Errorf("rrh mv %v failed: relation: group %s and repo %s: %v", item.args, rel.group, rel.repo, !rel.hasRelation)
 				}
 			}
 		})
+		defer os.Remove(dbFile)
 	}
 }
 
@@ -105,13 +98,16 @@ func TestParseType(t *testing.T) {
 		{"not-exist", GroupOrRepoType, false, "group not found"},
 	}
 
-	var db = open("tmp.json")
-	for _, item := range cases {
-		var got, err = parseType(db, item.gives)
-		if got.targetType != item.wont && (item.errorFlag && err == nil) {
-			t.Errorf("%s: gives: %v, wont: %d, got: %d", item.message, item.gives, item.wont, got.targetType)
+	var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		var db, _ = common.Open(common.OpenConfig())
+		for _, item := range cases {
+			var got, err = parseType(db, item.gives)
+			if got.targetType != item.wont && (item.errorFlag && err == nil) {
+				t.Errorf("%s: gives: %v, wont: %d, got: %d", item.message, item.gives, item.wont, got.targetType)
+			}
 		}
-	}
+	})
+	defer os.Remove(dbFile)
 }
 
 func TestVerifyArguments(t *testing.T) {
@@ -137,14 +133,17 @@ func TestVerifyArguments(t *testing.T) {
 		{[]string{"repo1"}, "group5/repo1", RepositoryToRepository, false, ""},
 	}
 
-	var db = open("tmp.json")
-	for _, item := range cases {
-		var froms, to = convertToTarget(db, item.givesFrom, item.givesTo)
-		var got, _ = verifyArguments(db, froms, to)
-		if got != item.wont {
-			t.Errorf("%s: gives: %v, %s, wont: %d, got: %d", item.message, item.givesFrom, item.givesTo, item.wont, got)
+	var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		var db, _ = common.Open(common.OpenConfig())
+		for _, item := range cases {
+			var froms, to = convertToTarget(db, item.givesFrom, item.givesTo)
+			var got, _ = verifyArguments(db, froms, to)
+			if got != item.wont {
+				t.Errorf("%s: gives: %v, %s, wont: %d, got: %d", item.message, item.givesFrom, item.givesTo, item.wont, got)
+			}
 		}
-	}
+	})
+	defer os.Remove(dbFile)
 }
 
 func TestMergeType(t *testing.T) {

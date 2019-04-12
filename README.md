@@ -6,7 +6,17 @@
 
 # RRH
 
-RRH is a simple manager for git repositories.
+RRH is a simple git repository manager.
+
+
+## Table of contents
+
+* [Description](#description)
+* [Installation](#installation)
+* [Usage](#usage)
+* [Utilities](#utilities)
+* [About Project](#about-project)
+* [Discussion](#discussion)
 
 [Table of contents](#table_of_contents)
 
@@ -81,6 +91,7 @@ Available commands are:
     mv           move the repositories from groups to another group.
     path         print paths of specified repositories.
     prune        prune unnecessary repositories and groups.
+    repository   manages repository.
     rm           remove given repository from database.
     status       show git status of repositories.
 ```
@@ -299,6 +310,7 @@ ARGUMENTS
 #### `rrh path`
 
 Prints paths of the specified repositories.
+This sub command is deprecated, instead of [`rrh repository`](#rrh_repository) command.
 
 ```sh
 rrh path [OPTIONS] <REPOSITORIES...>
@@ -319,6 +331,45 @@ The unnecessary repositories are to have an invalid path.
 ```sh
 rrh prune
 ```
+
+#### `rrh repository`
+
+Prints/Updates the repository.
+
+```sh
+rrh repository <SUBCOMMAND>
+SUBCOMMAND
+    info [OPTIONS] <REPO...>     shows repository information.
+    update [OPTIONS] <REPO...>   updates repository information.
+```
+
+##### `rrh repository info`
+
+prints the repository information.
+
+```sh
+rrh repository info [OPTIONS] [REPOSITORIES...]
+    -G, --color     prints the results with color.
+    -c, --csv       prints the results in the csv format.
+ARGUMENTS
+    REPOSITORIES    target repositories.  If no repositories are specified,
+                    this sub command failed.
+```
+
+##### `rrh repository update`
+
+update the information of the repository.
+
+```sh
+rrh repository update [OPTIONS] <REPOSITORY>
+OPTIONS
+    -i, --id <NEWID>     specifies new repository id.
+    -d, --desc <DESC>    specifies new description.
+    -p, --path <PATH>    specifies new path.
+ARGUMENTS
+    REPOSITORY           specifies the repository id.
+```
+
 
 #### `rrh rm`
 
@@ -430,23 +481,21 @@ We can see those variables by running `rrh config` sub-command.
 #### `RRH_COLOR`
 
 * specifies the colors of the output.
-* Default: `""` (empty string)
-* Format: `"repository:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+GROUP:fg=<COLOR>;bg=<COLOR>;op=<STYLE>"`
+* Default: `"repository:fg=red+group:fg=magenta+label:op=bold+configValue:fg=green"`
+* Format: `"repository:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+group:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+label:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+configValue:fg=<COLOR>;bg=<COLOR>;op=<STYLE>"`
     * Available `COLOR`s
-        * red, cyan, gray, blue, black, green, white, yellow, magenta.
+        * red, cyan, blue, black, green, white, yellow, magenta.
     * Available `STYLE`s
         * bold, underscore.
-    * Delimiter of repository and group is `+`, delimiter of type and value is `:`, delimiter of each label is `;`, and delimiter of each value is `,`.
+    * Delimiter of repository, group and label is `+`, delimiter of type and value is `:`, delimiter of each label is `;`, and delimiter of each value is `,`.
 * Examples:
     * `RRH_COLOR: repository:fg=red+group:fg=cyan;op=bold,underscore`
         * Repository: red, Group: cyan in bold with underscore.
-* Note
-    * The colorized output does not support to arrange the output indentation.
 
 #### `RRH_ENABLE_COLORIZED`
 
 * specifies to colorize the output. The colors of output were specified on [`RRH_COLOR`](#rrh_color)
-* Default: true
+* Default: false
 
 ### Database
 
@@ -463,6 +512,7 @@ Also, the configuration file is on `$RRH_HOME/config.json`
         {
             repository_id: 'rrh', // unique key of repository.
             repository_path: 'absolute/path/of/repository',
+            repository_desc: 'description of the repository.',
             remotes: [
                 {
                     Name: "origin",
@@ -497,7 +547,7 @@ changes directory to the specified repository.
 
 ```sh
 cdrrh(){
-    path=$(rrh path $1)
+    path=$(rrh repository list --path $1)
     if [ $? -eq 0 ]; then
         cd $path
         pwd
@@ -520,19 +570,34 @@ rrhpeco(){
 }
 ```
 
-## License
+## About Project
+
+### License
 
 [Apache License version 2.0](https://github.com/tamada/rrh/blob/master/LICENSE)
 
-## Development Policy
+### Code of Conduct
 
-* Separate `foo_cmd.go` and `foo.go` for implementing `foo` command.
-    * `foo_cmd.go` includes functions of cli.
-    * `foo.go` includes essential functions for `foo`.
-* Call `fmt.Print` methods only `foo_cmd.go` file.
-* Create test for `foo.go`.
+[See the file](https://github.com/tamada/rrh/blob/master/CODE_OF_CONDUCT.md)
 
-## Why the project name RRH
+### Contribution
+
+1. Fork the project. ([https://github.com/tamada/rrh/fork](https://github.com/tamada/rrh/fork))
+2. Create a feature branch. (`git checkout -b FEATURE_BRANCH_NAME`)
+3. Edit the source files and Commit your changes.
+4. Create tests and commit them.
+5. Rebase your local changes against the master branch.
+6. Run the test suite with the `make test` and confirm that passes.
+7. Create a new pull request.
+8. Confirm all checks pass.
+
+[See also the contribution guideline](https://github.com/tamada/rrh/blob/master/CONTRIBUTING.md).
+
+### Author
+
+* [Haruaki Tamada](https://github.com/tamada)
+
+### Why the project name RRH
 
 At first, the name of this project was GRIM (Git Repository Integrated Manager).
 However, the means of `grim` is not good, and there are many commands which start with `gr`.
@@ -571,6 +636,7 @@ The public language of other channels and GitHub pages are English.
         * [`rrh mv`](#rrh-mv)
         * [`rrh path`](#rrh-path)
         * [`rrh prune`](#rrh-prune)
+        * [`rrh repository`](#rrh-repository)
         * [`rrh rm`](#rrh-rm)
         * [`rrh status`](#rrh-status)
     * [Environment variables](#environment-variables)
@@ -578,7 +644,10 @@ The public language of other channels and GitHub pages are English.
 * [Utilities](#utilities)
     * [`cdrrh`](#cdrrh)
     * [`rrhpeco`](#rrhpeco)
-* [License](#license)
-* [Development Policy](#development-policy)
-* [Why the project name RRH?](#why-the-project-name-rrh)
+* [About Project](#about-project)
+    * [License](#license)
+    * [Code of Conduct](#code-of-conduct)
+    * [Contribution](#contribution)
+    * [Author](#author)
+    * [Why the project name RRH?](#why-the-project-name-rrh)
 * [Discussion](#discussion)

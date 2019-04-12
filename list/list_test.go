@@ -16,10 +16,11 @@ func open(jsonName string) *common.Database {
 }
 
 func ExampleCommand() {
-	common.WithDatabase("../testdata/database.json", "../testdata/config.json", func() {
+	var dbFile = common.WithDatabase("../testdata/database.json", "../testdata/config.json", func() {
 		var list, _ = CommandFactory()
 		list.Run([]string{})
 	})
+	defer os.Remove(dbFile)
 	// Output:
 	// no-group (1 repository)
 	//     rrh          ~/go/src/github.com/tamada/rrh
@@ -27,10 +28,11 @@ func ExampleCommand() {
 }
 
 func ExampleCommand_Run() {
-	common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+	var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
 		var list, _ = CommandFactory()
 		list.Run([]string{"--desc", "--path"})
 	})
+	defer os.Remove(dbFile)
 	// Output:
 	// group1 (1 repository)
 	//     Description  desc1
@@ -43,7 +45,7 @@ func ExampleCommand_Run() {
 
 func TestRunByCsvOutput(t *testing.T) {
 	os.Setenv(common.RrhDefaultGroupName, "group1")
-	common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+	var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
 		var result = common.CaptureStdout(func() {
 			var list, _ = CommandFactory()
 			list.Run([]string{"--all-entries", "--csv"})
@@ -54,6 +56,7 @@ func TestRunByCsvOutput(t *testing.T) {
 			t.Errorf("result did not match, wont: %s, got: %s", want, result)
 		}
 	})
+	defer os.Remove(dbFile)
 }
 
 func TestSimpleResults(t *testing.T) {
@@ -66,7 +69,7 @@ func TestSimpleResults(t *testing.T) {
 		{[]string{"--group-repository-form"}, 0, "group1/repo1,group3/repo2"},
 	}
 	for _, tc := range testcases {
-		common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
 			var result = common.CaptureStdout(func() {
 				var list, _ = CommandFactory()
 				var status = list.Run(tc.args)
@@ -79,6 +82,7 @@ func TestSimpleResults(t *testing.T) {
 				t.Errorf("%v: result did not match: wont: %s, got: %s", tc.args, tc.result, result)
 			}
 		})
+		defer os.Remove(dbFile)
 	}
 }
 
@@ -126,7 +130,7 @@ func TestFindResults(t *testing.T) {
 	}
 
 	for _, data := range testdata {
-		common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
 			list.options.args = data.targets
 			var results, err = list.FindResults(db)
 			if err != nil {
@@ -150,5 +154,6 @@ func TestFindResults(t *testing.T) {
 				}
 			}
 		})
+		defer os.Remove(dbFile)
 	}
 }

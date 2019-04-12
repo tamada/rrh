@@ -60,7 +60,7 @@ func TestStrftime(t *testing.T) {
 }
 
 func TestRollback(t *testing.T) {
-	Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+	var file = Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 		var db, _ = Open(OpenConfig())
 		db.ForceDeleteGroup("group1")
 		db.ForceDeleteGroup("group2")
@@ -68,6 +68,7 @@ func TestRollback(t *testing.T) {
 		db.DeleteRepository("repo2")
 		db.StoreAndClose()
 	})
+	defer os.Remove(file)
 
 	var db, _ = Open(OpenConfig())
 	if !db.HasGroup("group1") || !db.HasGroup("group2") {

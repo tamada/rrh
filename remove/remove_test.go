@@ -1,38 +1,32 @@
 package remove
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
 	"github.com/tamada/rrh/common"
 )
 
-func open(jsonName string) *common.Database {
-	os.Setenv(common.RrhDatabasePath, fmt.Sprintf("../testdata/%s", jsonName))
-	var config = common.OpenConfig()
-	var db, _ = common.Open(config)
-	return db
-}
-
 func ExampleCommand_Run() {
-	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+	var dbFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 		var rm, _ = CommandFactory()
 		rm.Run([]string{"-v", "group2", "repo1"})
 	})
+	defer os.Remove(dbFile)
 	// Output: group2: group removed
 	// repo1: repository removed
 }
 
 func TestCommandUnknownGroupAndRepository(t *testing.T) {
-	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
-		var db = open("tmp.json")
+	var dbFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+		var db, _ = common.Open(common.OpenConfig())
 		var rm = Command{}
 		var err = rm.executeRemove(db, "not_exist_group_and_repository")
 		if err.Error() != "not_exist_group_and_repository: not found in repositories and groups" {
 			t.Error("not exist group and repository found!?")
 		}
 	})
+	defer os.Remove(dbFile)
 }
 
 func TestRemoveRepository(t *testing.T) {
@@ -46,8 +40,8 @@ func TestRemoveRepository(t *testing.T) {
 		{"repo1", true, "group1", 0},
 	}
 	for _, tc := range testcases {
-		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
-			var db = open("tmp.json")
+		var dbFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+			var db, _ = common.Open(common.OpenConfig())
 			var rm = Command{&options{}}
 			var err = rm.executeRemoveRepository(db, tc.repositoryName)
 			if (err == nil) != tc.removeSuccess {
@@ -60,50 +54,60 @@ func TestRemoveRepository(t *testing.T) {
 				}
 			}
 		})
+		defer os.Remove(dbFile)
 	}
 }
 
 func TestRemoveGroup(t *testing.T) {
-	var db = open("tmp.json")
-	var rm = Command{&options{}}
-	if err := rm.executeRemoveGroup(db, "unknown-group"); err == nil {
-		t.Error("unknown-group: found")
-	}
-	if err := rm.executeRemoveGroup(db, "group1"); err == nil {
-		t.Error("group1 has a entry!")
-	}
-	rm.options.recursive = true
-	if err := rm.executeRemoveGroup(db, "group1"); err != nil {
-		t.Error("group1 cannot remove recursively.")
-	}
+	var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		var db, _ = common.Open(common.OpenConfig())
+		var rm = Command{&options{}}
+		if err := rm.executeRemoveGroup(db, "unknown-group"); err == nil {
+			t.Error("unknown-group: found")
+		}
+		if err := rm.executeRemoveGroup(db, "group1"); err == nil {
+			t.Error("group1 has a entry!")
+		}
+		rm.options.recursive = true
+		if err := rm.executeRemoveGroup(db, "group1"); err != nil {
+			t.Error("group1 cannot remove recursively.")
+		}
+	})
+	defer os.Remove(dbFile)
 }
 
 func TestRemoveCommandRemoveTargetIsBothInGroupAndRepository(t *testing.T) {
-	var db = open("nulldb.json")
+	var dbFile = common.WithDatabase("../testdata/nulldb.json", "../testdata/config.json", func() {
+		var db, _ = common.Open(common.OpenConfig())
 
-	db.CreateGroup("groupOrRepo", "same name as Repository", false)
-	db.CreateRepository("groupOrRepo", "unknownpath", "desc", []common.Remote{})
-	var rm = Command{&options{}}
-	var err = rm.executeRemove(db, "groupOrRepo")
-	if err.Error() != "groupOrRepo: exists in repositories and groups" {
-		t.Error("not failed!?")
-	}
+		db.CreateGroup("groupOrRepo", "same name as Repository", false)
+		db.CreateRepository("groupOrRepo", "unknownpath", "desc", []common.Remote{})
+		var rm = Command{&options{}}
+		var err = rm.executeRemove(db, "groupOrRepo")
+		if err.Error() != "groupOrRepo: exists in repositories and groups" {
+			t.Error("not failed!?")
+		}
+	})
+	defer os.Remove(dbFile)
 }
 
 func TestRemoveEntryFailed(t *testing.T) {
-	var db = open("tmp.json")
-	var rm = Command{&options{}}
-	var err = rm.executeRemoveFromGroup(db, "group2", "repo2")
-	if err != nil {
-		t.Error("Successfully remove unrelated group and repository.")
-	}
+	var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		var db, _ = common.Open(common.OpenConfig())
+		var rm = Command{&options{}}
+		var err = rm.executeRemoveFromGroup(db, "group2", "repo2")
+		if err != nil {
+			t.Error("Successfully remove unrelated group and repository.")
+		}
+	})
+	defer os.Remove(dbFile)
 }
 
 func TestRemoveRelation(t *testing.T) {
-	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+	var dbFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 		var rm, _ = CommandFactory()
 		rm.Run([]string{"-v", "group1/repo1"})
-		var db2 = open("tmp.json")
+		var db2, _ = common.Open(common.OpenConfig())
 		if len(db2.Repositories) != 2 && len(db2.Groups) != 3 {
 			t.Error("repositories and groups are removed!")
 		}
@@ -111,13 +115,14 @@ func TestRemoveRelation(t *testing.T) {
 			t.Error("relation was not removed")
 		}
 	})
+	defer os.Remove(dbFile)
 }
 
 func TestRunRemoveRepository(t *testing.T) {
-	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+	var dbFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 		var rm, _ = CommandFactory()
 		rm.Run([]string{"-v", "group2", "repo1"})
-		var db2 = open("tmp.json")
+		var db2, _ = common.Open(common.OpenConfig())
 		if len(db2.Repositories) != 1 && len(db2.Groups) != 2 {
 			t.Errorf("repositories: %d, groups: %d\n", len(db2.Repositories), len(db2.Groups))
 		}
@@ -125,18 +130,20 @@ func TestRunRemoveRepository(t *testing.T) {
 			t.Errorf("database was broken")
 		}
 	})
+	defer os.Remove(dbFile)
 }
 
 func TestRemoveRepository2(t *testing.T) {
-	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+	var dbFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 		var rm, _ = CommandFactory()
 		os.Setenv(common.RrhAutoDeleteGroup, "true")
 		rm.Run([]string{"-v", "group2", "repo1"})
-		var db2 = open("tmp.json")
+		var db2, _ = common.Open(common.OpenConfig())
 		if len(db2.Repositories) != 1 && len(db2.Groups) != 0 {
 			t.Errorf("repositories: %d, groups: %d\n", len(db2.Repositories), len(db2.Groups))
 		}
 	})
+	defer os.Remove(dbFile)
 }
 
 func TestBrokenDatabase(t *testing.T) {
@@ -148,12 +155,13 @@ func TestBrokenDatabase(t *testing.T) {
 }
 
 func TestUnknownOptions(t *testing.T) {
-	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+	var dbFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 		var rm, _ = CommandFactory()
 		if result := rm.Run([]string{"--unknown"}); result != 1 {
 			t.Errorf("unknown option was not failed: %d", result)
 		}
 	})
+	defer os.Remove(dbFile)
 }
 
 func TestHelp(t *testing.T) {

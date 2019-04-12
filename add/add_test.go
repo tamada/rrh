@@ -88,7 +88,7 @@ func TestAdd(t *testing.T) {
 
 	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
 	for _, testcase := range testcases {
-		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+		var databaseFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 			var command, _ = CommandFactory()
 			var status = command.Run(testcase.args)
 
@@ -114,12 +114,13 @@ func TestAdd(t *testing.T) {
 				}
 			}
 		})
+		defer os.Remove(databaseFile)
 	}
 }
 
 func TestAddToDifferentGroup(t *testing.T) {
 	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
-	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+	var databaseFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 		var command, _ = CommandFactory()
 		command.Run([]string{"../testdata/fibonacci"})
 		command.Run([]string{"-g", "group1", "../testdata/fibonacci"})
@@ -139,6 +140,7 @@ func TestAddToDifferentGroup(t *testing.T) {
 			t.Error("group1 and fibonacci: the relation not found")
 		}
 	})
+	defer os.Remove(databaseFile)
 }
 
 func TestAddFailed(t *testing.T) {

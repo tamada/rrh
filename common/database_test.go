@@ -14,6 +14,7 @@ func openDatabase() *Database {
 }
 
 func TestOpenBrokenJson(t *testing.T) {
+	os.Setenv(RrhConfigPath, "../testdata/config.json")
 	os.Setenv(RrhDatabasePath, "../testdata/broken.json")
 	var config = OpenConfig()
 	var _, err = Open(config)
@@ -47,6 +48,7 @@ func TestAutoCreateGroup(t *testing.T) {
 }
 
 func TestOpenNonExistFile(t *testing.T) {
+	os.Setenv(RrhConfigPath, "../testdata/config.json")
 	os.Setenv(RrhDatabasePath, "../testdata/not-exist-file.json")
 	var config = OpenConfig()
 	var db, _ = Open(config)
@@ -60,6 +62,7 @@ func TestOpenNonExistFile(t *testing.T) {
 }
 
 func TestOpenNullDatabase(t *testing.T) {
+	os.Setenv(RrhConfigPath, "../testdata/config.json")
 	os.Setenv(RrhDatabasePath, "../testdata/nulldb.json")
 	var config = OpenConfig()
 	var db, _ = Open(config)
@@ -76,7 +79,7 @@ func TestOpenNullDatabase(t *testing.T) {
 }
 
 func TestStore(t *testing.T) {
-	Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+	var dbFile = Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 		var config = OpenConfig()
 		var db, _ = Open(config)
 
@@ -104,6 +107,7 @@ func TestStore(t *testing.T) {
 			t.Error("group1 does not relate with repo1")
 		}
 	})
+	defer os.Remove(dbFile)
 }
 
 func TestPrune(t *testing.T) {
@@ -323,7 +327,7 @@ func TestFindRelations(t *testing.T) {
 }
 
 func TestUpdateRepository(t *testing.T) {
-	Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+	var dbFile = Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 		var config = OpenConfig()
 		var db, _ = Open(config)
 
@@ -341,6 +345,7 @@ func TestUpdateRepository(t *testing.T) {
 			t.Errorf("missing repository updation succeeded.")
 		}
 	})
+	defer os.Remove(dbFile)
 }
 
 func TestCounting(t *testing.T) {

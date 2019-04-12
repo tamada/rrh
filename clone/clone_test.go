@@ -38,7 +38,7 @@ func contains(slice []string, checkItem string) bool {
 }
 
 func TestCommand_MultipleProjects(t *testing.T) {
-	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+	var dbFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 		var clone, _ = CommandFactory()
 		clone.Run([]string{"--verbose", "-d", "../testdata/hoge", "-g", "not-exist-group",
 			"../testdata/helloworld",
@@ -66,10 +66,11 @@ func TestCommand_MultipleProjects(t *testing.T) {
 			t.Errorf("%s: does not have helloworld or fibonacci", group.Name)
 		}
 	})
+	defer os.Remove(dbFile)
 }
 
 func TestCommand_Run(t *testing.T) {
-	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+	var dbFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 		var clone, _ = CommandFactory()
 		clone.Run([]string{"https://htamada@bitbucket.org/htamada/helloworld.git"})
 		defer cleanup([]string{"./helloworld"})
@@ -87,10 +88,11 @@ func TestCommand_Run(t *testing.T) {
 			t.Errorf("helloworld was not registered to the group \"no-group\": %v", db.Relations)
 		}
 	})
+	defer os.Remove(dbFile)
 }
 
 func TestCommand_SpecifyingId(t *testing.T) {
-	common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+	var dbFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 		var clone, _ = CommandFactory()
 		clone.Run([]string{"-d", "../testdata/newid", "../testdata/helloworld"})
 		defer cleanup([]string{"../testdata/newid"})
@@ -105,34 +107,37 @@ func TestCommand_SpecifyingId(t *testing.T) {
 			t.Error(message)
 		}
 	})
+	defer os.Remove(dbFile)
 }
 
 func TestUnknownOption(t *testing.T) {
-	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
-	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
-	var output = common.CaptureStdout(func() {
-		var clone, _ = CommandFactory()
-		clone.Run([]string{})
+	var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		var output = common.CaptureStdout(func() {
+			var clone, _ = CommandFactory()
+			clone.Run([]string{})
+		})
+		var cm = Command{}
+		if output != cm.Help() {
+			t.Error("no arguments were allowed")
+		}
 	})
-	var cm = Command{}
-	if output != cm.Help() {
-		t.Error("no arguments were allowed")
-	}
+	defer os.Remove(dbFile)
 }
 
 func TestCloneNotGitRepository(t *testing.T) {
-	os.Setenv(common.RrhConfigPath, "../testdata/config.json")
-	os.Setenv(common.RrhDatabasePath, "../testdata/tmp.json")
 	os.Setenv(common.RrhOnError, "FAIL")
-	var output = common.CaptureStdout(func() {
-		var clone, _ = CommandFactory()
-		clone.Run([]string{"../testdata"})
+	var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		var output = common.CaptureStdout(func() {
+			var clone, _ = CommandFactory()
+			clone.Run([]string{"../testdata"})
+		})
+		output = strings.TrimSpace(output)
+		var message = "../testdata: clone error (exit status 128)"
+		if output != message {
+			t.Errorf("wont: %s, got: %s", message, output)
+		}
 	})
-	output = strings.TrimSpace(output)
-	var message = "../testdata: clone error (exit status 128)"
-	if output != message {
-		t.Errorf("wont: %s, got: %s", message, output)
-	}
+	defer os.Remove(dbFile)
 }
 
 func TestHelpAndSynopsis(t *testing.T) {

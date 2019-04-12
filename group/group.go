@@ -16,15 +16,21 @@ type Result struct {
 	Repos       []string
 }
 
+func appendRelations(groupName string, relations []common.Relation) []string {
+	var repos = []string{}
+	for _, relation := range relations {
+		if relation.GroupName == groupName {
+			repos = append(repos, relation.RepositoryID)
+		}
+	}
+	return repos
+}
+
 func (group *listCommand) listGroups(db *common.Database, listOptions *listOptions) []Result {
 	var results = []Result{}
 	for _, group := range db.Groups {
 		var result = Result{group.Name, group.Description, []string{}}
-		for _, relation := range db.Relations {
-			if relation.GroupName == group.Name {
-				result.Repos = append(result.Repos, relation.RepositoryID)
-			}
-		}
+		result.Repos = appendRelations(group.Name, db.Relations)
 		results = append(results, result)
 	}
 	return results

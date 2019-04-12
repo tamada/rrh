@@ -99,15 +99,15 @@ func (status *Command) printResultInCsv(results []result, config *common.Config)
 func (status *Command) printResult(results []result, config *common.Config) {
 	var groupName = results[0].relation.gname
 	var repositoryName = results[0].relation.rname
-	fmt.Printf("%s\n    %s\n", common.ColorizedGroupName(groupName), common.ColorizedRepositoryID(repositoryName))
+	fmt.Printf("%s\n    %s\n", config.Color.ColorizedGroupName(groupName), config.Color.ColorizedRepositoryID(repositoryName))
 	var fmtString = status.parseFmtString(results)
 	for _, result := range results {
 		if groupName != result.relation.gname {
-			fmt.Println(common.ColorizedGroupName(result.relation.gname))
+			fmt.Println(config.Color.ColorizedGroupName(result.relation.gname))
 			groupName = result.relation.gname
 		}
 		if repositoryName != result.relation.rname {
-			fmt.Printf("    %s\n", common.ColorizedRepositoryID(result.relation.rname))
+			fmt.Printf("    %s\n", config.Color.ColorizedRepositoryID(result.relation.rname))
 			repositoryName = result.relation.rname
 		}
 		var time = ""
