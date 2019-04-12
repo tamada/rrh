@@ -92,11 +92,11 @@ var defaultValues = Config{
 		RrhAutoCreateGroup:  "false",
 		RrhAutoDeleteGroup:  "false",
 		RrhCloneDestination: ".",
-		RrhColor:            "repository:fg=red+group:fg=magenta+label:op=bold+boolTrue:fg=green+boolFalse:fg=blue",
+		RrhColor:            "repository:fg=red+group:fg=magenta+label:op=bold+configValue:fg=green",
 		RrhConfigPath:       "${RRH_HOME}/config.json",
 		RrhDatabasePath:     "${RRH_HOME}/database.json",
 		RrhDefaultGroupName: "no-group",
-		RrhEnableColorized:  "true",
+		RrhEnableColorized:  "false",
 		RrhHome:             "${HOME}/.rrh",
 		RrhOnError:          Warn,
 		RrhSortOnUpdating:   "false",
@@ -318,11 +318,6 @@ func OpenConfig() *Config {
 
 func (config *Config) formatVariableAndValue(label string) string {
 	var value, readFrom = config.GetString(label)
-	if contains(boolLabels, label) {
-		return fmt.Sprintf("%s: %s (%s)",
-			config.Color.ColorizedLabel(label),
-			config.Color.ColorizedBool(value), readFrom)
-	}
 	return fmt.Sprintf("%s: %s (%s)",
-		config.Color.ColorizedLabel(label), value, readFrom)
+		config.Color.ColorizedLabel(label), config.Color.ColorizeConfigValue(value), readFrom)
 }

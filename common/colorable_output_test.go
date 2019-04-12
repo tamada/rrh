@@ -13,22 +13,22 @@ func TestEnableColorize(t *testing.T) {
 	config.Update(RrhEnableColorized, "true")
 	var cs = InitializeColor(config)
 
-	var boolTrue1 = cs.ColorizedBool("true")
-	var boolTrueWont = c.FgGreen.Render("true")
-	if boolTrue1 != boolTrueWont {
-		t.Errorf("bool true did not match: wont: %s, got: %s", boolTrue1, boolTrueWont)
+	var groupName1 = cs.ColorizedGroupName("group")
+	var groupNameWont = c.FgMagenta.Render("group")
+	if groupName1 != groupNameWont {
+		t.Errorf("group name did not match: wont: %s, got: %s", groupName1, groupNameWont)
 	}
 
 	cs.SetColorize(false)
-	var boolTrue2 = cs.ColorizedBool("true")
-	if boolTrue2 != "true" {
-		t.Errorf("bool true did not match: wont: %s, got: %s", boolTrue2, "true")
+	var groupName2 = cs.ColorizedGroupName("group")
+	if groupName2 != "group" {
+		t.Errorf("group name did not match: wont: %s, got: %s", groupName2, "group")
 	}
 
 	cs.SetColorize(true)
-	var boolTrue3 = cs.ColorizedBool("true")
-	if boolTrue3 != boolTrueWont {
-		t.Errorf("bool true did not match: wont: %s, got: %s", boolTrue3, boolTrueWont)
+	var groupName3 = cs.ColorizedGroupName("group")
+	if groupName3 != groupNameWont {
+		t.Errorf("groupName did not match: wont: %s, got: %s", groupName3, groupNameWont)
 	}
 	cs.ClearColorize()
 }

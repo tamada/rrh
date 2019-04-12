@@ -18,7 +18,7 @@ type Color struct {
 }
 
 var colorLabels = []string{
-	"repository", "group", "label", "boolTrue", "boolFalse", "configValue",
+	"repository", "group", "label", "configValue",
 }
 
 /*
@@ -36,20 +36,17 @@ func (c *Color) ColorizedGroupName(groupName string) string {
 }
 
 /*
-ColorizedBool returns the colorized bool value from configuration.
-*/
-func (c *Color) ColorizedBool(value string) string {
-	if value == "true" {
-		return c.executeColorFunc("boolTrue", "true")
-	}
-	return c.executeColorFunc("boolFalse", "false")
-}
-
-/*
 ColorizeConfigValue returns the coloried config value from configuration.
 */
 func (c *Color) ColorizeConfigValue(value string) string {
 	return c.executeColorFunc("configValue", value)
+}
+
+/*
+ColorizedLabel returns the colorized label string from configuration.
+*/
+func (c *Color) ColorizedLabel(label string) string {
+	return c.executeColorFunc("label", label)
 }
 
 func (c *Color) executeColorFunc(label string, value string) string {
@@ -58,13 +55,6 @@ func (c *Color) executeColorFunc(label string, value string) string {
 		return f(value)
 	}
 	return value
-}
-
-/*
-ColorizedLabel returns the colorized label string from configuration.
-*/
-func (c *Color) ColorizedLabel(label string) string {
-	return c.executeColorFunc("label", label)
 }
 
 /*
