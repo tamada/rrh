@@ -589,11 +589,11 @@ rrhpeco(){
 
 ## About the Project
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/tamada/rrh/blob/master/LICENSE)
-[![Code of Conduct](https://img.shields.io/badge/RRH-Code_of_Conduct-orange.svg)](https://github.com/tamada/rrh/blob/master/CODE_OF_CONDUCT.md)
 [![Contribution](https://img.shields.io/badge/RRH-Contribution-yellow.svg)](https://github.com/tamada/rrh/blob/master/CONTRIBUTION.md)
+[![Code of Conduct](https://img.shields.io/badge/RRH-Code_of_Conduct-orange.svg)](https://github.com/tamada/rrh/blob/master/CODE_OF_CONDUCT.md)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/tamada/rrh/blob/master/LICENSE)
 [![Gitter](https://img.shields.io/badge/Gitter-Join_Chat-red.svg)](https://gitter.im/rrh_git/community)
-
+[![Gitter misc_ja](https://img.shields.io/badge/Gitter-For_Japanese-red.svg)](https://gitter.im/rrh_git/misc_ja)
 
 ### Contribution
 
@@ -608,6 +608,26 @@ rrhpeco(){
 
 [See also the contribution guideline](https://github.com/tamada/rrh/blob/master/CONTRIBUTING.md).
 
+### Code of Conduct
+
+[![Code of Conduct](https://img.shields.io/badge/RRH-Code_of_Conduct-orange.svg)](https://github.com/tamada/rrh/blob/master/CODE_OF_CONDUCT.md)
+
+### License
+
+[Apache Version 2.0](https://github.com/tamada/rrh/blob/master/LICENSE)
+
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/tamada/rrh/blob/master/LICENSE)
+
+### Discussion
+
+[![Gitter](https://img.shields.io/badge/Gitter-Join_Chat-red.svg)](https://gitter.im/rrh_git/community)
+[![Gitter misc_ja](https://img.shields.io/badge/Gitter-For_Japanese-red.svg)](https://gitter.im/rrh_git/misc_ja)
+
+Join our Gitter channel if you have any problem or suggestions to Rrh.
+
+For Japanese user, `misc_ja` channel has discussions in Japanese.
+The public language of other channels and GitHub pages are English.
+
 ### Author
 
 * [Haruaki Tamada](https://github.com/tamada)
@@ -618,17 +638,6 @@ At first, the name of this project was GRIM (Git Repository Integrated Manager).
 However, the means of `grim` is not good, and there are many commands which start with `gr`.
 Therefore, we changed the project name to RRH.
 RRH means "Repositories, Ready to Hack," is not the abbreviation of the Red Riding Hood.
-
-### Discussion
-
-[![Gitter](https://img.shields.io/badge/Gitter-Join_Chat-red.svg)](https://gitter.im/rrh_git/community)
-
-Join our Gitter channel if you have any problem or suggestions to Rrh.
-
-[![Gitter misc_ja](https://img.shields.io/badge/Gitter-For_Japanese-red.svg)](https://gitter.im/rrh_git/misc_ja)
-
-For Japanese user, `misc_ja` channel has discussions in Japanese.
-The public language of other channels and GitHub pages are English.
 
 ## Table of Contents
 
@@ -663,6 +672,9 @@ The public language of other channels and GitHub pages are English.
     * [`cdrrh`](#cdrrh)
     * [`rrhpeco`](#rrhpeco)
 * [About the Project](#about-the-project)
+    * [Contribution](#contribution)
+    * [Code of Conduct](#code-of-conduct)
+    * [License](#license)
+    * [Discussion](#discussion)
     * [Author](#author)
     * [Why the project name RRH?](#why-the-project-name-rrh)
-    * [Discussion](#discussion)
