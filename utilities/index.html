@@ -21,7 +21,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.1/dist/katex.min.js" integrity="sha384-2BKqo+exmr9su6dir+qCw08N2ZKRucY4PrGQPPWU1A7FtlCGjmEGFqXCv5nyM5Ij" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
 
-  <title>RRH | RRH</title>
+  <title> | RRH</title>
 </head>
 
 <body>
@@ -82,66 +82,34 @@
 
   <section class="main-content">
     
-  <h1>RRH</h1>
+  <h1></h1>
+  
 
+<h2 id="utilities">Utilities</h2>
 
+<p>Write the following script to <code>$HOME/.bash_profile</code>, then restart shell, then we can use <code>cdrrh</code> and <code>rrhpeco</code> command in the terminal.</p>
 
-<p><a href="https://travis-ci.org/tamada/rrh"><img src="https://travis-ci.org/tamada/rrh.svg?branch=master" alt="Build Status" /></a>
-<a href="https://coveralls.io/github/tamada/rrh?branch=master"><img src="https://coveralls.io/repos/github/tamada/rrh/badge.svg?branch=master" alt="Coverage Status" /></a>
-<a href="https://codebeat.co/projects/github-com-tamada-rrh-master"><img src="https://codebeat.co/badges/15e04551-d448-4ad3-be1d-e98b1e586f1a" alt="codebeat badge" /></a>
-<a href="https://goreportcard.com/report/github.com/tamada/rrh"><img src="https://goreportcard.com/badge/github.com/tamada/rrh" alt="go report" /></a>
-<a href="https://github.com/tamada/rrh/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License" /></a>
-<a href="https://github.com/tamada/rrh/releases/tag/v0.4"><img src="https://img.shields.io/badge/Version-0.4-yellowgreen.svg" alt="Version" /></a></p>
+<h3 id="cdrrh"><code>cdrrh</code></h3>
 
-<p>RRH is a simple git repository manager.</p>
+<p>changes directory to the specified repository.</p>
+<div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">cdrrh<span style="color:#666">(){</span>
+    <span style="color:#19177c">path</span><span style="color:#666">=</span><span style="color:#008000;font-weight:bold">$(</span>rrh repository list --path <span style="color:#19177c">$1</span><span style="color:#008000;font-weight:bold">)</span>
+    <span style="color:#008000;font-weight:bold">if</span> <span style="color:#666">[</span> <span style="color:#19177c">$?</span> -eq <span style="color:#666">0</span> <span style="color:#666">]</span>; <span style="color:#008000;font-weight:bold">then</span>
+        <span style="color:#008000">cd</span> <span style="color:#19177c">$path</span>
+        <span style="color:#008000">pwd</span>
+    <span style="color:#008000;font-weight:bold">else</span>
+        <span style="color:#008000">echo</span> <span style="color:#ba2121">&#34;</span><span style="color:#19177c">$1</span><span style="color:#ba2121">: repository not found&#34;</span>
+    <span style="color:#008000;font-weight:bold">fi</span>
+<span style="color:#666">}</span></code></pre></div>
+<h3 id="rrhpeco"><code>rrhpeco</code></h3>
 
-<h2 id="table-of-contents">Table of Contents</h2>
-
-<ul>
-<li><a href="description">Description</a></li>
-<li><a href="installation">Installation</a>
-
-<ul>
-<li><a href="installation#homebrew">Homebrew</a></li>
-<li><a href="installation#golang">Golang</a></li>
-<li><a href="installation#requirements">Requirements</a></li>
-</ul></li>
-<li><a href="usage">Usage</a>
-
-<ul>
-<li><a href="usage#getting-started">Getting Started</a></li>
-<li><a href="usage#command-references">Command references</a></li>
-<li><a href="usage#subcommands">Subcommands</a></li>
-<li><a href="usage#environment-variables">Environment Variables</a></li>
-</ul></li>
-<li><a href="development">Development</a>
-
-<ul>
-<li><a href="development#database">Database</a></li>
-</ul></li>
-<li><a href="utilities">Utilities</a>
-
-<ul>
-<li><a href="utilities#cdrrh"><code>cdrrh</code></a></li>
-<li><a href="utilities#rrhpeco"><code>rrhpeco</code></a></li>
-</ul></li>
-<li><a href="about">About the Project</a>
-
-<ul>
-<li><a href="about#contribution">Contribution</a></li>
-<li><a href="about#disucussion">Discussion</a></li>
-<li><a href="about#why-the-project-name-rrh">Why the project name RRH</a></li>
-<li><a href="about#code-of-conduct">Code of Conduct</a></li>
-<li><a href="about#license">License</a></li>
-<li><a href="about#authors">Authors</a></li>
-</ul></li>
-</ul>
-
-
-<ul>
-
-</ul>
-
+<p>list repositories, and filtering them by <a href="https://github.com/peco/peco"><code>peco</code></a>,
+then change directory to the filtering result.</p>
+<div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrhpeco<span style="color:#666">(){</span>
+  <span style="color:#19177c">csv</span><span style="color:#666">=</span><span style="color:#008000;font-weight:bold">$(</span>rrh list --path --csv | peco<span style="color:#008000;font-weight:bold">)</span>
+  <span style="color:#008000">cd</span> <span style="color:#008000;font-weight:bold">$(</span><span style="color:#008000">echo</span> <span style="color:#19177c">$csv</span> | awk -F , <span style="color:#ba2121">&#39;{ print $3 }&#39;</span><span style="color:#008000;font-weight:bold">)</span>
+  <span style="color:#008000">pwd</span>
+<span style="color:#666">}</span></code></pre></div>
 
     <footer class="site-footer">
   <span class="site-footer-credits">

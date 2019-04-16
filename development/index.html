@@ -21,7 +21,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.1/dist/katex.min.js" integrity="sha384-2BKqo+exmr9su6dir+qCw08N2ZKRucY4PrGQPPWU1A7FtlCGjmEGFqXCv5nyM5Ij" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
 
-  <title>RRH | RRH</title>
+  <title>Development | RRH</title>
 </head>
 
 <body>
@@ -82,66 +82,48 @@
 
   <section class="main-content">
     
-  <h1>RRH</h1>
+  <h1>Development</h1>
+  
 
+<h3 id="database">Database</h3>
 
-
-<p><a href="https://travis-ci.org/tamada/rrh"><img src="https://travis-ci.org/tamada/rrh.svg?branch=master" alt="Build Status" /></a>
-<a href="https://coveralls.io/github/tamada/rrh?branch=master"><img src="https://coveralls.io/repos/github/tamada/rrh/badge.svg?branch=master" alt="Coverage Status" /></a>
-<a href="https://codebeat.co/projects/github-com-tamada-rrh-master"><img src="https://codebeat.co/badges/15e04551-d448-4ad3-be1d-e98b1e586f1a" alt="codebeat badge" /></a>
-<a href="https://goreportcard.com/report/github.com/tamada/rrh"><img src="https://goreportcard.com/badge/github.com/tamada/rrh" alt="go report" /></a>
-<a href="https://github.com/tamada/rrh/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License" /></a>
-<a href="https://github.com/tamada/rrh/releases/tag/v0.4"><img src="https://img.shields.io/badge/Version-0.4-yellowgreen.svg" alt="Version" /></a></p>
-
-<p>RRH is a simple git repository manager.</p>
-
-<h2 id="table-of-contents">Table of Contents</h2>
-
-<ul>
-<li><a href="description">Description</a></li>
-<li><a href="installation">Installation</a>
-
-<ul>
-<li><a href="installation#homebrew">Homebrew</a></li>
-<li><a href="installation#golang">Golang</a></li>
-<li><a href="installation#requirements">Requirements</a></li>
-</ul></li>
-<li><a href="usage">Usage</a>
-
-<ul>
-<li><a href="usage#getting-started">Getting Started</a></li>
-<li><a href="usage#command-references">Command references</a></li>
-<li><a href="usage#subcommands">Subcommands</a></li>
-<li><a href="usage#environment-variables">Environment Variables</a></li>
-</ul></li>
-<li><a href="development">Development</a>
-
-<ul>
-<li><a href="development#database">Database</a></li>
-</ul></li>
-<li><a href="utilities">Utilities</a>
-
-<ul>
-<li><a href="utilities#cdrrh"><code>cdrrh</code></a></li>
-<li><a href="utilities#rrhpeco"><code>rrhpeco</code></a></li>
-</ul></li>
-<li><a href="about">About the Project</a>
-
-<ul>
-<li><a href="about#contribution">Contribution</a></li>
-<li><a href="about#disucussion">Discussion</a></li>
-<li><a href="about#why-the-project-name-rrh">Why the project name RRH</a></li>
-<li><a href="about#code-of-conduct">Code of Conduct</a></li>
-<li><a href="about#license">License</a></li>
-<li><a href="about#authors">Authors</a></li>
-</ul></li>
-</ul>
-
-
-<ul>
-
-</ul>
-
+<p>The database for managed repositories is formatted in JSON.
+The JSON format is as follows.
+The JSON file is placed on <code>$RRH_HOME/database.json</code>.
+If <code>$RRH_HOME</code> was not set, <code>$HOME/.rrh</code> is used as <code>$RRH_HOME</code>.
+Also, the configuration file is on <code>$RRH_HOME/config.json</code></p>
+<div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">{
+    last<span style="color:#666">-</span>modified<span style="color:#666">:</span> <span style="color:#ba2121">&#39;2019-01-01T&#39;</span>,
+    repositories<span style="color:#666">:</span> [
+        {
+            repository_id<span style="color:#666">:</span> <span style="color:#ba2121">&#39;rrh&#39;</span>, <span style="color:#408080;font-style:italic">// unique key of repository.
+</span><span style="color:#408080;font-style:italic"></span>            repository_path<span style="color:#666">:</span> <span style="color:#ba2121">&#39;absolute/path/of/repository&#39;</span>,
+            repository_desc<span style="color:#666">:</span> <span style="color:#ba2121">&#39;description of the repository.&#39;</span>,
+            remotes<span style="color:#666">:</span> [
+                {
+                    Name<span style="color:#666">:</span> <span style="color:#ba2121">&#34;origin&#34;</span>,
+                    URL<span style="color:#666">:</span> <span style="color:#ba2121">&#34;git@github.com:tamada/rrh.git&#34;</span>
+                }
+            ]
+        },
+        ....
+    ]
+    groups<span style="color:#666">:</span> [
+        {
+            group_name<span style="color:#666">:</span> <span style="color:#ba2121">&#39;no-group&#39;</span>,
+            group_desc<span style="color:#666">:</span> <span style="color:#ba2121">&#39;The description of the group.&#39;</span>,
+            omit_list<span style="color:#666">:</span> <span style="color:#008000;font-weight:bold">false</span>
+        },
+        ....
+    ],
+    relations<span style="color:#666">:</span> [
+        {
+            repository_id<span style="color:#666">:</span> <span style="color:#ba2121">&#39;rrh&#39;</span>,
+            group_name<span style="color:#666">:</span> <span style="color:#ba2121">&#39;no-group&#39;</span>
+        }
+    ]
+}
+</code></pre></div>
 
     <footer class="site-footer">
   <span class="site-footer-credits">
