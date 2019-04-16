@@ -1,0 +1,48 @@
+baseURL = "http://tamada.github.io/rrh"
+languageCode = "en-us"
+defaultContentLanguage = "en"
+title = "RRH"
+theme = "cayman-hugo-theme"
+
+pygmentsCodefences = true
+pygmentsStyle = "pygments"
+
+[params]
+    project_name = "RRH"
+    project_tagline = "A simple git repository manager"
+    dateFormat = "2006-01-02"
+
+
+    footer = "Made with [Hugo](https://gohugo.io/). Theme by [Cayman](https://github.com/zwbetz-gh/cayman-hugo-theme). Deployed to [GitHub Pages](https://pages.github.com/)."
+
+    katex = true
+
+[menu]
+  [[menu.nav]]
+    name = "Home"
+    url = "/"
+    weight = 1
+  [[menu.nav]]
+    name = "Description"
+    url = "/description/"
+    weight = 2
+  [[menu.nav]]
+    name = "Installation"
+    url = "/installation/"
+    weight = 3
+  [[menu.nav]]
+    name = "Usage"
+    url = "/usage/"
+    weight = 4
+  [[menu.nav]]
+    name = "Development"
+    url = "/development/"
+    weight = 5
+  [[menu.nav]]
+    name = "Utilities"
+    url = "/utilities/"
+    weight = 6
+  [[menu.nav]]
+    name = "About"
+    url = "/about/"
+    weight = 7

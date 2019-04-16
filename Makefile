@@ -17,12 +17,12 @@ deps:
 
 	dep ensure -vendor-only
 
-replace_version:
+update_version:
 	@sed 's/const VERSION = .*/const VERSION = ${VERSION}/g' common/config.go > a
 	@mv a common/config.go
 	@echo "Replace version to ${VERSION}"
 
-setup: deps replace_version
+setup: deps update_version
 	git submodule update --init
 
 test: setup format lint
