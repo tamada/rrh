@@ -1,5 +1,7 @@
 ## Utilities
 
+Write the following script to `$HOME/.bash_profile`, then restart shell, then we can use `cdrrh` and `rrhpeco` command in the terminal.
+
 ### `cdrrh`
 
 changes directory to the specified repository.

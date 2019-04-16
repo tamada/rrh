@@ -2,10 +2,11 @@
 title: About the Project
 ---
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/tamada/rrh/blob/master/LICENSE)
-[![Code of Conduct](https://img.shields.io/badge/RRH-Code_of_Conduct-orange.svg)](https://github.com/tamada/rrh/blob/master/CODE_OF_CONDUCT.md)
 [![Contribution](https://img.shields.io/badge/RRH-Contribution-yellow.svg)](https://github.com/tamada/rrh/blob/master/CONTRIBUTION.md)
 [![Gitter](https://img.shields.io/badge/Gitter-Join_Chat-red.svg)](https://gitter.im/rrh_git/community)
+[![Code of Conduct](https://img.shields.io/badge/RRH-Code_of_Conduct-orange.svg)](https://github.com/tamada/rrh/blob/master/CODE_OF_CONDUCT.md)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/tamada/rrh/blob/master/LICENSE)
+[![Gitter misc_ja](https://img.shields.io/badge/Gitter-For_Japanese-red.svg)](https://gitter.im/rrh_git/misc_ja)
 
 
 ### Contribution
@@ -19,11 +20,8 @@ title: About the Project
 7. Create a new pull request.
 8. Confirm all checks pass.
 
-[See also the contribution guideline](https://github.com/tamada/rrh/blob/master/CONTRIBUTING.md).
+[![Contribution](https://img.shields.io/badge/RRH-Contribution-yellow.svg)](https://github.com/tamada/rrh/blob/master/CONTRIBUTION.md)
 
-### Author
-
-* [Haruaki Tamada](https://github.com/tamada)
 
 ### Why the project name RRH
 
@@ -35,11 +33,24 @@ RRH means "Repositories, Ready to Hack," is not the abbreviation of the Red Ridi
 ### Discussion
 
 [![Gitter](https://img.shields.io/badge/Gitter-Join_Chat-red.svg)](https://gitter.im/rrh_git/community)
+[![Gitter misc_ja](https://img.shields.io/badge/Gitter-For_Japanese-red.svg)](https://gitter.im/rrh_git/misc_ja)
 
 Join our Gitter channel if you have any problem or suggestions to Rrh.
 
-[![Gitter misc_ja](https://img.shields.io/badge/Gitter-For_Japanese-red.svg)](https://gitter.im/rrh_git/misc_ja)
-
 For Japanese user, `misc_ja` channel has discussions in Japanese.
 The public language of other channels and GitHub pages are English.
+
+### Code of Conduct
+
+[![Code of Conduct](https://img.shields.io/badge/RRH-Code_of_Conduct-orange.svg)](https://github.com/tamada/rrh/blob/master/CODE_OF_CONDUCT.md)
+
+### License
+
+[Apache License version 2.0](https://github.com/tamada/rrh/blob/master/LICENSE)
+
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/tamada/rrh/blob/master/LICENSE)
+
+### Author
+
+{{< githubuser tamada >}}
 

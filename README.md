@@ -3,6 +3,8 @@
 [![codebeat badge](https://codebeat.co/badges/15e04551-d448-4ad3-be1d-e98b1e586f1a)](https://codebeat.co/projects/github-com-tamada-rrh-master)
 [![go report](https://goreportcard.com/badge/github.com/tamada/rrh)](https://goreportcard.com/report/github.com/tamada/rrh)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/tamada/rrh/blob/master/LICENSE)
+[![Version](https://img.shields.io/badge/Version-0.4-yellowgreen.svg)](https://github.com/tamada/rrh/releases/tag/v0.4)
+
 
 # RRH
 
@@ -13,7 +15,6 @@ RRH is a simple git repository manager.
 
 * [Description](#description)
 * [Installation](#installation)
-* [Getting started](#getting-started)
 * [Usage](#usage)
 * [Development](#development)
 * [Utilities](#utilities)
@@ -75,13 +76,18 @@ $ go get git@github.com/tamada/rrh.git
     * See `Gopkg.toml`
 
 
-## Getting started
+## Usage
+
+### Getting started
+
+RRH has many subcommands, however, `list` and `add` subcommand make you happy.
 
 * `rrh list` shows managed repositories.
 * `rrh add <REPO>` adds the given repository under the RRH management.
-* type [`cdrrh`](#cdrrh) on Terminal, then typing TAB  will happy.
+* type [`cdrrh`](#cdrrh) on Terminal, then type TAB, TAB, TAB!
 
-## Usage
+
+### Command references
 
 ```sh
 Usage: rrh [--version] [--help] <command> [<args>]
@@ -550,6 +556,8 @@ Also, the configuration file is on `$RRH_HOME/config.json`
 
 ## Utilities
 
+Write the following script to `$HOME/.bash_profile`, then restart shell, then we can use `cdrrh` and `rrhpeco` command in the terminal.
+
 ### `cdrrh`
 
 changes directory to the specified repository.
@@ -630,6 +638,8 @@ The public language of other channels and GitHub pages are English.
     * [Golang](#golang)
     * [Requirements](#requirements)
 * [Usage](#usage)
+    * [Getting started](#getting-started)
+    * [Command references](#command-references)
     * [Subcommands](#subcommands)
         * [`rrh add`](#rrh-add)
         * [`rrh clone`](#rrh-clone)

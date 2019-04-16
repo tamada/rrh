@@ -1,0 +1,15 @@
+<h1>{{ .Title }}</h1>
+
+{{ .Content }}
+
+<ul>
+{{ range where .Pages.ByPublishDate.Reverse "Section" "post" }}
+  <li>
+    {{ $dateFormat := $.Site.Params.dateFormat | default "Jan 2, 2006" }}
+    {{ .PublishDate.Format $dateFormat }}
+    <a href="{{ .Permalink }}">
+      {{ .Title }}
+    </a>
+  </li>        
+{{ end }}
+</ul>
