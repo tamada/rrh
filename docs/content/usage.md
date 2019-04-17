@@ -4,7 +4,7 @@ title: Usage
 
 ## Getting Started
 
-RRH has many subcommands, however, `list` and `add` subcommand make you happy.
+RRH has various subcommands, however, `list` and `add` subcommand make you happy.
 
 * `rrh list` shows managed repositories.
 * `rrh add <REPO>` adds the given repository under the RRH management.
