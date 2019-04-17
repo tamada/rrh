@@ -1,6 +1,6 @@
 GO=go
 NAME := rrh
-VERSION := "0.3"
+VERSION := 0.4
 REVISION := $(shell git rev-parse --short HEAD)
 LDFLAGS := -X 'main.version=$(VERSION)'
 	-X 'main.revision=$(REVISION)'
@@ -17,12 +17,16 @@ deps:
 
 	dep ensure -vendor-only
 
-replace_version:
-	@sed 's/const VERSION = .*/const VERSION = ${VERSION}/g' common/config.go > a
-	@mv a common/config.go
-	@echo "Replace version to ${VERSION}"
+update_version:
+	@for i in README.md docs/content/_index.md; do\
+	    sed -e 's!Version-[0-9.]*-yellowgreen!Version-${VERSION}-yellowgreen!g' -e 's!tag/v[0-9.]*!tag/v${VERSION}!g' $$i > a ; mv a $$i; \
+	done
 
-setup: deps replace_version
+	@sed 's/const VERSION = .*/const VERSION = "${VERSION}"/g' common/config.go > a
+	@mv a common/config.go
+	@echo "Replace version to \"${VERSION}\""
+
+setup: deps update_version
 	git submodule update --init
 
 test: setup format lint
