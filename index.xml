@@ -71,7 +71,7 @@ $ go get git@github.com/tamada/rrh.git  Requirements  Runtime  Bash 4.x or after
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>http://tamada.github.io/rrh/usage/</guid>
-      <description>Getting Started RRH has many subcommands, however, list and add subcommand make you happy.
+      <description>Getting Started RRH has various subcommands, however, list and add subcommand make you happy.
  rrh list shows managed repositories. rrh add &amp;lt;REPO&amp;gt; adds the given repository under the RRH management. type cdrrh on Terminal, then type TAB, TAB, TAB!  Command references Usage: rrh [--version] [--help] &amp;lt;command&amp;gt; [&amp;lt;args&amp;gt;] Available commands are: add add repositories on the local path to RRH. clone run &amp;#34;git clone&amp;#34; and register it to a group.</description>
     </item>
     
