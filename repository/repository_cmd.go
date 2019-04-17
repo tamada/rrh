@@ -186,7 +186,7 @@ func (list *listCommand) buildFlagSet() (*flag.FlagSet, *listOptions) {
 	flags := flag.NewFlagSet("list", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(list.Help()) }
 	flags.BoolVar(&options.id, "id", false, "prints id of the repository.")
-	flags.BoolVar(&options.group, "group", false, "prints group of the repository.")
+	flags.BoolVar(&options.group, "with-group", false, "prints group of the repository.")
 	flags.BoolVar(&options.path, "path", false, "prints path of the repository.")
 	return flags, &options
 }
