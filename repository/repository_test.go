@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"os"
 	"strings"
 	"testing"
 
@@ -20,10 +19,10 @@ func TestRepository(t *testing.T) {
 		{[]string{"list"}, 0, "", false},
 		{[]string{"list", "--id"}, 0, "repo1+repo2", false},
 		{[]string{"list", "--path", "repo2"}, 0, "path2", false},
-		{[]string{"list", "--group", "repo1"}, 0, "group1/repo1", false},
+		{[]string{"list", "--with-group", "repo1"}, 0, "group1/repo1", false},
 	}
 	for _, tc := range testcases {
-		var dbFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 			var output = common.CaptureStdout(func() {
 				var command, _ = CommandFactory()
 				var status = command.Run(tc.args)
@@ -39,7 +38,6 @@ func TestRepository(t *testing.T) {
 				}
 			}
 		})
-		defer os.Remove(dbFile)
 	}
 }
 
@@ -52,15 +50,15 @@ func TestListRepository(t *testing.T) {
 	}{
 		{[]string{"--id"}, 0, "repo1+repo2", false},
 		{[]string{"--path"}, 0, "path1+path2", false},
-		{[]string{"--group"}, 0, "group1/repo1+group3/repo2", false},
+		{[]string{"--with-group"}, 0, "group1/repo1+group3/repo2", false},
 		{[]string{"--id", "repo2"}, 0, "repo2", false},
 		{[]string{"--path", "repo1"}, 0, "path1", false},
-		{[]string{"--group", "repo2"}, 0, "group3/repo2", false},
+		{[]string{"--with-group", "repo2"}, 0, "group3/repo2", false},
 		{[]string{}, 0, "", false},
 		{[]string{"--invalid-option"}, 1, "", true},
 	}
 	for _, tc := range testcases {
-		var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
 			var output = common.CaptureStdout(func() {
 				var listCommand, _ = listCommandFactory()
 				var status = listCommand.Run(tc.args)
@@ -76,7 +74,6 @@ func TestListRepository(t *testing.T) {
 				}
 			}
 		})
-		defer os.Remove(dbFile)
 	}
 }
 
@@ -96,7 +93,7 @@ func TestInfoRepository(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
+		common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
 			var output = common.CaptureStdout(func() {
 				var infoCommand, _ = infoCommandFactory()
 				var status = infoCommand.Run(tc.args)
@@ -112,7 +109,6 @@ func TestInfoRepository(t *testing.T) {
 				}
 			}
 		})
-		defer os.Remove(dbFile)
 	}
 }
 
@@ -132,7 +128,7 @@ func TestUpdateRepository(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		var dbFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+		common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 			var updateCommand, _ = updateCommandFactory()
 			var status = updateCommand.Run(tc.args)
 			if status != tc.statusCode {
@@ -158,7 +154,6 @@ func TestUpdateRepository(t *testing.T) {
 				t.Errorf("%v: description did not match: wont: %s, got: %s", tc.args, tc.wontRepo.Description, repo.Description)
 			}
 		})
-		defer os.Remove(dbFile)
 	}
 }
 
@@ -177,9 +172,9 @@ ARGUMENTS
 
 	var listCommandHelp = `rrh repository list [OPTIONS] [ARGUMENTS...]
 OPTIONS
-    -i, --id       prints ids in the results.
-    -p, --path     prints paths in the results.
-    -g, --group    prints the results in "GROUP/REPOSITORY" format.
+    --id            prints ids in the results.
+    --path          prints paths in the results.
+    --with-group    prints the results in "GROUP/REPOSITORY" format.
 Note:
     This sub command is used for a completion target generation.`
 

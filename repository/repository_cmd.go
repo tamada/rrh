@@ -186,8 +186,8 @@ func (list *listCommand) buildFlagSet() (*flag.FlagSet, *listOptions) {
 	flags := flag.NewFlagSet("list", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(list.Help()) }
 	flags.BoolVar(&options.id, "id", false, "prints id of the repository.")
-	flags.BoolVar(&options.group, "with-group", false, "prints group of the repository.")
 	flags.BoolVar(&options.path, "path", false, "prints path of the repository.")
+	flags.BoolVar(&options.group, "with-group", false, "prints group of the repository.")
 	return flags, &options
 }
 
@@ -311,9 +311,9 @@ ARGUMENTS
 func (list *listCommand) Help() string {
 	return `rrh repository list [OPTIONS] [ARGUMENTS...]
 OPTIONS
-    -i, --id       prints ids in the results.
-    -p, --path     prints paths in the results.
-    -g, --group    prints the results in "GROUP/REPOSITORY" format.
+    --id            prints ids in the results.
+    --path          prints paths in the results.
+    --with-group    prints the results in "GROUP/REPOSITORY" format.
 Note:
     This sub command is used for a completion target generation.`
 }
