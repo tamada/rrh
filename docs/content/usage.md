@@ -4,11 +4,12 @@ title: Usage
 
 ## Getting Started
 
-RRH has various subcommands, however, `list` and `add` subcommand make you happy.
+RRH has various subcommands, however, `list` and `add` subcommands make you happy.
 
 * `rrh list` shows managed repositories.
-* `rrh add <REPO>` adds the given repository under the RRH management.
-* type [`cdrrh`](#cdrrh) on Terminal, then type TAB, TAB, TAB!
+* `rrh add <REPO>` starts to manage the given repository under RRH.
+* type [`cdrrh`](../utilities#cdrrh) on Terminal, then type TAB, TAB, TAB!
+    * `cdrrh` script is shown in [Utilities](../utilities).
 
 
 ## Command references

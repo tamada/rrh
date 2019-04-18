@@ -12,7 +12,7 @@ pygmentsStyle = "pygments"
     project_tagline = "A simple git repository manager"
     dateFormat = "2006-01-02"
 
-    footer = "Made with [Hugo](https://gohugo.io/). Theme by [Cayman](https://github.com/zwbetz-gh/cayman-hugo-theme). Deployed to [GitHub Pages](https://pages.github.com/)."
+    footer = "[![GitHub](https://img.shields.io/badge/GitHub-tamada/rrh-blueviolet.svg?logo=github)](https://github.com/tamada/rrh) Made with [Hugo](https://gohugo.io/). Theme by [Cayman](https://github.com/zwbetz-gh/cayman-hugo-theme). Deployed to [GitHub Pages](https://pages.github.com/)."
 
     katex = true
 

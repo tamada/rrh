@@ -9,6 +9,7 @@ title: RRH
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/tamada/rrh/blob/master/LICENSE)
 [![Version](https://img.shields.io/badge/Version-0.4-yellowgreen.svg)](https://github.com/tamada/rrh/releases/tag/v0.4)
 
+
 RRH is a simple git repository manager.
 
 ## Table of Contents
