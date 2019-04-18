@@ -4,12 +4,10 @@ __rrh_groups(){
 
 __rrh_repositories(){
     rrh repository list --id
-    # rrh list --only-repositoryname
 }
 
 __rrh_group_repo_forms(){
-    rrh repository list --group
-    # rrh list --group-repository-form
+    rrh repository list --with-group
 }
 
 __rrh_add() {
@@ -42,7 +40,7 @@ __rrh_config(){
     if [ "$4" = "$2" ]; then
         COMPREPLY=($(compgen -W "unset set list" -- $1))
     elif [ "$2" = "set" ] || [ "$2" = "unset" ]; then
-        COMPREPLY=($(compgen -W rrhenvs $1))
+        COMPREPLY=($(compgen -W "$rrhenvs" -- $1))
     elif [ "$2" = "RRH_ON_ERROR" ] && [ "${COMP_WORDS[2]}" = "set" ]; then
         COMPREPLY=($(compgen -W "IGNORE WARN FAIL FAIL_IMMEDIATELY" -- $1))
     elif [ "$2" = "RRH_AUTO_CREATE_GROUP" -o "$2" = "RRH_AUTO_DELETE_GROUP" -o "$2" = "RRH_SORT_ON_UPDATING" -o "$2" = "RRH_ENABLE_COLORIZED" ] && [ "${COMP_WORDS[2]}" = "set" ]; then
