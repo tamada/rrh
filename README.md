@@ -80,12 +80,12 @@ $ go get git@github.com/tamada/rrh.git
 
 ### Getting started
 
-RRH has various subcommands, however, `list` and `add` subcommand make you happy.
+RRH has various subcommands, however, `list` and `add` subcommands make you happy.
 
 * `rrh list` shows managed repositories.
-* `rrh add <REPO>` adds the given repository under the RRH management.
+* `rrh add <REPO>` starts to manage the given repository under RRH.
 * type [`cdrrh`](#cdrrh) on Terminal, then type TAB, TAB, TAB!
-
+     * `cdrrh` script is shown in [Utilities](#utilities) section.
 
 ### Command references
 
@@ -637,7 +637,7 @@ The public language of other channels and GitHub pages are English.
 At first, the name of this project was GRIM (Git Repository Integrated Manager).
 However, the means of `grim` is not good, and there are many commands which start with `gr`.
 Therefore, we changed the project name to RRH.
-RRH means "Repositories, Ready to Hack," is not the abbreviation of the Red Riding Hood.
+RRH means "Repositories, Ready to Hack," or "Remote Repositories Head," is not the abbreviation of "Red Riding Hood." :smile:
 
 ## Table of Contents
 

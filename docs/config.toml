@@ -3,6 +3,7 @@ languageCode = "en-us"
 defaultContentLanguage = "en"
 title = "RRH"
 theme = "cayman-hugo-theme"
+enableEmoji = true
 
 pygmentsCodefences = true
 pygmentsStyle = "pygments"
