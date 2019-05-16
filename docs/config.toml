@@ -1,4 +1,4 @@
-baseURL = "http://tamada.github.io/rrh"
+baseURL = "https://tamada.github.io/rrh"
 languageCode = "en-us"
 defaultContentLanguage = "en"
 title = "RRH"
