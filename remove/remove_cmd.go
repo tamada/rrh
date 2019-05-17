@@ -1,10 +1,10 @@
 package remove
 
 import (
-	"flag"
 	"fmt"
 
 	"github.com/mitchellh/cli"
+	flag "github.com/ogier/pflag"
 	"github.com/tamada/rrh/common"
 )
 
@@ -75,12 +75,9 @@ func (rm *Command) buildFlagSet() (*flag.FlagSet, *options) {
 	var options = options{false, false, false, []string{}}
 	flags := flag.NewFlagSet("rm", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(rm.Help()) }
-	flags.BoolVar(&options.inquiry, "i", false, "inquiry flag")
-	flags.BoolVar(&options.verbose, "v", false, "verbose flag")
-	flags.BoolVar(&options.recursive, "r", false, "recursive flag")
-	flags.BoolVar(&options.inquiry, "inquiry", false, "inquiry flag")
-	flags.BoolVar(&options.verbose, "verbose", false, "verbose flag")
-	flags.BoolVar(&options.recursive, "recursive", false, "recursive flag")
+	flags.BoolVarP(&options.inquiry, "inquiry", "i", false, "inquiry flag")
+	flags.BoolVarP(&options.verbose, "verbose", "v", false, "verbose flag")
+	flags.BoolVarP(&options.recursive, "recursive", "r", false, "recursive flag")
 	return flags, &options
 }
 

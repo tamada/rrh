@@ -94,7 +94,7 @@ func TestCommand_Run(t *testing.T) {
 func TestCommand_SpecifyingId(t *testing.T) {
 	var dbFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
 		var clone, _ = CommandFactory()
-		clone.Run([]string{"-d", "../testdata/newid", "../testdata/helloworld"})
+		clone.Run([]string{"--dest=../testdata/newid", "../testdata/helloworld"})
 		defer cleanup([]string{"../testdata/newid"})
 
 		var config = common.OpenConfig()
@@ -143,8 +143,8 @@ func TestCloneNotGitRepository(t *testing.T) {
 func TestHelpAndSynopsis(t *testing.T) {
 	var helpMessage = `rrh clone [OPTIONS] <REMOTE_REPOS...>
 OPTIONS
-    -g, --group <GROUP>   print managed repositories categorized in the group.
-    -d, --dest <DEST>     specify the destination.
+    -g, --group=<GROUP>   print managed repositories categorized in the group.
+    -d, --dest=<DEST>     specify the destination.
     -v, --verbose         verbose mode.
 ARGUMENTS
     REMOTE_REPOS          repository urls`

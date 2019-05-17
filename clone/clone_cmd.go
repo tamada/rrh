@@ -1,10 +1,10 @@
 package clone
 
 import (
-	"flag"
 	"fmt"
 
 	"github.com/mitchellh/cli"
+	flag "github.com/ogier/pflag"
 	"github.com/tamada/rrh/common"
 )
 
@@ -34,8 +34,8 @@ Help function shows the help message.
 func (clone *Command) Help() string {
 	return `rrh clone [OPTIONS] <REMOTE_REPOS...>
 OPTIONS
-    -g, --group <GROUP>   print managed repositories categorized in the group.
-    -d, --dest <DEST>     specify the destination.
+    -g, --group=<GROUP>   print managed repositories categorized in the group.
+    -d, --dest=<DEST>     specify the destination.
     -v, --verbose         verbose mode.
 ARGUMENTS
     REMOTE_REPOS          repository urls`
@@ -109,12 +109,9 @@ func (clone *Command) buildFlagSets(config *common.Config) (*flag.FlagSet, *opti
 	var options = options{defaultGroup, ".", false}
 	flags := flag.NewFlagSet("clone", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(clone.Help()) }
-	flags.StringVar(&options.group, "g", defaultGroup, "belonging group")
-	flags.StringVar(&options.group, "group", defaultGroup, "belonging group")
-	flags.StringVar(&options.dest, "d", destination, "destination")
-	flags.StringVar(&options.dest, "dest", destination, "destination")
-	flags.BoolVar(&options.verbose, "v", false, "verbose mode")
-	flags.BoolVar(&options.verbose, "verbose", false, "verbose mode")
+	flags.StringVarP(&options.group, "group", "g", defaultGroup, "belonging group")
+	flags.StringVarP(&options.dest, "dest", "d", destination, "destination")
+	flags.BoolVarP(&options.verbose, "verbose", "v", false, "verbose mode")
 	return flags, &options
 }
 

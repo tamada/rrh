@@ -1,10 +1,10 @@
 package fetch
 
 import (
-	"flag"
 	"fmt"
 
 	"github.com/mitchellh/cli"
+	flag "github.com/ogier/pflag"
 	"github.com/tamada/rrh/common"
 )
 
@@ -26,7 +26,7 @@ Help returns the help message.
 func (fetchAll *AllCommand) Help() string {
 	return `rrh fetch-all [OPTIONS]
 OPTIONS
-    -r, --remote <REMOTE>   specify the remote name. Default is "origin."`
+    -r, --remote=<REMOTE>   specify the remote name. Default is "origin."`
 }
 
 func (fetchAll *AllCommand) validateArguments(args []string) (*options, error) {
@@ -94,7 +94,7 @@ func (fetchAll *AllCommand) parse(args []string) (*options, error) {
 	var options = options{"origin", []string{}}
 	flags := flag.NewFlagSet("fetch-all", flag.ExitOnError)
 	flags.Usage = func() { fmt.Println(fetchAll.Help()) }
-	flags.StringVar(&options.remote, "r", "origin", "remote name")
+	flags.StringVarP(&options.remote, "remote", "r", "origin", "remote name")
 
 	if err := flags.Parse(args); err != nil {
 		return nil, err

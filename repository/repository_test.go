@@ -123,7 +123,7 @@ func TestUpdateRepository(t *testing.T) {
 		newRepoID  string
 		wontRepo   *common.Repository
 	}{
-		{[]string{"--id", "newRepo1", "--path", "newPath1", "--desc", "desc1", "repo1"}, 0, "newRepo1", &common.Repository{ID: "newRepo1", Description: "desc1", Path: "newPath1"}},
+		{[]string{"--id=newRepo1", "--path=newPath1", "--desc=desc1", "repo1"}, 0, "newRepo1", &common.Repository{ID: "newRepo1", Description: "desc1", Path: "newPath1"}},
 		{[]string{"-d", "desc2", "repo2"}, 0, "repo2", &common.Repository{ID: "repo2", Description: "desc2", Path: "path2"}},
 		{[]string{"repo4"}, 3, "repo4", nil},                             // unknown repository
 		{[]string{"--invalid-option"}, 1, "never used", nil},             // invalid option
@@ -185,9 +185,9 @@ Note:
 
 	var updateCommandHelp = `rrh repository update [OPTIONS] <REPOSITORY>
 OPTIONS
-    -i, --id <NEWID>     specifies new repository id.
-    -d, --desc <DESC>    specifies new description.
-    -p, --path <PATH>    specifies new path.
+    -i, --id=<NEWID>     specifies new repository id.
+    -d, --desc=<DESC>    specifies new description.
+    -p, --path=<PATH>    specifies new path.
 ARGUMENTS
     REPOSITORY           specifies the repository id.`
 

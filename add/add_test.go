@@ -24,8 +24,8 @@ func TestHelpAndSynopsis(t *testing.T) {
 	}
 	if command.Help() != `rrh add [OPTIONS] <REPOSITORY_PATHS...>
 OPTIONS
-    -g, --group <GROUP>        add repository to RRH database.
-    -r, --repository-id <ID>   specified repository id of the given repository path.
+    -g, --group=<GROUP>        add repository to RRH database.
+    -r, --repository-id=<ID>   specified repository id of the given repository path.
                                Specifying this option fails with multiple arguments.
 ARGUMENTS
     REPOSITORY_PATHS           the local path list of the git repositories.` {
@@ -54,7 +54,7 @@ func TestAdd(t *testing.T) {
 		rCheckers   []repositoryChecker
 		relCheckers []relationChecker
 	}{
-		{[]string{"--group", "group2", "../testdata/helloworld"}, 0,
+		{[]string{"--group=group2", "../testdata/helloworld"}, 0,
 			[]groupChecker{{"group2", true}},
 			[]repositoryChecker{{"helloworld", true}},
 			[]relationChecker{{"group2", "helloworld", true}},
@@ -74,12 +74,12 @@ func TestAdd(t *testing.T) {
 			[]repositoryChecker{{"helloworld", true}},
 			[]relationChecker{{"no-group", "helloworld", true}},
 		},
-		{[]string{"--repository-id", "hw", "../testdata/other/helloworld"}, 0,
+		{[]string{"--repository-id=hw", "../testdata/other/helloworld"}, 0,
 			[]groupChecker{},
 			[]repositoryChecker{{"hw", true}},
 			[]relationChecker{{"no-group", "hw", true}},
 		},
-		{[]string{"--repository-id", "fails", "../testdata/other/helloworld", "../testdata/fibonacci"}, 0,
+		{[]string{"--repository-id=fails", "../testdata/other/helloworld", "../testdata/fibonacci"}, 0,
 			[]groupChecker{},
 			[]repositoryChecker{},
 			[]relationChecker{},

@@ -1,11 +1,11 @@
 package path
 
 import (
-	"flag"
 	"fmt"
 	"strings"
 
 	"github.com/mitchellh/cli"
+	flag "github.com/ogier/pflag"
 	"github.com/tamada/rrh/common"
 )
 
@@ -101,10 +101,8 @@ func (path *Command) buildFlagSet() (*flag.FlagSet, *options) {
 	var options = options{partialMatch: false, args: []string{}}
 	flags := flag.NewFlagSet("path", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(path.Help()) }
-	flags.BoolVar(&options.partialMatch, "m", false, "partial match mode")
-	flags.BoolVar(&options.partialMatch, "partial-match", false, "partial match mode")
-	flags.BoolVar(&options.showRepoID, "r", false, "show path only")
-	flags.BoolVar(&options.showRepoID, "show-repository-id", false, "show path only")
+	flags.BoolVarP(&options.partialMatch, "partial-match", "m", false, "partial match mode")
+	flags.BoolVarP(&options.showRepoID, "show-repository-id", "r", false, "show path only")
 	return flags, &options
 }
 
