@@ -75,11 +75,11 @@ func (add *Command) AddRepositoriesToGroup(db *common.Database, opt *options) []
 FindRemotes function returns the remote of the given git repository.
 */
 func FindRemotes(path string) ([]common.Remote, error) {
-	r, err := git.PlainOpen(path)
+	var repo, err = git.PlainOpen(path)
 	if err != nil {
 		return nil, err
 	}
-	remotes, err := r.Remotes()
+	remotes, err := repo.Remotes()
 	if err != nil {
 		return nil, err
 	}

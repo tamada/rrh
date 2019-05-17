@@ -164,3 +164,22 @@ func TestAddFailed(t *testing.T) {
 		}
 	}
 }
+
+func TestFindRemotes(t *testing.T) {
+	var testdata = []struct {
+		path      string
+		errorFlag bool
+		count     int
+	}{
+		{"../testdata/dummygit", true, 0},
+	}
+	for _, td := range testdata {
+		var remotes, err = FindRemotes(td.path)
+		if (err == nil) == td.errorFlag {
+			t.Errorf("%s: error flag did not match, wont: %v, got: %v, %v", td.path, td.errorFlag, !td.errorFlag, err)
+		}
+		if err != nil && td.count != len(remotes) {
+			t.Errorf("%s: remote count did not match, wont: %d, got: %d", td.path, td.count, len(remotes))
+		}
+	}
+}
