@@ -62,11 +62,22 @@ func (fetch *Command) Run(args []string) int {
 	return fetch.perform(db)
 }
 
+func (fetch *Command) buildProgress(db *common.Database, groupNames []string) *Progress {
+	var progress = Progress{total: 0, current: 0}
+	for _, name := range groupNames {
+		var count = db.ContainsCount(name)
+		progress.total += count
+	}
+	return &progress
+}
+
 func (fetch *Command) perform(db *common.Database) int {
 	var errorFlag = 0
 	var onError = db.Config.GetValue(common.RrhOnError)
+	var progress = fetch.buildProgress(db, fetch.options.args)
+	fmt.Printf("before progress: %s\n", progress)
 	for _, groupName := range fetch.options.args {
-		var list = fetch.FetchGroup(db, groupName)
+		var list = fetch.FetchGroup(db, groupName, progress)
 		for _, err := range list {
 			if onError != common.Ignore {
 				fmt.Println(err.Error())

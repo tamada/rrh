@@ -74,13 +74,22 @@ func (fetchAll *AllCommand) printErrors(onError string, errs []error) int {
 	return 0
 }
 
+func convertToGroupName(groups []common.Group) []string {
+	var result = []string{}
+	for _, group := range groups {
+		result = append(result, group.Name)
+	}
+	return result
+}
+
 func (fetchAll *AllCommand) execFetch(db *common.Database, options *options) int {
 	var onError = db.Config.GetValue(common.RrhOnError)
 
 	var fetch = Command{options}
 	var errorlist = []error{}
+	var progress = fetch.buildProgress(db, convertToGroupName(db.Groups))
 	for _, group := range db.Groups {
-		var errs = fetch.FetchGroup(db, group.Name)
+		var errs = fetch.FetchGroup(db, group.Name, progress)
 		errorlist = append(errorlist, errs...)
 		if onError == common.FailImmediately {
 			fetchAll.printError(errs)
