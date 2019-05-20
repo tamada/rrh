@@ -39,6 +39,7 @@ func Rollback(dbpath, configPath string, f func()) string {
 		var config = OpenConfig()
 		var db, _ = Open(config)
 		defer db.StoreAndClose()
+		defer config.StoreConfig()
 
 		f()
 	})

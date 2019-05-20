@@ -2,7 +2,6 @@ package common
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/mitchellh/cli"
 )
@@ -87,10 +86,7 @@ func (config *Command) Run(args []string) int {
 		new(listCommand).Run([]string{})
 		return 0
 	}
-	var exitStatus, err = c.Run()
-	if err != nil {
-		log.Println(err)
-	}
+	var exitStatus, _ = c.Run()
 	return exitStatus
 }
 
@@ -106,7 +102,7 @@ func (csc *setCommand) Run(args []string) int {
 	var err = config.Update(args[0], args[1])
 	if err != nil {
 		fmt.Println(err.Error())
-		return 1
+		return 2
 	}
 	config.StoreConfig()
 	return 0

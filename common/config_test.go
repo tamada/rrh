@@ -67,34 +67,35 @@ func TestSynopsises(t *testing.T) {
 }
 
 func TestConfigUnset(t *testing.T) {
-	os.Setenv(RrhConfigPath, "../testdata/config.json")
-	os.Setenv(RrhHome, "../testdata/")
-	var baseConfig = OpenConfig()
-
+	os.Setenv(RrhOnError, Fail)
 	var testcases = []struct {
-		label     string
+		args      []string
 		status    int
 		wontValue string
 		wontFrom  ReadFrom
 	}{
-		{RrhAutoCreateGroup, 0, "false", Default},
-		{"unknown", 0, "", NotFound},
+		{[]string{RrhAutoCreateGroup}, 0, "false", Default},
+		{[]string{"unknown"}, 5, "", NotFound},
+		{[]string{RrhAutoCreateGroup, "tooManyArgs"}, 1, "", ""},
 	}
 	for _, tc := range testcases {
-		var cuc, _ = unsetCommandFactory()
-		var statusCode = cuc.Run([]string{tc.label})
-		if statusCode != tc.status {
-			t.Errorf("%v: status code did not match, wont: %d, got: %d", tc, tc.status, statusCode)
-		}
-		if statusCode == 0 {
-			var config = OpenConfig()
-			var value, from = config.GetString(tc.label)
-			if value != tc.wontValue || from != tc.wontFrom {
-				t.Errorf("%v: did not match: wont: (%s, %s), got: (%s, %s)", tc, tc.wontValue, tc.wontFrom, value, from)
+		var dbfile = Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+			var cuc, _ = unsetCommandFactory()
+			var statusCode = cuc.Run(tc.args)
+			if statusCode != tc.status {
+				t.Errorf("%v: status code did not match, wont: %d, got: %d", tc, tc.status, statusCode)
 			}
-		}
-		baseConfig.StoreConfig()
+			if statusCode == 0 {
+				var config = OpenConfig()
+				var value, from = config.GetString(tc.args[0])
+				if value != tc.wontValue || from != tc.wontFrom {
+					t.Errorf("%v: did not match: wont: (%s, %s), got: (%s, %s)", tc, tc.wontValue, tc.wontFrom, value, from)
+				}
+			}
+		})
+		defer os.Remove(dbfile)
 	}
+	os.Unsetenv(RrhOnError)
 }
 
 func ExampleCommand() {
@@ -193,10 +194,6 @@ func TestLoadConfigFile(t *testing.T) {
 }
 
 func TestUpdateTrueFalseValue(t *testing.T) {
-	os.Setenv(RrhConfigPath, "../testdata/config.json")
-	var original = OpenConfig()
-
-	var config = OpenConfig()
 	var testdata = []struct {
 		key       string
 		value     string
@@ -214,21 +211,20 @@ func TestUpdateTrueFalseValue(t *testing.T) {
 	}
 
 	for _, data := range testdata {
-		if err := config.Update(data.key, data.value); (err == nil) == data.wantError {
-			t.Errorf("%s: set to \"%s\", error: %s", data.key, data.value, err.Error())
-		}
-		if val := config.GetValue(data.key); !data.wantError && val != data.wantValue {
-			t.Errorf("%s: want: %s, got: %s", data.key, data.wantValue, val)
-		}
+		var dbfile = Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+			var config = OpenConfig()
+			if err := config.Update(data.key, data.value); (err == nil) == data.wantError {
+				t.Errorf("%s: set to \"%s\", error: %s", data.key, data.value, err.Error())
+			}
+			if val := config.GetValue(data.key); !data.wantError && val != data.wantValue {
+				t.Errorf("%s: want: %s, got: %s", data.key, data.wantValue, val)
+			}
+		})
+		defer os.Remove(dbfile)
 	}
-	original.StoreConfig()
 }
 
 func TestUpdateOnError(t *testing.T) {
-	os.Setenv(RrhConfigPath, "../testdata/config.json")
-	var original = OpenConfig()
-
-	var config = OpenConfig()
 	var testdata = []struct {
 		key     string
 		success bool
@@ -241,47 +237,46 @@ func TestUpdateOnError(t *testing.T) {
 	}
 
 	for _, data := range testdata {
-		if err := config.Update(RrhOnError, data.key); (err == nil) != data.success {
-			t.Errorf("%s: set to \"%s\", success: %v", RrhOnError, data.key, data.success)
-		}
+		var dbfile = Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+			var config = OpenConfig()
+			if err := config.Update(RrhOnError, data.key); (err == nil) != data.success {
+				t.Errorf("%s: set to \"%s\", success: %v", RrhOnError, data.key, data.success)
+			}
+		})
+		defer os.Remove(dbfile)
 	}
-
-	original.StoreConfig()
 }
 
 func TestUpdateValue(t *testing.T) {
-	os.Setenv(RrhConfigPath, "../testdata/config.json")
-	var original = OpenConfig()
-
-	var config = OpenConfig()
-	if err := config.Update(RrhConfigPath, "hogehoge"); err == nil {
-		t.Error("RrhConfigPath cannot update")
+	var testdata = []struct {
+		label       string
+		value       string
+		shouldError bool
+		wontValue   string
+	}{
+		{RrhConfigPath, "hogehoge", true, ""},
+		{RrhHome, "hoge1", false, "hoge1"},
+		{RrhDatabasePath, "hoge2", false, "hoge2"},
+		{RrhDefaultGroupName, "hoge3", false, "hoge3"},
+		{RrhTimeFormat, "not-relative-string", false, "not-relative-string"},
+		{"unknown", "hoge4", true, ""},
 	}
-	if err := config.Update(RrhHome, "hoge1"); err != nil {
-		t.Error(err.Error())
+	for _, td := range testdata {
+		var dbfile = Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+			var config = NewConfig()
+			var err = config.Update(td.label, td.value)
+			if (err == nil) == td.shouldError {
+				t.Errorf("error of Update(%s, %s) did not match, wont: %v, got: %v", td.label, td.value, td.shouldError, !td.shouldError)
+			}
+			if err == nil {
+				var value = config.GetValue(td.label)
+				if value != td.wontValue {
+					t.Errorf("Value after Update(%s, %s) did not match, wont: %v, got: %v", td.label, td.value, td.wontValue, value)
+				}
+			}
+		})
+		defer os.Remove(dbfile)
 	}
-	if err := config.Update(RrhDatabasePath, "hoge2"); err != nil {
-		t.Error(err.Error())
-	}
-	if err := config.Update(RrhDefaultGroupName, "hoge3"); err != nil {
-		t.Error(err.Error())
-	}
-	if err := config.Update(RrhTimeFormat, "not-relative-string"); err != nil {
-		t.Error(err.Error())
-	}
-	assert(t, config.GetValue(RrhHome), "hoge1")
-	assert(t, config.GetValue(RrhDatabasePath), "hoge2")
-	assert(t, config.GetValue(RrhDefaultGroupName), "hoge3")
-	assert(t, config.GetValue(RrhTimeFormat), "not-relative-string")
-
-	if err := config.Update("unknown", "hoge4"); err == nil {
-		t.Error("unknown property was unknown")
-	}
-	if config.IsSet(RrhTimeFormat) {
-		t.Error("IsSet is only bool value.")
-	}
-
-	original.StoreConfig()
 }
 
 func TestOpenConfig(t *testing.T) {
@@ -350,8 +345,45 @@ func TestPrintErrors(t *testing.T) {
 	}
 }
 
+func TestConfigSet(t *testing.T) {
+	var testdata = []struct {
+		args       []string
+		statusCode int
+		value      string
+		location   ReadFrom
+	}{
+		{[]string{"RRH_DEFAULT_GROUP_NAME", "newgroup"}, 0, "newgroup", ConfigFile},
+		{[]string{"RRH_DEFAULT_GROUP_NAME"}, 1, "", ""},
+		{[]string{"RRH_AUTO_DELETE_GROUP", "yes"}, 2, "", ""},
+		{[]string{RrhConfigPath, "../testdata/broken.json"}, 2, "", ""},
+	}
+	for _, td := range testdata {
+		var dbfile = Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+			var set, _ = setCommandFactory()
+			var status = set.Run(td.args)
+			if status != td.statusCode {
+				t.Errorf("%v: status code did not match, wont: %d, got: %d", td.args, td.statusCode, status)
+			}
+			if status == 0 {
+				var config = OpenConfig()
+				var value, from = config.GetString(td.args[0])
+				if value != td.value {
+					t.Errorf("%v: set value did not match, wont: %s, got: %s", td.args, td.value, value)
+				}
+				if from != td.location {
+					t.Errorf("%v: read from did not match, wont: %s, got: %s", td.args, td.location, from)
+				}
+			}
+		})
+		defer os.Remove(dbfile)
+	}
+}
+
 func TestFormatVariableAndValue(t *testing.T) {
 	os.Setenv(RrhConfigPath, "../testdata/config.json")
 	var config = OpenConfig()
 	assert(t, config.formatVariableAndValue(RrhDefaultGroupName), "RRH_DEFAULT_GROUP_NAME: no-group (default)")
+	if config.IsSet(RrhOnError) {
+		t.Errorf("IsSet accepts only bool variable")
+	}
 }
