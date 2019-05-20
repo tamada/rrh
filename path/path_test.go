@@ -27,6 +27,14 @@ ARGUMENTS
 	}
 }
 
+func TestCommandRunFailedByBrokenDBFile(t *testing.T) {
+	os.Setenv(common.RrhDatabasePath, "../testdata/broken.json")
+	var command, _ = CommandFactory()
+	if command.Run([]string{}) != 2 {
+		t.Error("broken database read successfully.")
+	}
+}
+
 func TestPathCommand(t *testing.T) {
 	var testcases = []struct {
 		args    []string
