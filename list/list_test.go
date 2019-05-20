@@ -67,6 +67,7 @@ func TestSimpleResults(t *testing.T) {
 	}{
 		{[]string{"--only-repositoryname"}, 0, "repo1,repo2"},
 		{[]string{"--group-repository-form"}, 0, "group1/repo1,group3/repo2"},
+		{[]string{"not-included-group"}, 3, ""},
 	}
 	for _, tc := range testcases {
 		var dbFile = common.WithDatabase("../testdata/tmp.json", "../testdata/config.json", func() {
@@ -78,7 +79,7 @@ func TestSimpleResults(t *testing.T) {
 				}
 			})
 			result = common.ReplaceNewline(result, ",")
-			if result != tc.result {
+			if tc.status == 0 && result != tc.result {
 				t.Errorf("%v: result did not match: wont: %s, got: %s", tc.args, tc.result, result)
 			}
 		})

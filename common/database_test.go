@@ -13,6 +13,20 @@ func openDatabase() *Database {
 	return db
 }
 
+func TestRelationStringer(t *testing.T) {
+	var testdata = []struct {
+		relation Relation
+		result   string
+	}{
+		{Relation{RepositoryID: "hoge", GroupName: "g1"}, "g1/hoge"},
+	}
+	for _, td := range testdata {
+		if td.relation.String() != td.result {
+			t.Errorf("%v: stringer result did not match, wont: %s, got: %s", td, td.result, td.relation.String())
+		}
+	}
+}
+
 func TestOpenBrokenJson(t *testing.T) {
 	os.Setenv(RrhConfigPath, "../testdata/config.json")
 	os.Setenv(RrhDatabasePath, "../testdata/broken.json")

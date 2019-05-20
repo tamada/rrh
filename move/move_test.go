@@ -164,6 +164,47 @@ func TestMergeType(t *testing.T) {
 	}
 }
 
+func TestMisc(t *testing.T) {
+	var config = common.OpenConfig()
+	if isFailImmediately(config) {
+		t.Errorf("onError wont: %s, got: %s", common.Warn, config.GetValue(common.RrhOnError))
+	}
+}
+
+func TestErrorOnPerformImpl(t *testing.T) {
+	var command = Command{}
+	var errs = command.performImpl(nil, targets{}, Invalid)
+	if len(errs) != 1 {
+		t.Errorf("return code of performImpl did not match, wont: 1, got: %d", len(errs))
+	}
+}
+
+func TestVerifyArgumentsOneToOne(t *testing.T) {
+	var testcases = []struct {
+		fromType    int
+		toType      int
+		resultType  int
+		shouldError bool
+	}{
+		{Unknown, Unknown, Invalid, true},
+		{GroupType, RepositoryType, Invalid, true},
+	}
+	for _, tc := range testcases {
+		var dbFile = common.Rollback("../testdata/tmp.json", "../testdata/config.json", func() {
+			var config = common.OpenConfig()
+			var db, _ = common.Open(config)
+			var resultType, err = verifyArgumentsOneToOne(db, target{targetType: tc.fromType}, target{targetType: tc.toType})
+			if resultType != tc.resultType {
+				t.Errorf("%v: result type did not match, wont: %d, got: %d", tc, tc.resultType, resultType)
+			}
+			if (err == nil) == tc.shouldError {
+				t.Errorf("verifyArgumentsOneToOne(%d, %d): should error, wont: %v, got: %v", tc.fromType, tc.toType, tc.shouldError, !tc.shouldError)
+			}
+		})
+		defer os.Remove(dbFile)
+	}
+}
+
 func TestSynopsis(t *testing.T) {
 	var mv, _ = CommandFactory()
 	if mv.Synopsis() != "move the repositories from groups to another group." {

@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/mitchellh/cli"
 	"github.com/tamada/rrh/common"
 )
 
@@ -227,5 +228,26 @@ func TestSynopsis(t *testing.T) {
 	}
 	if command.Synopsis() != "manages repositories." {
 		t.Errorf("command synopsis did not match")
+	}
+}
+
+func TestCommandRunFailedByBrokenDBFile(t *testing.T) {
+	os.Setenv(common.RrhDatabasePath, "../testdata/broken.json")
+
+	var testcases = []struct {
+		comGenerator func() (cli.Command, error)
+		args         []string
+		statusCode   int
+	}{
+		{infoCommandFactory, []string{"group1"}, 2},
+		{listCommandFactory, []string{""}, 2},
+		{updateCommandFactory, []string{""}, 2},
+	}
+	for _, tc := range testcases {
+		var com, _ = tc.comGenerator()
+		var status = com.Run(tc.args)
+		if status != tc.statusCode {
+			t.Errorf("%v status code did not match, wont: %d, got: %d", tc.args, tc.statusCode, status)
+		}
 	}
 }

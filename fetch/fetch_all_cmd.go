@@ -55,39 +55,33 @@ func (fetchAll *AllCommand) Run(args []string) int {
 		fmt.Println(err2.Error())
 		return 1
 	}
-	return fetchAll.execFetch(db, options)
+	return handleError(fetchAll.execFetch(db, options), config.GetValue(common.RrhOnError))
 }
 
-func (fetchAll *AllCommand) printError(errs []error) {
-	for _, err := range errs {
-		fmt.Println(err.Error())
+func convertToGroupNames(groups []common.Group) []string {
+	var result = []string{}
+	for _, group := range groups {
+		result = append(result, group.Name)
 	}
+	return result
 }
 
-func (fetchAll *AllCommand) printErrors(onError string, errs []error) int {
-	if onError == common.Fail || onError == common.Warn {
-		fetchAll.printError(errs)
-		if onError == common.Fail {
-			return 1
-		}
-	}
-	return 0
-}
-
-func (fetchAll *AllCommand) execFetch(db *common.Database, options *options) int {
+func (fetchAll *AllCommand) execFetch(db *common.Database, options *options) []error {
 	var onError = db.Config.GetValue(common.RrhOnError)
-
-	var fetch = Command{options}
 	var errorlist = []error{}
-	for _, group := range db.Groups {
-		var errs = fetch.FetchGroup(db, group.Name)
-		errorlist = append(errorlist, errs...)
-		if onError == common.FailImmediately {
-			fetchAll.printError(errs)
-			return 1
+	var fetch = Command{options}
+	var relations = fetch.FindTargets(db, convertToGroupNames(db.Groups))
+	var progress = Progress{total: len(relations)}
+	for _, relation := range relations {
+		var err = fetch.FetchRepository(db, &relation, &progress)
+		if err != nil {
+			if onError == common.FailImmediately {
+				return []error{err}
+			}
+			errorlist = append(errorlist, err)
 		}
 	}
-	return fetchAll.printErrors(onError, errorlist)
+	return errorlist
 }
 
 func (fetchAll *AllCommand) parse(args []string) (*options, error) {
