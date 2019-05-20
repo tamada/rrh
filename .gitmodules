@@ -7,9 +7,6 @@
 [submodule "testdata/helloworld2"]
 	path = testdata/other/helloworld
 	url = https://htamada@bitbucket.org/htamada/helloworld2.git
-[submodule "docs/themes/hugo-theme-massively"]
-	path = docs/themes/hugo-theme-massively
-	url = https://github.com/curtistimson/hugo-theme-massively.git
 [submodule "docs/themes/cayman-hugo-theme"]
 	path = docs/themes/cayman-hugo-theme
 	url = https://github.com/zwbetz-gh/cayman-hugo-theme.git

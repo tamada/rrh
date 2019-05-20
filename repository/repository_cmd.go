@@ -1,10 +1,10 @@
 package repository
 
 import (
-	"flag"
 	"fmt"
 
 	"github.com/mitchellh/cli"
+	flag "github.com/ogier/pflag"
 	"github.com/tamada/rrh/common"
 )
 
@@ -77,10 +77,8 @@ func (info *infoCommand) buildFlagSet() (*flag.FlagSet, *infoOptions) {
 	var options = infoOptions{}
 	flags := flag.NewFlagSet("info", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(info.Help()) }
-	flags.BoolVar(&options.csv, "c", false, "prints in the csv format.")
-	flags.BoolVar(&options.csv, "csv", false, "prints in the csv format.")
-	flags.BoolVar(&options.color, "G", false, "enables colorized output.")
-	flags.BoolVar(&options.color, "color", false, "enables colorized output.")
+	flags.BoolVarP(&options.csv, "csv", "c", false, "prints in the csv format.")
+	flags.BoolVarP(&options.color, "color", "G", false, "enables colorized output.")
 	flags.BoolVar(&options.noColor, "no-color", false, "no colorized output.")
 	return flags, &options
 }
@@ -220,12 +218,9 @@ func (update *updateCommand) buildFlagSet() (*flag.FlagSet, *updateOptions) {
 	var options = updateOptions{}
 	flags := flag.NewFlagSet("update", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(update.Help()) }
-	flags.StringVar(&options.newID, "i", "", "specifies new repository id")
-	flags.StringVar(&options.description, "d", "", "specifies description")
-	flags.StringVar(&options.newPath, "p", "", "specifies new path")
-	flags.StringVar(&options.newID, "id", "", "specifies new repository id")
-	flags.StringVar(&options.description, "desc", "", "specifies description")
-	flags.StringVar(&options.newPath, "path", "", "specifies new path")
+	flags.StringVarP(&options.newID, "id", "i", "", "specifies new repository id")
+	flags.StringVarP(&options.description, "desc", "d", "", "specifies description")
+	flags.StringVarP(&options.newPath, "path", "p", "", "specifies new path")
 	return flags, &options
 }
 
@@ -321,9 +316,9 @@ Note:
 func (update *updateCommand) Help() string {
 	return `rrh repository update [OPTIONS] <REPOSITORY>
 OPTIONS
-    -i, --id <NEWID>     specifies new repository id.
-    -d, --desc <DESC>    specifies new description.
-    -p, --path <PATH>    specifies new path.
+    -i, --id=<NEWID>     specifies new repository id.
+    -d, --desc=<DESC>    specifies new description.
+    -p, --path=<PATH>    specifies new path.
 ARGUMENTS
     REPOSITORY           specifies the repository id.`
 }

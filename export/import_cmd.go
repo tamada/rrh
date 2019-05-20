@@ -1,10 +1,10 @@
 package export
 
 import (
-	"flag"
 	"fmt"
 
 	"github.com/mitchellh/cli"
+	flag "github.com/ogier/pflag"
 	"github.com/tamada/rrh/common"
 )
 
@@ -82,8 +82,7 @@ func buildFlagSet(command *ImportCommand) (*flag.FlagSet, *importOptions) {
 	flags.Usage = func() { fmt.Println(command.Help()) }
 	flags.BoolVar(&options.overwrite, "overwrite", false, "overwrite mode")
 	flags.BoolVar(&options.autoClone, "auto-clone", false, "auto clone mode")
-	flags.BoolVar(&options.verbose, "v", false, "verbose mode")
-	flags.BoolVar(&options.verbose, "verbose", false, "verbose mode")
+	flags.BoolVarP(&options.verbose, "verbose", "v", false, "verbose mode")
 	return flags, &options
 }
 

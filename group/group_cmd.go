@@ -1,10 +1,10 @@
 package group
 
 import (
-	"flag"
 	"fmt"
 
 	"github.com/mitchellh/cli"
+	flag "github.com/ogier/pflag"
 	"github.com/tamada/rrh/common"
 )
 
@@ -50,8 +50,8 @@ func removeCommandFactory() (cli.Command, error) {
 func (gac *addCommand) Help() string {
 	return `rrh group add [OPTIONS] <GROUPS...>
 OPTIONS
-    -d, --desc <DESC>        gives the description of the group.
-    -o, --omit-list <FLAG>   gives the omit list flag of the group.
+    -d, --desc=<DESC>        gives the description of the group.
+    -o, --omit-list=<FLAG>   gives the omit list flag of the group.
 ARGUMENTS
     GROUPS                   gives group names.`
 }
@@ -83,9 +83,9 @@ ARGUMENTS
 func (guc *updateCommand) Help() string {
 	return `rrh group update [OPTIONS] <GROUP>
 OPTIONS
-    -n, --name <NAME>        change group name to NAME.
-    -d, --desc <DESC>        change description to DESC.
-    -o, --omit-list <FLAG>   change omit-list of the group. FLAG must be "true" or "false".
+    -n, --name=<NAME>        change group name to NAME.
+    -d, --desc=<DESC>        change description to DESC.
+    -o, --omit-list=<FLAG>   change omit-list of the group. FLAG must be "true" or "false".
 ARGUMENTS
     GROUP               update target group names.`
 }
@@ -138,10 +138,8 @@ func (gac *addCommand) buildFlagSet() (*flag.FlagSet, *addOptions) {
 	var opt = addOptions{}
 	flags := flag.NewFlagSet("add", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(gac.Help()) }
-	flags.StringVar(&opt.desc, "d", "", "description")
-	flags.StringVar(&opt.desc, "desc", "", "description")
-	flags.StringVar(&opt.omit, "o", "", "omit list flag")
-	flags.StringVar(&opt.omit, "omit-list", "", "omit list flag")
+	flags.StringVarP(&opt.desc, "desc", "d", "", "description")
+	flags.StringVarP(&opt.omit, "omit-list", "o", "", "omit list flag")
 	return flags, &opt
 }
 
@@ -191,12 +189,9 @@ func (glc *listCommand) buildFlagSet() (*flag.FlagSet, *listOptions) {
 	var opt = listOptions{}
 	flags := flag.NewFlagSet("list", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(glc.Help()) }
-	flags.BoolVar(&opt.desc, "d", false, "show description")
-	flags.BoolVar(&opt.desc, "desc", false, "show description")
-	flags.BoolVar(&opt.repositories, "r", false, "show repositories")
-	flags.BoolVar(&opt.repositories, "repository", false, "show repositories")
-	flags.BoolVar(&opt.nameOnly, "o", false, "show only group names")
-	flags.BoolVar(&opt.nameOnly, "only-groupname", false, "show only group names")
+	flags.BoolVarP(&opt.desc, "desc", "d", false, "show description")
+	flags.BoolVarP(&opt.repositories, "repository", "r", false, "show repositories")
+	flags.BoolVarP(&opt.nameOnly, "only-groupname", "o", false, "show only group names")
 	return flags, &opt
 }
 
@@ -312,12 +307,9 @@ func (grc *removeCommand) buildFlagSet() (*flag.FlagSet, *removeOptions) {
 	var opt = removeOptions{}
 	flags := flag.NewFlagSet("rm", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(grc.Help()) }
-	flags.BoolVar(&opt.inquiry, "i", false, "inquiry mode")
-	flags.BoolVar(&opt.verbose, "v", false, "verbose mode")
-	flags.BoolVar(&opt.force, "f", false, "force remove")
-	flags.BoolVar(&opt.inquiry, "inquiry", false, "inquiry mode")
-	flags.BoolVar(&opt.verbose, "verbose", false, "verbose mode")
-	flags.BoolVar(&opt.force, "force", false, "force remove")
+	flags.BoolVarP(&opt.inquiry, "inquiry", "i", false, "inquiry mode")
+	flags.BoolVarP(&opt.verbose, "verbose", "v", false, "verbose mode")
+	flags.BoolVarP(&opt.force, "force", "f", false, "force remove")
 	return flags, &opt
 }
 
@@ -392,12 +384,9 @@ func (guc *updateCommand) buildFlagSet() (*flag.FlagSet, *updateOptions) {
 	var opt = updateOptions{}
 	flags := flag.NewFlagSet("update", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(guc.Help()) }
-	flags.StringVar(&opt.newName, "n", "", "specify new group name")
-	flags.StringVar(&opt.newName, "name", "", "specify new group name")
-	flags.StringVar(&opt.desc, "d", "", "specify the description")
-	flags.StringVar(&opt.desc, "desc", "", "specify the description")
-	flags.StringVar(&opt.omitList, "omit-list", "", "set the omit list flag.")
-	flags.StringVar(&opt.omitList, "o", "", "set the omit list flag.")
+	flags.StringVarP(&opt.newName, "name", "n", "", "specify new group name")
+	flags.StringVarP(&opt.desc, "desc", "d", "", "specify the description")
+	flags.StringVarP(&opt.omitList, "omit-list", "o", "", "set the omit list flag.")
 	return flags, &opt
 }
 

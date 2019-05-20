@@ -1,10 +1,10 @@
 package list
 
 import (
-	"flag"
 	"fmt"
 
 	"github.com/mitchellh/cli"
+	flag "github.com/ogier/pflag"
 	"github.com/tamada/rrh/common"
 )
 
@@ -230,18 +230,12 @@ func (list *Command) buildFlagSet() (*flag.FlagSet, *options) {
 	var options = options{args: []string{}}
 	flags := flag.NewFlagSet("list", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(list.Help()) }
-	flags.BoolVar(&options.all, "A", false, "show all entries")
-	flags.BoolVar(&options.all, "all-entries", false, "show all entries")
-	flags.BoolVar(&options.description, "d", false, "description flag")
-	flags.BoolVar(&options.description, "desc", false, "description flag")
-	flags.BoolVar(&options.localPath, "p", false, "local path flag")
-	flags.BoolVar(&options.localPath, "path", false, "local path flag")
-	flags.BoolVar(&options.remoteURL, "r", false, "remote url flag")
-	flags.BoolVar(&options.remoteURL, "remote", false, "remote url flag")
-	flags.BoolVar(&options.noOmit, "a", false, "no omit repositories")
-	flags.BoolVar(&options.noOmit, "all", false, "no omit repositories")
-	flags.BoolVar(&options.csv, "c", false, "print as csv format")
-	flags.BoolVar(&options.csv, "csv", false, "print as csv format")
+	flags.BoolVarP(&options.all, "all-entries", "A", false, "show all entries")
+	flags.BoolVarP(&options.description, "desc", "d", false, "description flag")
+	flags.BoolVarP(&options.localPath, "path", "p", false, "local path flag")
+	flags.BoolVarP(&options.remoteURL, "remote", "r", false, "remote url flag")
+	flags.BoolVarP(&options.noOmit, "all", "a", false, "no omit repositories")
+	flags.BoolVarP(&options.csv, "csv", "c", false, "print as csv format")
 	flags.BoolVar(&options.repoNameOnly, "only-repositoryname", false, "show only repository names")
 	flags.BoolVar(&options.groupRepoName, "group-repository-form", false, "show group and repository pair form")
 	return flags, &options

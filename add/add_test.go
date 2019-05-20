@@ -24,8 +24,8 @@ func TestHelpAndSynopsis(t *testing.T) {
 	}
 	if command.Help() != `rrh add [OPTIONS] <REPOSITORY_PATHS...>
 OPTIONS
-    -g, --group <GROUP>        add repository to RRH database.
-    -r, --repository-id <ID>   specified repository id of the given repository path.
+    -g, --group=<GROUP>        add repository to RRH database.
+    -r, --repository-id=<ID>   specified repository id of the given repository path.
                                Specifying this option fails with multiple arguments.
 ARGUMENTS
     REPOSITORY_PATHS           the local path list of the git repositories.` {
@@ -54,7 +54,7 @@ func TestAdd(t *testing.T) {
 		rCheckers   []repositoryChecker
 		relCheckers []relationChecker
 	}{
-		{[]string{"--group", "group2", "../testdata/helloworld"}, 0,
+		{[]string{"--group=group2", "../testdata/helloworld"}, 0,
 			[]groupChecker{{"group2", true}},
 			[]repositoryChecker{{"helloworld", true}},
 			[]relationChecker{{"group2", "helloworld", true}},
@@ -74,12 +74,12 @@ func TestAdd(t *testing.T) {
 			[]repositoryChecker{{"helloworld", true}},
 			[]relationChecker{{"no-group", "helloworld", true}},
 		},
-		{[]string{"--repository-id", "hw", "../testdata/other/helloworld"}, 0,
+		{[]string{"--repository-id=hw", "../testdata/other/helloworld"}, 0,
 			[]groupChecker{},
 			[]repositoryChecker{{"hw", true}},
 			[]relationChecker{{"no-group", "hw", true}},
 		},
-		{[]string{"--repository-id", "fails", "../testdata/other/helloworld", "../testdata/fibonacci"}, 0,
+		{[]string{"--repository-id=fails", "../testdata/other/helloworld", "../testdata/fibonacci"}, 0,
 			[]groupChecker{},
 			[]repositoryChecker{},
 			[]relationChecker{},
@@ -161,6 +161,25 @@ func TestAddFailed(t *testing.T) {
 		var list = add.AddRepositoriesToGroup(db, &datum)
 		if len(list) == 0 {
 			t.Errorf("successfully add in invalid data: %v", datum)
+		}
+	}
+}
+
+func TestFindRemotes(t *testing.T) {
+	var testdata = []struct {
+		path      string
+		errorFlag bool
+		count     int
+	}{
+		{"../testdata/dummygit", true, 0},
+	}
+	for _, td := range testdata {
+		var remotes, err = FindRemotes(td.path)
+		if (err == nil) == td.errorFlag {
+			t.Errorf("%s: error flag did not match, wont: %v, got: %v, %v", td.path, td.errorFlag, !td.errorFlag, err)
+		}
+		if err != nil && td.count != len(remotes) {
+			t.Errorf("%s: remote count did not match, wont: %d, got: %d", td.path, td.count, len(remotes))
 		}
 	}
 }

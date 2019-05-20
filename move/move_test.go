@@ -59,7 +59,7 @@ func TestMoveCommand(t *testing.T) {
 		{"group to group", []string{"group1", "group4"}, []relation{
 			{"group4", "repo1", true},
 			{"group1", "repo1", false}}},
-		{"groups to group", []string{"-verbose", "group1", "group3", "group4"}, []relation{
+		{"groups to group", []string{"--verbose", "group1", "group3", "group4"}, []relation{
 			{"group4", "repo1", true},
 			{"group4", "repo2", true},
 			{"group3", "repo2", false},

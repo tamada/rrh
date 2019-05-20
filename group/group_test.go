@@ -178,7 +178,7 @@ func TestUpdateGroup(t *testing.T) {
 		gexists    []groupChecker
 		relations  []relation
 	}{
-		{[]string{"update", "-d", "newdesc2", "--name", "newgroup2", "-o", "true", "group2"}, 0,
+		{[]string{"update", "-d", "newdesc2", "--name=newgroup2", "-o", "true", "group2"}, 0,
 			[]groupChecker{{"newgroup2", true, "newdesc2", true}, {"group2", false, "", false}},
 			[]relation{}},
 		{[]string{"update", "-n", "newgroup3", "group3"}, 0,
@@ -296,8 +296,8 @@ func TestHelp(t *testing.T) {
 
 	var gacHelp = `rrh group add [OPTIONS] <GROUPS...>
 OPTIONS
-    -d, --desc <DESC>        gives the description of the group.
-    -o, --omit-list <FLAG>   gives the omit list flag of the group.
+    -d, --desc=<DESC>        gives the description of the group.
+    -o, --omit-list=<FLAG>   gives the omit list flag of the group.
 ARGUMENTS
     GROUPS                   gives group names.`
 
@@ -317,9 +317,9 @@ ARGUMENTS
 
 	var gucHelp = `rrh group update [OPTIONS] <GROUP>
 OPTIONS
-    -n, --name <NAME>        change group name to NAME.
-    -d, --desc <DESC>        change description to DESC.
-    -o, --omit-list <FLAG>   change omit-list of the group. FLAG must be "true" or "false".
+    -n, --name=<NAME>        change group name to NAME.
+    -d, --desc=<DESC>        change description to DESC.
+    -o, --omit-list=<FLAG>   change omit-list of the group. FLAG must be "true" or "false".
 ARGUMENTS
     GROUP               update target group names.`
 

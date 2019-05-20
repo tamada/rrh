@@ -1,11 +1,11 @@
 package move
 
 import (
-	"flag"
 	"fmt"
 	"strings"
 
 	"github.com/mitchellh/cli"
+	flag "github.com/ogier/pflag"
 	"github.com/tamada/rrh/common"
 )
 
@@ -261,8 +261,7 @@ func buildFlagSet(mv *Command) (*flag.FlagSet, *options) {
 	var options = options{false, false, []string{}, ""}
 	flags := flag.NewFlagSet("mv", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(mv.Help()) }
-	flags.BoolVar(&options.verbose, "v", false, "verbose mode")
-	flags.BoolVar(&options.verbose, "verbose", false, "verbose mode")
+	flags.BoolVarP(&options.verbose, "verbose", "v", false, "verbose mode")
 	return flags, &options
 }
 

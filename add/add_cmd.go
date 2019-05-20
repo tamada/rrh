@@ -1,10 +1,10 @@
 package add
 
 import (
-	"flag"
 	"fmt"
 
 	"github.com/mitchellh/cli"
+	flag "github.com/ogier/pflag"
 	"github.com/tamada/rrh/common"
 )
 
@@ -28,8 +28,8 @@ Help function shows the help message.
 func (add *Command) Help() string {
 	return `rrh add [OPTIONS] <REPOSITORY_PATHS...>
 OPTIONS
-    -g, --group <GROUP>        add repository to RRH database.
-    -r, --repository-id <ID>   specified repository id of the given repository path.
+    -g, --group=<GROUP>        add repository to RRH database.
+    -r, --repository-id=<ID>   specified repository id of the given repository path.
                                Specifying this option fails with multiple arguments.
 ARGUMENTS
     REPOSITORY_PATHS           the local path list of the git repositories.`
@@ -92,10 +92,8 @@ func (add *Command) buildFlagSet(config *common.Config) (*flag.FlagSet, *options
 	var defaultGroup = config.GetValue(common.RrhDefaultGroupName)
 	flags := flag.NewFlagSet("add", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(add.Help()) }
-	flags.StringVar(&opt.group, "g", defaultGroup, "target group")
-	flags.StringVar(&opt.group, "group", defaultGroup, "target group")
-	flags.StringVar(&opt.repoID, "r", "", "specifying repository id")
-	flags.StringVar(&opt.repoID, "repository-id", "", "specifying repository id")
+	flags.StringVarP(&opt.group, "group", "g", defaultGroup, "target group")
+	flags.StringVarP(&opt.repoID, "repository-id", "r", "", "specifying repository id")
 	return flags, &opt
 }
 

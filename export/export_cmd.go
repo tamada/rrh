@@ -3,7 +3,6 @@ package export
 import (
 	"bytes"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/mitchellh/cli"
 	"github.com/mitchellh/go-homedir"
+	flag "github.com/ogier/pflag"
 	"github.com/tamada/rrh/common"
 )
 

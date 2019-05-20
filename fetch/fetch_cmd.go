@@ -1,10 +1,10 @@
 package fetch
 
 import (
-	"flag"
 	"fmt"
 
 	"github.com/mitchellh/cli"
+	flag "github.com/ogier/pflag"
 	"github.com/tamada/rrh/common"
 )
 
@@ -28,7 +28,7 @@ Help returns the help message of the command.
 func (fetch *Command) Help() string {
 	return `rrh fetch [OPTIONS] [GROUPS...]
 OPTIONS
-    -r, --remote <REMOTE>   specify the remote name. Default is "origin."
+    -r, --remot=<REMOTE>   specify the remote name. Default is "origin."
 ARGUMENTS
     GROUPS                  run "git fetch" command on each repository on the group.
                             if no value is specified, run on the default group.`
@@ -92,8 +92,7 @@ func (fetch *Command) parse(args []string) (*options, error) {
 	var options = options{"origin", []string{}}
 	flags := flag.NewFlagSet("fetch", flag.ExitOnError)
 	flags.Usage = func() { fmt.Println(fetch.Help()) }
-	flags.StringVar(&options.remote, "r", "origin", "remote name")
-	flags.StringVar(&options.remote, "remote", "origin", "remote name")
+	flags.StringVarP(&options.remote, "remote", "r", "origin", "remote name")
 	// flags.StringVar(&options.key, "k", "", "private key path")
 	// flags.StringVar(&options.userName, "u", "", "user name")
 	// flags.StringVar(&options.password, "p", "", "password")

@@ -1,11 +1,11 @@
 package status
 
 import (
-	"flag"
 	"fmt"
 	"time"
 
 	"github.com/mitchellh/cli"
+	flag "github.com/ogier/pflag"
 	"github.com/tamada/rrh/common"
 	"gopkg.in/src-d/go-git.v4/plumbing"
 )
@@ -69,7 +69,7 @@ OPTIONS
     -b, --branches               show the status of the local branches.
     -r, --remote                 show the status of the remote branches.
     -c, --csv                    print result in csv format.
-    -f, --time-format <FORMAT>   specifies time format. Available value is
+    -f, --time-format=<FORMAT>   specifies time format. Available value is
                                  'relative' ad 'absolute'
 ARGUMENTS
     REPOSITORIES                 target repositories.  If no repository was specified
@@ -163,14 +163,10 @@ func (status *Command) buildFlagSet() (*flag.FlagSet, *options) {
 	var options = options{false, false, false, notSpecified}
 	flags := flag.NewFlagSet("status", flag.ExitOnError)
 	flags.Usage = func() { fmt.Println(status.Help()) }
-	flags.BoolVar(&options.csv, "c", false, "csv format")
-	flags.BoolVar(&options.csv, "csv", false, "csv format")
-	flags.BoolVar(&options.remote, "r", false, "remote branch status")
-	flags.BoolVar(&options.remote, "remote", false, "remote branch status")
-	flags.BoolVar(&options.branch, "b", false, "local branch status")
-	flags.BoolVar(&options.branch, "branches", false, "local branch status")
-	flags.StringVar(&options.format, "time-format", notSpecified, "specifies time format")
-	flags.StringVar(&options.format, "f", notSpecified, "specifies time format")
+	flags.BoolVarP(&options.csv, "csv", "c", false, "csv format")
+	flags.BoolVarP(&options.remote, "remote", "r", false, "remote branch status")
+	flags.BoolVarP(&options.branch, "branches", "b", false, "local branch status")
+	flags.StringVarP(&options.format, "time-format", "f", notSpecified, "specifies time format")
 	return flags, &options
 }
 
