@@ -23,60 +23,72 @@ func (progress *Progress) increment() {
 	progress.current++
 }
 
+func foundIn(relation common.Relation, list []common.Relation) bool {
+	for _, r := range list {
+		if r.GroupName == relation.GroupName &&
+			r.RepositoryID == relation.RepositoryID {
+			return true
+		}
+	}
+	return false
+}
+
+func eliminateDuplicate(relations []common.Relation) []common.Relation {
+	var result = []common.Relation{}
+	for _, relation := range relations {
+		if !foundIn(relation, result) {
+			result = append(result, relation)
+		}
+	}
+	return result
+}
+
+func toRelations(groupName string, repoNames []string) []common.Relation {
+	var result = []common.Relation{}
+	for _, repo := range repoNames {
+		result = append(result, common.Relation{RepositoryID: repo, GroupName: groupName})
+	}
+	return result
+}
+
+/*
+FindTargets returns the instances of Relation objects with given groupNames.
+*/
+func (fetch *Command) FindTargets(db *common.Database, groupNames []string) []common.Relation {
+	var result = []common.Relation{}
+	for _, groupName := range groupNames {
+		var repos = db.FindRelationsOfGroup(groupName)
+		var relations = toRelations(groupName, repos)
+		result = append(result, relations...)
+	}
+	return eliminateDuplicate(result)
+}
+
 /*
 DoFetch exec fetch operation of git.
 Currently, fetch is conducted by the system call.
 Ideally, fetch is performed by using go-git.
 */
-func (fetch *Command) DoFetch(repo *common.Repository, group string, progress *Progress) error {
+func (fetch *Command) DoFetch(repo *common.Repository, relation *common.Relation, progress *Progress) error {
 	var cmd = exec.Command("git", "fetch", fetch.options.remote)
 	cmd.Dir = repo.Path
 	progress.increment()
-	fmt.Printf("%s fetching %s/%s....", progress, group, repo.ID)
+	fmt.Printf("%s fetching %s....", progress, relation)
 	var output, err = cmd.Output()
 	if err != nil {
-		return fmt.Errorf("%s,%s,%s", group, repo.ID, err.Error())
+		return fmt.Errorf("%s,%s", relation, err.Error())
 	}
 	fmt.Printf("done\n%s", output)
 	return nil
 }
 
-func (fetch *Command) fetchRepository(db *common.Database, groupName string, repoID string, progress *Progress) error {
-	var repository = db.FindRepository(repoID)
-	if repository == nil {
-		return fmt.Errorf("%s,%s: repository not found", groupName, repoID)
-	}
-	return fetch.DoFetch(repository, groupName, progress)
-}
-
 /*
-FetchGroup performs `git fetch` command in the repositories belonging in the specified group.
+FetchRepository execute `git fetch` on the given repository.
 */
-func (fetch *Command) FetchGroup(db *common.Database, groupName string, progress *Progress) []error {
-	var list = []error{}
-	var group = db.FindGroup(groupName)
-	if group == nil {
-		return []error{fmt.Errorf("%s: group not found", groupName)}
+func (fetch *Command) FetchRepository(db *common.Database, relation *common.Relation, progress *Progress) error {
+	var repository = db.FindRepository(relation.RepositoryID)
+	if repository == nil {
+		return fmt.Errorf("%s: repository not found", relation)
 	}
-	for _, relation := range db.Relations {
-		var err = fetch.executeFetch(db, groupName, relation, progress)
-		if err == nil {
-			continue
-		}
-		if db.Config.GetValue(common.RrhOnError) == common.FailImmediately {
-			return []error{err}
-		}
-		list = append(list, err)
-	}
-	return list
-}
-
-func (fetch *Command) executeFetch(db *common.Database, groupName string, relation common.Relation, progress *Progress) error {
-	if relation.GroupName == groupName {
-		var err = fetch.fetchRepository(db, groupName, relation.RepositoryID, progress)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	return fetch.DoFetch(repository, relation, progress)
 }

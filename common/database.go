@@ -42,6 +42,10 @@ type Relation struct {
 	GroupName    string `json:"group_name"`
 }
 
+func (relation *Relation) String() string {
+	return relation.GroupName + "/" + relation.RepositoryID
+}
+
 /*
 Database represents the whole database of RRH.
 */

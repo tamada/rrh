@@ -59,36 +59,43 @@ func (fetch *Command) Run(args []string) int {
 		fmt.Println(err2.Error())
 		return 1
 	}
-	return fetch.perform(db)
+	return handleError(fetch.perform(db), config.GetValue(common.RrhOnError))
 }
 
-func (fetch *Command) buildProgress(db *common.Database, groupNames []string) *Progress {
-	var progress = Progress{total: 0, current: 0}
-	for _, name := range groupNames {
-		var count = db.ContainsCount(name)
-		progress.total += count
-	}
-	return &progress
-}
-
-func (fetch *Command) perform(db *common.Database) int {
-	var errorFlag = 0
-	var onError = db.Config.GetValue(common.RrhOnError)
-	var progress = fetch.buildProgress(db, fetch.options.args)
-	fmt.Printf("before progress: %s\n", progress)
-	for _, groupName := range fetch.options.args {
-		var list = fetch.FetchGroup(db, groupName, progress)
-		for _, err := range list {
-			if onError != common.Ignore {
-				fmt.Println(err.Error())
-				errorFlag = 1
-			}
+func handleError(errors []error, onError string) int {
+	if len(errors) > 0 {
+		if onError != common.Ignore {
+			printErrors(errors)
+		}
+		if onError == common.Fail || onError == common.FailImmediately {
+			return 5
 		}
 	}
-	if onError == common.Warn {
-		return 0
+	return 0
+}
+
+func printErrors(errorlist []error) {
+	for _, err := range errorlist {
+		fmt.Println(err.Error())
 	}
-	return errorFlag
+}
+
+func (fetch *Command) perform(db *common.Database) []error {
+	var errorlist = []error{}
+	var onError = db.Config.GetValue(common.RrhOnError)
+	var relations = fetch.FindTargets(db, fetch.options.args)
+	var progress = Progress{total: len(relations)}
+
+	for _, relation := range relations {
+		var err = fetch.FetchRepository(db, &relation, &progress)
+		if err != nil {
+			if onError == common.FailImmediately {
+				return []error{err}
+			}
+			errorlist = append(errorlist, err)
+		}
+	}
+	return errorlist
 }
 
 type options struct {
