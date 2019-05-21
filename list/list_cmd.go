@@ -178,6 +178,15 @@ func (options *options) printResults(results []Result, config *common.Config) in
 	return 0
 }
 
+func (list *Command) findAndPrintResult(db *common.Database) int {
+	results, err := list.FindResults(db)
+	if err != nil {
+		fmt.Println(err.Error())
+		return 3
+	}
+	return list.options.printResults(results, db.Config)
+}
+
 /*
 Run performs the command.
 */
@@ -193,12 +202,7 @@ func (list *Command) Run(args []string) int {
 		fmt.Println(err.Error())
 		return 2
 	}
-	results, err := list.FindResults(db)
-	if err != nil {
-		fmt.Println(err.Error())
-		return 3
-	}
-	return list.options.printResults(results, config)
+	return list.findAndPrintResult(db)
 }
 
 /*

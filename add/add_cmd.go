@@ -70,7 +70,6 @@ func (add *Command) Run(args []string) int {
 	var opt, err = add.parse(args, config)
 	if err != nil {
 		fmt.Println(err.Error())
-		fmt.Println(add.Help())
 		return 1
 	}
 	var db, err2 = common.Open(config)
