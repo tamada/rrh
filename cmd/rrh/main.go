@@ -62,15 +62,18 @@ type options struct {
 func parseOptions(args []string, opts *options) []string {
 	var configPathFlag = false
 	for i, arg := range args {
-		if configPathFlag {
+		if strings.HasPrefix(arg, "-") {
+			switch arg {
+			case "-h", "--help":
+				opts.help = true
+			case "-v", "--version":
+				opts.version = true
+			case "-c", "--config-file":
+				configPathFlag = true
+			}
+		} else if configPathFlag {
 			opts.configPath = arg
 			configPathFlag = false
-		} else if arg == "-h" || arg == "--help" {
-			opts.help = true
-		} else if arg == "-v" || arg == "--version" {
-			opts.version = true
-		} else if arg == "-c" || arg == "--config-path" {
-			configPathFlag = true
 		} else {
 			return args[i:]
 		}
