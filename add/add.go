@@ -66,7 +66,7 @@ func (add *Command) AddRepositoriesToGroup(db *common.Database, opt *options) []
 	}
 	var errorlist = []error{}
 	for _, item := range opt.args {
-		var list = add.addRepositoryToGroup(db, common.Relation{opt.repoID, opt.group}, item)
+		var list = add.addRepositoryToGroup(db, common.Relation{RepositoryID: opt.repoID, GroupName: opt.group}, item)
 		errorlist = append(errorlist, list...)
 	}
 	return errorlist

@@ -55,4 +55,5 @@ install: test build
 
 clean:
 	$(GO) clean
-	rm -rf $(NAME)
+	rm -rf cmd/$(NAME)/$(NAME)
+	rm -rf cmd/rrh-helloworld/rrh-helloworld
