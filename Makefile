@@ -30,14 +30,15 @@ setup: deps update_version
 	git submodule update --init
 
 test: setup format lint
-	$(GO) test -covermode=count -coverprofile=coverage.out $$(go list ./... | grep -v vendor)
+	$(GO) test -covermode=count -coverprofile=coverage.out $$(go list ./...)
 
 build: setup
-	$(GO) build -o $(NAME) -v
+	cd cmd/rrh;            $(GO) build
+	cd cmd/rrh-helloworld; $(GO) build
 
 lint: setup
-	$(GO) vet $$(go list ./... | grep -v vendor)
-	for pkg in $$(go list ./... | grep -v vendor); do \
+	$(GO) vet $$(go list ./...)
+	for pkg in $$(go list ./...); do \
 		golint -set_exit_status $$pkg || exit $$?; \
 	done
 
@@ -46,7 +47,7 @@ format: setup
 # However, goimports could not accept package name 'main'.
 # Therefore, we replace 'main' to the go source code name 'rrh.go'
 # Other packages are no problem, their have the same name with directories.
-	goimports -w $$(go list -f '{{.Name}}' ./... | sed 's/main/rrh.go/g')
+	goimports -w $$(go list ./... | sed 's/github.com\/tamada\/rrh\///g')
 
 install: test build
 	$(GO) install $(LDFLAGS)
