@@ -19,12 +19,12 @@ func TestInvalidOptions(t *testing.T) {
 
 func TestHelpAndSynopsis(t *testing.T) {
 	var command, _ = CommandFactory()
-	if command.Synopsis() != "add repositories on the local path to RRH." {
+	if command.Synopsis() != "add repositories on the local path to rrh." {
 		t.Error("synopsis did not match")
 	}
 	if command.Help() != `rrh add [OPTIONS] <REPOSITORY_PATHS...>
 OPTIONS
-    -g, --group <GROUP>        add repository to RRH database.
+    -g, --group <GROUP>        add repository to rrh database.
     -r, --repository-id <ID>   specified repository id of the given repository path.
                                Specifying this option fails with multiple arguments.
 ARGUMENTS

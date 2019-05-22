@@ -7,7 +7,7 @@ title: Installation
 Install rrh via [Homebrew](https://brew.sh), simply run:
 
 ```sh
-$ brew tap tamada/rrh
+$ brew tap tamada/brew
 $ brew install rrh
 ```
 

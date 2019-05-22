@@ -120,5 +120,5 @@ func (export *Command) parse(args []string) (*options, error) {
 Synopsis returns the simple help message of the command.
 */
 func (export *Command) Synopsis() string {
-	return "export RRH database to stdout."
+	return "export rrh database to stdout."
 }

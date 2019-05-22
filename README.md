@@ -51,16 +51,15 @@ RRH is now growing. Please hack RRH itself.
 Install rrh via [Homebrew](https://brew.sh), simply run:
 
 ```sh
-$ brew tap tamada/rrh
+$ brew tap tamada/brew
 $ brew install rrh
 ```
 
-
 ### Golang
 
-To install cli, simply run:
+To install by cli, simply run:
 
-```
+```shell
 $ go get git@github.com/tamada/rrh.git
 ```
 
@@ -90,24 +89,34 @@ RRH has various subcommands, however, `list` and `add` subcommand make you happy
 ### Command references
 
 ```sh
-Usage: rrh [--version] [--help] <command> [<args>]
-
-Available commands are:
+rrh [GLOBAL OPTIONS] <SUB COMMANDS> [ARGUMENTS]
+GLOBAL OPTIONS
+    -h, --help                        print this message.
+    -v, --version                     print version.
+    -c, --config-file <CONFIG_FILE>   specifies the config file path.
+AVAILABLE SUB COMMANDS:
     add          add repositories on the local path to RRH.
     clone        run "git clone" and register it to a group.
     config       set/unset and list configuration of RRH.
     export       export RRH database to stdout.
-    fetch        run "git fetch" on the repositories of the given groups.
+    fetch        run "git fetch" on the given groups.
     fetch-all    run "git fetch" in the all repositories.
-    group        add/list/update/remove groups.
+    group        add/list/update/remove groups and show groups of the repository.
+    help         print this message.
+    import       import the given database.
     list         print managed repositories and their groups.
     mv           move the repositories from groups to another group.
     path         print paths of specified repositories.
     prune        prune unnecessary repositories and groups.
-    repository   manages repository.
+    repository   manages repositories.
     rm           remove given repository from database.
     status       show git status of repositories.
+    version      show version.
 ```
+
+If the user specified an unknown subcommand (e.g., `rrh helloworld`), `rrh` treats it as an **external command**.
+In that case, `rrh` searches an executable file named `rrh-helloworld` from the PATH environment variable.
+If `rrh` found it, `rrh` executes it, if not found, `rrh` prints help and exit.
 
 ### Subcommands
 
@@ -273,6 +282,16 @@ ARGUMENTS
     GROUP                    update target group names.
 ```
 
+#### `rrh help`
+
+Prints the help message.
+
+```shell
+rrh help [ARGUMENTS...]
+ARGUMENTS
+    print help message of target command.
+```
+
 #### `rrh import`
 
 Import the database to the local environment.
@@ -419,6 +438,15 @@ ARGUMENTS
                     If no arguments were specified, this command
                     shows the result of default group.
 ```
+
+#### `rrh version`
+
+Prints `rrh` version.
+
+```sh
+rrh version
+```
+
 
 ### Environment variables
 
@@ -623,7 +651,7 @@ rrhpeco(){
 [![Gitter](https://img.shields.io/badge/Gitter-Join_Chat-red.svg)](https://gitter.im/rrh_git/community)
 [![Gitter misc_ja](https://img.shields.io/badge/Gitter-For_Japanese-red.svg)](https://gitter.im/rrh_git/misc_ja)
 
-Join our Gitter channel if you have any problem or suggestions to Rrh.
+Join our Gitter channel if you have any problem or suggestions to `rrh`.
 
 For Japanese user, `misc_ja` channel has discussions in Japanese.
 The public language of other channels and GitHub pages are English.
@@ -657,6 +685,7 @@ RRH means "Repositories, Ready to Hack," is not the abbreviation of the Red Ridi
         * [`rrh fetch`](#rrh-fetch)
         * [`rrh fetch-all`](#rrh-fetch-all)
         * [`rrh group`](#rrh-group)
+        * [`rrh help`](#rrh-help)
         * [`rrh import`](#rrh-import)
         * [`rrh list`](#rrh-list)
         * [`rrh mv`](#rrh-mv)
@@ -665,6 +694,7 @@ RRH means "Repositories, Ready to Hack," is not the abbreviation of the Red Ridi
         * [`rrh repository`](#rrh-repository)
         * [`rrh rm`](#rrh-rm)
         * [`rrh status`](#rrh-status)
+        * [`rrh version`](#rrh-version)
     * [Environment variables](#environment-variables)
 * [Development](#development)
     * [Database](#database)

@@ -28,7 +28,7 @@ Help function shows the help message.
 func (add *Command) Help() string {
 	return `rrh add [OPTIONS] <REPOSITORY_PATHS...>
 OPTIONS
-    -g, --group <GROUP>        add repository to RRH database.
+    -g, --group <GROUP>        add repository to rrh database.
     -r, --repository-id <ID>   specified repository id of the given repository path.
                                Specifying this option fails with multiple arguments.
 ARGUMENTS
@@ -111,5 +111,5 @@ func (add *Command) parse(args []string, config *common.Config) (*options, error
 Synopsis returns the simple help message of the command.
 */
 func (add *Command) Synopsis() string {
-	return "add repositories on the local path to RRH."
+	return "add repositories on the local path to rrh."
 }

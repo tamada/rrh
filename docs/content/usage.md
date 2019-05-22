@@ -4,45 +4,55 @@ title: Usage
 
 ## Getting Started
 
-RRH has various subcommands, however, `list` and `add` subcommand make you happy.
+`rrh` has various subcommands, however, `list` and `add` subcommand make you happy.
 
 * `rrh list` shows managed repositories.
-* `rrh add <REPO>` adds the given repository under the RRH management.
+* `rrh add <REPO>` adds the given repository under the `rrh` management.
 * type [`cdrrh`](#cdrrh) on Terminal, then type TAB, TAB, TAB!
 
 
 ## Command references
 
 ```sh
-Usage: rrh [--version] [--help] <command> [<args>]
-
-Available commands are:
-    add          add repositories on the local path to RRH.
+rrh [GLOBAL OPTIONS] <SUB COMMANDS> [ARGUMENTS]
+GLOBAL OPTIONS
+    -h, --help                        print this message.
+    -v, --version                     print version.
+    -c, --config-file <CONFIG_FILE>   specifies the config file path.
+AVAILABLE SUB COMMANDS:
+    add          add repositories on the local path to rrh.
     clone        run "git clone" and register it to a group.
-    config       set/unset and list configuration of RRH.
-    export       export RRH database to stdout.
-    fetch        run "git fetch" on the repositories of the given groups.
+    config       set/unset and list configuration of rrh.
+    export       export rrh database to stdout.
+    fetch        run "git fetch" on the given groups.
     fetch-all    run "git fetch" in the all repositories.
-    group        add/list/update/remove groups.
+    group        add/list/update/remove groups and show groups of the repository.
+    help         print this message.
+    import       import the given database.
     list         print managed repositories and their groups.
     mv           move the repositories from groups to another group.
     path         print paths of specified repositories.
     prune        prune unnecessary repositories and groups.
-    repository   manages repository.
+    repository   manages repositories.
     rm           remove given repository from database.
     status       show git status of repositories.
+    version      show version.
 ```
+
+If the user specified an unknown subcommand (e.g., `rrh helloworld`), `rrh` treats it as an **external command**.
+In that case, `rrh` searches an executable file named `rrh-helloworld` from the PATH environment variable.
+If `rrh` found it, `rrh` executes it, if not found, `rrh` prints help and exit.
 
 ### Subcommands
 
 #### `rrh add`
 
-Registers the repositories which specified the given paths to the RRH database and categorize to the group (Default `no-group`, see [`RRH_DEFAULT_GROUP_NAME`](#rrh_default_group_name)).
+Registers the repositories which specified the given paths to the `rrh` database and categorize to the group (Default `no-group`, see [`RRH_DEFAULT_GROUP_NAME`](#rrh_default_group_name)).
 
 ```sh
 rrh add [OPTIONS] <REPOSITORY_PATHS...>
 OPTIONS
-    -g, --group <GROUP>        add repository to RRH database.
+    -g, --group <GROUP>        add repository to rrh database.
     -r, --repository-id <ID>   specified repository id of the given repository path.
                                Specifying this option fails with multiple arguments.
 ARGUMENTS
@@ -51,7 +61,7 @@ ARGUMENTS
 
 #### `rrh clone`
 
-Runs `git clone` command and registers the cloned repository to RRH database.
+Runs `git clone` command and registers the cloned repository to `rrh` database.
 The following steps identify the id of the repository.
 
 1. If the length of `REMOTE_REPOS` is 1, and `DEST` exists, then the last entry of `REMOTE_REPOS` is repository id by eliminating the suffix `.git`.
@@ -61,7 +71,7 @@ The following steps identify the id of the repository.
 ```sh
 rrh clone [OPTIONS] <REMOTE_REPOS...>
 OPTIONS
-    -g, --group <GROUP>   print managed repositories categoried in the group.
+    -g, --group <GROUP>   print managed repositories categorized in the group.
     -d, --dest <DEST>     specify the destination. Default is the current directory.
 ARGUMENTS
     REMOTE_REPOS          repository urls
@@ -433,4 +443,3 @@ We can see those variables by running `rrh config` sub-command.
 
 * specifies to colorize the output. The colors of output were specified on [`RRH_COLOR`](#rrh_color)
 * Default: false
-

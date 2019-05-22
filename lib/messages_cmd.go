@@ -70,7 +70,7 @@ func GenerateDefaultHelp() string {
 GLOBAL OPTIONS
     -h, --help                        print this message.
     -v, --version                     print version.
-    -c, --config-file <CONFIG_FILE>   specifes the config file path.
+    -c, --config-file <CONFIG_FILE>   specifies the config file path.
 AVAILABLE SUB COMMANDS:`
 	messages, messages[0] = append(messages[0:1], messages[0:]...), preface
 	return strings.Join(messages, "\n")
