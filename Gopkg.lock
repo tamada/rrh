@@ -49,12 +49,12 @@
   version = "v1.7.0"
 
 [[projects]]
-  digest = "1:723aa81f50d50bb5e5e67c3076c0cb498c07cbb74dbcac462c2e8973a84df90c"
+  digest = "1:a0cc264456743e2c8f9798dbe251c28bacbc3e60a4fbcf140997e8aaae5a0cf8"
   name = "github.com/gookit/color"
   packages = ["."]
   pruneopts = "UT"
-  revision = "03c3187105615d576d255124f688cee79b8e25b5"
-  version = "v1.1.6"
+  revision = "55e2fd773974775d0bda6daef1fe74bd47ccc260"
+  version = "v1.1.7"
 
 [[projects]]
   digest = "1:0ade334594e69404d80d9d323445d2297ff8161637f9b2d347cc6973d2d6f05b"
@@ -97,12 +97,12 @@
   version = "v0.0.9"
 
 [[projects]]
-  digest = "1:e150b5fafbd7607e2d638e4e5cf43aa4100124e5593385147b0a74e2733d8b0d"
+  digest = "1:9b90c7639a41697f3d4ad12d7d67dfacc9a7a4a6e0bbfae4fc72d0da57c28871"
   name = "github.com/mattn/go-isatty"
   packages = ["."]
   pruneopts = "UT"
-  revision = "c2a7a6ca930a4cd0bc33a3f298eb71960732a3a7"
-  version = "v0.0.7"
+  revision = "1311e847b0cb909da63b5fecfb5370aa66236465"
+  version = "v0.0.8"
 
 [[projects]]
   digest = "1:dac0667a3fcdd4102a5da07abeddc89eb2f125b1e91af1ea9544c80eaff19c9a"
@@ -119,14 +119,6 @@
   pruneopts = "UT"
   revision = "af06845cf3004701891bf4fdb884bfe4920b3727"
   version = "v1.1.0"
-
-[[projects]]
-  digest = "1:8fd3a15613c7e70cceff3aa03dd57560dba87c4868864e397d5eb2f14addd3f5"
-  name = "github.com/ogier/pflag"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "32a05c62658bd1d7c7e75cbc8195de5d585fde0f"
-  version = "v0.0.1"
 
 [[projects]]
   digest = "1:b2ee62e09bec113cf086d2ce0769efcc7bf79481aba8373fd8f7884e94df3462"
@@ -158,6 +150,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:c1b1102241e7f645bc8e0c22ae352e8f0dc6484b6cb4d132fa9f24174e0119e2"
+  name = "github.com/spf13/pflag"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "298182f68c66c05229eb03ac171abe6e309ee79a"
+  version = "v1.0.3"
+
+[[projects]]
   digest = "1:e4ed0afd67bf7be353921665cdac50834c867ff1bba153efc0745b755a7f5905"
   name = "github.com/src-d/gcfg"
   packages = [
@@ -180,7 +180,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:064d74d9e136de7ce5c4a47ab251a887fb69e2ada13db9cce2687e54f8784596"
+  digest = "1:c13d4b07ef87c61f659dc3bab023eb0c03713d80f46c6f7b03c605734e1d41b6"
   name = "golang.org/x/crypto"
   packages = [
     "cast5",
@@ -201,7 +201,7 @@
     "ssh/knownhosts",
   ]
   pruneopts = "UT"
-  revision = "a5d413f7728c81fb97d96a2b722368945f651e78"
+  revision = "22d7a77e9e5f409e934ed268692e56707cd169e5"
 
 [[projects]]
   branch = "master"
@@ -209,11 +209,11 @@
   name = "golang.org/x/net"
   packages = ["context"]
   pruneopts = "UT"
-  revision = "710a502c58a2a4b2d7417a4e24ccb96d8dc13fa3"
+  revision = "018c4d40a106a7ae83689758294fcd8d23850745"
 
 [[projects]]
   branch = "master"
-  digest = "1:78ed3d0c6d5b4996ef2867e280f39ea7b44438558c6331721740ab9061db532c"
+  digest = "1:832105dfef7fb8befe37f774c2ab4db8eec28b0e05501dee908d5daac0afbd20"
   name = "golang.org/x/sys"
   packages = [
     "cpu",
@@ -221,7 +221,7 @@
     "windows",
   ]
   pruneopts = "UT"
-  revision = "f49334f85ddcf0f08d7fb6dd7363e9e6d6b777eb"
+  revision = "8097e1b27ff5e40620836729a9584e91b094b062"
 
 [[projects]]
   digest = "1:866df945fc92cd221d2b384dca7de5f3131a6113b9f72a7a8019ae5046abe828"
@@ -238,7 +238,7 @@
   version = "v4.3.0"
 
 [[projects]]
-  digest = "1:44801e4be7066a82dc7a7f608d31f99c5c0f5a65a0215b37401a5657ce52940d"
+  digest = "1:7fcf8681ff737e3fa6b387448717283c2053058c5d7344c22a9a025b0dc5be4a"
   name = "gopkg.in/src-d/go-git.v4"
   packages = [
     ".",
@@ -284,8 +284,8 @@
     "utils/merkletrie/noder",
   ]
   pruneopts = "UT"
-  revision = "db6c41c156481962abf9a55a324858674c25ab08"
-  version = "v4.10.0"
+  revision = "aa6f288c256ff8baf8a7745546a9752323dc0d89"
+  version = "v4.11.0"
 
 [[projects]]
   digest = "1:78d374b493e747afa9fbb2119687e3740a7fb8d0ebabddfef0a012593aaecbb3"
@@ -303,7 +303,7 @@
     "github.com/gookit/color",
     "github.com/mitchellh/cli",
     "github.com/mitchellh/go-homedir",
-    "github.com/ogier/pflag",
+    "github.com/spf13/pflag",
     "gopkg.in/src-d/go-git.v4",
     "gopkg.in/src-d/go-git.v4/plumbing",
   ]

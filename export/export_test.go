@@ -27,7 +27,7 @@ OPTIONS
 		t.Error("help message did not match")
 	}
 
-	if export.Synopsis() != "export RRH database to stdout." {
+	if export.Synopsis() != "export rrh database to stdout." {
 		t.Error("synopsis did not match")
 	}
 }

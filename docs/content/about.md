@@ -38,7 +38,7 @@ title: About the Project
 [![Gitter](https://img.shields.io/badge/Gitter-Join_Chat-red.svg)](https://gitter.im/rrh_git/community)
 [![Gitter misc_ja](https://img.shields.io/badge/Gitter-For_Japanese-red.svg)](https://gitter.im/rrh_git/misc_ja)
 
-Join our Gitter channel if you have any problem or suggestions to Rrh.
+Join our Gitter channel if you have any problem or suggestions to `rrh`.
 
 For Japanese user, `misc_ja` channel has discussions in Japanese.
 The public language of other channels and GitHub project pages are English.
@@ -51,6 +51,5 @@ The public language of other channels and GitHub project pages are English.
 
 At first, the name of this project was GRIM (Git Repository Integrated Manager).
 However, the means of `grim` is not good, and there are many commands which start with `gr`.
-Therefore, we changed the project name to RRH.
+Therefore, we changed the project name to `rrh`.
 RRH means "Repositories, Ready to Hack," is not the abbreviation of the Red Riding Hood.
-

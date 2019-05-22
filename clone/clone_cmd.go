@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mitchellh/cli"
-	flag "github.com/ogier/pflag"
+	flag "github.com/spf13/pflag"
 	"github.com/tamada/rrh/common"
 )
 
@@ -34,8 +34,8 @@ Help function shows the help message.
 func (clone *Command) Help() string {
 	return `rrh clone [OPTIONS] <REMOTE_REPOS...>
 OPTIONS
-    -g, --group=<GROUP>   print managed repositories categorized in the group.
-    -d, --dest=<DEST>     specify the destination.
+    -g, --group <GROUP>   print managed repositories categorized in the group.
+    -d, --dest <DEST>     specify the destination.
     -v, --verbose         verbose mode.
 ARGUMENTS
     REMOTE_REPOS          repository urls`

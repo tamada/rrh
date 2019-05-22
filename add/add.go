@@ -23,9 +23,10 @@ func findID(repoID string, absPath string) string {
 	return repoID
 }
 
-func (add *Command) addRepositoryToGroup(db *common.Database, repoID string, groupName string, path string) []error {
+// func (add *Command) addRepositoryToGroup(db *common.Database, repoID string, groupName string, path string) []error {
+func (add *Command) addRepositoryToGroup(db *common.Database, rel common.Relation, path string) []error {
 	var absPath, _ = filepath.Abs(path)
-	var id = findID(repoID, absPath)
+	var id = findID(rel.RepositoryID, absPath)
 	if err1 := common.IsExistAndGitRepository(absPath, path); err1 != nil {
 		return []error{err1}
 	}
@@ -38,9 +39,9 @@ func (add *Command) addRepositoryToGroup(db *common.Database, repoID string, gro
 	}
 	db.CreateRepository(id, absPath, "", remotes)
 
-	var err = db.Relate(groupName, id)
+	var err = db.Relate(rel.GroupName, id)
 	if err != nil {
-		return []error{fmt.Errorf("%s: cannot create relation to group %s", id, groupName)}
+		return []error{fmt.Errorf("%s: cannot create relation to group %s", id, rel.GroupName)}
 	}
 	return []error{}
 }
@@ -65,7 +66,7 @@ func (add *Command) AddRepositoriesToGroup(db *common.Database, opt *options) []
 	}
 	var errorlist = []error{}
 	for _, item := range opt.args {
-		var list = add.addRepositoryToGroup(db, opt.repoID, opt.group, item)
+		var list = add.addRepositoryToGroup(db, common.Relation{RepositoryID: opt.repoID, GroupName: opt.group}, item)
 		errorlist = append(errorlist, list...)
 	}
 	return errorlist

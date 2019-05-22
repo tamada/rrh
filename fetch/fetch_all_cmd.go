@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mitchellh/cli"
-	flag "github.com/ogier/pflag"
+	flag "github.com/spf13/pflag"
 	"github.com/tamada/rrh/common"
 )
 
@@ -26,7 +26,7 @@ Help returns the help message.
 func (fetchAll *AllCommand) Help() string {
 	return `rrh fetch-all [OPTIONS]
 OPTIONS
-    -r, --remote=<REMOTE>   specify the remote name. Default is "origin."`
+    -r, --remote <REMOTE>   specify the remote name. Default is "origin."`
 }
 
 func (fetchAll *AllCommand) validateArguments(args []string) (*options, error) {

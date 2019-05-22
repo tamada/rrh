@@ -89,14 +89,7 @@ func TestParsingFailOfArgs(t *testing.T) {
 	}{
 		{[]string{}, "too few arguments"},
 		{[]string{"a", "b", "c"}, "too many arguments: [a b c]"},
-		{[]string{"--unknown-option"}, `rrh import [OPTIONS] <DATABASE_JSON>
-OPTIONS
-    --auto-clone    clone the repository, if paths do not exist.
-    --overwrite     replace the local RRH database to the given database.
-    -v, --verbose   verbose mode.
-ARGUMENTS
-    DATABASE_JSON   the exported RRH database.
-unknown flag: --unknown-option`},
+		{[]string{"--unknown-option"}, `unknown flag: --unknown-option`},
 	}
 
 	for _, testcase := range testcases {

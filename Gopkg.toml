@@ -50,5 +50,5 @@
   unused-packages = true
 
 [[constraint]]
-  name = "github.com/ogier/pflag"
-  version = "0.0.1"
+  name = "github.com/spf13/pflag"
+  version = "1.0.3"
