@@ -102,6 +102,12 @@ func executeExternalCommand(args []string) (int, error) {
 	return executeCommand(executablePath, args[1:])
 }
 
+func (opts *options) updateConfigPath() {
+	if opts.configPath != "" {
+		os.Setenv(common.RrhConfigPath, opts.configPath)
+	}
+}
+
 func goMain(args []string) (int, error) {
 	var commands = lib.BuildCommandFactoryMap()
 	var opts = options{}
@@ -109,9 +115,7 @@ func goMain(args []string) (int, error) {
 	if len(newArgs) == 0 || opts.help || opts.version {
 		return opts.printHelpOrVersion(newArgs)
 	}
-	if opts.configPath != "" {
-		os.Setenv(common.RrhConfigPath, opts.configPath)
-	}
+	opts.updateConfigPath()
 	if commands[newArgs[0]] != nil {
 		return executeInternalCommand(commands, newArgs)
 	}
