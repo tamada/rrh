@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mitchellh/cli"
-	flag "github.com/ogier/pflag"
+	flag "github.com/spf13/pflag"
 	"github.com/tamada/rrh/common"
 )
 
@@ -28,8 +28,8 @@ Help function shows the help message.
 func (add *Command) Help() string {
 	return `rrh add [OPTIONS] <REPOSITORY_PATHS...>
 OPTIONS
-    -g, --group=<GROUP>        add repository to RRH database.
-    -r, --repository-id=<ID>   specified repository id of the given repository path.
+    -g, --group <GROUP>        add repository to RRH database.
+    -r, --repository-id <ID>   specified repository id of the given repository path.
                                Specifying this option fails with multiple arguments.
 ARGUMENTS
     REPOSITORY_PATHS           the local path list of the git repositories.`

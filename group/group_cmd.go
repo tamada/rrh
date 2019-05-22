@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mitchellh/cli"
-	flag "github.com/ogier/pflag"
+	flag "github.com/spf13/pflag"
 	"github.com/tamada/rrh/common"
 )
 
@@ -50,8 +50,8 @@ func removeCommandFactory() (cli.Command, error) {
 func (gac *addCommand) Help() string {
 	return `rrh group add [OPTIONS] <GROUPS...>
 OPTIONS
-    -d, --desc=<DESC>        gives the description of the group.
-    -o, --omit-list=<FLAG>   gives the omit list flag of the group.
+    -d, --desc <DESC>        gives the description of the group.
+    -o, --omit-list <FLAG>   gives the omit list flag of the group.
 ARGUMENTS
     GROUPS                   gives group names.`
 }
@@ -83,9 +83,9 @@ ARGUMENTS
 func (guc *updateCommand) Help() string {
 	return `rrh group update [OPTIONS] <GROUP>
 OPTIONS
-    -n, --name=<NAME>        change group name to NAME.
-    -d, --desc=<DESC>        change description to DESC.
-    -o, --omit-list=<FLAG>   change omit-list of the group. FLAG must be "true" or "false".
+    -n, --name <NAME>        change group name to NAME.
+    -d, --desc <DESC>        change description to DESC.
+    -o, --omit-list <FLAG>   change omit-list of the group. FLAG must be "true" or "false".
 ARGUMENTS
     GROUP               update target group names.`
 }

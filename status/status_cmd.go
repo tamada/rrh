@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/mitchellh/cli"
-	flag "github.com/ogier/pflag"
+	flag "github.com/spf13/pflag"
 	"github.com/tamada/rrh/common"
 	"gopkg.in/src-d/go-git.v4/plumbing"
 )
@@ -69,7 +69,7 @@ OPTIONS
     -b, --branches               show the status of the local branches.
     -r, --remote                 show the status of the remote branches.
     -c, --csv                    print result in csv format.
-    -f, --time-format=<FORMAT>   specifies time format. Available value is
+    -f, --time-format <FORMAT>   specifies time format. Available value is
                                  'relative' ad 'absolute'
 ARGUMENTS
     REPOSITORIES                 target repositories.  If no repository was specified

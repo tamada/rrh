@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mitchellh/cli"
-	flag "github.com/ogier/pflag"
+	flag "github.com/spf13/pflag"
 	"github.com/tamada/rrh/common"
 )
 
@@ -28,7 +28,7 @@ Help returns the help message of the command.
 func (fetch *Command) Help() string {
 	return `rrh fetch [OPTIONS] [GROUPS...]
 OPTIONS
-    -r, --remot=<REMOTE>   specify the remote name. Default is "origin."
+    -r, --remote <REMOTE>   specify the remote name. Default is "origin."
 ARGUMENTS
     GROUPS                  run "git fetch" command on each repository on the group.
                             if no value is specified, run on the default group.`

@@ -10,7 +10,7 @@ import (
 
 	"github.com/mitchellh/cli"
 	"github.com/mitchellh/go-homedir"
-	flag "github.com/ogier/pflag"
+	flag "github.com/spf13/pflag"
 	"github.com/tamada/rrh/common"
 )
 

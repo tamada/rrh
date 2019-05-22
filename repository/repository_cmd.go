@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mitchellh/cli"
-	flag "github.com/ogier/pflag"
+	flag "github.com/spf13/pflag"
 	"github.com/tamada/rrh/common"
 )
 
@@ -316,9 +316,9 @@ Note:
 func (update *updateCommand) Help() string {
 	return `rrh repository update [OPTIONS] <REPOSITORY>
 OPTIONS
-    -i, --id=<NEWID>     specifies new repository id.
-    -d, --desc=<DESC>    specifies new description.
-    -p, --path=<PATH>    specifies new path.
+    -i, --id <NEWID>     specifies new repository id.
+    -d, --desc <DESC>    specifies new description.
+    -p, --path <PATH>    specifies new path.
 ARGUMENTS
     REPOSITORY           specifies the repository id.`
 }
