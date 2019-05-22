@@ -193,7 +193,8 @@ Run performs the command.
 func (list *Command) Run(args []string) int {
 	var _, err = list.parse(args)
 	if err != nil {
-		fmt.Printf(list.Help())
+		fmt.Println(list.Help())
+		fmt.Println(err.Error())
 		return 1
 	}
 	var config = common.OpenConfig()

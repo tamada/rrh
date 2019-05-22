@@ -12,10 +12,13 @@ __rrh_group_repo_forms(){
 
 __rrh_add() {
     if [[ "${1}" =~ ^\- ]]; then
-        COMPREPLY=($(compgen -W "--group -g" -- "$1"))
+        COMPREPLY=($(compgen -W "--group -g -r --repository-id" -- "$1"))
     elif [ "$2" = "-g" ] || [ "$2" = "--group" ]; then
         groups="$(__rrh_groups)"
         COMPREPLY=($(compgen -W "$groups" -- "$1"))
+    elif [ "$2" = "-r" ] || [ "$2" = "--repository-id" ]; then
+        repos="$(__rrh_repositories)"
+        COMPREPLY=($(compgen -W "$repos" -- "$1"))
     else
         compopt -o filenames
         COMPREPLY=($(compgen -d -- "$1"))
@@ -24,7 +27,7 @@ __rrh_add() {
 
 __rrh_clone() {
     if [[ "${1}" =~ ^\- ]]; then
-        COMPREPLY=($(compgen -W "-g --group -d --dest" -- "$1"))
+        COMPREPLY=($(compgen -W "-g --group -d --dest -v --verbose" -- "$1"))
     elif [ "$2" = "-g" ] || [ "$2" = "--group" ]; then
         groups="$(__rrh_groups)"
         COMPREPLY=($(compgen -W "$groups" -- "$1"))
@@ -35,13 +38,13 @@ __rrh_clone() {
 }
 
 __rrh_config(){
-    local rrhenvs="RRH_HOME RRH_CONFIG_PATH RRH_DATABASE_PATH RRH_DEFAULT_GROUP_NAME RRH_CLONE_DESTINATION RRH_ON_ERROR RRH_TIME_FORMAT RRH_AUTO_CREATE_GROUP RRH_AUTO_DELETE_GROUP RRH_SORT_ON_UPDATING RRH_COLOR RRH_ENABLE_COLORIZED"
-
+    local rrhenvs="RRH_HOME RRH_DATABASE_PATH RRH_DEFAULT_GROUP_NAME RRH_CLONE_DESTINATION RRH_ON_ERROR RRH_TIME_FORMAT RRH_AUTO_CREATE_GROUP RRH_AUTO_DELETE_GROUP RRH_SORT_ON_UPDATING RRH_COLOR RRH_ENABLE_COLORIZED"
+    local subsub=${COMP_WORDS[$(expr $5 + 1)]}
     if [ "$4" = "$2" ]; then
         COMPREPLY=($(compgen -W "unset set list" -- $1))
     elif [ "$2" = "set" ] || [ "$2" = "unset" ]; then
         COMPREPLY=($(compgen -W "$rrhenvs" -- $1))
-    elif [ "$2" = "RRH_ON_ERROR" ] && [ "${COMP_WORDS[2]}" = "set" ]; then
+    elif [ "$2" = "RRH_ON_ERROR" ] && [ "$subsub" = "set" ]; then
         COMPREPLY=($(compgen -W "IGNORE WARN FAIL FAIL_IMMEDIATELY" -- $1))
     elif [ "$2" = "RRH_AUTO_CREATE_GROUP" -o "$2" = "RRH_AUTO_DELETE_GROUP" -o "$2" = "RRH_SORT_ON_UPDATING" -o "$2" = "RRH_ENABLE_COLORIZED" ] && [ "${COMP_WORDS[2]}" = "set" ]; then
         COMPREPLY=($(compgen -W "true false" -- $1))
@@ -57,7 +60,10 @@ __rrh_export() {
 __rrh_fetch() {
     if [[ "$1" =~ ^\- ]]; then
         COMPREPLY=($(compgen -W "-r --remote" -- "${cur}"))
-    elif [ "$2" != "-r" ] && [ "$2" != "--remote" ]; then
+    elif [ "$2" == "-r" ] || [ "$2" == "--remote" ]; then
+        # do nothing
+        :
+    else
         groups="$(__rrh_groups)"
         COMPREPLY=($(compgen -W "$groups" -- "$1"))
     fi
@@ -116,7 +122,7 @@ __rrh_group() {
         COMPREPLY=($(compgen -W "add list rm update" -- "${cur}"))
         return 0
     else
-        local subsub="${COMP_WORDS[2]}"
+        local subsub="${COMP_WORDS[$(expr $5 + 1)]}"
         case "${subsub}" in
             add)
                 __rrh_group_add "$1" "$2" "$3" "$4" "$subsub"
@@ -139,7 +145,7 @@ __rrh_group() {
 
 __rrh_help() {
     opts="add clone config export fetch fetch-all group help import list mv prune repository rm status version"
-    COMPREPLY=($(compgen -W $opts -- "${cur}"))
+    COMPREPLY=($(compgen -W "$opts" -- "${cur}"))
 }
 
 __rrh_import() {
@@ -179,11 +185,11 @@ __rrh_path() {
     fi
 }
 
-__rrh_repository_update() {
+__rrh_repository_info() {
     if [[ "$1" =~ ^\- ]]; then
         COMPREPLY=($(compgen -W "-G --color -c --csv" -- "${cur}"))
-    elif [ "$2" != "-G" ] && [ "$2" != "--color" ] && [ "$2" != "-c" ] && [ "$2" != "--csv" ]; then
-        repos="$(__rrh_repository)"
+    else
+        repos="$(__rrh_repositories)"
         COMPREPLY=($(compgen -W "$repos" -- "${cur}"))
     fi
 }
@@ -194,8 +200,8 @@ __rrh_repository_update() {
     elif [ "$2" = "-p" ] || [ "$2" = "--path" ]; then
         compopt -o filenames
         COMPREPLY=($(compgen -d -- "$1"))
-    elif [ "$2" != "-p" ] && [ "$2" != "--path" ] && [ "$2" != "-d" ] && [ "$2" != "--desc" ] && [ "$2" != "-i" ] && [ "$2" != "--id" ]; then
-        repos="$(__rrh_repository)"
+    else
+        repos="$(__rrh_repositories)"
         COMPREPLY=($(compgen -W "$repos" -- "${cur}"))
     fi
 }
@@ -206,7 +212,7 @@ __rrh_repository() {
         COMPREPLY=($(compgen -W "info update" -- "${cur}"))
         return 0
     else
-        local subsub="${COMP_WORDS[2]}"
+        local subsub="${COMP_WORDS[$(expr $5 + 1)]}"
         case "${subsub}" in
             info)
                 __rrh_repository_info "$1" "$2" "$3" "$4" "$subsub"
@@ -233,7 +239,10 @@ __rrh_rm() {
 
 __rrh_status() {
     if [[ "$1" =~ ^\- ]]; then
-        COMPREPLY=($(compgen -W "-b --branches -r --remote -c --csv" -- "${cur}"))
+        COMPREPLY=($(compgen -W "-b --branches -r --remote -c --csv -f --time-format" -- "${cur}"))
+    elif [ "$2" == "-f" ] || [ "$2" == "--time-format" ] ; then
+        # do nothing
+        :
     else
         groups="$(__rrh_groups)"
         repos="$(__rrh_repositories)"
@@ -242,11 +251,14 @@ __rrh_status() {
     fi
 }
 
-__find_subcom() {
+__find_subcommand_index() {
+    local configFileFlag firstFlag index
     configFileFlag=0
     firstFlag=1
-    for item in $@; do
-        echo \"$item, $configFileFlag\"
+    index=0
+    # echo "__find_subcom(\"$@\")"
+    for item in $*; do
+        # echo \"$item, config: $configFileFlag, first: $firstFlag, index: $index\"
         if [ $firstFlag == 1 ]; then
             firstFlag=0
         elif [[ "$item" =~ ^\- ]]; then
@@ -254,80 +266,85 @@ __find_subcom() {
                 configFileFlag=1
             fi
         elif [ $configFileFlag == 0 ]; then
-            echo $item
+            echo $index
             return 0
         elif [ $configFileFlag == 1 ]; then
             configFileFlag=0
         fi
+        index=$(expr $index + 1)
     done
+    return -1
 }
 
 __rrh_completions()
 {
-    local opts cur prev subcom
+    local opts cur prev subcom subcomIndex
     _get_comp_words_by_ref -n : cur prev cword
-    subcom="$(__find_subcom $COMP_WORDS)"
-    # echo "cur: $cur, prev: $prev, cword: $cword, subcom: $subcom"
+    subcomIndex=$(__find_subcommand_index ${COMP_WORDS[@]})
+    if [ subcomIndex != -1 ] ; then
+        subcom=${COMP_WORDS[$subcomIndex]}
+    fi
+    # echo "cur: $cur, prev: $prev, cword: $cword, subcom: $subcom, index: $subcomIndex"
     opts="add clone config export fetch fetch-all group help import list mv prune repository rm status version"
 
     case "${subcom}" in
         add)
-            __rrh_add  "$cur" "$prev" "$cword" "$subcom"
+            __rrh_add  "$cur" "$prev" "$cword" "$subcom" $subcomIndex
             return 0
             ;;
         clone)
-            __rrh_clone  "$cur" "$prev" "$cword" "$subcom"
+            __rrh_clone  "$cur" "$prev" "$cword" "$subcom" $subcomIndex
             return 0
             ;;
         config)
-            __rrh_config "$cur" "$prev" "$cword" "$subcom"
+            __rrh_config "$cur" "$prev" "$cword" "$subcom" $subcomIndex
             return 0
             ;;
         export)
-            __rrh_export "$cur" "$prev" "$cword" "$subcom"
+            __rrh_export "$cur" "$prev" "$cword" "$subcom" $subcomIndex
             return 0
             ;;
         fetch)
-            __rrh_fetch "$cur" "$prev" "$cword" "$subcom"
+            __rrh_fetch "$cur" "$prev" "$cword" "$subcom" $subcomIndex
             return 0
             ;;
         fetch-all)
-            __rrh_fetch_all "$cur" "$prev" "$cword" "$subcom"
+            __rrh_fetch_all "$cur" "$prev" "$cword" "$subcom" $subcomIndex
             return 0
             ;;
         group)
-            __rrh_group  "$cur" "$prev" "$cword" "$subcom"
+            __rrh_group  "$cur" "$prev" "$cword" "$subcom" $subcomIndex
             return 0
             ;;
         help)
-            __rrh_help "$cur" "$prev" "$cword" "$subcom"
+            __rrh_help "$cur" "$prev" "$cword" "$subcom" $subcomIndex
             return 0
             ;;
         import)
-            __rrh_import  "$cur" "$prev" "$cword" "$subcom"
+            __rrh_import  "$cur" "$prev" "$cword" "$subcom" $subcomIndex
             return 0
             ;;
         list)
-            __rrh_list  "$cur" "$prev" "$cword" "$subcom"
+            __rrh_list  "$cur" "$prev" "$cword" "$subcom" $subcomIndex
             return 0
             ;;
         mv)
-            __rrh_mv  "$cur" "$prev" "$cword" "$subcom"
+            __rrh_mv  "$cur" "$prev" "$cword" "$subcom" $subcomIndex
             return 0
             ;;
         prune)
             return 0
             ;;
         repository)
-            __rrh_repository  "$cur" "$prev" "$cword" "$subcom"
+            __rrh_repository  "$cur" "$prev" "$cword" "$subcom" $subcomIndex
             return 0
             ;;
         rm)
-            __rrh_rm  "$cur" "$prev" "$cword" "$subcom"
+            __rrh_rm  "$cur" "$prev" "$cword" "$subcom" $subcomIndex
             return 0
             ;;
         status)
-            __rrh_status  "$cur" "$prev" "$cword" "$subcom"
+            __rrh_status  "$cur" "$prev" "$cword" "$subcom" $subcomIndex
             return 0
             ;;
         version)
