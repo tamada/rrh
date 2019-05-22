@@ -137,6 +137,11 @@ __rrh_group() {
     fi
 }
 
+__rrh_help() {
+    opts="add clone config export fetch fetch-all group help import list mv prune repository rm status version"
+    COMPREPLY=($(compgen -W $opts -- "${cur}"))
+}
+
 __rrh_import() {
     if [[ "$1" =~ ^\- ]]; then
         COMPREPLY=($(compgen -W "--auto-clone --overwrite -v --verbose" -- "${cur}"))
@@ -237,12 +242,33 @@ __rrh_status() {
     fi
 }
 
+__find_subcom() {
+    configFileFlag=0
+    firstFlag=1
+    for item in $@; do
+        echo \"$item, $configFileFlag\"
+        if [ $firstFlag == 1 ]; then
+            firstFlag=0
+        elif [[ "$item" =~ ^\- ]]; then
+            if [ "$item" == "-c" ] || [ "$item" == "--config-file" ]; then
+                configFileFlag=1
+            fi
+        elif [ $configFileFlag == 0 ]; then
+            echo $item
+            return 0
+        elif [ $configFileFlag == 1 ]; then
+            configFileFlag=0
+        fi
+    done
+}
+
 __rrh_completions()
 {
     local opts cur prev subcom
     _get_comp_words_by_ref -n : cur prev cword
-    subcom="${COMP_WORDS[1]}"
-    opts="add clone config export fetch fetch-all group import list mv path prune repository rm status"
+    subcom="$(__find_subcom $COMP_WORDS)"
+    # echo "cur: $cur, prev: $prev, cword: $cword, subcom: $subcom"
+    opts="add clone config export fetch fetch-all group help import list mv prune repository rm status version"
 
     case "${subcom}" in
         add)
@@ -273,6 +299,10 @@ __rrh_completions()
             __rrh_group  "$cur" "$prev" "$cword" "$subcom"
             return 0
             ;;
+        help)
+            __rrh_help "$cur" "$prev" "$cword" "$subcom"
+            return 0
+            ;;
         import)
             __rrh_import  "$cur" "$prev" "$cword" "$subcom"
             return 0
@@ -283,10 +313,6 @@ __rrh_completions()
             ;;
         mv)
             __rrh_mv  "$cur" "$prev" "$cword" "$subcom"
-            return 0
-            ;;
-        path)
-            __rrh_path  "$cur" "$prev" "$cword" "$subcom"
             return 0
             ;;
         prune)
@@ -304,13 +330,17 @@ __rrh_completions()
             __rrh_status  "$cur" "$prev" "$cword" "$subcom"
             return 0
             ;;
+        version)
+            return 0
+            ;;
     esac
-    if [ "$cword" -eq "1" ]; then
-        if [[ "$cword" =~ ^\- ]]; then
-            COMPREPLY=($(compgen -W "-h --help -v --version" ${cur}))
-        else
-            COMPREPLY=($(compgen -W "${opts}" -- ${cur}))
-        fi
+    if [[ "$cur" =~ ^\- ]]; then
+        COMPREPLY=($(compgen -W "-h --help -v --version -c --config-file" -- ${cur}))
+    elif [ "$prev" == "-c" ] || [ "$prev" == "--config-file" ]; then
+        compopt -o filenames
+        COMPREPLY=($(compgen -f -- "$cur"))
+    else
+        COMPREPLY=($(compgen -W "${opts}" -- ${cur}))
     fi
 }
 
