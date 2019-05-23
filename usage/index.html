@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="generator" content="Hugo 0.54.0" />
+  <meta name="generator" content="Hugo 0.55.5" />
   <link rel="stylesheet" href="/rrh/css/normalize.css">
   <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
   
@@ -21,13 +21,13 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.1/dist/katex.min.js" integrity="sha384-2BKqo+exmr9su6dir+qCw08N2ZKRucY4PrGQPPWU1A7FtlCGjmEGFqXCv5nyM5Ij" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
 
-  <title>Usage | RRH</title>
+  <title>Usage | rrh</title>
 </head>
 
 <body>
   <section class="page-header">
   <h1 class="project-name">
-    RRH
+    rrh
   </h1>
   <h2 class="project-tagline">
     A simple git repository manager
@@ -87,51 +87,57 @@
 
 <h2 id="getting-started">Getting Started</h2>
 
-<p>RRH has various subcommands, however, <code>list</code> and <code>add</code> subcommands make you happy.</p>
+<p><code>rrh</code> has various subcommands, however, <code>list</code> and <code>add</code> subcommand make you happy.</p>
 
 <ul>
 <li><code>rrh list</code> shows managed repositories.</li>
-<li><code>rrh add &lt;REPO&gt;</code> starts to manage the given repository under RRH.</li>
-<li>type <a href="../utilities#cdrrh"><code>cdrrh</code></a> on Terminal, then type TAB, TAB, TAB!
-
-<ul>
-<li><code>cdrrh</code> script is shown in <a href="../utilities">Utilities</a>.</li>
-</ul></li>
+<li><code>rrh add &lt;REPO&gt;</code> adds the given repository under the <code>rrh</code> management.</li>
+<li>type <a href="#cdrrh"><code>cdrrh</code></a> on Terminal, then type TAB, TAB, TAB!</li>
 </ul>
 
 <h2 id="command-references">Command references</h2>
-<div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">Usage: rrh <span style="color:#666">[</span>--version<span style="color:#666">]</span> <span style="color:#666">[</span>--help<span style="color:#666">]</span> &lt;command&gt; <span style="color:#666">[</span>&lt;args&gt;<span style="color:#666">]</span>
-
-Available commands are:
-    add          add repositories on the <span style="color:#008000">local</span> path to RRH.
+<div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh <span style="color:#666">[</span>GLOBAL OPTIONS<span style="color:#666">]</span> &lt;SUB COMMANDS&gt; <span style="color:#666">[</span>ARGUMENTS<span style="color:#666">]</span>
+GLOBAL OPTIONS
+    -h, --help                        print this message.
+    -v, --version                     print version.
+    -c, --config-file &lt;CONFIG_FILE&gt;   specifies the config file path.
+AVAILABLE SUB COMMANDS:
+    add          add repositories on the <span style="color:#008000">local</span> path to rrh.
     clone        run <span style="color:#ba2121">&#34;git clone&#34;</span> and register it to a group.
-    config       set/unset and list configuration of RRH.
-    <span style="color:#008000">export</span>       <span style="color:#008000">export</span> RRH database to stdout.
-    fetch        run <span style="color:#ba2121">&#34;git fetch&#34;</span> on the repositories of the given groups.
+    config       set/unset and list configuration of rrh.
+    <span style="color:#008000">export</span>       <span style="color:#008000">export</span> rrh database to stdout.
+    fetch        run <span style="color:#ba2121">&#34;git fetch&#34;</span> on the given groups.
     fetch-all    run <span style="color:#ba2121">&#34;git fetch&#34;</span> in the all repositories.
-    group        add/list/update/remove groups.
+    group        add/list/update/remove groups and show groups of the repository.
+    <span style="color:#008000">help</span>         print this message.
+    import       import the given database.
     list         print managed repositories and their groups.
     mv           move the repositories from groups to another group.
     path         print paths of specified repositories.
     prune        prune unnecessary repositories and groups.
-    repository   manages repository.
+    repository   manages repositories.
     rm           remove given repository from database.
-    status       show git status of repositories.</code></pre></div>
+    status       show git status of repositories.
+    version      show version.</code></pre></div>
+<p>If the user specified an unknown subcommand (e.g., <code>rrh helloworld</code>), <code>rrh</code> treats it as an <strong>external command</strong>.
+In that case, <code>rrh</code> searches an executable file named <code>rrh-helloworld</code> from the PATH environment variable.
+If <code>rrh</code> found it, <code>rrh</code> executes it, if not found, <code>rrh</code> prints help and exit.</p>
+
 <h3 id="subcommands">Subcommands</h3>
 
 <h4 id="rrh-add"><code>rrh add</code></h4>
 
-<p>Registers the repositories which specified the given paths to the RRH database and categorize to the group (Default <code>no-group</code>, see <a href="#rrh_default_group_name"><code>RRH_DEFAULT_GROUP_NAME</code></a>).</p>
+<p>Registers the repositories which specified the given paths to the <code>rrh</code> database and categorize to the group (Default <code>no-group</code>, see <a href="#rrh_default_group_name"><code>RRH_DEFAULT_GROUP_NAME</code></a>).</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh add <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span> &lt;REPOSITORY_PATHS...&gt;
 OPTIONS
-    -g, --group &lt;GROUP&gt;        add repository to RRH database.
+    -g, --group &lt;GROUP&gt;        add repository to rrh database.
     -r, --repository-id &lt;ID&gt;   specified repository id of the given repository path.
                                Specifying this option fails with multiple arguments.
 ARGUMENTS
     REPOSITORY_PATHS           the <span style="color:#008000">local</span> path list of the git repositories.</code></pre></div>
 <h4 id="rrh-clone"><code>rrh clone</code></h4>
 
-<p>Runs <code>git clone</code> command and registers the cloned repository to RRH database.
+<p>Runs <code>git clone</code> command and registers the cloned repository to <code>rrh</code> database.
 The following steps identify the id of the repository.</p>
 
 <ol>
@@ -141,7 +147,7 @@ The following steps identify the id of the repository.</p>
 </ol>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh clone <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span> &lt;REMOTE_REPOS...&gt;
 OPTIONS
-    -g, --group &lt;GROUP&gt;   print managed repositories categoried in the group.
+    -g, --group &lt;GROUP&gt;   print managed repositories categorized in the group.
     -d, --dest &lt;DEST&gt;     specify the destination. Default is the current directory.
 ARGUMENTS
     REMOTE_REPOS          repository urls</code></pre></div>
@@ -508,13 +514,6 @@ This variable availables only environment variable.</li>
 
   </section>
   
-  
-  <script>
-  window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-  ga('create', 'UA-62401730-6', 'auto');
-  ga('send', 'pageview');
-  </script>
-  <script async src='https://www.google-analytics.com/analytics.js'></script>
   
 
 </body>
