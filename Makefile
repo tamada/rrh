@@ -33,7 +33,7 @@ test: setup format lint
 	$(GO) test -covermode=count -coverprofile=coverage.out $$(go list ./...)
 
 build: setup
-	cd cmd/rrh;            $(GO) build
+	$(GO) build
 	cd cmd/rrh-helloworld; $(GO) build
 
 lint: setup
@@ -47,7 +47,7 @@ format: setup
 # However, goimports could not accept package name 'main'.
 # Therefore, we replace 'main' to the go source code name 'rrh.go'
 # Other packages are no problem, their have the same name with directories.
-	goimports -w $$(go list ./... | sed 's/github.com\/tamada\/rrh\///g')
+	goimports -w $$(go list ./... | sed 's/github.com\/tamada\/rrh//g' | sed 's/^\///g')
 
 install: test build
 	$(GO) install $(LDFLAGS)
