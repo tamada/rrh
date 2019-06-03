@@ -8,12 +8,12 @@ import (
 	"strings"
 
 	"github.com/mitchellh/cli"
-	"github.com/tamada/rrh/common"
+	"github.com/tamada/rrh/internal"
 	"github.com/tamada/rrh/lib"
 )
 
 func executeInternalCommand(commands map[string]cli.CommandFactory, args []string) (int, error) {
-	var c = cli.NewCLI("rrh", common.VERSION)
+	var c = cli.NewCLI("rrh", lib.VERSION)
 	c.Name = "rrh"
 	c.Args = args
 	c.Autocomplete = true
@@ -83,11 +83,11 @@ func parseOptions(args []string, opts *options) []string {
 
 func (opts *options) printHelpOrVersion(args []string) (int, error) {
 	if opts.version {
-		var com, _ = lib.VersionCommandFactory()
+		var com, _ = internal.VersionCommandFactory()
 		com.Run([]string{})
 	}
 	if opts.help || len(args) == 0 {
-		var com, _ = lib.HelpCommandFactory()
+		var com, _ = internal.HelpCommandFactory()
 		com.Run([]string{})
 	}
 	return 0, nil
@@ -104,12 +104,12 @@ func executeExternalCommand(args []string) (int, error) {
 
 func (opts *options) updateConfigPath() {
 	if opts.configPath != "" {
-		os.Setenv(common.RrhConfigPath, opts.configPath)
+		os.Setenv(lib.RrhConfigPath, opts.configPath)
 	}
 }
 
 func goMain(args []string) (int, error) {
-	var commands = lib.BuildCommandFactoryMap()
+	var commands = internal.BuildCommandFactoryMap()
 	var opts = options{}
 	var newArgs = parseOptions(args[1:], &opts)
 	if len(newArgs) == 0 || opts.help || opts.version {
@@ -126,7 +126,7 @@ func main() {
 	var exitStatus, err = goMain(os.Args)
 	if err != nil {
 		fmt.Println(err.Error())
-		fmt.Println(lib.GenerateDefaultHelp())
+		fmt.Println(internal.GenerateDefaultHelp())
 	}
 	os.Exit(exitStatus)
 }

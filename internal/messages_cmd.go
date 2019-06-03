@@ -1,4 +1,4 @@
-package lib
+package internal
 
 import (
 	"fmt"
@@ -6,19 +6,7 @@ import (
 	"strings"
 
 	"github.com/mitchellh/cli"
-	"github.com/tamada/rrh/add"
-	"github.com/tamada/rrh/clone"
-	"github.com/tamada/rrh/common"
-	"github.com/tamada/rrh/export"
-	"github.com/tamada/rrh/fetch"
-	"github.com/tamada/rrh/group"
-	"github.com/tamada/rrh/list"
-	"github.com/tamada/rrh/move"
-	"github.com/tamada/rrh/path"
-	"github.com/tamada/rrh/prune"
-	"github.com/tamada/rrh/remove"
-	"github.com/tamada/rrh/repository"
-	"github.com/tamada/rrh/status"
+	"github.com/tamada/rrh/lib"
 )
 
 /*
@@ -26,23 +14,22 @@ BuildCommandFactoryMap builds a map of CommandFactories of rrh commands.
 */
 func BuildCommandFactoryMap() map[string]cli.CommandFactory {
 	return map[string]cli.CommandFactory{
-		"add":        add.CommandFactory,
-		"clone":      clone.CommandFactory,
-		"config":     common.CommandFactory,
-		"export":     export.CommandFactory,
-		"fetch":      fetch.CommandFactory,
-		"fetch-all":  fetch.AllCommandFactory,
-		"group":      group.CommandFactory,
+		"add":        AddCommandFactory,
+		"clone":      CloneCommandFactory,
+		"config":     ConfigCommandFactory,
+		"export":     ExportCommandFactory,
+		"fetch":      FetchCommandFactory,
+		"fetch-all":  FetchAllCommandFactory,
+		"group":      GroupCommandFactory,
 		"help":       HelpCommandFactory,
-		"import":     export.ImportCommandFactory,
-		"list":       list.CommandFactory,
-		"mv":         move.CommandFactory,
-		"path":       path.CommandFactory,
-		"prune":      prune.CommandFactory,
-		"repository": repository.CommandFactory,
-		"rm":         remove.CommandFactory,
+		"import":     ImportCommandFactory,
+		"list":       ListCommandFactory,
+		"mv":         MoveCommandFactory,
+		"prune":      PruneCommandFactory,
+		"repository": RepositoryCommandFactory,
+		"rm":         RemoveCommandFactory,
 		"version":    VersionCommandFactory,
-		"status":     status.CommandFactory,
+		"status":     StatusCommandFactory,
 	}
 }
 
@@ -131,7 +118,7 @@ func (help *HelpCommand) Run(args []string) int {
 Run performs the command.
 */
 func (version *VersionCommand) Run(args []string) int {
-	fmt.Printf("rrh version %s\n", common.VERSION)
+	fmt.Printf("rrh version %s\n", lib.VERSION)
 	return 0
 }
 

@@ -22,8 +22,8 @@ update_version:
 	    sed -e 's!Version-[0-9.]*-yellowgreen!Version-${VERSION}-yellowgreen!g' -e 's!tag/v[0-9.]*!tag/v${VERSION}!g' $$i > a ; mv a $$i; \
 	done
 
-	@sed 's/const VERSION = .*/const VERSION = "${VERSION}"/g' common/config.go > a
-	@mv a common/config.go
+	@sed 's/const VERSION = .*/const VERSION = "${VERSION}"/g' lib/config.go > a
+	@mv a lib/config.go
 	@echo "Replace version to \"${VERSION}\""
 
 setup: deps update_version
