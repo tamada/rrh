@@ -135,10 +135,10 @@ func trueOrFalse(value string) (string, error) {
 	} else if strings.ToLower(value) == falseString {
 		return falseString, nil
 	}
-	return "", fmt.Errorf("given value is not true nor false: %s", value)
+	return "", fmt.Errorf("%s: not true nor false", value)
 }
 
-func availableValueOnError(value string) (string, error) {
+func normalizeValueOfOnError(value string) (string, error) {
 	var newvalue = strings.ToUpper(value)
 	if newvalue == Fail || newvalue == FailImmediately || newvalue == Warn || newvalue == Ignore {
 		return newvalue, nil
@@ -195,7 +195,7 @@ func (config *Config) Update(label string, value string) error {
 		return config.updateBoolValue(label, value)
 	}
 	if label == RrhOnError {
-		var newValue, err = availableValueOnError(value)
+		var newValue, err = normalizeValueOfOnError(value)
 		if err != nil {
 			return err
 		}

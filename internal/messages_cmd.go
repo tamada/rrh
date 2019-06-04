@@ -52,14 +52,14 @@ func GenerateDefaultHelp() string {
 	var commands = BuildCommandFactoryMap()
 	var maxLength = findMaxLength(commands)
 	var messages = convertToHelpMessage(commands, maxLength)
-	// insert into the first element
 	var preface = `rrh [GLOBAL OPTIONS] <SUB COMMANDS> [ARGUMENTS]
 GLOBAL OPTIONS
     -h, --help                        print this message.
     -v, --version                     print version.
     -c, --config-file <CONFIG_FILE>   specifies the config file path.
 AVAILABLE SUB COMMANDS:`
-	messages, messages[0] = append(messages[0:1], messages[0:]...), preface
+	// insert preface into the first element of messages
+	messages = append([]string{preface}, messages...)
 	return strings.Join(messages, "\n")
 }
 
@@ -94,7 +94,7 @@ func printHelpOfGivenCommands(args []string) {
 	for _, arg := range args {
 		var value = commands[arg]
 		if value == nil {
-			fmt.Printf("%s: sub command not found\n", arg)
+			fmt.Printf("%s: subcommand not found\n", arg)
 		} else {
 			var com, _ = value()
 			fmt.Println(com.Help())

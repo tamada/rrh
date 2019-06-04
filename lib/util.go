@@ -33,19 +33,19 @@ func CreateParentDir(path string) error {
 /*
 Strftime returns the string of the given time.
 */
-func Strftime(before time.Time, config *Config) string {
+func Strftime(time time.Time, config *Config) string {
 	var format = config.GetValue(RrhTimeFormat)
 	if format != Relative {
-		return before.Format(format)
+		return time.Format(format)
 	}
-	return HumanizeTime(before)
+	return HumanizeTime(time)
 }
 
 /*
 HumanizeTime convert the given time to human friendly formatted string.
 */
-func HumanizeTime(before time.Time) string {
-	return humanize.Time(before)
+func HumanizeTime(time time.Time) string {
+	return humanize.Time(time)
 }
 
 /*
