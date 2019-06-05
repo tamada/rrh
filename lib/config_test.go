@@ -235,7 +235,7 @@ func TestPrintErrors(t *testing.T) {
 				}
 			})
 			output = strings.TrimSpace(output)
-			output = strings.ReplaceAll(output, "\n", "+")
+			output = strings.Replace(output, "\n", "+", -1)
 			if output != tc.wontOutput {
 				t.Errorf("output by printErrors did not match, wont %s, got %s", tc.wontOutput, output)
 			}
