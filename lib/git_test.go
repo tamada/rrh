@@ -38,7 +38,6 @@ func TestFindRemotes(t *testing.T) {
 	}{
 		{"../testdata/dummygit", true, 0},
 		{"../testdata/helloworld", false, 1},
-		{"../testdata/helloworld_noremote", false, 0},
 	}
 	for _, td := range testdata {
 		var remotes, err = FindRemotes(td.path)
