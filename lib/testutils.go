@@ -11,10 +11,7 @@ import (
 
 func copyfile(fromfile string) string {
 	var content, _ = ioutil.ReadFile(fromfile)
-	var file, err = ioutil.TempFile("../testdata/", "tmp")
-	if err != nil {
-		fmt.Println(err)
-	}
+	var file, _ = ioutil.TempFile("../testdata/", "tmp")
 	file.Write(content)
 	defer file.Close()
 	return file.Name()

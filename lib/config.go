@@ -286,10 +286,10 @@ func (config *Config) StoreConfig() error {
 		return err1
 	}
 	var bytes, err2 = json.Marshal(config.values)
-	if err2 == nil {
-		return ioutil.WriteFile(configPath, bytes, 0644)
+	if err2 != nil {
+		return err2
 	}
-	return err2
+	return ioutil.WriteFile(configPath, bytes, 0644)
 }
 
 /*

@@ -160,14 +160,6 @@ func Example_listCommand_Run() {
 	// RRH_TIME_FORMAT: relative (default)
 }
 
-func TestOpenConfigBrokenJson(t *testing.T) {
-	os.Setenv(lib.RrhConfigPath, "../testdata/broken.json")
-	var config = lib.OpenConfig()
-	if config != nil {
-		t.Error("broken json returns nil")
-	}
-}
-
 func TestLoadConfigFile(t *testing.T) {
 	os.Setenv(lib.RrhConfigPath, "../testdata/config.json")
 

@@ -1,9 +1,14 @@
 package lib
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 	"testing"
+
+	"github.com/mitchellh/go-homedir"
 )
 
 func TestValidateArgumentsOnUpdate(t *testing.T) {
@@ -161,5 +166,88 @@ func TestUpdateValue(t *testing.T) {
 			}
 		})
 		defer os.Remove(dbfile)
+	}
+}
+
+func TestConfigIsSet(t *testing.T) {
+	var dbFile = Rollback("../testata/test_db.json", "../testdata/config.json", func(config *Config, db *Database) {
+		if config.IsSet(RrhConfigPath) {
+			t.Errorf("not boolean variable is specified")
+		}
+		var home, _ = homedir.Dir()
+		if config.GetDefaultValue(RrhConfigPath) != filepath.Join(home, ".rrh/config.json") {
+			t.Errorf("RrhConfigPath did not match")
+		}
+		var _, from1 = config.findDefaultValue("UnknownVariable")
+		if from1 != NotFound {
+			t.Errorf("Unknown variable can get")
+		}
+		var _, from2 = config.GetString("UnknownVariable")
+		if from2 != NotFound {
+			t.Errorf("Unknown variable can get")
+		}
+		var err = config.Unset("UnknownVariable")
+		if err == nil {
+			t.Errorf("Unknown variable can Unset")
+		}
+		var beforeFlag = config.IsSet(RrhAutoCreateGroup)
+		config.Unset(RrhAutoCreateGroup)
+		var afterFlag = config.IsSet(RrhAutoCreateGroup)
+		if afterFlag || !beforeFlag {
+			t.Errorf("beforeFlag should be true, and afterFlag should be false after Unset of RrhAutoCreateGroup")
+		}
+		config.StoreConfig()
+		var config2 = OpenConfig()
+		var afterFlag2 = config2.IsSet(RrhAutoCreateGroup)
+		if afterFlag2 {
+			t.Errorf("afterFlag2 should be false because unset and store the config")
+		}
+	})
+	defer os.Remove(dbFile)
+}
+
+func convertToErrors(messages []string) []error {
+	var errs = []error{}
+	for _, msg := range messages {
+		errs = append(errs, errors.New(msg))
+	}
+	return errs
+}
+
+func TestPrintErrors(t *testing.T) {
+	var errs = convertToErrors([]string{"msg1", "msg2"})
+	var testcases = []struct {
+		givesOnError string
+		wontOutput   string
+		wontStatus   int
+	}{
+		{Ignore, "", 0},
+		{Fail, "msg1+msg2", 5},
+	}
+
+	var dbFile = Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *Config, db *Database) {
+		for _, tc := range testcases {
+			var output = CaptureStdout(func() {
+				config.Update(RrhOnError, tc.givesOnError)
+				var status = config.PrintErrors(errs)
+				if status != tc.wontStatus {
+					t.Errorf("Status code of printErrors did not match, wont %d, got %d", tc.wontStatus, status)
+				}
+			})
+			output = strings.TrimSpace(output)
+			output = strings.ReplaceAll(output, "\n", "+")
+			if output != tc.wontOutput {
+				t.Errorf("output by printErrors did not match, wont %s, got %s", tc.wontOutput, output)
+			}
+		}
+	})
+	defer os.Remove(dbFile)
+}
+
+func TestOpenConfigBrokenJson(t *testing.T) {
+	os.Setenv(RrhConfigPath, "../testdata/broken.json")
+	var config = OpenConfig()
+	if config != nil {
+		t.Error("broken json returns nil")
 	}
 }
