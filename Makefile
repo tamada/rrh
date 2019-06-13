@@ -22,8 +22,8 @@ update_version:
 	    sed -e 's!Version-[0-9.]*-yellowgreen!Version-${VERSION}-yellowgreen!g' -e 's!tag/v[0-9.]*!tag/v${VERSION}!g' $$i > a ; mv a $$i; \
 	done
 
-	@sed 's/const VERSION = .*/const VERSION = "${VERSION}"/g' common/config.go > a
-	@mv a common/config.go
+	@sed 's/const VERSION = .*/const VERSION = "${VERSION}"/g' lib/config.go > a
+	@mv a lib/config.go
 	@echo "Replace version to \"${VERSION}\""
 
 setup: deps update_version
@@ -33,7 +33,7 @@ test: setup format lint
 	$(GO) test -covermode=count -coverprofile=coverage.out $$(go list ./...)
 
 build: setup
-	cd cmd/rrh;            $(GO) build
+	$(GO) build
 	cd cmd/rrh-helloworld; $(GO) build
 
 lint: setup
@@ -47,7 +47,7 @@ format: setup
 # However, goimports could not accept package name 'main'.
 # Therefore, we replace 'main' to the go source code name 'rrh.go'
 # Other packages are no problem, their have the same name with directories.
-	goimports -w $$(go list ./... | sed 's/github.com\/tamada\/rrh\///g')
+	goimports -w $$(go list ./... | sed 's/github.com\/tamada\/rrh//g' | sed 's/^\///g')
 
 install: test build
 	$(GO) install $(LDFLAGS)

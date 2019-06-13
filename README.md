@@ -106,7 +106,6 @@ AVAILABLE SUB COMMANDS:
     import       import the given database.
     list         print managed repositories and their groups.
     mv           move the repositories from groups to another group.
-    path         print paths of specified repositories.
     prune        prune unnecessary repositories and groups.
     repository   manages repositories.
     rm           remove given repository from database.
@@ -337,20 +336,6 @@ OPTIONS
 ARGUMENTS
     FROMS...        specifies move from, formatted in <GROUP_NAME/REPO_ID>, or <GROUP_NAME>
     TO              specifies move to, formatted in <GROUP_NAME>
-```
-
-#### `rrh path`
-
-Prints paths of the specified repositories.
-This sub command is deprecated, instead of [`rrh repository`](#rrh_repository) command.
-
-```sh
-rrh path [OPTIONS] <REPOSITORIES...>
-OPTIONS
-    -m, --partial-match        treats the arguments as the patterns.
-    -r, --show-repository-id   show repository name.
-ARGUMENTS
-    REPOSITORIES               repository ids.
 ```
 
 #### `rrh prune`
@@ -689,7 +674,6 @@ RRH means "Repositories, Ready to Hack," is not the abbreviation of the Red Ridi
         * [`rrh import`](#rrh-import)
         * [`rrh list`](#rrh-list)
         * [`rrh mv`](#rrh-mv)
-        * [`rrh path`](#rrh-path)
         * [`rrh prune`](#rrh-prune)
         * [`rrh repository`](#rrh-repository)
         * [`rrh rm`](#rrh-rm)
