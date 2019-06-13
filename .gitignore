@@ -1,9 +1,8 @@
 coverage.out
 rrh
 rrh-*
-vendor
 
-### https://raw.github.com/github/gitignore/2fa80028c33ad84ff08f993966caa91f0b327fed/Global/Emacs.gitignore
+### https://raw.github.com/github/gitignore/f9291de89f5f7dc0d3d87f9eb111b839f81d5dbc/Global/Emacs.gitignore
 
 # -*- mode: gitignore; -*-
 *~
@@ -56,7 +55,7 @@ flycheck_*.el
 
 
 
-### https://raw.github.com/github/gitignore/2fa80028c33ad84ff08f993966caa91f0b327fed/Global/macOS.gitignore
+### https://raw.github.com/github/gitignore/f9291de89f5f7dc0d3d87f9eb111b839f81d5dbc/Global/macOS.gitignore
 
 # General
 .DS_Store
@@ -86,7 +85,7 @@ Temporary Items
 .apdisk
 
 
-### https://raw.github.com/github/gitignore/2fa80028c33ad84ff08f993966caa91f0b327fed/Go.gitignore
+### https://raw.github.com/github/gitignore/f9291de89f5f7dc0d3d87f9eb111b839f81d5dbc/Go.gitignore
 
 # Binaries for programs and plugins
 *.exe
@@ -100,5 +99,8 @@ Temporary Items
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# Dependency directories (remove the comment below to include it)
+vendor/
 
 
