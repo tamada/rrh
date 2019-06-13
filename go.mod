@@ -15,6 +15,7 @@ require (
 	github.com/kevinburke/ssh_config v0.0.0-20180830205328-81db2a75821e
 	github.com/mattn/go-colorable v0.0.9
 	github.com/mattn/go-isatty v0.0.8
+	github.com/mattn/goveralls v0.0.2 // indirect
 	github.com/mitchellh/cli v1.0.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pelletier/go-buffruneio v0.2.0
@@ -24,8 +25,10 @@ require (
 	github.com/src-d/gcfg v1.4.0
 	github.com/xanzy/ssh-agent v0.2.1
 	golang.org/x/crypto v0.0.0-20190513172903-22d7a77e9e5f
+	golang.org/x/lint v0.0.0-20190409202823-959b441ac422 // indirect
 	golang.org/x/net v0.0.0-20190520210107-018c4d40a106
 	golang.org/x/sys v0.0.0-20190522044717-8097e1b27ff5
+	golang.org/x/tools v0.0.0-20190612232758-d4e310b4a8a5 // indirect
 	gopkg.in/src-d/go-billy.v4 v4.3.0
 	gopkg.in/src-d/go-git.v4 v4.11.0
 	gopkg.in/warnings.v0 v0.1.2
