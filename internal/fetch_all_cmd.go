@@ -71,9 +71,9 @@ func (fetchAll *FetchAllCommand) execFetch(db *lib.Database, options *options) [
 	var errorlist = []error{}
 	var fetch = FetchCommand{options}
 	var relations = lib.FindTargets(db, convertToGroupNames(db.Groups))
-	var progress = Progress{total: len(relations)}
+	var progress = NewProgress(len(relations))
 	for _, relation := range relations {
-		var err = fetch.FetchRepository(db, &relation, &progress)
+		var err = fetch.FetchRepository(db, &relation, progress)
 		if err != nil {
 			if onError == lib.FailImmediately {
 				return []error{err}

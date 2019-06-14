@@ -17,12 +17,32 @@ type Progress struct {
 	total   int
 }
 
+/*
+NewProgress genereate an instance of Progress.
+If the given value is negative value, this method treats the given value is 0.
+*/
+func NewProgress(total int) *Progress {
+	if total < 0 {
+		total = 0
+	}
+	return &Progress{total: total}
+}
+
+/*
+String returns the string representation of the progress.
+*/
 func (progress *Progress) String() string {
 	return fmt.Sprintf("%3d/%3d", progress.current, progress.total)
 }
 
-func (progress *Progress) increment() {
-	progress.current++
+/*
+Increment adds 1 to the progress.
+However, if current value is equals to total, this method does nothing.
+*/
+func (progress *Progress) Increment() {
+	if progress.current != progress.total {
+		progress.current++
+	}
 }
 
 /*
@@ -83,10 +103,10 @@ func (fetch *FetchCommand) perform(db *lib.Database) []error {
 	var errorlist = []error{}
 	var onError = db.Config.GetValue(lib.RrhOnError)
 	var relations = lib.FindTargets(db, fetch.options.args)
-	var progress = Progress{total: len(relations)}
+	var progress = NewProgress(len(relations))
 
 	for _, relation := range relations {
-		var err = fetch.FetchRepository(db, &relation, &progress)
+		var err = fetch.FetchRepository(db, &relation, progress)
 		if err != nil {
 			if onError == lib.FailImmediately {
 				return []error{err}
@@ -130,7 +150,7 @@ Ideally, fetch is performed by using go-git.
 func (fetch *FetchCommand) DoFetch(repo *lib.Repository, relation *lib.Relation, progress *Progress) error {
 	var cmd = exec.Command("git", "fetch", fetch.options.remote)
 	cmd.Dir = repo.Path
-	progress.increment()
+	progress.Increment()
 	fmt.Printf("%s fetching %s....", progress, relation)
 	var output, err = cmd.Output()
 	if err != nil {
