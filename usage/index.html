@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="generator" content="Hugo 0.55.5" />
+  <meta name="generator" content="Hugo 0.55.6" />
   <link rel="stylesheet" href="/rrh/css/normalize.css">
   <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
   
@@ -113,7 +113,6 @@ AVAILABLE SUB COMMANDS:
     import       import the given database.
     list         print managed repositories and their groups.
     mv           move the repositories from groups to another group.
-    path         print paths of specified repositories.
     prune        prune unnecessary repositories and groups.
     repository   manages repositories.
     rm           remove given repository from database.
@@ -276,16 +275,6 @@ OPTIONS
 ARGUMENTS
     FROMS...        specifies move from, formatted in &lt;GROUP_NAME/REPO_ID&gt;, or &lt;GROUP_NAME&gt;
     TO              specifies move to, formatted in &lt;GROUP_NAME&gt;</code></pre></div>
-<h4 id="rrh-path"><code>rrh path</code></h4>
-
-<p>Prints paths of the specified repositories.
-This sub command is deprecated, instead of <a href="#rrh_repository"><code>rrh repository</code></a> command.</p>
-<div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh path <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span> &lt;REPOSITORIES...&gt;
-OPTIONS
-    -m, --partial-match        treats the arguments as the patterns.
-    -r, --show-repository-id   show repository name.
-ARGUMENTS
-    REPOSITORIES               repository ids.</code></pre></div>
 <h4 id="rrh-prune"><code>rrh prune</code></h4>
 
 <p>Deletes unnecessary groups and repositories.
