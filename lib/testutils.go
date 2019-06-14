@@ -53,6 +53,21 @@ func ReplaceNewline(originalString, replaceTo string) string {
 }
 
 /*
+GivesStringAsStdin treats given inputFromStdin string as a byte stream from stdin.
+*/
+func GivesStringAsStdin(inputFromStdin string, f func()) {
+	var r, w, _ = os.Pipe()
+	var stdin = os.Stdin
+	os.Stdin = r
+	w.Write([]byte(inputFromStdin))
+	w.Close()
+
+	f()
+
+	os.Stdin = stdin
+}
+
+/*
 CaptureStdout is referred from https://qiita.com/kami_zh/items/ff636f15da87dabebe6c.
 */
 func CaptureStdout(f func()) string {

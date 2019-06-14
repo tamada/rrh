@@ -9,6 +9,26 @@ import (
 	"time"
 )
 
+func TestIsInputYes(t *testing.T) {
+	var testcases = []struct {
+		givesString string
+		wontFlag    bool
+	}{
+		{"YeS", true},
+		{"y", true},
+		{"no", false},
+		{"true", false},
+	}
+	for _, tc := range testcases {
+		GivesStringAsStdin(tc.givesString, func() {
+			var flag = IsInputYes("")
+			if flag != tc.wontFlag {
+				t.Errorf("%s read flag did not match, wont %v, got %v", tc.givesString, tc.wontFlag, flag)
+			}
+		})
+	}
+}
+
 func TestGitRepositoryCheck(t *testing.T) {
 	var testcases = []struct {
 		path      string
