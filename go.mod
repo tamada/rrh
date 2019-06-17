@@ -25,10 +25,9 @@ require (
 	github.com/src-d/gcfg v1.4.0
 	github.com/xanzy/ssh-agent v0.2.1
 	golang.org/x/crypto v0.0.0-20190513172903-22d7a77e9e5f
-	golang.org/x/lint v0.0.0-20190409202823-959b441ac422 // indirect
 	golang.org/x/net v0.0.0-20190520210107-018c4d40a106
 	golang.org/x/sys v0.0.0-20190522044717-8097e1b27ff5
-	golang.org/x/tools v0.0.0-20190612232758-d4e310b4a8a5 // indirect
+	golang.org/x/tools v0.0.0-20190614205625-5aca471b1d59 // indirect
 	gopkg.in/src-d/go-billy.v4 v4.3.0
 	gopkg.in/src-d/go-git.v4 v4.11.0
 	gopkg.in/warnings.v0 v0.1.2
