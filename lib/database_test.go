@@ -334,7 +334,7 @@ func TestFindRelations(t *testing.T) {
 	var db = openDatabase()
 
 	var repos = db.FindRelationsOfGroup("no-group")
-	if len(repos) != 1 || repos[0] != "rrh" {
+	if len(repos) != 2 || repos[0] != "rrh" {
 		t.Errorf("find relations: wont: [\"rrh\"], got: %v", repos)
 	}
 	var groups = db.FindRelationsOfRepository("rrh")
@@ -368,8 +368,8 @@ func TestCounting(t *testing.T) {
 	if count := db.BelongingCount("rrh"); count != 1 {
 		t.Errorf("belonging count of %s: wont: 1, got: %d", "rrh", count)
 	}
-	if count := db.ContainsCount("no-group"); count != 1 {
-		t.Errorf("%s contains: wont: 1, got: %d", "no-group", count)
+	if count := db.ContainsCount("no-group"); count != 2 {
+		t.Errorf("%s contains: wont: 2, got: %d", "no-group", count)
 	}
 }
 

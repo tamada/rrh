@@ -14,9 +14,10 @@ func ExampleListCommand() {
 	})
 	defer os.Remove(dbFile)
 	// Output:
-	// no-group (1 repository)
+	// no-group (2 repositories)
 	//     rrh          ~/go/src/github.com/tamada/rrh
-	// 1 group, 1 repository
+	//     helloworld   ../testdata/helloworld
+	// 1 group, 2 repositories
 }
 
 func ExampleListCommand_Run() {

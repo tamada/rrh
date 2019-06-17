@@ -4,8 +4,8 @@
         "repository_id":"rrh",
         "repository_path":"~/go/src/github.com/tamada/rrh"
     },{
-        "repository_id":"hoge",
-        "repository_path":"hogehoge"
+        "repository_id":"helloworld",
+        "repository_path":"../testdata/helloworld"
     }],
     "groups":[{
         "group_name":"no-group",
@@ -13,6 +13,9 @@
     }],
     "relations":[{
         "repository_id": "rrh",
+        "group_name": "no-group"
+    },{
+        "repository_id": "helloworld",
         "group_name": "no-group"
     }]
 }
