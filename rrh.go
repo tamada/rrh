@@ -86,7 +86,7 @@ func (opts *options) printHelpOrVersion(args []string) (int, error) {
 		var com, _ = internal.VersionCommandFactory()
 		com.Run([]string{})
 	}
-	if opts.help || len(args) == 0 {
+	if opts.help || (!opts.version && len(args) == 0) {
 		var com, _ = internal.HelpCommandFactory()
 		com.Run([]string{})
 	}

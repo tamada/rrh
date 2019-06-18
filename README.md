@@ -3,13 +3,11 @@
 [![codebeat badge](https://codebeat.co/badges/15e04551-d448-4ad3-be1d-e98b1e586f1a)](https://codebeat.co/projects/github-com-tamada-rrh-master)
 [![go report](https://goreportcard.com/badge/github.com/tamada/rrh)](https://goreportcard.com/report/github.com/tamada/rrh)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/tamada/rrh/blob/master/LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.5-yellowgreen.svg)](https://github.com/tamada/rrh/releases/tag/v0.5)
-
+[![Version](https://img.shields.io/badge/Version-1.0.0-yellowgreen.svg)](https://github.com/tamada/rrh/releases/tag/v1.0.0)
 
 # RRH
 
 RRH is a simple git repository manager.
-
 
 ## Table of contents
 
@@ -19,8 +17,7 @@ RRH is a simple git repository manager.
 * [Development](#development)
 * [Utilities](#utilities)
 * [About the Project](#about-the-project)
-
-[Table of contents](#table-of-contents)
+* [Table of contents](#table-of-contents)
 
 ## Description
 
@@ -59,7 +56,7 @@ $ brew install rrh
 
 To install by cli, simply run:
 
-```shell
+```sh
 $ go get git@github.com/tamada/rrh.git
 ```
 
@@ -69,11 +66,10 @@ $ go get git@github.com/tamada/rrh.git
     * Bash 4.x or after, for completion.
         * [zsh](http://www.zsh.org/)?, and [fish](https://fishshell.com/)?, I do not use them, so I do not know.
         * For macOS user, the default shell of the macOS is bash 3.x, therefore, the completion is not work enough.
-             * `rrh` is maybe work on Windows, and Linux. I do not use them.
+            * `rrh` is maybe work on Windows, and Linux. I do not use them.
 * Development
     * [golang/dep](https://github.com/golang/dep)
     * See `Gopkg.toml`
-
 
 ## Usage
 
@@ -84,7 +80,6 @@ RRH has various subcommands, however, `list` and `add` subcommand make you happy
 * `rrh list` shows managed repositories.
 * `rrh add <REPO>` adds the given repository under the RRH management.
 * type [`cdrrh`](#cdrrh) on Terminal, then type TAB, TAB, TAB!
-
 
 ### Command references
 
@@ -285,7 +280,7 @@ ARGUMENTS
 
 Prints the help message.
 
-```shell
+```sh
 rrh help [ARGUMENTS...]
 ARGUMENTS
     print help message of target command.
@@ -344,7 +339,6 @@ Deletes unnecessary groups and repositories.
 The unnecessary groups are no repositories in them.
 The unnecessary repositories are to have an invalid path.
 
-
 ```sh
 rrh prune
 ```
@@ -386,7 +380,6 @@ OPTIONS
 ARGUMENTS
     REPOSITORY           specifies the repository id.
 ```
-
 
 #### `rrh rm`
 
@@ -431,7 +424,6 @@ Prints `rrh` version.
 ```sh
 rrh version
 ```
-
 
 ### Environment variables
 

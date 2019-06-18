@@ -119,7 +119,7 @@ __rrh_group_update() {
 
 __rrh_group() {
     if [ "$4" = "$2" ]; then
-        COMPREPLY=($(compgen -W "add list rm update" -- "${cur}"))
+        COMPREPLY=($(compgen -W "add list of rm update" -- "${cur}"))
         return 0
     else
         local subsub="${COMP_WORDS[$(expr $5 + 1)]}"
