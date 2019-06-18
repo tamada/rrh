@@ -339,7 +339,6 @@ Deletes unnecessary groups and repositories.
 The unnecessary groups are no repositories in them.
 The unnecessary repositories are to have an invalid path.
 
-
 ```sh
 rrh prune
 ```
@@ -381,7 +380,6 @@ OPTIONS
 ARGUMENTS
     REPOSITORY           specifies the repository id.
 ```
-
 
 #### `rrh rm`
 
