@@ -23,14 +23,14 @@ update_version:
 setup: deps update_version
 	git submodule update --init
 
-test: setup format lint
+test: setup
 	$(GO) test -covermode=count -coverprofile=coverage.out $$(go list ./...)
 
 build: setup
 	$(GO) build
 	cd cmd/rrh-helloworld; $(GO) build
 
-lint: setup
+lint: setup format
 	$(GO) vet $$(go list ./...)
 	for pkg in $$(go list ./...); do \
 		golint -set_exit_status $$pkg || exit $$?; \
