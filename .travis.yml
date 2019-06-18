@@ -14,4 +14,4 @@ before_script:
 
 script:
     - make test build
-    - $GOPATH/bin/goveralls.go -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
+    - $GOPATH/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
