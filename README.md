@@ -5,11 +5,9 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/tamada/rrh/blob/master/LICENSE)
 [![Version](https://img.shields.io/badge/Version-1.0.0-yellowgreen.svg)](https://github.com/tamada/rrh/releases/tag/v1.0.0)
 
-
 # RRH
 
 RRH is a simple git repository manager.
-
 
 ## Table of contents
 
@@ -74,7 +72,6 @@ $ go get git@github.com/tamada/rrh.git
     * [golang/dep](https://github.com/golang/dep)
     * See `Gopkg.toml`
 
-
 ## Usage
 
 ### Getting started
@@ -84,7 +81,6 @@ RRH has various subcommands, however, `list` and `add` subcommand make you happy
 * `rrh list` shows managed repositories.
 * `rrh add <REPO>` adds the given repository under the RRH management.
 * type [`cdrrh`](#cdrrh) on Terminal, then type TAB, TAB, TAB!
-
 
 ### Command references
 
@@ -431,7 +427,6 @@ Prints `rrh` version.
 ```sh
 rrh version
 ```
-
 
 ### Environment variables
 
