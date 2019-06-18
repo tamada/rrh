@@ -8,14 +8,6 @@ LDFLAGS := -X 'main.version=$(VERSION)'
 all: test build
 
 deps:
-	$(GO) get golang.org/x/lint/golint
-	$(GO) get golang.org/x/tools/cmd/goimports
-	$(GO) get github.com/golang/dep/cmd/dep
-
-	$(GO) get golang.org/x/tools/cmd/cover
-	$(GO) get github.com/mattn/goveralls
-
-	dep ensure -vendor-only
 
 update_version:
 	@for i in README.md docs/content/_index.md; do\
@@ -31,14 +23,14 @@ update_version:
 setup: deps update_version
 	git submodule update --init
 
-test: setup format lint
+test: setup
 	$(GO) test -covermode=count -coverprofile=coverage.out $$(go list ./...)
 
 build: setup
 	$(GO) build
 	cd cmd/rrh-helloworld; $(GO) build
 
-lint: setup
+lint: setup format
 	$(GO) vet $$(go list ./...)
 	for pkg in $$(go list ./...); do \
 		golint -set_exit_status $$pkg || exit $$?; \
