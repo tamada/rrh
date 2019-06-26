@@ -11,9 +11,9 @@ import (
 ConfigCommand represents a command.
 */
 type ConfigCommand struct{}
-type setCommand struct{}
-type unsetCommand struct{}
-type listCommand struct{}
+type configSetCommand struct{}
+type configUnsetCommand struct{}
+type configListCommand struct{}
 
 /*
 ConfigCommandFactory returns an instance of the ConfigCommand.
@@ -22,16 +22,16 @@ func ConfigCommandFactory() (cli.Command, error) {
 	return &ConfigCommand{}, nil
 }
 
-func setCommandFactory() (cli.Command, error) {
-	return &setCommand{}, nil
+func configSetCommandFactory() (cli.Command, error) {
+	return &configSetCommand{}, nil
 }
 
-func unsetCommandFactory() (cli.Command, error) {
-	return &unsetCommand{}, nil
+func configUnsetCommandFactory() (cli.Command, error) {
+	return &configUnsetCommand{}, nil
 }
 
-func listCommandFactory() (cli.Command, error) {
-	return &listCommand{}, nil
+func configListCommandFactory() (cli.Command, error) {
+	return &configListCommand{}, nil
 }
 
 /*
@@ -48,7 +48,7 @@ COMMAND
 /*
 Help returns the help message.
 */
-func (csc *setCommand) Help() string {
+func (csc *configSetCommand) Help() string {
 	return `rrh config set <ENV_NAME> <VALUE>
 ARGUMENTS
     ENV_NAME   environment name.
@@ -58,7 +58,7 @@ ARGUMENTS
 /*
 Help returns the help message.
 */
-func (cuc *unsetCommand) Help() string {
+func (cuc *configUnsetCommand) Help() string {
 	return `rrh config unset <ENV_NAME...>
 ARGUMENTS
     ENV_NAME   environment name.`
@@ -67,7 +67,7 @@ ARGUMENTS
 /*
 Help returns the help message.
 */
-func (clc *listCommand) Help() string {
+func (clc *configListCommand) Help() string {
 	return `rrh config list`
 }
 
@@ -79,12 +79,12 @@ func (config *ConfigCommand) Run(args []string) int {
 	c.Args = args
 	c.Autocomplete = true
 	c.Commands = map[string]cli.CommandFactory{
-		"set":   setCommandFactory,
-		"unset": unsetCommandFactory,
-		"list":  listCommandFactory,
+		"set":   configSetCommandFactory,
+		"unset": configUnsetCommandFactory,
+		"list":  configListCommandFactory,
 	}
 	if len(args) == 0 {
-		new(listCommand).Run([]string{})
+		new(configListCommand).Run([]string{})
 		return 0
 	}
 	var exitStatus, _ = c.Run()
@@ -94,7 +94,7 @@ func (config *ConfigCommand) Run(args []string) int {
 /*
 Run performs the command.
 */
-func (csc *setCommand) Run(args []string) int {
+func (csc *configSetCommand) Run(args []string) int {
 	if len(args) != 2 {
 		fmt.Println(csc.Help())
 		return 1
@@ -112,7 +112,7 @@ func (csc *setCommand) Run(args []string) int {
 /*
 Run performs the command.
 */
-func (cuc *unsetCommand) Run(args []string) int {
+func (cuc *configUnsetCommand) Run(args []string) int {
 	if len(args) != 1 {
 		fmt.Println(cuc.Help())
 		return 1
@@ -132,7 +132,7 @@ func (cuc *unsetCommand) Run(args []string) int {
 /*
 Run performs the command.
 */
-func (clc *listCommand) Run(args []string) int {
+func (clc *configListCommand) Run(args []string) int {
 	var config = lib.OpenConfig()
 	for _, label := range lib.AvailableLabels {
 		fmt.Println(formatVariableAndValue(config, label))
@@ -149,21 +149,21 @@ func formatVariableAndValue(config *lib.Config, label string) string {
 /*
 Synopsis returns the help message of the command.
 */
-func (csc *setCommand) Synopsis() string {
+func (csc *configSetCommand) Synopsis() string {
 	return "set the environment with the given value."
 }
 
 /*
 Synopsis returns the help message of the command.
 */
-func (cuc *unsetCommand) Synopsis() string {
+func (cuc *configUnsetCommand) Synopsis() string {
 	return "reset the given environment."
 }
 
 /*
 Synopsis returns the help message of the command.
 */
-func (clc *listCommand) Synopsis() string {
+func (clc *configListCommand) Synopsis() string {
 	return "list the environment and its value."
 }
 

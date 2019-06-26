@@ -119,7 +119,7 @@ func (group *GroupCommand) Run(args []string) int {
 		"list":   groupListCommandFactory,
 	}
 	if len(args) == 0 {
-		new(listCommand).Run([]string{})
+		new(groupListCommand).Run([]string{})
 		return 0
 	}
 	var exitStatus, err = c.Run()
