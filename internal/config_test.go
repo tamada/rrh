@@ -26,17 +26,17 @@ COMMAND
     list                    list all of ENVs (default)` {
 		t.Errorf("help message did not match")
 	}
-	var clc, _ = listCommandFactory()
+	var clc, _ = configListCommandFactory()
 	if clc.Help() != `rrh config list` {
 		t.Errorf("help message did not match")
 	}
-	var cuc, _ = unsetCommandFactory()
+	var cuc, _ = configUnsetCommandFactory()
 	if cuc.Help() != `rrh config unset <ENV_NAME...>
 ARGUMENTS
     ENV_NAME   environment name.` {
 		t.Errorf("help message did not match")
 	}
-	var csc, _ = setCommandFactory()
+	var csc, _ = configSetCommandFactory()
 	if csc.Help() != `rrh config set <ENV_NAME> <VALUE>
 ARGUMENTS
     ENV_NAME   environment name.
@@ -51,17 +51,17 @@ func TestSynopsises(t *testing.T) {
 		t.Errorf("synopsis did not match")
 	}
 
-	var clc, _ = listCommandFactory()
+	var clc, _ = configListCommandFactory()
 	if clc.Synopsis() != "list the environment and its value." {
 		t.Errorf("synopsis did not match")
 	}
 
-	var cuc, _ = unsetCommandFactory()
+	var cuc, _ = configUnsetCommandFactory()
 	if cuc.Synopsis() != "reset the given environment." {
 		t.Errorf("synopsis did not match")
 	}
 
-	var csc, _ = setCommandFactory()
+	var csc, _ = configSetCommandFactory()
 	if csc.Synopsis() != "set the environment with the given value." {
 		t.Errorf("synopsis did not match")
 	}
@@ -81,7 +81,7 @@ func TestConfigUnset(t *testing.T) {
 	}
 	for _, tc := range testcases {
 		var dbfile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
-			var cuc, _ = unsetCommandFactory()
+			var cuc, _ = configUnsetCommandFactory()
 			var statusCode = cuc.Run(tc.args)
 			if statusCode != tc.status {
 				t.Errorf("%v: status code did not match, wont: %d, got: %d", tc, tc.status, statusCode)
@@ -143,7 +143,7 @@ func Example_listCommand_Run() {
 	os.Setenv(lib.RrhConfigPath, "../testdata/config.json")
 	os.Setenv(lib.RrhHome, "../testdata/")
 	os.Unsetenv(lib.RrhDatabasePath)
-	var clc, _ = listCommandFactory()
+	var clc, _ = configListCommandFactory()
 	clc.Run([]string{})
 	// Output:
 	// RRH_AUTO_CREATE_GROUP: true (config_file)
@@ -266,7 +266,7 @@ func TestConfigSet(t *testing.T) {
 	}
 	for _, td := range testdata {
 		var dbfile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
-			var set, _ = setCommandFactory()
+			var set, _ = configSetCommandFactory()
 			var status = set.Run(td.args)
 			if status != td.statusCode {
 				t.Errorf("%v: status code did not match, wont: %d, got: %d", td.args, td.statusCode, status)

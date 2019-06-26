@@ -13,7 +13,7 @@ import (
 /*
 VERSION shows the version of RRH.
 */
-const VERSION = "1.0.0"
+const VERSION = "1.0.1"
 
 /*
 The environment variable names.
