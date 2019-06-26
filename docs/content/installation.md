@@ -28,5 +28,5 @@ $ go get git@github.com/tamada/rrh.git
         * For macOS user, the default shell of the macOS is bash 3.x, therefore, the completion is not work enough.
              * `rrh` is maybe work on Windows, and Linux. I do not use them.
 * Development
-    * [golang/dep](https://github.com/golang/dep)
-    * See `Gopkg.toml`
+    * Go 1.12
+    * See `go.mod`
