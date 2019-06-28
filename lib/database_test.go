@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"fmt"
 	"os"
 	"testing"
 )
@@ -210,8 +211,9 @@ func TestCreateRepository(t *testing.T) {
 	if len(r2.Remotes) != 2 {
 		t.Error("remotes were not match.")
 	}
+	var wd, _ = os.Getwd()
 	assert(t, r2.ID, "somerepo")
-	assert(t, r2.Path, "unknown")
+	assert(t, r2.Path, fmt.Sprintf("%s/unknown", wd))
 	assert(t, r2.Remotes[0].Name, "name1")
 	assert(t, r2.Remotes[0].URL, "url1")
 	assert(t, r2.Remotes[1].Name, "name2")

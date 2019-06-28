@@ -20,7 +20,7 @@ type AddCommand struct {
 AddCommandFactory generates the object of AddCommand.
 */
 func AddCommandFactory() (cli.Command, error) {
-	return &AddCommand{}, nil
+	return &AddCommand{options: &addOptions{}}, nil
 }
 
 /*
