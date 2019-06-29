@@ -187,21 +187,26 @@ func (list *ListCommand) findAndPrintResult(db *lib.Database) int {
 	return list.options.printResults(results, db.Config)
 }
 
+func (list *ListCommand) printError(err error, printHelpFlag bool, statusCode int) int {
+	fmt.Println(err.Error())
+	if printHelpFlag {
+		fmt.Println(list.Help())
+	}
+	return statusCode
+}
+
 /*
 Run performs the command.
 */
 func (list *ListCommand) Run(args []string) int {
 	var _, err = list.parse(args)
 	if err != nil {
-		fmt.Println(list.Help())
-		fmt.Println(err.Error())
-		return 1
+		return list.printError(err, true, 1)
 	}
 	var config = lib.OpenConfig()
 	db, err := lib.Open(config)
 	if err != nil {
-		fmt.Println(err.Error())
-		return 2
+		return list.printError(err, false, 2)
 	}
 	return list.findAndPrintResult(db)
 }
