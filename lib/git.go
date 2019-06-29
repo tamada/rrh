@@ -35,16 +35,17 @@ func NewStatusOption() *StatusOption {
 	return &StatusOption{false, false}
 }
 
+func openGitRepository(path string) (*git.Repository, error) {
+	return git.PlainOpen(path)
+
+}
+
 func openRepository(db *Database, repoID string) (*git.Repository, error) {
 	var repo = db.FindRepository(repoID)
 	if repo == nil {
 		return nil, fmt.Errorf("%s: repository not found", repoID)
 	}
-	var r, err = git.PlainOpen(repo.Path)
-	if err != nil {
-		return nil, err
-	}
-	return r, nil
+	return openGitRepository(repo.Path)
 }
 
 func checkUpdateFlag(status git.StatusCode) bool {
@@ -191,7 +192,7 @@ func (status *StatusOption) StatusOfRepository(db *Database, name *Relation) ([]
 FindRemotes function returns the remote of the given git repository.
 */
 func FindRemotes(path string) ([]Remote, error) {
-	var repo, err = git.PlainOpen(path)
+	var repo, err = openGitRepository(path)
 	if err != nil {
 		return nil, err
 	}

@@ -492,7 +492,7 @@ Open function is to read rrh database from a certain path.
 
 How to call this function
 
-    var db *Database
+	var db *Database
 	db = common.Open()
 */
 func Open(config *Config) (*Database, error) {
@@ -501,7 +501,6 @@ func Open(config *Config) (*Database, error) {
 	if err != nil {
 		return &db, nil
 	}
-
 	if err := json.Unmarshal(bytes, &db); err != nil {
 		return nil, err
 	}
