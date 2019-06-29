@@ -82,15 +82,12 @@ func (fetch *FetchCommand) Synopsis() string {
 Run performs the command.
 */
 func (fetch *FetchCommand) Run(args []string) int {
-	var options, err = fetch.parse(args)
+	var err = fetch.parse(args)
 	if err != nil {
 		fmt.Println(err.Error())
 		return 1
 	}
 	var config = lib.OpenConfig()
-	if len(options.args) == 0 {
-		options.args = []string{config.GetValue(lib.RrhDefaultGroupName)}
-	}
 	var db, err2 = lib.Open(config)
 	if err2 != nil {
 		fmt.Println(err2.Error())
@@ -99,10 +96,18 @@ func (fetch *FetchCommand) Run(args []string) int {
 	return printErrors(config, fetch.perform(db))
 }
 
+func (fetch *FetchCommand) findRelations(db *lib.Database) []lib.Relation {
+	var args = fetch.options.args
+	if len(args) == 0 {
+		args = []string{db.Config.GetValue(lib.RrhDefaultGroupName)}
+	}
+	return lib.FindTargets(db, args)
+}
+
 func (fetch *FetchCommand) perform(db *lib.Database) []error {
 	var errorlist = []error{}
 	var onError = db.Config.GetValue(lib.RrhOnError)
-	var relations = lib.FindTargets(db, fetch.options.args)
+	var relations = fetch.findRelations(db)
 	var progress = NewProgress(len(relations))
 
 	for _, relation := range relations {
@@ -125,21 +130,17 @@ type options struct {
 	args []string
 }
 
-func (fetch *FetchCommand) parse(args []string) (*options, error) {
+func (fetch *FetchCommand) parse(args []string) error {
 	var options = options{"origin", []string{}}
 	flags := flag.NewFlagSet("fetch", flag.ExitOnError)
 	flags.Usage = func() { fmt.Println(fetch.Help()) }
 	flags.StringVarP(&options.remote, "remote", "r", "origin", "remote name")
-	// flags.StringVar(&options.key, "k", "", "private key path")
-	// flags.StringVar(&options.userName, "u", "", "user name")
-	// flags.StringVar(&options.password, "p", "", "password")
-
 	if err := flags.Parse(args); err != nil {
-		return nil, err
+		return err
 	}
 	options.args = flags.Args()
 	fetch.options = &options
-	return &options, nil
+	return nil
 }
 
 /*
