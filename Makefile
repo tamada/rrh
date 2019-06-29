@@ -1,6 +1,6 @@
 GO=go
 NAME := rrh
-VERSION := 1.0.2
+VERSION := 1.0.3
 REVISION := $(shell git rev-parse --short HEAD)
 LDFLAGS := -X 'main.version=$(VERSION)'
 	-X 'main.revision=$(REVISION)'
