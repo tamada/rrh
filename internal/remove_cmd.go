@@ -53,7 +53,6 @@ func (rm *RemoveCommand) executeRemoveGroup(db *lib.Database, groupName string) 
 	var err = db.DeleteGroup(groupName)
 	if err == nil {
 		rm.options.printIfVerbose(fmt.Sprintf("%s: group removed", group.Name))
-		return nil
 	}
 	return err
 }

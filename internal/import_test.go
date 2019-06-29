@@ -2,6 +2,7 @@ package internal
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -23,6 +24,7 @@ func TestImport(t *testing.T) {
 		repositoryName string
 		wontRelation   bool
 	}
+	var tdPath, _ = filepath.Abs("../testdata")
 
 	var testcases = []struct {
 		args       []string
@@ -33,15 +35,15 @@ func TestImport(t *testing.T) {
 	}{
 		{[]string{"../testdata/exported.json"}, 0,
 			[]groupExistCheck{{"test", true}, {"group1", true}, {"group2", true}, {"group3", true}},
-			[]repoExistCheck{{"repo1", true, "path1"}, {"repo2", true, "path2"}, {"fibonacci", true, "../testdata/fibonacci"}, {"helloworld", false, "../testdata/helloworld2"}},
+			[]repoExistCheck{{"repo1", true, "path1"}, {"repo2", true, "path2"}, {"fibonacci", true, filepath.Join(tdPath, "fibonacci")}, {"helloworld", false, filepath.Join(tdPath, "helloworld2")}},
 			[]relationCheck{{"group1", "repo1", true}, {"group3", "repo2", true}, {"test", "fibonacci", true}, {"test", "helloworld", false}}},
 		{[]string{"--overwrite", "../testdata/exported.json"}, 0,
 			[]groupExistCheck{{"test", true}, {"group1", false}, {"group2", false}, {"group3", false}},
-			[]repoExistCheck{{"repo1", false, "path1"}, {"repo2", false, "path2"}, {"fibonacci", true, "../testdata/fibonacci"}, {"helloworld", false, "../testdata/helloworld2"}},
+			[]repoExistCheck{{"repo1", false, "path1"}, {"repo2", false, "path2"}, {"fibonacci", true, filepath.Join(tdPath, "fibonacci")}, {"helloworld", false, filepath.Join(tdPath, "helloworld2")}},
 			[]relationCheck{{"group1", "repo1", false}, {"group3", "repo2", false}, {"test", "fibonacci", true}, {"test", "helloworld", false}}},
 		{[]string{"--auto-clone", "--overwrite", "--verbose", "../testdata/exported.json"}, 0,
 			[]groupExistCheck{{"test", true}, {"group1", false}, {"group2", false}, {"group3", false}},
-			[]repoExistCheck{{"repo1", false, "path1"}, {"repo2", false, "path2"}, {"fibonacci", true, "../testdata/fibonacci"}, {"helloworld", true, "../testdata/helloworld2"}},
+			[]repoExistCheck{{"repo1", false, "path1"}, {"repo2", false, "path2"}, {"fibonacci", true, filepath.Join(tdPath, "fibonacci")}, {"helloworld", true, filepath.Join(tdPath, "helloworld2")}},
 			[]relationCheck{{"group1", "repo1", false}, {"group3", "repo2", false}, {"test", "fibonacci", true}, {"test", "helloworld", true}}},
 	}
 
