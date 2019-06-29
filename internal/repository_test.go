@@ -90,8 +90,8 @@ func TestInfoRepository(t *testing.T) {
 	}{
 		{[]string{"--csv", "repo1"}, 0, "repo1,,path1", false},
 		{[]string{}, 1, "missing arguments", false},
-		{[]string{"repo1"}, 0, `ID:          repo1+Description: +Path:        path1`, false},
-		{[]string{"--color", "repo2"}, 0, `ID:          repo2+Description: +Path:        path2+Remote:     +    origin: git@github.com:example/repo2.git`, false},
+		{[]string{"repo1"}, 0, `ID:          repo1+Groups:      group1+Description: +Path:        path1`, false},
+		{[]string{"--color", "repo2"}, 0, `ID:          repo2+Groups:      group3+Description: +Path:        path2+Remote:     +    origin: git@github.com:example/repo2.git`, false},
 		{[]string{"--invalid-option"}, 1, "", true},
 		{[]string{"repo4"}, 0, "repo4: repository not found", false},
 	}

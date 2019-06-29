@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/mitchellh/cli"
 	flag "github.com/spf13/pflag"
@@ -85,8 +86,15 @@ func (info *repositoryInfoCommand) parseOptions(args []string) error {
 	return nil
 }
 
-func (options *repositoryInfoOptions) printInfo(result lib.Repository, config *lib.Config) {
+func groupList(result lib.Repository, db *lib.Database) string {
+	var groups = db.FindRelationsOfRepository(result.ID)
+	return strings.Join(groups, ", ")
+}
+
+func (options *repositoryInfoOptions) printInfo(result lib.Repository, db *lib.Database) {
+	var config = db.Config
 	fmt.Printf("%-12s %s\n", config.Color.ColorizedLabel("ID:"), config.Color.ColorizedRepositoryID(result.ID))
+	fmt.Printf("%-12s %s\n", config.Color.ColorizedLabel("Groups:"), groupList(result, db))
 	fmt.Printf("%-12s %s\n", config.Color.ColorizedLabel("Description:"), result.Description)
 	fmt.Printf("%-12s %s\n", config.Color.ColorizedLabel("Path:"), result.Path)
 	if len(result.Remotes) > 0 {
@@ -101,11 +109,12 @@ func printRemoteInfo(remotes []lib.Remote, config *lib.Config) {
 	}
 }
 
-func (options *repositoryInfoOptions) printInfoResult(result lib.Repository, config *lib.Config) {
+func (options *repositoryInfoOptions) printInfoResult(result lib.Repository, db *lib.Database) {
+	var config = db.Config
 	if options.csv {
 		fmt.Printf("%s,%s,%s\n", config.Color.ColorizedRepositoryID(result.ID), result.Description, result.Path)
 	} else {
-		options.printInfo(result, config)
+		options.printInfo(result, db)
 	}
 }
 
@@ -113,7 +122,7 @@ func (info *repositoryInfoCommand) perform(db *lib.Database, args []string) int 
 	var results, errs = findResults(db, args)
 	var onError = db.Config.GetValue(lib.RrhOnError)
 	for _, result := range results {
-		info.options.printInfoResult(result, db.Config)
+		info.options.printInfoResult(result, db)
 	}
 	if len(errs) > 0 && onError != lib.Ignore {
 		return printErrors(db.Config, errs)
@@ -260,12 +269,12 @@ Run performs the command.
 func (repository *RepositoryCommand) Run(args []string) int {
 	c := cli.NewCLI("rrh repository", lib.VERSION)
 	c.Args = args
-	c.Autocomplete = true
 	c.Commands = map[string]cli.CommandFactory{
 		"list":   repositoryListCommandFactory,
 		"info":   repositoryInfoCommandFactory,
 		"update": repositoryUpdateCommandFactory,
 	}
+	c.HiddenCommands = []string{"list"}
 	if len(args) == 0 {
 		fmt.Println(repository.Help())
 		return 0
