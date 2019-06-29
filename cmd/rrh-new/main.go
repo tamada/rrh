@@ -105,7 +105,6 @@ func makeGitDirectory(config *lib.Config, repo *repo, opts *newOptions) error {
 type repo struct {
 	givenString string
 	dest        string
-	remoteURL   string
 	githubRepo  string
 	repoName    string
 }
@@ -177,29 +176,32 @@ func createRepository(db *lib.Database, arg string, opts *newOptions) error {
 	return err
 }
 
-func isFailImmediately(config *lib.Config) bool {
+func isOnError(config *lib.Config, handler string) bool {
 	var onError = config.GetValue(lib.RrhOnError)
-	return onError == lib.FailImmediately
+	return onError == handler
+}
+
+func storeDbWhenSucceeded(db *lib.Database, errors []error) {
+	var config = db.Config
+	if len(errors) == 0 || isOnError(config, lib.Ignore) {
+		db.StoreAndClose()
+	}
 }
 
 func createRepositories(config *lib.Config, args []string, opts *newOptions) []error {
 	var errors = []error{}
 	var db, err = lib.Open(config)
+	defer storeDbWhenSucceeded(db, errors)
 	if err != nil {
 		return []error{err}
 	}
-
 	for _, arg := range args[1:] {
-		var err = createRepository(db, arg, opts)
-		if err != nil {
-			if isFailImmediately(config) {
+		if err := createRepository(db, arg, opts); err != nil {
+			if isOnError(config, lib.FailImmediately) {
 				return []error{err}
 			}
 			errors = append(errors, err)
 		}
-	}
-	if len(errors) == 0 || config.GetValue(lib.RrhOnError) == lib.Ignore {
-		db.StoreAndClose()
 	}
 	return errors
 }
