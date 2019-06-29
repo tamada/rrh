@@ -13,7 +13,9 @@ import (
 GroupCommand represents a command.
 */
 type GroupCommand struct{}
-type groupAddCommand struct{}
+type groupAddCommand struct {
+	options *groupAddOptions
+}
 type groupListCommand struct{}
 type groupOfCommand struct{}
 type groupUpdateCommand struct{}
@@ -29,7 +31,7 @@ func GroupCommandFactory() (cli.Command, error) {
 }
 
 func groupAddCommandFactory() (cli.Command, error) {
-	return &groupAddCommand{}, nil
+	return &groupAddCommand{&groupAddOptions{}}, nil
 }
 
 func groupOfCommandFactory() (cli.Command, error) {
@@ -144,20 +146,21 @@ func (gac *groupAddCommand) buildFlagSet() (*flag.FlagSet, *groupAddOptions) {
 	return flags, &opt
 }
 
-func (gac *groupAddCommand) parse(args []string) (*groupAddOptions, error) {
+func (gac *groupAddCommand) parse(args []string) error {
 	var flags, opt = gac.buildFlagSet()
 	if err := flags.Parse(args); err != nil {
-		return nil, err
+		return err
 	}
 	opt.args = flags.Args()
-	return opt, nil
+	gac.options = opt
+	return nil
 }
 
 /*
 Run performs the command.
 */
 func (gac *groupAddCommand) Run(args []string) int {
-	var options, err = gac.parse(args)
+	var err = gac.parse(args)
 	if err != nil {
 		return 1
 	}
@@ -167,11 +170,15 @@ func (gac *groupAddCommand) Run(args []string) int {
 		fmt.Println(err2.Error())
 		return 2
 	}
-	if len(options.args) == 0 {
+	return gac.perform(db)
+}
+
+func (gac *groupAddCommand) perform(db *lib.Database) int {
+	if len(gac.options.args) == 0 {
 		fmt.Println(gac.Help())
 		return 3
 	}
-	if err := gac.addGroups(db, options); err != nil {
+	if err := gac.addGroups(db, gac.options); err != nil {
 		fmt.Println(err.Error())
 		return 4
 	}
