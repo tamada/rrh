@@ -137,7 +137,7 @@ func (info *repositoryInfoCommand) Run(args []string) int {
 	return info.perform(db, info.options.args)
 }
 
-func printListGroup(db *lib.Database, result lib.Repository) {
+func printListWithGroup(db *lib.Database, result lib.Repository) {
 	var groups = db.FindRelationsOfRepository(result.ID)
 	for _, group := range groups {
 		fmt.Printf("%s/%s\n", group, result.ID)
@@ -146,7 +146,7 @@ func printListGroup(db *lib.Database, result lib.Repository) {
 
 func printListResult(db *lib.Database, result lib.Repository, options *repositoryListOptions) {
 	if options.group {
-		printListGroup(db, result)
+		printListWithGroup(db, result)
 	}
 	if options.id {
 		fmt.Println(result.ID)
@@ -241,6 +241,10 @@ func (update *repositoryUpdateCommand) Run(args []string) int {
 		fmt.Println(err2.Error())
 		return 2
 	}
+	return update.execute(db)
+}
+
+func (update *repositoryUpdateCommand) execute(db *lib.Database) int {
 	var err3 = update.perform(db, update.options.repositoryID)
 	if err3 != nil {
 		fmt.Println(err3.Error())
