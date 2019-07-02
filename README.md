@@ -644,6 +644,13 @@ However, the means of `grim` is not good, and there are many commands which star
 Therefore, we changed the project name to RRH.
 RRH means "Repositories, Ready to Hack," is not the abbreviation of the Red Riding Hood.
 
+### Attributions
+
+#### Icon of RRH
+
+![icon of rrh](https://raw.githubusercontent.com/tamada/rrh/master/docs/static/favicon-64x64.png) by [iconpon.com](https://www.iconpon.com/)
+
+
 ## Table of Contents
 
 * [Description](#description)
@@ -684,3 +691,4 @@ RRH means "Repositories, Ready to Hack," is not the abbreviation of the Red Ridi
     * [Discussion](#discussion)
     * [Author](#author)
     * [Why the project name RRH?](#why-the-project-name-rrh)
+    * [Attributions](#attributions)

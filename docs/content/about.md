@@ -53,3 +53,9 @@ At first, the name of this project was GRIM (Git Repository Integrated Manager).
 However, the means of `grim` is not good, and there are many commands which start with `gr`.
 Therefore, we changed the project name to `rrh`.
 RRH means "Repositories, Ready to Hack," is not the abbreviation of the Red Riding Hood.
+
+### Attributions
+
+#### Icon of RRH
+
+{{< figure src="/rrh/images/logo.png" width="64" >}} by [iconpon.com](https://www.iconpon.com/)
