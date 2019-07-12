@@ -136,6 +136,10 @@ func findDirectoryName(arg string, opts *newOptions) (string, error) {
 	if availableDir(opts, dest) {
 		return "", fmt.Errorf("%s/%s: directory exist", opts.parentPath, dest)
 	}
+	return convertToAbsolutePath(dest, opts)
+}
+
+func convertToAbsolutePath(dest string, opts *newOptions) (string, error) {
 	var abs, err = filepath.Abs(filepath.Join(opts.parentPath, dest))
 	if err != nil {
 		return "", err
