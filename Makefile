@@ -1,9 +1,7 @@
 GO=go
 NAME := rrh
-VERSION := 1.0.3
+VERSION := 1.0.4
 REVISION := $(shell git rev-parse --short HEAD)
-LDFLAGS := -X 'main.version=$(VERSION)'
-	-X 'main.revision=$(REVISION)'
 
 all: test build
 
@@ -44,8 +42,8 @@ format: setup
 	goimports -w $$(go list ./... | sed 's/github.com\/tamada\/rrh//g' | sed 's/^\///g')
 
 install: test build
-	$(GO) install $(LDFLAGS)
-	. ./completions/rrh_completion.bash
+	$(GO) install
+	. ./completions/bash/rrh
 
 clean:
 	$(GO) clean

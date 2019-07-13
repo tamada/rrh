@@ -176,6 +176,18 @@ __rrh_mv() {
     fi
 }
 
+__rrh_new() {
+    if [[ "$1" =~ ^\- ]]; then
+        COMPREPLY=($(compgen -W "-d --description -D --dry-run -g --group -H --homepage -p --private -P --parent-path -h --help" -- "${cur}"))
+    elif [ "$2" == "-g" ] || [ "$2" == "--group" ] ; then
+        groups="$(__rrh_groups)"
+        COMPREPLY=($(compgen -W "$groups" -- "${cur}"))
+    elif [ "$2" == "-P" ] || [ "$2" == "--parent-path" ] ; then
+        compopt -o filenames
+        COMPREPLY=($(compgen -d -- "$1"))
+    fi
+}
+
 __rrh_path() {
     if [[ "$1" =~ ^\- ]]; then
         COMPREPLY=($(compgen -W "-m --partial-match -p --show-only-path" -- "${cur}"))
@@ -285,7 +297,7 @@ __rrh_completions()
         subcom=${COMP_WORDS[$subcomIndex]}
     fi
     # echo "cur: $cur, prev: $prev, cword: $cword, subcom: $subcom, index: $subcomIndex"
-    opts="add clone config export fetch fetch-all group help import list mv prune repository rm status version"
+    opts="add clone config export fetch fetch-all group help import list mv new prune repository rm status version"
 
     case "${subcom}" in
         add)
@@ -330,6 +342,10 @@ __rrh_completions()
             ;;
         mv)
             __rrh_mv  "$cur" "$prev" "$cword" "$subcom" $subcomIndex
+            return 0
+            ;;
+        new)
+            __rrh_new  "$cur" "$prev" "$cword" "$subcom" $subcomIndex
             return 0
             ;;
         prune)

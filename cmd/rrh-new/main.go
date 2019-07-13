@@ -21,17 +21,19 @@ type newOptions struct {
 	homepage    string
 	parentPath  string
 	privateFlag bool
+	dryrunMode  bool
 	helpFlag    bool
 }
 
 func getHelpMessage() string {
 	return `rrh new [OPTIONS] <[ORGANIZATION/]REPOSITORIES...>
 OPTIONS
+    -d, --description <DESC>    specifies short description of the repository.
+    -D, --dry-run               performs on dry run mode.
     -g, --group <GROUP>         specifies group name.
     -H, --homepage <URL>        specifies homepage url.
-    -d, --description <DESC>    specifies short description of the repository.
     -p, --private               create a private repository.
-    -p, --parent-path <PATH>    specifies the destination path (default: '.').
+    -P, --parent-path <PATH>    specifies the destination path (default: '.').
     -h, --help                  print this message.
 ARGUMENTS
     ORGANIZATION    specifies organization, if needed.
@@ -49,6 +51,7 @@ func buildFlagSet(config *lib.Config) (*flag.FlagSet, *newOptions) {
 	flags.StringVarP(&opt.homepage, "homepage", "H", "", "specifies homepage url")
 	flags.StringVarP(&opt.parentPath, "parent-path", "P", ".", "specifies the destination path")
 	flags.BoolVarP(&opt.privateFlag, "private", "p", false, "create a private repository")
+	flags.BoolVarP(&opt.dryrunMode, "dry-run", "D", false, "performs on dry run mode")
 	flags.BoolVarP(&opt.helpFlag, "help", "h", false, "print this message")
 	return flags, &opt
 }
@@ -70,20 +73,24 @@ func createArgsToHubCommand(projectName string, opts *newOptions) []string {
 	return args
 }
 
-func createProjectPage(repo *repo, opts *newOptions) error {
+func createProjectPage(repo *repo, opts *newOptions) (string, error) {
 	var argsToHub = createArgsToHubCommand(repo.givenString, opts)
+	var cmdString = "hub " + strings.Join(argsToHub, " ")
+	if opts.dryrunMode {
+		return cmdString, nil
+	}
 	var cmd = exec.Command("hub", argsToHub...)
 	cmd.Dir = repo.dest
 	var _, err = cmd.Output()
 	if err != nil {
-		return fmt.Errorf("%s: %s", repo.givenString, err.Error())
+		return "", fmt.Errorf("%s: %s", repo.givenString, err.Error())
 	}
-	return nil
+	return cmdString, nil
 }
 
 func createReadme(dest, projectName string) {
 	var path = filepath.Join(dest, "README.md")
-	var file, err = os.OpenFile(path, os.O_CREATE, 644)
+	var file, err = os.OpenFile(path, os.O_CREATE, 0644)
 	defer file.Close()
 	if err == nil {
 		file.WriteString(fmt.Sprintf("# %s", projectName))
@@ -91,6 +98,9 @@ func createReadme(dest, projectName string) {
 }
 
 func makeGitDirectory(config *lib.Config, repo *repo, opts *newOptions) error {
+	if opts.dryrunMode {
+		return nil
+	}
 	os.MkdirAll(repo.dest, 0755)
 	var gitDir = filepath.Join(repo.dest, ".git")
 	var fsys = osfs.New(gitDir)
@@ -126,7 +136,15 @@ func findDirectoryName(arg string, opts *newOptions) (string, error) {
 	if availableDir(opts, dest) {
 		return "", fmt.Errorf("%s/%s: directory exist", opts.parentPath, dest)
 	}
-	return dest, nil
+	return convertToAbsolutePath(dest, opts)
+}
+
+func convertToAbsolutePath(dest string, opts *newOptions) (string, error) {
+	var abs, err = filepath.Abs(filepath.Join(opts.parentPath, dest))
+	if err != nil {
+		return "", err
+	}
+	return abs, nil
 }
 
 func findRepoName(arg string) string {
@@ -143,10 +161,13 @@ func createRepo(config *lib.Config, arg string, opts *newOptions) (*repo, error)
 		return nil, err
 	}
 	var repoName = findRepoName(arg)
-	return &repo{givenString: arg, dest: filepath.Join(opts.parentPath, dest), repoName: repoName}, nil
+	return &repo{givenString: arg, dest: dest, repoName: repoName}, nil
 }
 
 func registerToGroup(db *lib.Database, repo *repo, opts *newOptions) error {
+	if opts.dryrunMode {
+		return nil
+	}
 	var remotes, _ = lib.FindRemotes(repo.dest)
 	var _, err1 = db.CreateRepository(repo.repoName, repo.dest, opts.description, remotes)
 	if err1 != nil {
@@ -163,15 +184,16 @@ func createRepository(db *lib.Database, arg string, opts *newOptions) error {
 	var repo, err = createRepo(db.Config, arg, opts)
 	if err == nil {
 		err = makeGitDirectory(db.Config, repo, opts)
-		fmt.Printf("1/3 create git directory on %s\n", repo.dest)
+		fmt.Printf("1/3 create git directory on \"%s\"\n", repo.dest)
 	}
 	if err == nil {
-		err = createProjectPage(repo, opts)
-		fmt.Printf("2/3 create remote repository of %s\n", repo.repoName)
+		var cmd string
+		cmd, err = createProjectPage(repo, opts)
+		fmt.Printf("2/3 create remote repository of %s by \"%s\"\n", repo.repoName, cmd)
 	}
 	if err == nil {
 		err = registerToGroup(db, repo, opts)
-		fmt.Printf("3/3 add %s to rrh database with group %s\n", repo.repoName, opts.group)
+		fmt.Printf("3/3 add repository \"%s\" to group \"%s\"\n", repo.repoName, opts.group)
 	}
 	return err
 }
