@@ -28,12 +28,12 @@ type newOptions struct {
 func getHelpMessage() string {
 	return `rrh new [OPTIONS] <[ORGANIZATION/]REPOSITORIES...>
 OPTIONS
+    -d, --description <DESC>    specifies short description of the repository.
     -D, --dry-run               performs on dry run mode.
     -g, --group <GROUP>         specifies group name.
     -H, --homepage <URL>        specifies homepage url.
-    -d, --description <DESC>    specifies short description of the repository.
     -p, --private               create a private repository.
-    -p, --parent-path <PATH>    specifies the destination path (default: '.').
+    -P, --parent-path <PATH>    specifies the destination path (default: '.').
     -h, --help                  print this message.
 ARGUMENTS
     ORGANIZATION    specifies organization, if needed.
@@ -90,7 +90,7 @@ func createProjectPage(repo *repo, opts *newOptions) (string, error) {
 
 func createReadme(dest, projectName string) {
 	var path = filepath.Join(dest, "README.md")
-	var file, err = os.OpenFile(path, os.O_CREATE, 644)
+	var file, err = os.OpenFile(path, os.O_CREATE, 0644)
 	defer file.Close()
 	if err == nil {
 		file.WriteString(fmt.Sprintf("# %s", projectName))
