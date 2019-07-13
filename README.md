@@ -3,7 +3,7 @@
 [![codebeat badge](https://codebeat.co/badges/15e04551-d448-4ad3-be1d-e98b1e586f1a)](https://codebeat.co/projects/github-com-tamada-rrh-master)
 [![go report](https://goreportcard.com/badge/github.com/tamada/rrh)](https://goreportcard.com/report/github.com/tamada/rrh)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/tamada/rrh/blob/master/LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.0.3-yellowgreen.svg)](https://github.com/tamada/rrh/releases/tag/v1.0.3)
+[![Version](https://img.shields.io/badge/Version-1.0.4-yellowgreen.svg)](https://github.com/tamada/rrh/releases/tag/v1.0.4)
 
 # RRH
 

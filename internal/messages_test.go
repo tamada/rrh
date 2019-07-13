@@ -75,5 +75,5 @@ func ExampleVersionCommand_Run() {
 	var command, _ = VersionCommandFactory()
 	command.Run([]string{})
 	// Output:
-	// rrh version 1.0.3
+	// rrh version 1.0.4
 }
