@@ -284,6 +284,7 @@ rrh repository <SUBCOMMAND>
 SUBCOMMAND
     info [OPTIONS] <REPO...>     shows repository information.
     update [OPTIONS] <REPO...>   updates repository information.
+    update-remotes [OPTIONS]     update all remote entries.
 ```
 
 ##### `rrh repository info`
@@ -313,6 +314,16 @@ ARGUMENTS
     REPOSITORY           specifies the repository id.
 ```
 
+##### `rrh repository update-remotes`
+
+update remote entries in the all repositories.
+
+```sh
+rrh repository update-remotes [OPTIONS]
+OPTIONS
+    -d, --dry-run    dry-run mode.
+    -v, --verbose    verbose mode.
+```
 
 #### `rrh rm`
 
