@@ -84,7 +84,7 @@ func TestMoveCommand(t *testing.T) {
 func TestParseType(t *testing.T) {
 	var cases = []struct {
 		gives     string
-		wont      int
+		wont      targetKind
 		errorFlag bool
 		message   string
 	}{
@@ -101,8 +101,8 @@ func TestParseType(t *testing.T) {
 	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
 		for _, item := range cases {
 			var got, err = parseType(db, item.gives)
-			if got.targetType != item.wont && (item.errorFlag && err == nil) {
-				t.Errorf("%s: gives: %v, wont: %d, got: %d", item.message, item.gives, item.wont, got.targetType)
+			if got.kind != item.wont && (item.errorFlag && err == nil) {
+				t.Errorf("%s: gives: %v, wont: %d, got: %d", item.message, item.gives, item.wont, got.kind)
 			}
 		}
 	})
@@ -113,7 +113,7 @@ func TestVerifyArguments(t *testing.T) {
 	var cases = []struct {
 		givesFrom []string
 		givesTo   string
-		wont      int
+		wont      targetKind
 		errorFlag bool
 		message   string
 	}{
@@ -146,12 +146,12 @@ func TestVerifyArguments(t *testing.T) {
 
 func TestMergeType(t *testing.T) {
 	var cases = []struct {
-		gives     []int
-		wont      int
+		gives     []targetKind
+		wont      targetKind
 		errorFlag bool
 	}{
-		{[]int{GroupType, GroupType, GroupType}, GroupType, false},
-		{[]int{GroupType, RepositoryType, GroupType}, Unknown, true},
+		{[]targetKind{GroupType, GroupType, GroupType}, GroupType, false},
+		{[]targetKind{GroupType, RepositoryType, GroupType}, Unknown, true},
 	}
 
 	for _, item := range cases {
@@ -179,9 +179,9 @@ func TestErrorOnPerformImpl(t *testing.T) {
 
 func TestVerifyArgumentsOneToOne(t *testing.T) {
 	var testcases = []struct {
-		fromType    int
-		toType      int
-		resultType  int
+		fromType    targetKind
+		toType      targetKind
+		resultType  targetKind
 		shouldError bool
 	}{
 		{Unknown, Unknown, Invalid, true},
@@ -190,7 +190,7 @@ func TestVerifyArgumentsOneToOne(t *testing.T) {
 	for _, tc := range testcases {
 		var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
 			var db, _ = lib.Open(config)
-			var resultType, err = verifyArgumentsOneToOne(db, target{targetType: tc.fromType}, target{targetType: tc.toType})
+			var resultType, err = verifyArgumentsOneToOne(db, target{kind: tc.fromType}, target{kind: tc.toType})
 			if resultType != tc.resultType {
 				t.Errorf("%v: result type did not match, wont: %d, got: %d", tc, tc.resultType, resultType)
 			}
