@@ -106,6 +106,11 @@ __rrh_group_of() {
     COMPREPLY=($(compgen -W "$repos" -- "${cur}"))
 }
 
+__rrh_group_info() {
+    groups="$(__rrh_groups)"
+    COMPREPLY=($(compgen -W "$groups" -- "${cur}"))
+}
+
 __rrh_group_update() {
     if [[ "$1" =~ ^\- ]]; then
         COMPREPLY=($(compgen -W "-n --name -d --desc -o --omit-list" -- "${cur}"))
@@ -126,6 +131,9 @@ __rrh_group() {
         case "${subsub}" in
             add)
                 __rrh_group_add "$1" "$2" "$3" "$4" "$subsub"
+                ;;
+            info)
+                __rrh_group_info "$1" "$2" "$3" "$4" "$subsub"
                 ;;
             list)
                 __rrh_group_list "$1" "$2" "$3" "$4" "$subsub"

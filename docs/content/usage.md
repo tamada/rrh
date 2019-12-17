@@ -137,6 +137,7 @@ If sub-sub-command was not specified, it runs `list` sub-sub-command.
 rrh group <SUBCOMMAND>
 SUBCOMMAND
     add       add new group.
+    info      show information of specified groups.
     list      list groups (default).
     of        shows groups of the specified repository.
     rm        remove group.
@@ -154,6 +155,16 @@ OPTIONS
     -o, --omit-list <FLAG>   gives the omit list flag of the group.
 ARGUMENTS
     GROUPS                   gives group names.
+```
+
+##### `rrh group info`
+
+Show information of specified groups.
+
+```sh
+rrh group info <GROUPS...>
+ARGUMENTS
+    GROUPS           group names to show the information.
 ```
 
 ##### `rrh group list`

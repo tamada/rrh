@@ -3,7 +3,7 @@
 [![codebeat badge](https://codebeat.co/badges/15e04551-d448-4ad3-be1d-e98b1e586f1a)](https://codebeat.co/projects/github-com-tamada-rrh-master)
 [![go report](https://goreportcard.com/badge/github.com/tamada/rrh)](https://goreportcard.com/report/github.com/tamada/rrh)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/tamada/rrh/blob/master/LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.0.4-yellowgreen.svg)](https://github.com/tamada/rrh/releases/tag/v1.0.4)
+[![Version](https://img.shields.io/badge/Version-1.1.0-yellowgreen.svg)](https://github.com/tamada/rrh/releases/tag/v1.1.0)
 
 # RRH
 
@@ -207,6 +207,7 @@ If sub-sub-command was not specified, it runs `list` sub-sub-command.
 rrh group <SUBCOMMAND>
 SUBCOMMAND
     add       add new group.
+    info      show information of specified groups.
     list      list groups (default).
     of        shows groups of the specified repository.
     rm        remove group.
@@ -224,6 +225,16 @@ OPTIONS
     -o, --omit-list <FLAG>   gives the omit list flag of the group.
 ARGUMENTS
     GROUPS                   gives group names.
+```
+
+##### `rrh group info`
+
+Show information of specified groups.
+
+```sh
+rrh group info <GROUPS...>
+ARGUMENTS
+    GROUPS           group names to show the information.
 ```
 
 ##### `rrh group list`
