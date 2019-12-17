@@ -69,20 +69,15 @@ func groupFrequencies(db *Database) map[string]int {
 	return groupMap
 }
 
-func pruneGroups(db *Database) int {
+func pruneGroups(db *Database) []Group {
 	var groupMap = groupFrequencies(db)
-	var newGroups = []Group{}
-	var count = 0
+	var prunedGroups = []Group{}
 	for _, group := range db.Groups {
-		if groupMap[group.Name] != 0 {
-			newGroups = append(newGroups, group)
-		} else {
-			count++
+		if groupMap[group.Name] == 0 {
+			prunedGroups = append(prunedGroups, group)
 		}
 	}
-	db.Groups = newGroups
-
-	return count
+	return prunedGroups
 }
 
 func repositoryFrequencies(db *Database) map[string]int {
@@ -96,28 +91,39 @@ func repositoryFrequencies(db *Database) map[string]int {
 	return repoFlags
 }
 
-func pruneRepositories(db *Database) int {
+func pruneRepositories(db *Database) []Repository {
 	var repoFlags = repositoryFrequencies(db)
 	var repos = []Repository{}
-	var prunedReposCount = 0
 	for _, repo := range db.Repositories {
-		if repoFlags[repo.ID] != 0 {
+		if repoFlags[repo.ID] == 0 {
 			repos = append(repos, repo)
-		} else {
-			prunedReposCount++
 		}
 	}
-	db.Repositories = repos
-	return prunedReposCount
+	return repos
 }
 
 /*
 Prune eliminates unnecessary repositories, and groups from db.
 */
 func (db *Database) Prune() (int, int) {
-	var prunedGroupCount = pruneGroups(db)
-	var prunedReposCount = pruneRepositories(db)
-	return prunedGroupCount, prunedReposCount
+	var repos, groups = db.PruneTargets()
+	for _, repo := range repos {
+		db.DeleteRepository(repo.ID)
+	}
+	for _, group := range groups {
+		db.DeleteGroup(group.Name)
+	}
+
+	return len(repos), len(groups)
+}
+
+/*
+PruneTargets returns the pruned (unnecessary) repositories and groups from db.
+*/
+func (db *Database) PruneTargets() ([]Repository, []Group) {
+	var repos = pruneRepositories(db)
+	var groups = pruneGroups(db)
+	return repos, groups
 }
 
 /*

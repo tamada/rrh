@@ -15,7 +15,10 @@ func TestSynopsis(t *testing.T) {
 }
 func TestHelp(t *testing.T) {
 	var prune = PruneCommand{}
-	if prune.Help() != "rrh prune" {
+	if prune.Help() != `rrh prune [OPTIONS]
+OPTIONS
+    -d, --dry-run    dry-run mode.
+    -v, --verbose    verbose mode.` {
 		t.Error("Help message is not matched.")
 	}
 }
@@ -70,4 +73,32 @@ func ExamplePruneCommand_Run() {
 	})
 	defer os.Remove(dbFile)
 	// Output: Pruned 3 groups, 2 repositories
+}
+
+func ExamplePruneCommand_Run_DryrunMode() {
+	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
+		var prune, _ = PruneCommandFactory()
+		prune.Run([]string{"--dry-run"})
+	})
+	defer os.Remove(dbFile)
+	// Output: Pruned 1 groups, 2 repositories (dry-run mode)
+	// repo1: repository pruned (not exists)
+	// repo2: repository pruned (not exists)
+	// group2: group pruned (no relations)
+}
+
+// The result was not from dry-run mode (ExamplePruneCommand_Run_DryrunMode).
+// The reason is that dry-run mode do not delete repo1 and repo2 because of dry-run mode.
+func ExamplePruneCommand_Run_VerboseMode() {
+	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
+		var prune, _ = PruneCommandFactory()
+		prune.Run([]string{"--verbose"})
+	})
+	defer os.Remove(dbFile)
+	// Output: Pruned 3 groups, 2 repositories
+	// repo1: repository pruned (not exists)
+	// repo2: repository pruned (not exists)
+	// group1: group pruned (no relations)
+	// group2: group pruned (no relations)
+	// group3: group pruned (no relations)
 }

@@ -272,7 +272,10 @@ The unnecessary repositories are to have an invalid path.
 
 
 ```sh
-rrh prune
+rrh prune [OPTIONS]
+OPTIONS
+    -d, --dry-run    dry-run mode.
+    -v, --verbose    verbose mode.
 ```
 
 #### `rrh repository`

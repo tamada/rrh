@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/mitchellh/cli"
+	flag "github.com/spf13/pflag"
 	"github.com/tamada/rrh/lib"
 )
 
@@ -12,19 +13,46 @@ import (
 PruneCommand represents a command.
 */
 type PruneCommand struct {
+	verbose bool
+	dryrun  bool
+	mc      *lib.MessageCenter
 }
 
 /*
 PruneCommandFactory returns an instance of the PruneCommand.
 */
 func PruneCommandFactory() (cli.Command, error) {
-	return &PruneCommand{}, nil
+	return &PruneCommand{verbose: false, dryrun: false, mc: lib.NewMessageCenter()}, nil
+}
+
+func printResults(prune *PruneCommand, repos []lib.Repository, groups []lib.Group) {
+	prune.mc.Print(os.Stdout, lib.VERBOSE)
+	for _, repo := range repos {
+		fmt.Printf("%s: repository pruned (no relations)\n", repo.ID)
+	}
+	for _, group := range groups {
+		fmt.Printf("%s: group pruned (no relations)\n", group.Name)
+	}
+}
+
+func dryrunMode(mode bool) string {
+	if !mode {
+		return ""
+	}
+	return " (dry-run mode)"
 }
 
 func (prune *PruneCommand) perform(db *lib.Database) bool {
 	var count = prune.removeNotExistRepository(db)
-	var gCount, rCount = db.Prune()
-	fmt.Printf("Pruned %d groups, %d repositories\n", gCount, rCount+count)
+	var repos, groups = db.PruneTargets()
+	fmt.Printf("Pruned %d groups, %d repositories%s\n", len(groups), len(repos)+count, dryrunMode(prune.dryrun))
+	if !prune.dryrun {
+		db.Prune()
+	}
+	if prune.dryrun || prune.verbose {
+		printResults(prune, repos, groups)
+	}
+
 	return true
 }
 
@@ -32,13 +60,28 @@ func (prune *PruneCommand) perform(db *lib.Database) bool {
 Help function shows the help message.
 */
 func (prune *PruneCommand) Help() string {
-	return `rrh prune`
+	return `rrh prune [OPTIONS]
+OPTIONS
+    -d, --dry-run    dry-run mode.
+    -v, --verbose    verbose mode.`
+}
+
+func (prune *PruneCommand) parseOptions(args []string) error {
+	var flags = flag.NewFlagSet("prune", flag.ContinueOnError)
+	flags.Usage = func() { prune.Help() }
+	flags.BoolVarP(&prune.dryrun, "dry-run", "d", false, "dry-run mode")
+	flags.BoolVarP(&prune.verbose, "verbose", "v", false, "verbose mode")
+	return flags.Parse(args)
 }
 
 /*
 Run performs the command.
 */
 func (prune *PruneCommand) Run(args []string) int {
+	if err := prune.parseOptions(args); err != nil {
+		fmt.Println(err.Error())
+		return 1
+	}
 	var config = lib.OpenConfig()
 	var db, err = lib.Open(config)
 	if err != nil {
@@ -62,12 +105,21 @@ func (prune *PruneCommand) removeNotExistRepository(db *lib.Database) int {
 
 	var count = 0
 	for _, repo := range removeRepos {
-		var err = db.DeleteRepository(repo)
-		if err == nil {
+		pushMessage(prune, repo, "not exists")
+		if !prune.dryrun {
+			var err = db.DeleteRepository(repo)
+			if err == nil {
+				count++
+			}
+		} else {
 			count++
 		}
 	}
 	return count
+}
+
+func pushMessage(prune *PruneCommand, repo, reason string) {
+	prune.mc.PushVerbose(fmt.Sprintf("%s: repository pruned (%s)", repo, reason))
 }
 
 /*
