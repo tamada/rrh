@@ -46,10 +46,8 @@ func (prune *PruneCommand) perform(db *lib.Database) bool {
 	var count = prune.removeNotExistRepository(db)
 	var repos, groups = db.PruneTargets()
 	fmt.Printf("Pruned %d groups, %d repositories%s\n", len(groups), len(repos)+count, dryrunMode(prune.dryrun))
-	if !prune.dryrun {
-		db.Prune()
-	}
-	if prune.dryrun || prune.verbose {
+	db.Prune()
+	if prune.verbose || prune.dryrun {
 		printResults(prune, repos, groups)
 	}
 
@@ -88,10 +86,19 @@ func (prune *PruneCommand) Run(args []string) int {
 		fmt.Println(err.Error())
 		return 1
 	}
-	if prune.perform(db) {
+	if prune.perform(db) || !prune.dryrun {
 		db.StoreAndClose()
 	}
 	return 0
+}
+
+func (prune *PruneCommand) deleteNotExistRepository(db *lib.Database, repo string) int {
+	pushMessage(prune, repo, "not exists")
+	var err = db.DeleteRepository(repo)
+	if err != nil {
+		return 0
+	}
+	return 1
 }
 
 func (prune *PruneCommand) removeNotExistRepository(db *lib.Database) int {
@@ -105,15 +112,7 @@ func (prune *PruneCommand) removeNotExistRepository(db *lib.Database) int {
 
 	var count = 0
 	for _, repo := range removeRepos {
-		pushMessage(prune, repo, "not exists")
-		if !prune.dryrun {
-			var err = db.DeleteRepository(repo)
-			if err == nil {
-				count++
-			}
-		} else {
-			count++
-		}
+		count += prune.deleteNotExistRepository(db, repo)
 	}
 	return count
 }

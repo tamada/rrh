@@ -66,6 +66,14 @@ func TestPruneCommandRunFailedByBrokenDBFile(t *testing.T) {
 	}
 }
 
+func TestPruneCommandRunFailedByInvalidArgs(t *testing.T) {
+	os.Setenv(lib.RrhDatabasePath, "../testdata/test_db.json")
+	var prune, _ = PruneCommandFactory()
+	if prune.Run([]string{"--help"}) != 1 {
+		t.Error("successing invalid option parsing.")
+	}
+}
+
 func ExamplePruneCommand_Run() {
 	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
 		var prune, _ = PruneCommandFactory()
@@ -81,14 +89,14 @@ func ExamplePruneCommand_Run_DryrunMode() {
 		prune.Run([]string{"--dry-run"})
 	})
 	defer os.Remove(dbFile)
-	// Output: Pruned 1 groups, 2 repositories (dry-run mode)
+	// Output: Pruned 3 groups, 2 repositories (dry-run mode)
 	// repo1: repository pruned (not exists)
 	// repo2: repository pruned (not exists)
+	// group1: group pruned (no relations)
 	// group2: group pruned (no relations)
+	// group3: group pruned (no relations)
 }
 
-// The result was not from dry-run mode (ExamplePruneCommand_Run_DryrunMode).
-// The reason is that dry-run mode do not delete repo1 and repo2 because of dry-run mode.
 func ExamplePruneCommand_Run_VerboseMode() {
 	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
 		var prune, _ = PruneCommandFactory()
