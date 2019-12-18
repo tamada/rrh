@@ -1,6 +1,6 @@
 GO=go
 NAME := rrh
-VERSION := 1.0.4
+VERSION := 1.1.0
 REVISION := $(shell git rev-parse --short HEAD)
 
 all: test build

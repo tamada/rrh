@@ -42,7 +42,6 @@ func TestHelpCommand(t *testing.T) {
 		wontMessage string
 	}{
 		{[]string{}, defaultHelpMessage},
-		{[]string{"prune"}, "rrh prune"},
 		{[]string{"unknown_subcommand"}, "unknown_subcommand: subcommand not found"},
 	}
 	for _, tc := range testcases {
@@ -75,5 +74,5 @@ func ExampleVersionCommand_Run() {
 	var command, _ = VersionCommandFactory()
 	command.Run([]string{})
 	// Output:
-	// rrh version 1.0.4
+	// rrh version 1.1.0
 }

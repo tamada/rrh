@@ -22,6 +22,14 @@ type repositoryInfoCommand struct {
 type repositoryUpdateCommand struct {
 	options *repositoryUpdateOptions
 }
+type repositoryUpdateRemotesCommand struct {
+	options *updateRemotesOptions
+}
+
+type updateRemotesOptions struct {
+	dryRun  bool
+	verbose bool
+}
 
 type repositoryInfoOptions struct {
 	color   bool
@@ -45,15 +53,19 @@ type repositoryUpdateOptions struct {
 }
 
 func repositoryInfoCommandFactory() (cli.Command, error) {
-	return &repositoryInfoCommand{}, nil
+	return &repositoryInfoCommand{options: new(repositoryInfoOptions)}, nil
 }
 
 func repositoryListCommandFactory() (cli.Command, error) {
-	return &repositoryListCommand{}, nil
+	return &repositoryListCommand{options: new(repositoryListOptions)}, nil
 }
 
 func repositoryUpdateCommandFactory() (cli.Command, error) {
-	return &repositoryUpdateCommand{}, nil
+	return &repositoryUpdateCommand{options: new(repositoryUpdateOptions)}, nil
+}
+
+func repositoryUpdateRemotesCommandFactory() (cli.Command, error) {
+	return &repositoryUpdateRemotesCommand{options: new(updateRemotesOptions)}, nil
 }
 
 /*
@@ -263,6 +275,97 @@ func (update *repositoryUpdateCommand) execute(db *lib.Database) int {
 	return 0
 }
 
+func (ur *repositoryUpdateRemotesCommand) verbose(generator func() string) {
+	if ur.options.verbose {
+		fmt.Println(generator())
+	}
+}
+
+func (ur *repositoryUpdateRemotesCommand) buildFlagSet() (*flag.FlagSet, *updateRemotesOptions) {
+	var options = updateRemotesOptions{}
+	flags := flag.NewFlagSet("update-remotes", flag.ContinueOnError)
+	flags.Usage = func() { fmt.Println(ur.Help()) }
+	flags.BoolVarP(&options.dryRun, "dry-run", "d", false, "dry-run mode")
+	flags.BoolVarP(&options.verbose, "verbose", "v", false, "verbose mode")
+	return flags, &options
+}
+
+func (ur *repositoryUpdateRemotesCommand) parseOptions(args []string) error {
+	var flags, options = ur.buildFlagSet()
+	if err := flags.Parse(args); err != nil {
+		return err
+	}
+	ur.options = options
+	return nil
+}
+
+func createString(remotes []lib.Remote) string {
+	var remoteStrings = []string{}
+	for _, r := range remotes {
+		remoteStrings = append(remoteStrings, r.String())
+	}
+	return strings.Join(remoteStrings, ",")
+}
+
+func createStrings(remotes1, remotes2 []lib.Remote) string {
+	return fmt.Sprintf("{ %s } -> { %s }", createString(remotes1), createString(remotes2))
+}
+
+func isSameRemotes(remotes1, remotes2 []lib.Remote) bool {
+	if len(remotes1) != len(remotes2) {
+		return false
+	}
+	for i := range remotes1 {
+		if remotes1[i].Name != remotes2[i].Name || remotes1[i].URL != remotes2[i].URL {
+			return false
+		}
+	}
+	return true
+}
+
+func (ur *repositoryUpdateRemotesCommand) updateRemote(repo *lib.Repository) (*lib.Repository, bool) {
+	var remotes, err = lib.FindRemotes(repo.Path)
+	if err != nil {
+		fmt.Printf("%s: %s\n", repo.Path, err.Error())
+	}
+	if err == nil && !isSameRemotes(repo.Remotes, remotes) {
+		ur.verbose(func() string {
+			return createStrings(repo.Remotes, remotes)
+		})
+		repo.Remotes = remotes
+		return repo, true
+	}
+	return repo, false
+}
+
+func (ur *repositoryUpdateRemotesCommand) execute(db *lib.Database) int {
+	var updateFlag = false
+	for i, repo := range db.Repositories {
+		var repo2, flag = ur.updateRemote(&repo)
+		db.Repositories[i] = *repo2
+		updateFlag = updateFlag || flag
+	}
+	if updateFlag || !ur.options.dryRun {
+		db.StoreAndClose()
+	}
+	return 0
+}
+
+func (ur *repositoryUpdateRemotesCommand) Run(args []string) int {
+	var err = ur.parseOptions(args)
+	if err != nil {
+		fmt.Printf(ur.Help())
+		return 1
+	}
+	var config = lib.OpenConfig()
+	var db, err2 = lib.Open(config)
+	if err2 != nil {
+		fmt.Println(err2.Error())
+		return 2
+	}
+	return ur.execute(db)
+}
+
 /*
 Run performs the command.
 */
@@ -270,9 +373,10 @@ func (repository *RepositoryCommand) Run(args []string) int {
 	c := cli.NewCLI("rrh repository", lib.VERSION)
 	c.Args = args
 	c.Commands = map[string]cli.CommandFactory{
-		"list":   repositoryListCommandFactory,
-		"info":   repositoryInfoCommandFactory,
-		"update": repositoryUpdateCommandFactory,
+		"list":           repositoryListCommandFactory,
+		"info":           repositoryInfoCommandFactory,
+		"update":         repositoryUpdateCommandFactory,
+		"update-remotes": repositoryUpdateRemotesCommandFactory,
 	}
 	c.HiddenCommands = []string{"list"}
 	if len(args) == 0 {
@@ -293,7 +397,8 @@ func (repository *RepositoryCommand) Help() string {
 	return `rrh repository <SUBCOMMAND>
 SUBCOMMAND
     info [OPTIONS] <REPO...>     shows repository information.
-    update [OPTIONS] <REPO...>   updates repository information.`
+    update [OPTIONS] <REPO...>   updates repository information.
+    update-remotes [OPTIONS]     updates remotes of all repositories.`
 }
 
 func (info *repositoryInfoCommand) Help() string {
@@ -325,6 +430,13 @@ ARGUMENTS
     REPOSITORY           specifies the repository id.`
 }
 
+func (ur *repositoryUpdateRemotesCommand) Help() string {
+	return `rrh repository update-remotes [OPTIONS]
+OPTIONS
+    -d, --dry-run    dry-run mode.
+    -v, --verbose    verbose mode.`
+}
+
 func (info *repositoryInfoCommand) Synopsis() string {
 	return "prints information of the specified repositories."
 }
@@ -335,6 +447,10 @@ func (list *repositoryListCommand) Synopsis() string {
 
 func (update *repositoryUpdateCommand) Synopsis() string {
 	return "update information of the specified repository."
+}
+
+func (ur *repositoryUpdateRemotesCommand) Synopsis() string {
+	return "update remote entries of all repositories."
 }
 
 /*

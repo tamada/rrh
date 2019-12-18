@@ -3,7 +3,7 @@
 [![codebeat badge](https://codebeat.co/badges/15e04551-d448-4ad3-be1d-e98b1e586f1a)](https://codebeat.co/projects/github-com-tamada-rrh-master)
 [![go report](https://goreportcard.com/badge/github.com/tamada/rrh)](https://goreportcard.com/report/github.com/tamada/rrh)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/tamada/rrh/blob/master/LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.0.4-yellowgreen.svg)](https://github.com/tamada/rrh/releases/tag/v1.0.4)
+[![Version](https://img.shields.io/badge/Version-1.1.0-yellowgreen.svg)](https://github.com/tamada/rrh/releases/tag/v1.1.0)
 
 # RRH
 
@@ -207,6 +207,7 @@ If sub-sub-command was not specified, it runs `list` sub-sub-command.
 rrh group <SUBCOMMAND>
 SUBCOMMAND
     add       add new group.
+    info      show information of specified groups.
     list      list groups (default).
     of        shows groups of the specified repository.
     rm        remove group.
@@ -224,6 +225,16 @@ OPTIONS
     -o, --omit-list <FLAG>   gives the omit list flag of the group.
 ARGUMENTS
     GROUPS                   gives group names.
+```
+
+##### `rrh group info`
+
+Show information of specified groups.
+
+```sh
+rrh group info <GROUPS...>
+ARGUMENTS
+    GROUPS           group names to show the information.
 ```
 
 ##### `rrh group list`
@@ -352,6 +363,7 @@ rrh repository <SUBCOMMAND>
 SUBCOMMAND
     info [OPTIONS] <REPO...>     shows repository information.
     update [OPTIONS] <REPO...>   updates repository information.
+    update-remotes [OPTIONS]     update all remote entries.
 ```
 
 ##### `rrh repository info`
@@ -379,6 +391,17 @@ OPTIONS
     -p, --path <PATH>    specifies new path.
 ARGUMENTS
     REPOSITORY           specifies the repository id.
+```
+
+##### `rrh repository update-remotes`
+
+update remote entries in the all repositories.
+
+```sh
+rrh repository update-remotes [OPTIONS]
+OPTIONS
+    -d, --dry-run    dry-run mode.
+    -v, --verbose    verbose mode.
 ```
 
 #### `rrh rm`
@@ -651,6 +674,24 @@ RRH means "Repositories, Ready to Hack," is not the abbreviation of the Red Ridi
 ![icon of rrh](https://raw.githubusercontent.com/tamada/rrh/master/docs/static/favicon-64x64.png) by [iconpon.com](https://www.iconpon.com/)
 
 
+### Version histories
+
+* [v1.1.0](https://github.com/tamada/rrh/releases/tag/v1.1.0) (18 Dec, 2018)
+    * [\#79](https://github.com/tamada/rrh/issues/79) (add `rrh group info` sub command)
+    * [\#77](https://github.com/tamada/rrh/issues/77) (introduce `rrh repository update-remotes` sub command)
+    * [\#81](https://github.com/tamada/rrh/issues/81) (introduce options for `rrh prune` command)
+* [v1.0.4](https://github.com/tamada/rrh/releases/tag/v1.1.0) (13 Jul, 2018)
+    * [\#74](https://github.com/tamada/rrh/issues/74) (permission of created README.md by rrh-new was invalid (204))
+    * [\#75](https://github.com/tamada/rrh/issues/75) (Introduce `--dry-run` option to `rrh new` command)
+* [v1.0.3](https://github.com/tamada/rrh/releases/tag/v1.1.0) (29 Jun, 2018)
+    * [\#72](https://github.com/tamada/rrh/issues/72) (Print belonging groups on `rrh repository info`)
+* [v1.0.2](https://github.com/tamada/rrh/releases/tag/v1.1.0) (29 Jun, 2018)
+    * [\#67](https://github.com/tamada/rrh/issues/67) (implements `rrh new` sub command)
+* [v1.0.1](https://github.com/tamada/rrh/releases/tag/v1.1.0) (26 Jun, 2018)
+    * [\#68](https://github.com/tamada/rrh/issues/68) (`rrh group` prints `rrh config list`)
+* [v1.0.0](https://github.com/tamada/rrh/releases/tag/v1.1.0) (18 Jun, 2018)
+    * The first public release.
+
 ## Table of Contents
 
 * [Description](#description)
@@ -692,3 +733,4 @@ RRH means "Repositories, Ready to Hack," is not the abbreviation of the Red Ridi
     * [Author](#author)
     * [Why the project name RRH?](#why-the-project-name-rrh)
     * [Attributions](#attributions)
+    * [Version histories](#version-histories)

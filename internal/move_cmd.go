@@ -36,11 +36,13 @@ func (options *moveOptions) printIfNeeded(message string) {
 	}
 }
 
+type targetKind int
+
 /*
 the target type values
 */
 const (
-	GroupType = iota
+	GroupType targetKind = iota + 1
 	RepositoryType
 	GroupAndRepoType
 	GroupOrRepoType
@@ -48,7 +50,7 @@ const (
 )
 
 type target struct {
-	targetType     int
+	kind           targetKind
 	groupName      string
 	repositoryName string
 	original       string
@@ -95,7 +97,7 @@ func parseType(db *lib.Database, typeString string) (target, error) {
 	return parseEither(db, typeString)
 }
 
-func mergeType(types []int) (int, error) {
+func mergeType(types []targetKind) (targetKind, error) {
 	var t = types[0]
 	for _, target := range types {
 		if t != target {
@@ -116,17 +118,17 @@ const (
 	Invalid
 )
 
-func isGroupToGroup(fromType int, toType int) bool {
+func isGroupToGroup(fromType targetKind, toType targetKind) bool {
 	return fromType == GroupType && (toType == GroupType || toType == GroupOrRepoType)
 }
 
-func isRepositoriesToGroup(fromType int, toType int) bool {
+func isRepositoriesToGroup(fromType targetKind, toType targetKind) bool {
 	var flag = (toType == GroupType || toType == GroupOrRepoType)
 	return fromType == GroupAndRepoType && flag ||
 		fromType == RepositoryType && flag
 }
 
-func isRepositoryToRepository(fromType int, toType int) bool {
+func isRepositoryToRepository(fromType targetKind, toType targetKind) bool {
 	return fromType == RepositoryType || fromType == GroupAndRepoType &&
 		toType == GroupAndRepoType
 }
@@ -135,15 +137,15 @@ func isRepositoryToRepository(fromType int, toType int) bool {
 // 	return toType != GroupType && toType != GroupOrRepoType
 // }
 
-func verifyArgumentsOneToOne(db *lib.Database, from target, to target) (int, error) {
-	if from.targetType == Unknown {
+func verifyArgumentsOneToOne(db *lib.Database, from target, to target) (targetKind, error) {
+	if from.kind == Unknown {
 		return Invalid, fmt.Errorf("%s: unknown type not acceptable", from.original)
 	}
-	if isGroupToGroup(from.targetType, to.targetType) {
+	if isGroupToGroup(from.kind, to.kind) {
 		return GroupToGroup, nil
-	} else if isRepositoriesToGroup(from.targetType, to.targetType) {
+	} else if isRepositoriesToGroup(from.kind, to.kind) {
 		return RepositoriesToGroup, nil
-	} else if isRepositoryToRepository(from.targetType, to.targetType) {
+	} else if isRepositoryToRepository(from.kind, to.kind) {
 		return RepositoryToRepository, nil
 		//	never reach this part?
 		//	} else if isNotGroupType(from.targetType, to.targetType) {
@@ -152,30 +154,38 @@ func verifyArgumentsOneToOne(db *lib.Database, from target, to target) (int, err
 	return Invalid, fmt.Errorf("Specifying arguments did not accept")
 }
 
-func findFromTypes(froms []target) (int, error) {
-	var fromTypes = []int{}
+func findFromTypes(froms []target) (targetKind, error) {
+	var fromTypes = []targetKind{}
 	for _, from := range froms {
-		fromTypes = append(fromTypes, from.targetType)
+		fromTypes = append(fromTypes, from.kind)
 	}
 	return mergeType(fromTypes)
 }
 
-func verifyArgumentsMoreToOne(db *lib.Database, froms []target, to target) (int, error) {
-	if to.targetType != GroupType && to.targetType != GroupOrRepoType {
-		return Invalid, fmt.Errorf("types of froms and to did not match: from: %v, to: %v (%d)", froms, to.original, to.targetType)
+func isNotGroupAndGroupOrRepoType(kind targetKind) bool {
+	return kind != GroupType && kind != GroupOrRepoType
+}
+
+func isGroupAndRepoOrRepoType(kind targetKind) bool {
+	return kind == GroupAndRepoType || kind == RepositoryType
+}
+
+func verifyArgumentsMoreToOne(db *lib.Database, froms []target, to target) (targetKind, error) {
+	if isNotGroupAndGroupOrRepoType(to.kind) {
+		return Invalid, fmt.Errorf("types of froms and to did not match: from: %v, to: %v (%d)", froms, to.original, to.kind)
 	}
 
 	var fromType, err2 = findFromTypes(froms)
 	if err2 != nil {
 		return Invalid, err2
 	}
-	if fromType == GroupAndRepoType || fromType == RepositoryType {
+	if isGroupAndRepoOrRepoType(fromType) {
 		return RepositoriesToGroup, nil
 	}
 	return GroupsToGroup, nil
 }
 
-func verifyArguments(db *lib.Database, froms []target, to target) (int, error) {
+func verifyArguments(db *lib.Database, froms []target, to target) (targetKind, error) {
 	if len(froms) == 1 {
 		return verifyArgumentsOneToOne(db, froms[0], to)
 	}
@@ -192,7 +202,7 @@ func convertToTarget(db *lib.Database, froms []string, to string) ([]target, tar
 	return targetFrom, targetTo
 }
 
-func (mv *MoveCommand) performImpl(db *lib.Database, targets targets, executionType int) []error {
+func (mv *MoveCommand) performImpl(db *lib.Database, targets targets, executionType targetKind) []error {
 	switch executionType {
 	case GroupToGroup:
 		return mv.moveGroupToGroup(db, targets.froms[0], targets.to)
@@ -218,7 +228,7 @@ func (mv *MoveCommand) moveRepositoryToRepository(db *lib.Database, from target,
 	if _, err := db.AutoCreateGroup(to.groupName, "", false); err != nil {
 		return err
 	}
-	if from.targetType == GroupAndRepoType {
+	if from.kind == GroupAndRepoType {
 		db.Unrelate(from.groupName, from.repositoryName)
 		mv.options.printIfNeeded(fmt.Sprintf("unrelate group %s and repository %s", from.groupName, from.repositoryName))
 	}
@@ -228,12 +238,12 @@ func (mv *MoveCommand) moveRepositoryToRepository(db *lib.Database, from target,
 }
 
 func (mv *MoveCommand) moveRepositoryToGroup(db *lib.Database, from target, to target) error {
-	if to.targetType == GroupType || to.targetType == GroupOrRepoType {
+	if to.kind == GroupType || to.kind == GroupOrRepoType {
 		if _, err := db.AutoCreateGroup(to.original, "", false); err != nil {
 			return err
 		}
 	}
-	if from.targetType == GroupAndRepoType {
+	if from.kind == GroupAndRepoType {
 		db.Unrelate(from.groupName, from.repositoryName)
 	}
 	db.Relate(to.original, from.repositoryName)

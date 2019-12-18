@@ -42,6 +42,18 @@ func Example_groupOfCommand_Run() {
 	// repo1, [group1]
 }
 
+func Example_groupInfoCommand_Run() {
+	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
+		var gic, _ = groupInfoCommandFactory()
+		gic.Run([]string{"group1", "group2", "groupN"})
+	})
+	defer os.Remove(dbFile)
+	// Output:
+	// group1: desc1 (1 repository, omit: false)
+	// group2: desc2 (0 repositories, omit: false)
+	// groupN: group not found
+}
+
 func TestGroupListOnlyName(t *testing.T) {
 	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
 		var output = lib.CaptureStdout(func() {
@@ -123,6 +135,30 @@ func TestAddGroup(t *testing.T) {
 						t.Errorf("%v: group OmitList did not match: wont: %v, got: %v", testcase.args, checker.omitList, group.OmitList)
 					}
 				}
+			}
+		})
+		defer os.Remove(dbFile)
+	}
+}
+
+func TestGroupInfo(t *testing.T) {
+	os.Setenv(lib.RrhDatabasePath, "../testdata/test_db.json")
+	os.Setenv(lib.RrhConfigPath, "../testdata/config.json")
+
+	var testdata = []struct {
+		args       []string
+		wontStatus int
+	}{
+		{[]string{}, 1},
+		{[]string{"groupN"}, 0},
+		{[]string{"group1"}, 0},
+	}
+	for _, td := range testdata {
+		var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+			var gic = groupInfoCommand{}
+			var status = gic.Run(td.args)
+			if status != td.wontStatus {
+				t.Errorf("args: %v, wont status: %d, got %d", td.args, td.wontStatus, status)
 			}
 		})
 		defer os.Remove(dbFile)
@@ -272,6 +308,7 @@ func TestInvalidOptionInGroupList(t *testing.T) {
 
 func TestHelpOfGroups(t *testing.T) {
 	var gac, _ = groupAddCommandFactory()
+	var gic, _ = groupInfoCommandFactory()
 	var glc, _ = groupListCommandFactory()
 	var grc, _ = groupRemoveCommandFactory()
 	var guc, _ = groupUpdateCommandFactory()
@@ -299,6 +336,10 @@ OPTIONS
 ARGUMENTS
     GROUPS           target group names.`
 
+	var gicHelp = `rrh group info <GROUPS...>
+ARGUMENTS
+    GROUPS           group names to show the information.`
+
 	var gucHelp = `rrh group update [OPTIONS] <GROUP>
 OPTIONS
     -n, --name <NAME>        change group name to NAME.
@@ -314,6 +355,7 @@ ARGUMENTS
 	var gcHelp = `rrh group <SUBCOMMAND>
 SUBCOMMAND
     add       add new group.
+    info      show information of specified groups.
     list      list groups (default).
     of        shows groups of the specified repository.
     rm        remove group.
@@ -337,11 +379,18 @@ SUBCOMMAND
 	if grc.Help() != grcHelp {
 		t.Error("help message did not match")
 	}
+	if gic.Help() != gicHelp {
+		t.Errorf("help message did not match")
+	}
 }
 
 func TestSynopsisOfGroups(t *testing.T) {
 	var gc, _ = GroupCommandFactory()
 	if gc.Synopsis() != "add/list/update/remove groups and show groups of the repository." {
+		t.Error("synopsis did not match")
+	}
+	var gic, _ = groupInfoCommandFactory()
+	if gic.Synopsis() != "show information of groups." {
 		t.Error("synopsis did not match")
 	}
 	var guc, _ = groupUpdateCommandFactory()

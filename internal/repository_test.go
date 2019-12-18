@@ -9,6 +9,17 @@ import (
 	"github.com/tamada/rrh/lib"
 )
 
+func Example_repositoryUpdateRemotesCommand_Run() {
+	var dbFile = lib.Rollback("../testdata/remotes.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+		var command, _ = repositoryUpdateRemotesCommandFactory()
+		command.Run([]string{"--verbose", "--dry-run"})
+	})
+	defer os.Remove(dbFile)
+	// Output:
+	// { origin:git@github.com:tamada/fibonacci.git } -> { origin:https://htamada@bitbucket.org/htamada/fibonacci.git }
+	// {  } -> { origin:https://htamada@bitbucket.org/htamada/helloworld.git }
+}
+
 func TestRepository(t *testing.T) {
 	var testcases = []struct {
 		args         []string
@@ -16,7 +27,7 @@ func TestRepository(t *testing.T) {
 		output       string
 		ignoreOutput bool
 	}{
-		{[]string{}, 0, "rrh repository <SUBCOMMAND>+SUBCOMMAND+    info [OPTIONS] <REPO...>     shows repository information.+    update [OPTIONS] <REPO...>   updates repository information.", false},
+		{[]string{}, 0, "rrh repository <SUBCOMMAND>+SUBCOMMAND+    info [OPTIONS] <REPO...>     shows repository information.+    update [OPTIONS] <REPO...>   updates repository information.+    update-remotes [OPTIONS]     updates remotes of all repositories.", false},
 		{[]string{"unknown-command"}, 127, "", true},
 		{[]string{"list"}, 0, "", false},
 		{[]string{"list", "--id"}, 0, "repo1+repo2", false},
@@ -166,7 +177,8 @@ func TestHelpOfRepository(t *testing.T) {
 	var commandHelp = `rrh repository <SUBCOMMAND>
 SUBCOMMAND
     info [OPTIONS] <REPO...>     shows repository information.
-    update [OPTIONS] <REPO...>   updates repository information.`
+    update [OPTIONS] <REPO...>   updates repository information.
+    update-remotes [OPTIONS]     updates remotes of all repositories.`
 
 	var infoCommandHelp = `rrh repository info [OPTIONS] [REPOSITORIES...]
     -G, --color     prints the results with color.
@@ -190,10 +202,15 @@ OPTIONS
     -p, --path <PATH>    specifies new path.
 ARGUMENTS
     REPOSITORY           specifies the repository id.`
+	var updateRemotesCommandHelp = `rrh repository update-remotes [OPTIONS]
+OPTIONS
+    -d, --dry-run    dry-run mode.
+    -v, --verbose    verbose mode.`
 
 	var infoCommand, _ = repositoryInfoCommandFactory()
 	var listCommand, _ = repositoryListCommandFactory()
 	var updateCommand, _ = repositoryUpdateCommandFactory()
+	var updateRemotesCommand, _ = repositoryUpdateRemotesCommandFactory()
 	var command, _ = RepositoryCommandFactory()
 
 	if infoCommand.Help() != infoCommandHelp {
@@ -205,6 +222,9 @@ ARGUMENTS
 	if updateCommand.Help() != updateCommandHelp {
 		t.Errorf("updateCommand help did not match")
 	}
+	if updateRemotesCommand.Help() != updateRemotesCommandHelp {
+		t.Errorf("updateCommand help did not match")
+	}
 	if command.Help() != commandHelp {
 		t.Errorf("command help did not match")
 	}
@@ -214,6 +234,7 @@ func TestSynopsisOfRepository(t *testing.T) {
 	var infoCommand, _ = repositoryInfoCommandFactory()
 	var listCommand, _ = repositoryListCommandFactory()
 	var updateCommand, _ = repositoryUpdateCommandFactory()
+	var updateRemotesCommand, _ = repositoryUpdateRemotesCommandFactory()
 	var command, _ = RepositoryCommandFactory()
 
 	if infoCommand.Synopsis() != "prints information of the specified repositories." {
@@ -223,6 +244,9 @@ func TestSynopsisOfRepository(t *testing.T) {
 		t.Errorf("listCommand synopsis did not match")
 	}
 	if updateCommand.Synopsis() != "update information of the specified repository." {
+		t.Errorf("updateCommand synopsis did not match")
+	}
+	if updateRemotesCommand.Synopsis() != "update remote entries of all repositories." {
 		t.Errorf("updateCommand synopsis did not match")
 	}
 	if command.Synopsis() != "manages repositories." {

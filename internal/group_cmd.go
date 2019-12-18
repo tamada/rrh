@@ -22,12 +22,18 @@ type groupUpdateCommand struct{}
 type groupRemoveCommand struct {
 	options *groupRemoveOptions
 }
+type groupInfoCommand struct {
+}
 
 /*
 GroupCommandFactory returns an instance of command.
 */
 func GroupCommandFactory() (cli.Command, error) {
 	return &GroupCommand{}, nil
+}
+
+func groupInfoCommandFactory() (cli.Command, error) {
+	return &groupInfoCommand{}, nil
 }
 
 func groupAddCommandFactory() (cli.Command, error) {
@@ -83,6 +89,12 @@ ARGUMENTS
     GROUPS           target group names.`
 }
 
+func (gic *groupInfoCommand) Help() string {
+	return `rrh group info <GROUPS...>
+ARGUMENTS
+    GROUPS           group names to show the information.`
+}
+
 func (guc *groupUpdateCommand) Help() string {
 	return `rrh group update [OPTIONS] <GROUP>
 OPTIONS
@@ -100,6 +112,7 @@ func (group *GroupCommand) Help() string {
 	return `rrh group <SUBCOMMAND>
 SUBCOMMAND
     add       add new group.
+    info      show information of specified groups.
     list      list groups (default).
     of        shows groups of the specified repository.
     rm        remove group.
@@ -115,6 +128,7 @@ func (group *GroupCommand) Run(args []string) int {
 	c.Autocomplete = true
 	c.Commands = map[string]cli.CommandFactory{
 		"add":    groupAddCommandFactory,
+		"info":   groupInfoCommandFactory,
 		"update": groupUpdateCommandFactory,
 		"of":     groupOfCommandFactory,
 		"rm":     groupRemoveCommandFactory,
@@ -209,6 +223,42 @@ func (glc *groupListCommand) parse(args []string) (*groupListOptions, error) {
 		return nil, err
 	}
 	return opt, nil
+}
+
+func printGroupInfo(db *lib.Database, group *lib.Group) {
+	count := db.ContainsCount(group.Name)
+	unit := "repositories"
+	if count == 1 {
+		unit = "repository"
+	}
+	fmt.Printf("%s: %s (%d %s, omit: %v)\n", group.Name, group.Description, count, unit, group.OmitList)
+}
+
+func (gic *groupInfoCommand) perform(db *lib.Database, args []string) int {
+	errs := []error{}
+	for _, arg := range args {
+		group := db.FindGroup(arg)
+		if group == nil {
+			errs = append(errs, fmt.Errorf("%s: group not found", arg))
+			continue
+		}
+		printGroupInfo(db, group)
+	}
+	return printErrors(db.Config, errs)
+}
+
+func (gic *groupInfoCommand) Run(args []string) int {
+	if len(args) == 0 {
+		fmt.Println(gic.Help())
+		return 1
+	}
+	var config = lib.OpenConfig()
+	var db, err = lib.Open(config)
+	if err != nil {
+		fmt.Println(err.Error())
+		return 2
+	}
+	return gic.perform(db, args)
 }
 
 func (goc *groupOfCommand) perform(db *lib.Database, repositoryID string) int {
@@ -444,6 +494,13 @@ Synopsis returns the help message of the command.
 */
 func (grc *groupRemoveCommand) Synopsis() string {
 	return "remove given group."
+}
+
+/*
+Synopsis returns the help message of the command.
+*/
+func (gic *groupInfoCommand) Synopsis() string {
+	return "show information of groups."
 }
 
 /*

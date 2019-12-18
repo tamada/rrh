@@ -137,6 +137,7 @@ If sub-sub-command was not specified, it runs `list` sub-sub-command.
 rrh group <SUBCOMMAND>
 SUBCOMMAND
     add       add new group.
+    info      show information of specified groups.
     list      list groups (default).
     of        shows groups of the specified repository.
     rm        remove group.
@@ -154,6 +155,16 @@ OPTIONS
     -o, --omit-list <FLAG>   gives the omit list flag of the group.
 ARGUMENTS
     GROUPS                   gives group names.
+```
+
+##### `rrh group info`
+
+Show information of specified groups.
+
+```sh
+rrh group info <GROUPS...>
+ARGUMENTS
+    GROUPS           group names to show the information.
 ```
 
 ##### `rrh group list`
@@ -261,7 +272,10 @@ The unnecessary repositories are to have an invalid path.
 
 
 ```sh
-rrh prune
+rrh prune [OPTIONS]
+OPTIONS
+    -d, --dry-run    dry-run mode.
+    -v, --verbose    verbose mode.
 ```
 
 #### `rrh repository`
@@ -273,6 +287,7 @@ rrh repository <SUBCOMMAND>
 SUBCOMMAND
     info [OPTIONS] <REPO...>     shows repository information.
     update [OPTIONS] <REPO...>   updates repository information.
+    update-remotes [OPTIONS]     update all remote entries.
 ```
 
 ##### `rrh repository info`
@@ -302,6 +317,16 @@ ARGUMENTS
     REPOSITORY           specifies the repository id.
 ```
 
+##### `rrh repository update-remotes`
+
+update remote entries in the all repositories.
+
+```sh
+rrh repository update-remotes [OPTIONS]
+OPTIONS
+    -d, --dry-run    dry-run mode.
+    -v, --verbose    verbose mode.
+```
 
 #### `rrh rm`
 

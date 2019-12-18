@@ -135,7 +135,7 @@ func (rm *RemoveCommand) Run(args []string) int {
 
 func (rm *RemoveCommand) buildFlagSet() (*flag.FlagSet, *removeOptions) {
 	var options = removeOptions{false, false, false, []string{}}
-	flags := flag.NewFlagSet("rm", flag.ContinueOnError)
+	var flags = flag.NewFlagSet("rm", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(rm.Help()) }
 	flags.BoolVarP(&options.inquiry, "inquiry", "i", false, "inquiry flag")
 	flags.BoolVarP(&options.verbose, "verbose", "v", false, "verbose flag")
