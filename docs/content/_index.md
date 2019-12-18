@@ -36,3 +36,4 @@ RRH is a simple git repository manager.
     * [Authors](about#authors)
     * [Why the project name RRH](about#why-the-project-name-rrh)
     * [Attributions](about#attributions)
+    * [Version histories](about#version-histories)
