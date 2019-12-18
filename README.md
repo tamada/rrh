@@ -674,6 +674,24 @@ RRH means "Repositories, Ready to Hack," is not the abbreviation of the Red Ridi
 ![icon of rrh](https://raw.githubusercontent.com/tamada/rrh/master/docs/static/favicon-64x64.png) by [iconpon.com](https://www.iconpon.com/)
 
 
+### Version histories
+
+* [v1.1.0](https://github.com/tamada/rrh/releases/tag/v1.1.0) (18 Dec, 2018)
+    * [\#79](https://github.com/tamada/rrh/issues/79) (add `rrh group info` sub command)
+    * [\#77](https://github.com/tamada/rrh/issues/77) (introduce `rrh repository update-remotes` sub command)
+    * [\#81](https://github.com/tamada/rrh/issues/81) (introduce options for `rrh prune` command)
+* [v1.0.4](https://github.com/tamada/rrh/releases/tag/v1.1.0) (13 Jul, 2018)
+    * [\#74](https://github.com/tamada/rrh/issues/74) (permission of created README.md by rrh-new was invalid (204))
+    * [\#75](https://github.com/tamada/rrh/issues/75) (Introduce `--dry-run` option to `rrh new` command)
+* [v1.0.3](https://github.com/tamada/rrh/releases/tag/v1.1.0) (29 Jun, 2018)
+    * [\#72](https://github.com/tamada/rrh/issues/72) (Print belonging groups on `rrh repository info`)
+* [v1.0.2](https://github.com/tamada/rrh/releases/tag/v1.1.0) (29 Jun, 2018)
+    * [\#67](https://github.com/tamada/rrh/issues/67) (implements `rrh new` sub command)
+* [v1.0.1](https://github.com/tamada/rrh/releases/tag/v1.1.0) (26 Jun, 2018)
+    * [\#68](https://github.com/tamada/rrh/issues/68) (`rrh group` prints `rrh config list`)
+* [v1.0.0](https://github.com/tamada/rrh/releases/tag/v1.1.0) (18 Jun, 2018)
+    * The first public release.
+
 ## Table of Contents
 
 * [Description](#description)
