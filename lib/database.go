@@ -16,6 +16,10 @@ type Remote struct {
 	URL  string `json:"url"`
 }
 
+func (r *Remote) String() string {
+	return fmt.Sprintf("%s:%s", r.Name, r.URL)
+}
+
 /*
 Repository represents a Git repository.
 */

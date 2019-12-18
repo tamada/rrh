@@ -53,19 +53,19 @@ type repositoryUpdateOptions struct {
 }
 
 func repositoryInfoCommandFactory() (cli.Command, error) {
-	return &repositoryInfoCommand{}, nil
+	return &repositoryInfoCommand{options: new(repositoryInfoOptions)}, nil
 }
 
 func repositoryListCommandFactory() (cli.Command, error) {
-	return &repositoryListCommand{}, nil
+	return &repositoryListCommand{options: new(repositoryListOptions)}, nil
 }
 
 func repositoryUpdateCommandFactory() (cli.Command, error) {
-	return &repositoryUpdateCommand{}, nil
+	return &repositoryUpdateCommand{options: new(repositoryUpdateOptions)}, nil
 }
 
 func repositoryUpdateRemotesCommandFactory() (cli.Command, error) {
-	return &repositoryUpdateRemotesCommand{}, nil
+	return &repositoryUpdateRemotesCommand{options: new(updateRemotesOptions)}, nil
 }
 
 /*
@@ -300,11 +300,11 @@ func (ur *repositoryUpdateRemotesCommand) parseOptions(args []string) error {
 }
 
 func createString(remotes []lib.Remote) string {
-	var message = ""
+	var remoteStrings = []string{}
 	for _, r := range remotes {
-		message = fmt.Sprintf("%s, %s: %s", message, r.Name, r.URL)
+		remoteStrings = append(remoteStrings, r.String())
 	}
-	return message
+	return strings.Join(remoteStrings, ",")
 }
 
 func createStrings(remotes1, remotes2 []lib.Remote) string {

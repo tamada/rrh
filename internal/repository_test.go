@@ -9,6 +9,16 @@ import (
 	"github.com/tamada/rrh/lib"
 )
 
+func Example_repositoryUpdateRemotesCommand_Run() {
+	var dbFile = lib.Rollback("../testdata/remotes.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+		var command, _ = repositoryUpdateRemotesCommandFactory()
+		command.Run([]string{"--verbose", "--dry-run"})
+	})
+	defer os.Remove(dbFile)
+	// Output:
+	// { origin:git@github.com:tamada/fibonacci.git } -> { origin:https://htamada@bitbucket.org/htamada/fibonacci.git }
+}
+
 func TestRepository(t *testing.T) {
 	var testcases = []struct {
 		args         []string

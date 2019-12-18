@@ -1,0 +1,36 @@
+{
+  "last_modified": "2019-12-18T12:35:45+09:00",
+  "repositories": [
+    {
+      "repository_id": "fibonacci",
+      "repository_path": "../testdata/fibonacci",
+      "repository_desc": "",
+      "remotes": [
+        {
+          "name": "origin",
+          "url": "git@github.com:tamada/fibonacci.git"
+        }
+      ]
+    }, {
+      "repository_id": "helloworld",
+      "repository_path": "../testdata/helloworld",
+      "repository_desc": ""
+    }
+  ],
+  "groups": [
+    {
+      "group_name": "simple",
+      "group_desc": "group description",
+      "omit_list": false
+    }
+  ],
+  "relations": [
+    {
+      "repository_id": "fibonacci",
+      "group_name": "simple"
+    }, {
+      "repository_id": "helloworld",
+      "group_name": "simple"
+    }
+  ]
+}
