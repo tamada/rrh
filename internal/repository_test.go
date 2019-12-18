@@ -17,6 +17,7 @@ func Example_repositoryUpdateRemotesCommand_Run() {
 	defer os.Remove(dbFile)
 	// Output:
 	// { origin:git@github.com:tamada/fibonacci.git } -> { origin:https://htamada@bitbucket.org/htamada/fibonacci.git }
+	// {  } -> { origin:https://htamada@bitbucket.org/htamada/helloworld.git }
 }
 
 func TestRepository(t *testing.T) {
