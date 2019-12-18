@@ -17,9 +17,9 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/rrh/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/rrh/favicon-16x16.png">
   
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.1/dist/katex.min.css" integrity="sha384-dbVIfZGuN1Yq7/1Ocstc1lUEm+AT+/rCkibIcC/OmWo5f0EA48Vf8CytHzGrSwbQ" crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.1/dist/katex.min.js" integrity="sha384-2BKqo+exmr9su6dir+qCw08N2ZKRucY4PrGQPPWU1A7FtlCGjmEGFqXCv5nyM5Ij" crossorigin="anonymous"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css" integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js" integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
 
   <title>Usage | rrh</title>
 </head>
@@ -193,6 +193,7 @@ If sub-sub-command was not specified, it runs <code>list</code> sub-sub-command.
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh group &lt;SUBCOMMAND&gt;
 SUBCOMMAND
     add       add new group.
+    info      show information of specified groups.
     list      list groups <span style="color:#666">(</span>default<span style="color:#666">)</span>.
     of        shows groups of the specified repository.
     rm        remove group.
@@ -206,6 +207,12 @@ OPTIONS
     -o, --omit-list &lt;FLAG&gt;   gives the omit list flag of the group.
 ARGUMENTS
     GROUPS                   gives group names.</code></pre></div>
+<h5 id="rrh-group-info"><code>rrh group info</code></h5>
+
+<p>Show information of specified groups.</p>
+<div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh group info &lt;GROUPS...&gt;
+ARGUMENTS
+    GROUPS           group names to show the information.</code></pre></div>
 <h5 id="rrh-group-list"><code>rrh group list</code></h5>
 
 <p>Displays group list.</p>
@@ -280,14 +287,18 @@ ARGUMENTS
 <p>Deletes unnecessary groups and repositories.
 The unnecessary groups are no repositories in them.
 The unnecessary repositories are to have an invalid path.</p>
-<div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh prune</code></pre></div>
+<div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh prune <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span>
+OPTIONS
+    -d, --dry-run    dry-run mode.
+    -v, --verbose    verbose mode.</code></pre></div>
 <h4 id="rrh-repository"><code>rrh repository</code></h4>
 
 <p>Prints/Updates the repository.</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh repository &lt;SUBCOMMAND&gt;
 SUBCOMMAND
     info <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span> &lt;REPO...&gt;     shows repository information.
-    update <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span> &lt;REPO...&gt;   updates repository information.</code></pre></div>
+    update <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span> &lt;REPO...&gt;   updates repository information.
+    update-remotes <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span>     update all remote entries.</code></pre></div>
 <h5 id="rrh-repository-info"><code>rrh repository info</code></h5>
 
 <p>prints the repository information.</p>
@@ -307,6 +318,13 @@ OPTIONS
     -p, --path &lt;PATH&gt;    specifies new path.
 ARGUMENTS
     REPOSITORY           specifies the repository id.</code></pre></div>
+<h5 id="rrh-repository-update-remotes"><code>rrh repository update-remotes</code></h5>
+
+<p>update remote entries in the all repositories.</p>
+<div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh repository update-remotes <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span>
+OPTIONS
+    -d, --dry-run    dry-run mode.
+    -v, --verbose    verbose mode.</code></pre></div>
 <h4 id="rrh-rm"><code>rrh rm</code></h4>
 
 <p>Removes the specified groups, repositories, and relations.
