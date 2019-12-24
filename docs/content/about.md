@@ -52,7 +52,7 @@ The public language of other channels and GitHub project pages are English.
 At first, the name of this project was GRIM (Git Repository Integrated Manager).
 However, the means of `grim` is not good, and there are many commands which start with `gr`.
 Therefore, we changed the project name to `rrh`.
-RRH means "Repositories, Ready to Hack," is not the abbreviation of the Red Riding Hood.
+RRH means "Repositories, Ready to Hack" or "Remote Repositories Head," are not the abbreviation of the Red Riding Hood.
 
 ### Attributions
 
