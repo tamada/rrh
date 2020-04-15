@@ -1,6 +1,6 @@
 {{ define "main" }}
 
-<h1>{{ .Title }}</h1>
+<h1>{{ .Title | emojify }}</h1>
 
 {{ .Content }}
 
@@ -11,7 +11,7 @@
     {{ $dateFormat := $.Site.Params.dateFormat | default "Jan 2, 2006" }}
     {{ .PublishDate.Format $dateFormat }}
     <a href="{{ .Permalink }}">
-      {{ .Title }}
+      {{ .Title | emojify }}
     </a>
   </li>        
 {{ end }}
