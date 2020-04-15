@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>RRH on rrh</title>
@@ -16,10 +16,10 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://tamada.github.io/rrh/utilities/</guid>
-      <description> Utilities Write the following script to $HOME/.bash_profile, then restart shell, then we can use cdrrh and rrhpeco command in the terminal.
+      <description>Utilities Write the following script to $HOME/.bash_profile, then restart shell, then we can use cdrrh and rrhpeco command in the terminal.
 cdrrh changes directory to the specified repository.
 cdrrh(){ path=$(rrh repository list --path $1) if [ $? -eq 0 ]; then cd $path pwd else echo &amp;#34;$1: repository not found&amp;#34; fi } rrhpeco list repositories, and filtering them by peco, then change directory to the filtering result.
-rrhpeco(){ csv=$(rrh list --path --csv | peco) cd $(echo $csv | awk -F , &amp;#39;{ print $3 }&amp;#39;) pwd }</description>
+rrhpeco(){ csv=$(rrh list --path --csv | peco) cd $(echo $csv | awk -F , &amp;#39;{ print $3 }&amp;#39;) pwd } </description>
     </item>
     
     <item>
@@ -62,7 +62,7 @@ I know the tool ghq, manages the git repositories. However, I cannot use it for 
       <guid>https://tamada.github.io/rrh/installation/</guid>
       <description>Homebrew Install rrh via Homebrew, simply run:
 $ brew tap tamada/brew $ brew install rrh Golang To install cli, simply run:
-$ go get git@github.com/tamada/rrh.git  Requirements  Runtime  Bash 4.x or after, for completion.  zsh?, and fish?, I do not use them, so I do not know. For macOS user, the default shell of the macOS is bash 3.x, therefore, the completion is not work enough.  rrh is maybe work on Windows, and Linux.</description>
+$ go get git@github.com/tamada/rrh.git Requirements  Runtime  Bash 4.x or after, for completion.  zsh?, and fish?, I do not use them, so I do not know. For macOS user, the default shell of the macOS is bash 3.x, therefore, the completion is not work enough.  rrh is maybe work on Windows, and Linux.</description>
     </item>
     
     <item>

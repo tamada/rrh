@@ -4,18 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="generator" content="Hugo 0.55.6" />
+  <meta name="generator" content="Hugo 0.69.0" />
   <link rel="stylesheet" href="/rrh/css/normalize.css">
   <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
   
   
   
-  <link rel="stylesheet" href="/rrh/css/cayman.87415a4997c8d6c666624ff26c8812f27f42b4cf5dc18c45fc8dcb0cd7d6d2f5.css">
+  <link rel="stylesheet" href="/rrh/css/cayman.ea0e967413f3851071cc8ace3621bc4205fe8fa79b2abe3d7bf94ff2841f0d47.css">
+  <link rel="stylesheet" href="/rrh/style.css">
   
   
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/rrh/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/rrh/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/harry.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/harry.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/harry.png">
   
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css" integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js" integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ" crossorigin="anonymous"></script>
@@ -26,6 +27,9 @@
 
 <body>
   <section class="page-header">
+  
+  <img src="https://tamada.github.io/rrhimages/logo.png" class="avatar" alt="project_logo">
+  
   <h1 class="project-name">
     rrh
   </h1>
@@ -83,18 +87,13 @@
   <section class="main-content">
     
   <h1>Usage</h1>
-  
-
-<h2 id="getting-started">Getting Started</h2>
-
+  <h2 id="getting-started">Getting Started</h2>
 <p><code>rrh</code> has various subcommands, however, <code>list</code> and <code>add</code> subcommand make you happy.</p>
-
 <ul>
 <li><code>rrh list</code> shows managed repositories.</li>
 <li><code>rrh add &lt;REPO&gt;</code> adds the given repository under the <code>rrh</code> management.</li>
 <li>type <a href="#cdrrh"><code>cdrrh</code></a> on Terminal, then type TAB, TAB, TAB!</li>
 </ul>
-
 <h2 id="command-references">Command references</h2>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh <span style="color:#666">[</span>GLOBAL OPTIONS<span style="color:#666">]</span> &lt;SUB COMMANDS&gt; <span style="color:#666">[</span>ARGUMENTS<span style="color:#666">]</span>
 GLOBAL OPTIONS
@@ -117,15 +116,12 @@ AVAILABLE SUB COMMANDS:
     repository   manages repositories.
     rm           remove given repository from database.
     status       show git status of repositories.
-    version      show version.</code></pre></div>
-<p>If the user specified an unknown subcommand (e.g., <code>rrh helloworld</code>), <code>rrh</code> treats it as an <strong>external command</strong>.
+    version      show version.
+</code></pre></div><p>If the user specified an unknown subcommand (e.g., <code>rrh helloworld</code>), <code>rrh</code> treats it as an <strong>external command</strong>.
 In that case, <code>rrh</code> searches an executable file named <code>rrh-helloworld</code> from the PATH environment variable.
 If <code>rrh</code> found it, <code>rrh</code> executes it, if not found, <code>rrh</code> prints help and exit.</p>
-
 <h3 id="subcommands">Subcommands</h3>
-
 <h4 id="rrh-add"><code>rrh add</code></h4>
-
 <p>Registers the repositories which specified the given paths to the <code>rrh</code> database and categorize to the group (Default <code>no-group</code>, see <a href="#rrh_default_group_name"><code>RRH_DEFAULT_GROUP_NAME</code></a>).</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh add <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span> &lt;REPOSITORY_PATHS...&gt;
 OPTIONS
@@ -133,12 +129,10 @@ OPTIONS
     -r, --repository-id &lt;ID&gt;   specified repository id of the given repository path.
                                Specifying this option fails with multiple arguments.
 ARGUMENTS
-    REPOSITORY_PATHS           the <span style="color:#008000">local</span> path list of the git repositories.</code></pre></div>
-<h4 id="rrh-clone"><code>rrh clone</code></h4>
-
+    REPOSITORY_PATHS           the <span style="color:#008000">local</span> path list of the git repositories.
+</code></pre></div><h4 id="rrh-clone"><code>rrh clone</code></h4>
 <p>Runs <code>git clone</code> command and registers the cloned repository to <code>rrh</code> database.
 The following steps identify the id of the repository.</p>
-
 <ol>
 <li>If the length of <code>REMOTE_REPOS</code> is 1, and <code>DEST</code> exists, then the last entry of <code>REMOTE_REPOS</code> is repository id by eliminating the suffix <code>.git</code>.</li>
 <li>If the length of <code>REMOTE_REPOS</code> is 1, and <code>DEST</code> does not exist, then the last entry of <code>DEST</code> is repository id.</li>
@@ -149,11 +143,9 @@ OPTIONS
     -g, --group &lt;GROUP&gt;   print managed repositories categorized in the group.
     -d, --dest &lt;DEST&gt;     specify the destination. Default is the current directory.
 ARGUMENTS
-    REMOTE_REPOS          repository urls</code></pre></div>
-<p>The destination of cloned repository is located based on <a href="#rrh_clone_destination"><code>RRH_CLONE_DESTINATION</code></a></p>
-
+    REMOTE_REPOS          repository urls
+</code></pre></div><p>The destination of cloned repository is located based on <a href="#rrh_clone_destination"><code>RRH_CLONE_DESTINATION</code></a></p>
 <h4 id="rrh-config"><code>rrh config</code></h4>
-
 <p>Handles the operations of configuration/environment variables.
 This subcommand requires sub-sub-command.
 If sub-sub-command was not specified, it runs <code>list</code> sub-sub-command.</p>
@@ -161,32 +153,28 @@ If sub-sub-command was not specified, it runs <code>list</code> sub-sub-command.
 COMMAND
     <span style="color:#008000">set</span> &lt;ENV_NAME&gt; &lt;VALUE&gt;  <span style="color:#008000">set</span> ENV_NAME to VALUE
     <span style="color:#008000">unset</span> &lt;ENV_NAME&gt;        reset ENV_NAME
-    list                    list all of ENVs <span style="color:#666">(</span>default<span style="color:#666">)</span></code></pre></div>
-<h4 id="rrh-export"><code>rrh export</code></h4>
-
+    list                    list all of ENVs <span style="color:#666">(</span>default<span style="color:#666">)</span>
+</code></pre></div><h4 id="rrh-export"><code>rrh export</code></h4>
 <p>Exports the data of RRH database by JSON format.</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh <span style="color:#008000">export</span> <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span>
 OPTiONS
     --no-indent      print result as no indented json
-    --no-hide-home   not replace home directory to <span style="color:#ba2121">&#39;${HOME}&#39;</span> keyword</code></pre></div>
-<h4 id="rrh-fetch"><code>rrh fetch</code></h4>
-
+    --no-hide-home   not replace home directory to <span style="color:#ba2121">&#39;${HOME}&#39;</span> keyword
+</code></pre></div><h4 id="rrh-fetch"><code>rrh fetch</code></h4>
 <p>Runs <code>git fetch</code> command in the repositories of the specified group.</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh fetch <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span> <span style="color:#666">[</span>GROUPS...<span style="color:#666">]</span>
 OPTIONS
     -r, --remote &lt;REMOTE&gt;   specify the remote name. Default is <span style="color:#ba2121">&#34;origin.&#34;</span>
 ARGUMENTS
     GROUPS                  run <span style="color:#ba2121">&#34;git fetch&#34;</span> <span style="color:#008000">command</span> on each repository on the group.
-                            <span style="color:#008000;font-weight:bold">if</span> no value is specified, run on the default group.</code></pre></div>
-<h4 id="rrh-fetch-all"><code>rrh fetch-all</code></h4>
-
+                            <span style="color:#008000;font-weight:bold">if</span> no value is specified, run on the default group.
+</code></pre></div><h4 id="rrh-fetch-all"><code>rrh fetch-all</code></h4>
 <p>Runs <code>git fetch</code> command in all repositories of managing in RRH.
 This command may make heavy network traffic; therefore, we do not recommend to run.</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh fetch-all <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span>
 OPTIONS
-    -r, --remote &lt;REMOTE&gt;   specify the remote name. Default is <span style="color:#ba2121">&#34;origin.&#34;</span></code></pre></div>
-<h4 id="rrh-group"><code>rrh group</code></h4>
-
+    -r, --remote &lt;REMOTE&gt;   specify the remote name. Default is <span style="color:#ba2121">&#34;origin.&#34;</span>
+</code></pre></div><h4 id="rrh-group"><code>rrh group</code></h4>
 <p>Handles the operations of groups of RRH.
 This subcommand requires sub-sub-command.
 If sub-sub-command was not specified, it runs <code>list</code> sub-sub-command.</p>
@@ -197,38 +185,33 @@ SUBCOMMAND
     list      list groups <span style="color:#666">(</span>default<span style="color:#666">)</span>.
     of        shows groups of the specified repository.
     rm        remove group.
-    update    update group.</code></pre></div>
-<h5 id="rrh-group-add"><code>rrh group add</code></h5>
-
+    update    update group.
+</code></pre></div><h5 id="rrh-group-add"><code>rrh group add</code></h5>
 <p>Adds new group to the RRH database.</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh group add <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span> &lt;GROUPS...&gt;
 OPTIONS
     -d, --desc &lt;DESC&gt;        gives the description of the group.
     -o, --omit-list &lt;FLAG&gt;   gives the omit list flag of the group.
 ARGUMENTS
-    GROUPS                   gives group names.</code></pre></div>
-<h5 id="rrh-group-info"><code>rrh group info</code></h5>
-
+    GROUPS                   gives group names.
+</code></pre></div><h5 id="rrh-group-info"><code>rrh group info</code></h5>
 <p>Show information of specified groups.</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh group info &lt;GROUPS...&gt;
 ARGUMENTS
-    GROUPS           group names to show the information.</code></pre></div>
-<h5 id="rrh-group-list"><code>rrh group list</code></h5>
-
+    GROUPS           group names to show the information.
+</code></pre></div><h5 id="rrh-group-list"><code>rrh group list</code></h5>
 <p>Displays group list.</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh group list <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span>
 OPTIONS
     -d, --desc             show description.
     -r, --repository       show repositories in the group.
-    -o, --only-groupname   show only group name. This option is prioritized.</code></pre></div>
-<h5 id="rrh-group-of"><code>rrh group of</code></h5>
-
+    -o, --only-groupname   show only group name. This option is prioritized.
+</code></pre></div><h5 id="rrh-group-of"><code>rrh group of</code></h5>
 <p>Displays group of the specified repositories.</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh group of &lt;REPOSITORY_ID&gt;
 ARGUMENTS
-    REPOSITORY_ID     show the groups of the repository.</code></pre></div>
-<h5 id="rrh-group-rm"><code>rrh group rm</code></h5>
-
+    REPOSITORY_ID     show the groups of the repository.
+</code></pre></div><h5 id="rrh-group-rm"><code>rrh group rm</code></h5>
 <p>Removes groups.</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh group rm <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span> &lt;GROUPS...&gt;
 OPTIONS
@@ -236,9 +219,8 @@ OPTIONS
     -i, --inquery    inquiry mode.
     -v, --verbose    verbose mode.
 ARGUMENTS
-    GROUPS           target group names.</code></pre></div>
-<h5 id="rrh-group-update"><code>rrh group update</code></h5>
-
+    GROUPS           target group names.
+</code></pre></div><h5 id="rrh-group-update"><code>rrh group update</code></h5>
 <p>Update the information of specified group.</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh group update <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span> &lt;GROUP&gt;
 OPTIONS
@@ -246,9 +228,8 @@ OPTIONS
     -d, --desc &lt;DESC&gt;        change description to DESC.
     -o, --omit-list &lt;FLAG&gt;   change omit-list of the group. FLAG must be <span style="color:#ba2121">&#34;true&#34;</span> or <span style="color:#ba2121">&#34;false&#34;</span>.
 ARGUMENTS
-    GROUP                    update target group names.</code></pre></div>
-<h4 id="rrh-import"><code>rrh import</code></h4>
-
+    GROUP                    update target group names.
+</code></pre></div><h4 id="rrh-import"><code>rrh import</code></h4>
 <p>Import the database to the local environment.</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh import <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span> &lt;DATABASE_JSON&gt;
 OPTIONS
@@ -256,9 +237,8 @@ OPTIONS
     --overwrite     replace the <span style="color:#008000">local</span> RRH database to the given database.
     -v, --verbose   verbose mode.
 ARGUMENTS
-    DATABASE_JSON   the exported RRH database.</code></pre></div>
-<h4 id="rrh-list"><code>rrh list</code></h4>
-
+    DATABASE_JSON   the exported RRH database.
+</code></pre></div><h4 id="rrh-list"><code>rrh list</code></h4>
 <p>Prints the repositories of managing in RRH.</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh list <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span> <span style="color:#666">[</span>GROUPS...<span style="color:#666">]</span>
 OPTIONS
@@ -271,9 +251,8 @@ OPTIONS
     -c, --csv           print result as csv format.
 ARGUMENTS
     GROUPS    print managed repositories categorized in the groups.
-              <span style="color:#008000;font-weight:bold">if</span> no groups are specified, all groups are printed.</code></pre></div>
-<h4 id="rrh-mv"><code>rrh mv</code></h4>
-
+              <span style="color:#008000;font-weight:bold">if</span> no groups are specified, all groups are printed.
+</code></pre></div><h4 id="rrh-mv"><code>rrh mv</code></h4>
 <p>Move repositories to another group.</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh mv <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span> &lt;FROMS...&gt; &lt;TO&gt;
 OPTIONS
@@ -281,35 +260,31 @@ OPTIONS
 
 ARGUMENTS
     FROMS...        specifies move from, formatted in &lt;GROUP_NAME/REPO_ID&gt;, or &lt;GROUP_NAME&gt;
-    TO              specifies move to, formatted in &lt;GROUP_NAME&gt;</code></pre></div>
-<h4 id="rrh-prune"><code>rrh prune</code></h4>
-
+    TO              specifies move to, formatted in &lt;GROUP_NAME&gt;
+</code></pre></div><h4 id="rrh-prune"><code>rrh prune</code></h4>
 <p>Deletes unnecessary groups and repositories.
 The unnecessary groups are no repositories in them.
 The unnecessary repositories are to have an invalid path.</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh prune <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span>
 OPTIONS
     -d, --dry-run    dry-run mode.
-    -v, --verbose    verbose mode.</code></pre></div>
-<h4 id="rrh-repository"><code>rrh repository</code></h4>
-
+    -v, --verbose    verbose mode.
+</code></pre></div><h4 id="rrh-repository"><code>rrh repository</code></h4>
 <p>Prints/Updates the repository.</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh repository &lt;SUBCOMMAND&gt;
 SUBCOMMAND
     info <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span> &lt;REPO...&gt;     shows repository information.
     update <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span> &lt;REPO...&gt;   updates repository information.
-    update-remotes <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span>     update all remote entries.</code></pre></div>
-<h5 id="rrh-repository-info"><code>rrh repository info</code></h5>
-
+    update-remotes <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span>     update all remote entries.
+</code></pre></div><h5 id="rrh-repository-info"><code>rrh repository info</code></h5>
 <p>prints the repository information.</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh repository info <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span> <span style="color:#666">[</span>REPOSITORIES...<span style="color:#666">]</span>
     -G, --color     prints the results with color.
     -c, --csv       prints the results in the csv format.
 ARGUMENTS
     REPOSITORIES    target repositories.  If no repositories are specified,
-                    this sub <span style="color:#008000">command</span> failed.</code></pre></div>
-<h5 id="rrh-repository-update"><code>rrh repository update</code></h5>
-
+                    this sub <span style="color:#008000">command</span> failed.
+</code></pre></div><h5 id="rrh-repository-update"><code>rrh repository update</code></h5>
 <p>update the information of the repository.</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh repository update <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span> &lt;REPOSITORY&gt;
 OPTIONS
@@ -317,16 +292,14 @@ OPTIONS
     -d, --desc &lt;DESC&gt;    specifies new description.
     -p, --path &lt;PATH&gt;    specifies new path.
 ARGUMENTS
-    REPOSITORY           specifies the repository id.</code></pre></div>
-<h5 id="rrh-repository-update-remotes"><code>rrh repository update-remotes</code></h5>
-
+    REPOSITORY           specifies the repository id.
+</code></pre></div><h5 id="rrh-repository-update-remotes"><code>rrh repository update-remotes</code></h5>
 <p>update remote entries in the all repositories.</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh repository update-remotes <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span>
 OPTIONS
     -d, --dry-run    dry-run mode.
-    -v, --verbose    verbose mode.</code></pre></div>
-<h4 id="rrh-rm"><code>rrh rm</code></h4>
-
+    -v, --verbose    verbose mode.
+</code></pre></div><h4 id="rrh-rm"><code>rrh rm</code></h4>
 <p>Removes the specified groups, repositories, and relations.
 If the group has entries is removed by specifying the option <code>--recursive.</code></p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh rm <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span> &lt;REPO_ID|GROUP_ID|GROUP_ID/REPO_ID...&gt;
@@ -339,9 +312,8 @@ ARGUMENTS
     REPOY_ID            repository name <span style="color:#008000;font-weight:bold">for</span> removing.
     GROUP_ID            group name. <span style="color:#008000;font-weight:bold">if</span> the group contains repositories,
                         removing will fail without <span style="color:#ba2121">&#39;-r&#39;</span> option.
-    GROUP_ID/REPO_ID    remove the relation between the given REPO_ID and GROUP_ID.</code></pre></div>
-<h4 id="rrh-status"><code>rrh status</code></h4>
-
+    GROUP_ID/REPO_ID    remove the relation between the given REPO_ID and GROUP_ID.
+</code></pre></div><h4 id="rrh-status"><code>rrh status</code></h4>
 <p>Prints the last modified times of each branch in the repositories of the specified group.</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh status <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span> <span style="color:#666">[</span>GROUPS|REPOS...<span style="color:#666">]</span>
 OPTIONS
@@ -352,161 +324,136 @@ ARGUMENTS
     GROUPS          target groups.
     REPOS           target repositories.
                     If no arguments were specified, this <span style="color:#008000">command</span>
-                    shows the result of default group.</code></pre></div>
-<h3 id="environment-variables">Environment variables</h3>
-
+                    shows the result of default group.
+</code></pre></div><h3 id="environment-variables">Environment variables</h3>
 <p>We can see those variables by running <code>rrh config</code> sub-command.</p>
-
-<h4 id="rrh-home"><code>RRH_HOME</code></h4>
-
+<h4 id="rrh_home"><code>RRH_HOME</code></h4>
 <ul>
 <li>specifies the location of the RRH database and config file.</li>
 <li>Default: <code>/Users/tamada/.rrh</code></li>
 </ul>
-
-<h4 id="rrh-config-path"><code>RRH_CONFIG_PATH</code></h4>
-
+<h4 id="rrh_config_path"><code>RRH_CONFIG_PATH</code></h4>
 <ul>
 <li>specifies the location of the location path.
-
 <ul>
 <li>RRH ignores to specify <code>RRH_CONFIG_PATH</code> in the config file.
 This variable availables only environment variable.</li>
-</ul></li>
+</ul>
+</li>
 <li>Default: <code>${RRH_HOME}/config.json</code></li>
 </ul>
-
-<h4 id="rrh-database-path"><code>RRH_DATABASE_PATH</code></h4>
-
+<h4 id="rrh_database_path"><code>RRH_DATABASE_PATH</code></h4>
 <ul>
 <li>specifies the location of the database path.</li>
 <li>Default: <code>${RRH_HOME}/database.json</code></li>
 </ul>
-
-<h4 id="rrh-default-group-name"><code>RRH_DEFAULT_GROUP_NAME</code></h4>
-
+<h4 id="rrh_default_group_name"><code>RRH_DEFAULT_GROUP_NAME</code></h4>
 <ul>
 <li>specifies the default group name.</li>
 <li>Default: <code>no-group</code></li>
 </ul>
-
-<h4 id="rrh-clone-destination"><code>RRH_CLONE_DESTINATION</code></h4>
-
+<h4 id="rrh_clone_destination"><code>RRH_CLONE_DESTINATION</code></h4>
 <ul>
 <li>specifies the destination by cloning the repository.</li>
 <li>Default: <code>.</code></li>
 </ul>
-
-<h4 id="rrh-on-error"><code>RRH_ON_ERROR</code></h4>
-
+<h4 id="rrh_on_error"><code>RRH_ON_ERROR</code></h4>
 <ul>
 <li>specifies the behaviors of RRH on error.</li>
 <li>Default: <code>WARN</code></li>
 <li>Available values: <code>FAIL_IMMEDIATELY</code>, <code>FAIL</code>, <code>WARN</code>, and <code>IGNORE</code>
-
 <ul>
 <li><code>FAIL_IMMEDIATELY</code>
-
 <ul>
 <li>reports error immediately and quits RRH with a non-zero status.</li>
-</ul></li>
+</ul>
+</li>
 <li><code>FAIL</code>
-
 <ul>
 <li>runs through all targets and reports errors if needed, then quits RRH with a non-zero status.</li>
-</ul></li>
+</ul>
+</li>
 <li><code>WARN</code>
-
 <ul>
 <li>runs through all targets and reports errors if needed, then quits RRH successfully.</li>
-</ul></li>
+</ul>
+</li>
 <li><code>IGNORE</code>
-
 <ul>
 <li>runs all targets and no reports errors.</li>
-</ul></li>
-</ul></li>
 </ul>
-
-<h4 id="rrh-time-format"><code>RRH_TIME_FORMAT</code></h4>
-
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="rrh_time_format"><code>RRH_TIME_FORMAT</code></h4>
 <ul>
 <li>specifies the time format for <code>status</code> command.</li>
 <li>Default: <code>relative</code></li>
 <li>Available value: <code>relative</code> and the time format for Go lang.
-
 <ul>
 <li><code>relative</code>
-
 <ul>
 <li>shows times by humanized format (e.g., 2 weeks ago)</li>
-</ul></li>
+</ul>
+</li>
 <li>Other strings
-
 <ul>
 <li>regard as formatting layout and give to <code>Format</code> method of the time.
-
 <ul>
 <li>see <a href="https://golang.org/pkg/time/#Time.Format">Time.Format</a>, for more detail.</li>
-</ul></li>
-</ul></li>
-</ul></li>
 </ul>
-
-<h4 id="rrh-auto-create-group"><code>RRH_AUTO_CREATE_GROUP</code></h4>
-
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="rrh_auto_create_group"><code>RRH_AUTO_CREATE_GROUP</code></h4>
 <ul>
 <li>specifies to create the group when the not existing group was specified, and it needs to create.</li>
 <li>Default: false</li>
 </ul>
-
-<h4 id="rrh-auto-delete-group"><code>RRH_AUTO_DELETE_GROUP</code></h4>
-
+<h4 id="rrh_auto_delete_group"><code>RRH_AUTO_DELETE_GROUP</code></h4>
 <ul>
 <li>specifies to delete the group when some group was no more needed.</li>
 <li>Default: false</li>
 </ul>
-
-<h4 id="rrh-sort-on-updating"><code>RRH_SORT_ON_UPDATING</code></h4>
-
+<h4 id="rrh_sort_on_updating"><code>RRH_SORT_ON_UPDATING</code></h4>
 <ul>
 <li>specifies to sort database entries on updating database.</li>
 <li>Default: false</li>
 </ul>
-
-<h4 id="rrh-color"><code>RRH_COLOR</code></h4>
-
+<h4 id="rrh_color"><code>RRH_COLOR</code></h4>
 <ul>
 <li>specifies the colors of the output.</li>
 <li>Default: <code>&quot;repository:fg=red+group:fg=magenta+label:op=bold+configValue:fg=green&quot;</code></li>
 <li>Format: <code>&quot;repository:fg=&lt;COLOR&gt;;bg=&lt;COLOR&gt;;op=&lt;STYLE&gt;+group:fg=&lt;COLOR&gt;;bg=&lt;COLOR&gt;;op=&lt;STYLE&gt;+label:fg=&lt;COLOR&gt;;bg=&lt;COLOR&gt;;op=&lt;STYLE&gt;+configValue:fg=&lt;COLOR&gt;;bg=&lt;COLOR&gt;;op=&lt;STYLE&gt;&quot;</code>
-
 <ul>
 <li>Available <code>COLOR</code>s
-
 <ul>
 <li>red, cyan, blue, black, green, white, yellow, magenta.</li>
-</ul></li>
+</ul>
+</li>
 <li>Available <code>STYLE</code>s
-
 <ul>
 <li>bold, underscore.</li>
-</ul></li>
+</ul>
+</li>
 <li>Delimiter of repository, group and label is <code>+</code>, delimiter of type and value is <code>:</code>, delimiter of each label is <code>;</code>, and delimiter of each value is <code>,</code>.</li>
-</ul></li>
+</ul>
+</li>
 <li>Examples:
-
 <ul>
 <li><code>RRH_COLOR: repository:fg=red+group:fg=cyan;op=bold,underscore</code>
-
 <ul>
 <li>Repository: red, Group: cyan in bold with underscore.</li>
-</ul></li>
-</ul></li>
 </ul>
-
-<h4 id="rrh-enable-colorized"><code>RRH_ENABLE_COLORIZED</code></h4>
-
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="rrh_enable_colorized"><code>RRH_ENABLE_COLORIZED</code></h4>
 <ul>
 <li>specifies to colorize the output. The colors of output were specified on <a href="#rrh_color"><code>RRH_COLOR</code></a></li>
 <li>Default: false</li>
@@ -515,7 +462,7 @@ This variable availables only environment variable.</li>
 
     <footer class="site-footer">
   <span class="site-footer-credits">
-    <a href="https://github.com/tamada/rrh"><img src="https://img.shields.io/badge/GitHub-tamada/rrh-blueviolet.svg?logo=github" alt="GitHub" /></a> Made with <a href="https://gohugo.io/">Hugo</a>. Theme by <a href="https://github.com/zwbetz-gh/cayman-hugo-theme">Cayman</a>. Deployed to <a href="https://pages.github.com/">GitHub Pages</a>.
+    <a href="https://github.com/tamada/rrh"><img src="https://img.shields.io/badge/GitHub-tamada/rrh-blueviolet.svg?logo=github" alt="GitHub"></a> Made with <a href="https://gohugo.io/">Hugo</a>. Theme by <a href="https://github.com/zwbetz-gh/cayman-hugo-theme">Cayman</a>. Deployed to <a href="https://pages.github.com/">GitHub Pages</a>.
   </span>
 </footer>
 
