@@ -73,11 +73,7 @@ func convertToRepositoryURL(url string) (string, error) {
 	return "https://" + host + "/" + str[index+1:], nil
 }
 
-func openBrowser(repo *lib.Repository) (string, error) {
-	if len(repo.Remotes) == 0 {
-		return "", fmt.Errorf("%s: remote repository not found", repo.ID)
-	}
-	url := repo.Remotes[0].URL
+func convertURL(url string) (string, error) {
 	if strings.HasPrefix(url, "git@") {
 		convertedURL, err := convertToRepositoryURL(url)
 		if err != nil {
@@ -89,6 +85,13 @@ func openBrowser(repo *lib.Repository) (string, error) {
 		url = strings.TrimSuffix(url, ".git")
 	}
 	return url, nil
+}
+
+func openBrowser(repo *lib.Repository) (string, error) {
+	if len(repo.Remotes) == 0 {
+		return "", fmt.Errorf("%s: remote repository not found", repo.ID)
+	}
+	return convertURL(repo.Remotes[0].URL)
 }
 
 func execOpen(repo *lib.Repository, opts *options) (string, error) {
