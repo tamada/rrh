@@ -234,7 +234,7 @@ func perform(config *lib.Config, args []string, opts *newOptions) int {
 		return 0
 	}
 	var errs = createRepositories(config, args, opts)
-	return config.PrintErrors(errs)
+	return config.PrintErrors(errs...)
 }
 
 func goMain(args []string) int {

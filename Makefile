@@ -24,9 +24,15 @@ setup: deps update_version
 test: setup
 	$(GO) test -covermode=count -coverprofile=coverage.out $$(go list ./...)
 
+define _buildSubcommand
+	$(GO) build -o rrh-$(1) cmd/rrh-$(1)/*.go
+endef
+
 build: setup
 	$(GO) build
-	cd cmd/rrh-helloworld; $(GO) build
+	 @$(call _buildSubcommand,helloworld)
+	 @$(call _buildSubcommand,new)
+	 @$(call _buildSubcommand,open)
 
 lint: setup format
 	$(GO) vet $$(go list ./...)
@@ -47,5 +53,7 @@ install: test build
 
 clean:
 	$(GO) clean
-	rm -rf cmd/$(NAME)/$(NAME)
-	rm -rf cmd/rrh-helloworld/rrh-helloworld
+	rm -rf rrh
+	rm -rf rrh-helloworld
+	rm -rf rrh-new
+	rm -rf rrh-open

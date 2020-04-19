@@ -59,7 +59,7 @@ func perform(db *lib.Database, command *ImportCommand) int {
 		return 4
 	}
 	var errs = command.copyDB(db2, db)
-	var statusCode = db.Config.PrintErrors(errs)
+	var statusCode = db.Config.PrintErrors(errs...)
 	if statusCode == 0 {
 		db.StoreAndClose()
 	}

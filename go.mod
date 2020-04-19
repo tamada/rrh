@@ -22,6 +22,7 @@ require (
 	github.com/pelletier/go-buffruneio v0.2.0
 	github.com/posener/complete v1.2.1
 	github.com/sergi/go-diff v1.0.0
+	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/spf13/pflag v1.0.3
 	github.com/src-d/gcfg v1.4.0
 	github.com/xanzy/ssh-agent v0.2.1

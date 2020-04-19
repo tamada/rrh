@@ -120,7 +120,7 @@ func (cuc *configUnsetCommand) Run(args []string) int {
 	var config = lib.OpenConfig()
 	var err = config.Unset(args[0])
 	if err != nil {
-		var status = config.PrintErrors([]error{err})
+		var status = config.PrintErrors(err)
 		if status != 0 {
 			return status
 		}

@@ -117,13 +117,15 @@ func (config *Config) isOnErrorIgnoreOrWarn() bool {
 PrintErrors prints errors and returns the status code by following the value of RrhOnError.
 If the value of RrhOnError is Ignore or Warn, this method returns 0, otherwise, non-zero value.
 */
-func (config *Config) PrintErrors(errs []error) int {
+func (config *Config) PrintErrors(errs ...error) int {
 	if config.GetValue(RrhOnError) != Ignore {
 		for _, err := range errs {
-			fmt.Println(err.Error())
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		}
 	}
-	if len(errs) == 0 || config.isOnErrorIgnoreOrWarn() {
+	if len(errs) == 0 || errs[0] == nil || config.isOnErrorIgnoreOrWarn() {
 		return 0
 	}
 	return 5
