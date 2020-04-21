@@ -37,8 +37,7 @@ OPTIONS
     -h, --help                  print this message.
 ARGUMENTS
     ORGANIZATION    specifies organization, if needed.
-    REPOSITORY      specifies repository name, and it is directory name.
-`
+    REPOSITORY      specifies repository name, and it is directory name.`
 }
 
 func buildFlagSet(config *lib.Config) (*flag.FlagSet, *newOptions) {

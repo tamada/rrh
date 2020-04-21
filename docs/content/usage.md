@@ -1,5 +1,5 @@
 ---
-title: Usage
+title: ":fork_and_knife: Usage"
 ---
 
 ## Getting Started

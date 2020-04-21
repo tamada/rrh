@@ -13,8 +13,8 @@ func Example_printHelp() {
 	// Output:
 	// rrh open [OPTIONS] <REPOSITORIES...>
 	// OPTIONS
-	//     -b, --browser    open the webpage of the specified repository.
 	//     -f, --folder     open the folder of the specified repository (Default).
+	//     -w, --webpage    open the webpage of the specified repository.
 	//     -h, --help       print this message.
 	// ARGUMENTS
 	//     REPOSITORIES     specifies repository names.

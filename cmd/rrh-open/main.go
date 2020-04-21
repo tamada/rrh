@@ -20,8 +20,8 @@ type options struct {
 func helpMessage() string {
 	return `rrh open [OPTIONS] <REPOSITORIES...>
 OPTIONS
-    -b, --browser    open the webpage of the specified repository.
     -f, --folder     open the folder of the specified repository (Default).
+    -w, --webpage    open the webpage of the specified repository.
     -h, --help       print this message.
 ARGUMENTS
     REPOSITORIES     specifies repository names.`
@@ -37,11 +37,7 @@ func buildFlagSet() (*flag.FlagSet, *options) {
 	return flags, opts
 }
 
-func parseOptions(args []string) (*options, error) {
-	flags, opts := buildFlagSet()
-	if err := flags.Parse(args); err != nil {
-		return nil, err
-	}
+func validateArgs(flags *flag.FlagSet, opts *options) (*options, error) {
 	if !opts.helpFlag && len(flags.Args()) == 1 {
 		return nil, fmt.Errorf("no arguments are specified")
 	}
@@ -49,6 +45,14 @@ func parseOptions(args []string) (*options, error) {
 		opts.args = flags.Args()[1:]
 	}
 	return opts, nil
+}
+
+func parseOptions(args []string) (*options, error) {
+	flags, opts := buildFlagSet()
+	if err := flags.Parse(args); err != nil {
+		return nil, err
+	}
+	return validateArgs(flags, opts)
 }
 
 func printErrors(opts *options, err error) int {
@@ -87,7 +91,7 @@ func convertURL(url string) (string, error) {
 	return url, nil
 }
 
-func openBrowser(repo *lib.Repository) (string, error) {
+func generateWebPageUrl(repo *lib.Repository) (string, error) {
 	if len(repo.Remotes) == 0 {
 		return "", fmt.Errorf("%s: remote repository not found", repo.ID)
 	}
@@ -96,7 +100,7 @@ func openBrowser(repo *lib.Repository) (string, error) {
 
 func execOpen(repo *lib.Repository, opts *options) (string, error) {
 	if opts.browserFlag {
-		return openBrowser(repo)
+		return generateWebPageUrl(repo)
 	}
 	return repo.Path, nil
 }

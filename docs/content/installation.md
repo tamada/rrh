@@ -1,8 +1,8 @@
 ---
-title: Installation
+title: ":anchor: Installation"
 ---
 
-### Homebrew
+## :beer: Homebrew
 
 Install rrh via [Homebrew](https://brew.sh), simply run:
 
@@ -12,7 +12,7 @@ $ brew install rrh
 ```
 
 
-### Golang
+## Golang
 
 To install cli, simply run:
 
@@ -20,7 +20,15 @@ To install cli, simply run:
 $ go get git@github.com/tamada/rrh.git
 ```
 
-### Requirements
+## :hammer_and_wrench: Build from source codes
+
+```sh
+$ git clone https://github.com/tamada/rrh.git
+$ cd rrh
+$ make
+```
+
+## :white_check_mark: Requirements
 
 * Runtime
     * Bash 4.x or after, for completion.
