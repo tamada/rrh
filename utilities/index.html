@@ -22,13 +22,13 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js" integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
 
-  <title> | rrh</title>
+  <title>🔌 Utilities | rrh</title>
 </head>
 
 <body>
   <section class="page-header">
   
-  <img src="https://tamada.github.io/rrhimages/logo.png" class="avatar" alt="project_logo">
+  <img src="http://tamada.github.io/rrh/images/logo.png" class="avatar" alt="project_logo">
   
   <h1 class="project-name">
     rrh
@@ -43,53 +43,52 @@
       
       
       
-      <a href="/rrh/" class="btn">Home</a>
+      <a href="/rrh/" class="btn">🏠 Home</a>
     
       
       
       
       
-      <a href="/rrh/description/" class="btn">Description</a>
+      <a href="/rrh/description/" class="btn">📑 Description</a>
     
       
       
       
       
-      <a href="/rrh/installation/" class="btn">Installation</a>
+      <a href="/rrh/installation/" class="btn">⚓ Installation</a>
     
       
       
       
       
-      <a href="/rrh/usage/" class="btn">Usage</a>
+      <a href="/rrh/usage/" class="btn">🍴 Usage</a>
     
       
       
       
       
-      <a href="/rrh/development/" class="btn">Development</a>
+      <a href="/rrh/development/" class="btn">✏️ Development</a>
     
       
       
       
       
-      <a href="/rrh/utilities/" class="btn">Utilities</a>
+      <a href="/rrh/utilities/" class="btn">🔌 Utilities</a>
     
       
       
       
       
-      <a href="/rrh/about/" class="btn">About</a>
+      <a href="/rrh/about/" class="btn">😄 About</a>
     
   </nav>
 </section>
 
   <section class="main-content">
     
-  <h1></h1>
-  <h2 id="utilities">Utilities</h2>
-<p>Write the following script to <code>$HOME/.bash_profile</code>, then restart shell, then we can use <code>cdrrh</code> and <code>rrhpeco</code> command in the terminal.</p>
-<h3 id="cdrrh"><code>cdrrh</code></h3>
+  <h1>🔌 Utilities</h1>
+  <p>Write the following script to <code>$HOME/.bash_profile</code>, then restart shell, then we can use <code>cdrrh</code> and <code>rrhpeco</code> command in the terminal.</p>
+<h2 id="cdrrh"><code>cdrrh</code></h2>
 <p>changes directory to the specified repository.</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">cdrrh<span style="color:#666">(){</span>
     <span style="color:#19177c">path</span><span style="color:#666">=</span><span style="color:#008000;font-weight:bold">$(</span>rrh repository list --path <span style="color:#19177c">$1</span><span style="color:#008000;font-weight:bold">)</span>
@@ -100,7 +99,7 @@
         <span style="color:#008000">echo</span> <span style="color:#ba2121">&#34;</span><span style="color:#19177c">$1</span><span style="color:#ba2121">: repository not found&#34;</span>
     <span style="color:#008000;font-weight:bold">fi</span>
 <span style="color:#666">}</span>
-</code></pre></div><h3 id="rrhpeco"><code>rrhpeco</code></h3>
+</code></pre></div><h2 id="rrhpeco"><code>rrhpeco</code></h2>
 <p>list repositories, and filtering them by <a href="https://github.com/peco/peco"><code>peco</code></a>,
 then change directory to the filtering result.</p>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrhpeco<span style="color:#666">(){</span>

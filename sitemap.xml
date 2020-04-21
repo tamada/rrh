@@ -3,40 +3,39 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://tamada.github.io/rrh/utilities/</loc>
-    <priority>0</priority>
+    <loc>http://tamada.github.io/rrh/installation/</loc>
   </url>
   
   <url>
-    <loc>https://tamada.github.io/rrh/about/</loc>
+    <loc>http://tamada.github.io/rrh/description/</loc>
   </url>
   
   <url>
-    <loc>https://tamada.github.io/rrh/categories/</loc>
+    <loc>http://tamada.github.io/rrh/utilities/</loc>
   </url>
   
   <url>
-    <loc>https://tamada.github.io/rrh/description/</loc>
+    <loc>http://tamada.github.io/rrh/usage/</loc>
   </url>
   
   <url>
-    <loc>https://tamada.github.io/rrh/development/</loc>
+    <loc>http://tamada.github.io/rrh/</loc>
   </url>
   
   <url>
-    <loc>https://tamada.github.io/rrh/installation/</loc>
+    <loc>http://tamada.github.io/rrh/development/</loc>
   </url>
   
   <url>
-    <loc>https://tamada.github.io/rrh/</loc>
+    <loc>http://tamada.github.io/rrh/about/</loc>
   </url>
   
   <url>
-    <loc>https://tamada.github.io/rrh/tags/</loc>
+    <loc>http://tamada.github.io/rrh/categories/</loc>
   </url>
   
   <url>
-    <loc>https://tamada.github.io/rrh/usage/</loc>
+    <loc>http://tamada.github.io/rrh/tags/</loc>
   </url>
   
 </urlset>

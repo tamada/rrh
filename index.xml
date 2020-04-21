@@ -1,78 +1,78 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>RRH on rrh</title>
-    <link>https://tamada.github.io/rrh/</link>
-    <description>Recent content in RRH on rrh</description>
+    <title>:house: RRH on rrh</title>
+    <link>http://tamada.github.io/rrh/</link>
+    <description>Recent content in :house: RRH on rrh</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     
-	<atom:link href="https://tamada.github.io/rrh/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="http://tamada.github.io/rrh/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title></title>
-      <link>https://tamada.github.io/rrh/utilities/</link>
+      <title>:anchor: Installation</title>
+      <link>http://tamada.github.io/rrh/installation/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://tamada.github.io/rrh/utilities/</guid>
-      <description>Utilities Write the following script to $HOME/.bash_profile, then restart shell, then we can use cdrrh and rrhpeco command in the terminal.
-cdrrh changes directory to the specified repository.
-cdrrh(){ path=$(rrh repository list --path $1) if [ $? -eq 0 ]; then cd $path pwd else echo &amp;#34;$1: repository not found&amp;#34; fi } rrhpeco list repositories, and filtering them by peco, then change directory to the filtering result.
-rrhpeco(){ csv=$(rrh list --path --csv | peco) cd $(echo $csv | awk -F , &amp;#39;{ print $3 }&amp;#39;) pwd } </description>
+      <guid>http://tamada.github.io/rrh/installation/</guid>
+      <description>:beer: Homebrew Install rrh via Homebrew, simply run:
+$ brew tap tamada/brew $ brew install rrh Golang To install cli, simply run:
+$ go get git@github.com/tamada/rrh.git :hammer_and_wrench: Build from source codes $ git clone https://github.com/tamada/rrh.git $ cd rrh $ make :white_check_mark: Requirements  Runtime  Bash 4.x or after, for completion.  zsh?, and fish?, I do not use them, so I do not know. For macOS user, the default shell of the macOS is bash 3.</description>
     </item>
     
     <item>
-      <title>About the Project</title>
-      <link>https://tamada.github.io/rrh/about/</link>
+      <title>:bookmark_tabs: Description</title>
+      <link>http://tamada.github.io/rrh/description/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://tamada.github.io/rrh/about/</guid>
-      <description>Contribution  Fork the project. (https://github.com/tamada/rrh/fork) Create a feature branch. (git checkout -b FEATURE_BRANCH_NAME) Edit the source files and Commit your changes. Create tests and commit them. Rebase your local changes against the master branch. Run the test suite with the make test and confirm that passes. Create a new pull request. Confirm all checks pass.  
-Code of Conduct 
-License Apache License version 2.</description>
-    </item>
-    
-    <item>
-      <title>Description</title>
-      <link>https://tamada.github.io/rrh/description/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://tamada.github.io/rrh/description/</guid>
+      <guid>http://tamada.github.io/rrh/description/</guid>
       <description>There are too many repositories. We love programming; however, to manage many repositories is quite hard and bothersome tasks. Therefore, we built a headquarter for managing the git repositories, named rrh. rrh manages repositories by categorizing in groups and execute git command to the groups.
 I know the tool ghq, manages the git repositories. However, I cannot use it for the following reasons.
  there are quite many repositories in my home directory.</description>
     </item>
     
     <item>
-      <title>Development</title>
-      <link>https://tamada.github.io/rrh/development/</link>
+      <title>:electric_plug: Utilities</title>
+      <link>http://tamada.github.io/rrh/utilities/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://tamada.github.io/rrh/development/</guid>
+      <guid>http://tamada.github.io/rrh/utilities/</guid>
+      <description>Write the following script to $HOME/.bash_profile, then restart shell, then we can use cdrrh and rrhpeco command in the terminal.
+cdrrh changes directory to the specified repository.
+cdrrh(){ path=$(rrh repository list --path $1) if [ $? -eq 0 ]; then cd $path pwd else echo &amp;#34;$1: repository not found&amp;#34; fi } rrhpeco list repositories, and filtering them by peco, then change directory to the filtering result.
+rrhpeco(){ csv=$(rrh list --path --csv | peco) cd $(echo $csv | awk -F , &amp;#39;{ print $3 }&amp;#39;) pwd } </description>
+    </item>
+    
+    <item>
+      <title>:fork_and_knife: Usage</title>
+      <link>http://tamada.github.io/rrh/usage/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://tamada.github.io/rrh/usage/</guid>
+      <description>Getting Started rrh has various subcommands, however, list and add subcommand make you happy.
+ rrh list shows managed repositories. rrh add &amp;lt;REPO&amp;gt; adds the given repository under the rrh management. type cdrrh on Terminal, then type TAB, TAB, TAB!  Command references rrh [GLOBAL OPTIONS] &amp;lt;SUB COMMANDS&amp;gt; [ARGUMENTS] GLOBAL OPTIONS -h, --help print this message. -v, --version print version. -c, --config-file &amp;lt;CONFIG_FILE&amp;gt; specifies the config file path. AVAILABLE SUB COMMANDS: add add repositories on the local path to rrh.</description>
+    </item>
+    
+    <item>
+      <title>:pencil2: Development</title>
+      <link>http://tamada.github.io/rrh/development/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://tamada.github.io/rrh/development/</guid>
       <description>Database The database for managed repositories is formatted in JSON. The JSON format is as follows. The JSON file is placed on $RRH_HOME/database.json. If $RRH_HOME was not set, $HOME/.rrh is used as $RRH_HOME. Also, the configuration file is on $RRH_HOME/config.json
 { last-modified: &amp;#39;2019-01-01T&amp;#39;, repositories: [ { repository_id: &amp;#39;rrh&amp;#39;, // unique key of repository.  repository_path: &amp;#39;absolute/path/of/repository&amp;#39;, repository_desc: &amp;#39;description of the repository.&amp;#39;, remotes: [ { Name: &amp;#34;origin&amp;#34;, URL: &amp;#34;git@github.com:tamada/rrh.git&amp;#34; } ] }, .</description>
     </item>
     
     <item>
-      <title>Installation</title>
-      <link>https://tamada.github.io/rrh/installation/</link>
+      <title>:smile: About the Project</title>
+      <link>http://tamada.github.io/rrh/about/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://tamada.github.io/rrh/installation/</guid>
-      <description>Homebrew Install rrh via Homebrew, simply run:
-$ brew tap tamada/brew $ brew install rrh Golang To install cli, simply run:
-$ go get git@github.com/tamada/rrh.git Requirements  Runtime  Bash 4.x or after, for completion.  zsh?, and fish?, I do not use them, so I do not know. For macOS user, the default shell of the macOS is bash 3.x, therefore, the completion is not work enough.  rrh is maybe work on Windows, and Linux.</description>
-    </item>
-    
-    <item>
-      <title>Usage</title>
-      <link>https://tamada.github.io/rrh/usage/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://tamada.github.io/rrh/usage/</guid>
-      <description>Getting Started rrh has various subcommands, however, list and add subcommand make you happy.
- rrh list shows managed repositories. rrh add &amp;lt;REPO&amp;gt; adds the given repository under the rrh management. type cdrrh on Terminal, then type TAB, TAB, TAB!  Command references rrh [GLOBAL OPTIONS] &amp;lt;SUB COMMANDS&amp;gt; [ARGUMENTS] GLOBAL OPTIONS -h, --help print this message. -v, --version print version. -c, --config-file &amp;lt;CONFIG_FILE&amp;gt; specifies the config file path. AVAILABLE SUB COMMANDS: add add repositories on the local path to rrh.</description>
+      <guid>http://tamada.github.io/rrh/about/</guid>
+      <description>:raised_hand: Contribution  Fork the project. (https://github.com/tamada/rrh/fork) Create a feature branch. (git checkout -b FEATURE_BRANCH_NAME) Edit the source files and Commit your changes. Create tests and commit them. Rebase your local changes against the master branch. Run the test suite with the make test and confirm that passes. Create a new pull request. Confirm all checks pass.  
+:green_book: Code of Conduct 
+:scroll: License Apache License version 2.</description>
     </item>
     
   </channel>
