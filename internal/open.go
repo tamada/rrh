@@ -1,23 +1,40 @@
-package main
+package internal
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
+	"github.com/mitchellh/cli"
 	"github.com/skratchdot/open-golang/open"
 	flag "github.com/spf13/pflag"
 	"github.com/tamada/rrh/lib"
 )
 
-type openOptions struct {
-	helpFlag    bool
-	folderFlag  bool
-	browserFlag bool
-	args        []string
+/*
+OpenCommand represents a command.
+*/
+type OpenCommand struct {
+	options *openOptions
 }
 
-func helpMessage() string {
+/*
+OpenCommandFactory generates the object of AddCommand.
+*/
+func OpenCommandFactory() (cli.Command, error) {
+	return &OpenCommand{options: new(openOptions)}, nil
+}
+
+/*
+Synopsis returns the simple help message of the command.
+*/
+func (open *OpenCommand) Synopsis() string {
+	return "open folder or web page of the given repositories."
+}
+
+/*
+Help function shows the help message.
+*/
+func (open *OpenCommand) Help() string {
 	return `rrh open [OPTIONS] <REPOSITORIES...>
 OPTIONS
     -f, --folder     open the folder of the specified repository (Default).
@@ -27,10 +44,17 @@ ARGUMENTS
     REPOSITORIES     specifies repository names.`
 }
 
-func buildFlagSet() (*flag.FlagSet, *openOptions) {
+type openOptions struct {
+	helpFlag    bool
+	folderFlag  bool
+	browserFlag bool
+	args        []string
+}
+
+func (open *OpenCommand) buildFlagSet() (*flag.FlagSet, *openOptions) {
 	opts := new(openOptions)
 	flags := flag.NewFlagSet("open", flag.ContinueOnError)
-	flags.Usage = func() { fmt.Println(helpMessage()) }
+	flags.Usage = func() { fmt.Println(open.Help()) }
 	flags.BoolVarP(&opts.helpFlag, "help", "h", false, "print this message")
 	flags.BoolVarP(&opts.browserFlag, "browser", "b", false, "open the webpage of the repository")
 	flags.BoolVarP(&opts.folderFlag, "folder", "f", true, "open the folder of the repository")
@@ -38,30 +62,30 @@ func buildFlagSet() (*flag.FlagSet, *openOptions) {
 }
 
 func validateArgs(flags *flag.FlagSet, opts *openOptions) (*openOptions, error) {
-	if !opts.helpFlag && len(flags.Args()) == 1 {
+	if !opts.helpFlag && len(flags.Args()) == 0 {
 		return nil, fmt.Errorf("no arguments are specified")
 	}
 	if len(flags.Args()) > 0 {
-		opts.args = flags.Args()[1:]
+		opts.args = flags.Args()
 	}
 	return opts, nil
 }
 
-func parseOptions(args []string) (*openOptions, error) {
-	flags, opts := buildFlagSet()
+func (open *OpenCommand) parseOptions(args []string) (*openOptions, error) {
+	flags, opts := open.buildFlagSet()
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
 	return validateArgs(flags, opts)
 }
 
-func printErrors(opts *openOptions, err error) int {
+func (open *OpenCommand) printHelpMessage(opts *openOptions, err error) int {
 	status := 0
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 	if status != 0 || opts != nil && opts.helpFlag {
-		fmt.Println(helpMessage())
+		fmt.Println(open.Help())
 	}
 	return status
 }
@@ -117,7 +141,7 @@ func performEach(arg string, opts *openOptions, db *lib.Database) error {
 	return open.Start(path)
 }
 
-func perform(args []string, opts *openOptions) int {
+func performOpen(args []string, opts *openOptions) int {
 	config := lib.OpenConfig()
 	db, err := lib.Open(config)
 	if err != nil {
@@ -133,15 +157,13 @@ func perform(args []string, opts *openOptions) int {
 	return 0
 }
 
-func goMain(args []string) int {
-	opts, err := parseOptions(args)
+/*
+Run performs the command.
+*/
+func (open *OpenCommand) Run(args []string) int {
+	opts, err := open.parseOptions(args)
 	if err != nil || opts.helpFlag {
-		return printErrors(opts, err)
+		return open.printHelpMessage(opts, err)
 	}
-	return perform(opts.args, opts)
-}
-
-func main() {
-	status := goMain(os.Args)
-	os.Exit(status)
+	return performOpen(opts.args, opts)
 }

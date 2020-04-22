@@ -31,6 +31,7 @@ AVAILABLE SUB COMMANDS:
     import       import the given database.
     list         print managed repositories and their groups.
     mv           move the repositories from groups to another group.
+    open         open folder or web page of the given repositories.
     prune        prune unnecessary repositories and groups.
     repository   manages repositories.
     rm           remove given repository from database.
@@ -262,6 +263,20 @@ OPTIONS
 ARGUMENTS
     FROMS...        specifies move from, formatted in <GROUP_NAME/REPO_ID>, or <GROUP_NAME>
     TO              specifies move to, formatted in <GROUP_NAME>
+```
+
+#### `rrh open`
+
+Opens folder or web page of the given repositories.
+
+```sh
+rrh open [OPTIONS] <REPOSITORIES...>
+OPTIONS
+    -f, --folder     open the folder of the specified repository (Default).
+    -w, --webpage    open the webpage of the specified repository.
+    -h, --help       print this message.
+ARGUMENTS
+    REPOSITORIES     specifies repository names.
 ```
 
 #### `rrh prune`

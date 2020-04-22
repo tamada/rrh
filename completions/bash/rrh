@@ -196,6 +196,15 @@ __rrh_new() {
     fi
 }
 
+__rrh_open() {
+    if [[ "$1" =~ ^\- ]]; then
+        COMPREPLY=($(compgen -W "-f --folder -w --webpage -h --help" -- "${cur}"))
+    else
+        repositories="$(__rrh_repository)"
+        COMPREPLY=($(compgen -W "$repositories" -- "${cur}"))
+    fi
+}
+
 __rrh_path() {
     if [[ "$1" =~ ^\- ]]; then
         COMPREPLY=($(compgen -W "-m --partial-match -p --show-only-path" -- "${cur}"))
@@ -305,7 +314,7 @@ __rrh_completions()
         subcom=${COMP_WORDS[$subcomIndex]}
     fi
     # echo "cur: $cur, prev: $prev, cword: $cword, subcom: $subcom, index: $subcomIndex"
-    opts="add clone config export fetch fetch-all group help import list mv new prune repository rm status version"
+    opts="add clone config export fetch fetch-all group help import list mv new open prune repository rm status version"
 
     case "${subcom}" in
         add)
@@ -357,6 +366,10 @@ __rrh_completions()
             return 0
             ;;
         prune)
+            return 0
+            ;;
+        open)
+            __rrh_open  "$cur" "$prev" "$cword" "$subcom" $subcomIndex
             return 0
             ;;
         repository)

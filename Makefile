@@ -32,7 +32,6 @@ build: setup
 	$(GO) build
 	 @$(call _buildSubcommand,helloworld)
 	 @$(call _buildSubcommand,new)
-	 @$(call _buildSubcommand,open)
 
 lint: setup format
 	$(GO) vet $$(go list ./...)
@@ -53,7 +52,4 @@ install: test build
 
 clean:
 	$(GO) clean
-	rm -rf rrh
-	rm -rf rrh-helloworld
-	rm -rf rrh-new
-	rm -rf rrh-open
+	rm -rf rrh rrh-helloworld rrh-new

@@ -1,15 +1,17 @@
-package main
+package internal
 
 import "testing"
 
 func Example_notFound() {
-	goMain([]string{"open", "not_exist_repo"})
+	oc, _ := OpenCommandFactory()
+	oc.Run([]string{"open", "not_exist_repo"})
 	// Output:
 	// not_exist_repo: repository not found
 }
 
 func Example_printHelp() {
-	goMain([]string{"open", "-h"})
+	oc, _ := OpenCommandFactory()
+	oc.Run([]string{"open", "-h"})
 	// Output:
 	// rrh open [OPTIONS] <REPOSITORIES...>
 	// OPTIONS

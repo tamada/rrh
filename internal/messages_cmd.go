@@ -25,6 +25,7 @@ func BuildCommandFactoryMap() map[string]cli.CommandFactory {
 		"import":     ImportCommandFactory,
 		"list":       ListCommandFactory,
 		"mv":         MoveCommandFactory,
+		"open":       OpenCommandFactory,
 		"prune":      PruneCommandFactory,
 		"repository": RepositoryCommandFactory,
 		"rm":         RemoveCommandFactory,
