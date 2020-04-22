@@ -53,13 +53,13 @@ func findExecutableFromDir(dir, commandName string) bool {
 	return false
 }
 
-type options struct {
+type rrhOptions struct {
 	help       bool
 	version    bool
 	configPath string
 }
 
-func parseOptions(args []string, opts *options) []string {
+func parseOptions(args []string, opts *rrhOptions) []string {
 	var configPathFlag = false
 	for i, arg := range args {
 		if strings.HasPrefix(arg, "-") {
@@ -81,7 +81,7 @@ func parseOptions(args []string, opts *options) []string {
 	return []string{}
 }
 
-func (opts *options) printHelpOrVersion(args []string) (int, error) {
+func (opts *rrhOptions) printHelpOrVersion(args []string) (int, error) {
 	if opts.version {
 		var com, _ = internal.VersionCommandFactory()
 		com.Run([]string{})
@@ -102,7 +102,7 @@ func executeExternalCommand(args []string) (int, error) {
 	return executeCommand(executablePath, args[1:])
 }
 
-func (opts *options) updateConfigPath() {
+func (opts *rrhOptions) updateConfigPath() {
 	if opts.configPath != "" {
 		os.Setenv(lib.RrhConfigPath, opts.configPath)
 	}
@@ -110,8 +110,8 @@ func (opts *options) updateConfigPath() {
 
 func goMain(args []string) (int, error) {
 	var commands = internal.BuildCommandFactoryMap()
-	var opts = options{}
-	var newArgs = parseOptions(args[1:], &opts)
+	var opts = new(rrhOptions)
+	var newArgs = parseOptions(args[1:], opts)
 	if len(newArgs) == 0 || opts.help || opts.version {
 		return opts.printHelpOrVersion(newArgs)
 	}

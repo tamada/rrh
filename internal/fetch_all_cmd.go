@@ -29,7 +29,7 @@ OPTIONS
     -r, --remote <REMOTE>   specify the remote name. Default is "origin."`
 }
 
-func (fetchAll *FetchAllCommand) validateArguments(args []string) (*options, error) {
+func (fetchAll *FetchAllCommand) validateArguments(args []string) (*fetchOptions, error) {
 	var options, err = fetchAll.parse(args)
 	if err == nil {
 		if len(options.args) != 0 {
@@ -66,7 +66,7 @@ func convertToGroupNames(groups []lib.Group) []string {
 	return result
 }
 
-func (fetchAll *FetchAllCommand) execFetch(db *lib.Database, options *options) []error {
+func (fetchAll *FetchAllCommand) execFetch(db *lib.Database, options *fetchOptions) []error {
 	var onError = db.Config.GetValue(lib.RrhOnError)
 	var errorlist = []error{}
 	var fetch = FetchCommand{options}
@@ -84,8 +84,8 @@ func (fetchAll *FetchAllCommand) execFetch(db *lib.Database, options *options) [
 	return errorlist
 }
 
-func (fetchAll *FetchAllCommand) parse(args []string) (*options, error) {
-	var options = options{"origin", []string{}}
+func (fetchAll *FetchAllCommand) parse(args []string) (*fetchOptions, error) {
+	var options = fetchOptions{remote: "origin", args: []string{}}
 	flags := flag.NewFlagSet("fetch-all", flag.ExitOnError)
 	flags.Usage = func() { fmt.Println(fetchAll.Help()) }
 	flags.StringVarP(&options.remote, "remote", "r", "origin", "remote name")
