@@ -4,14 +4,14 @@ import "testing"
 
 func Example_notFound() {
 	oc, _ := OpenCommandFactory()
-	oc.Run([]string{"open", "not_exist_repo"})
+	oc.Run([]string{"not_exist_repo"})
 	// Output:
 	// not_exist_repo: repository not found
 }
 
 func Example_printHelp() {
 	oc, _ := OpenCommandFactory()
-	oc.Run([]string{"open", "-h"})
+	oc.Run([]string{"-h"})
 	// Output:
 	// rrh open [OPTIONS] <REPOSITORIES...>
 	// OPTIONS
