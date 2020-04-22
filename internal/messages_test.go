@@ -24,6 +24,7 @@ AVAILABLE SUB COMMANDS:
     import       import the given database.
     list         print managed repositories and their groups.
     mv           move the repositories from groups to another group.
+    open         open folder or web page of the given repositories.
     prune        prune unnecessary repositories and groups.
     repository   manages repositories.
     rm           remove given repository from database.

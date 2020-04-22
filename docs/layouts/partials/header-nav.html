@@ -1,6 +1,6 @@
 <section class="page-header">
   {{ if isset .Site.Params "project_logo" }}
-  <img src="{{ .Site.BaseURL }}{{ .Site.Params.project_logo }}" class="avatar" alt="project_logo">
+  <img src="{{ .Site.BaseURL }}/{{ .Site.Params.project_logo }}" class="avatar" alt="project_logo">
   {{ end }}
   <h1 class="project-name">
     {{ $.Site.Params.project_name | default "project_name goes here" | markdownify }}

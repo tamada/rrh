@@ -1,8 +1,8 @@
 ---
-title: Development
+title: ":pencil2: Development"
 ---
 
-### Database
+## Database
 
 The database for managed repositories is formatted in JSON.
 The JSON format is as follows.

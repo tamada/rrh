@@ -229,7 +229,7 @@ func TestPrintErrors(t *testing.T) {
 		for _, tc := range testcases {
 			var output = CaptureStdout(func() {
 				config.Update(RrhOnError, tc.givesOnError)
-				var status = config.PrintErrors(errs)
+				var status = config.PrintErrors(errs...)
 				if status != tc.wontStatus {
 					t.Errorf("Status code of printErrors did not match, wont %d, got %d", tc.wontStatus, status)
 				}

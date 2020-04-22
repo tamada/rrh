@@ -16,5 +16,5 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/images/harry.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/harry.png">
   {{ partial "katex.html" . }}
-  <title>{{ .Title }} | {{ $.Site.Title }}</title>
+  <title>{{ .Title | emojify }} | {{ $.Site.Title }}</title>
 </head>

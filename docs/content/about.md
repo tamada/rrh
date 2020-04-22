@@ -1,5 +1,5 @@
 ---
-title: About the Project
+title: ":smile: About the Project"
 ---
 
 [![Contribution](https://img.shields.io/badge/RRH-Contribution-yellow.svg)](https://github.com/tamada/rrh/blob/master/CONTRIBUTION.md)
@@ -9,7 +9,7 @@ title: About the Project
 [![Gitter misc_ja](https://img.shields.io/badge/Gitter-For_Japanese-red.svg)](https://gitter.im/rrh_git/misc_ja)
 
 
-### Contribution
+## :raised_hand: Contribution
 
 1. Fork the project. ([https://github.com/tamada/rrh/fork](https://github.com/tamada/rrh/fork))
 2. Create a feature branch. (`git checkout -b FEATURE_BRANCH_NAME`)
@@ -23,17 +23,17 @@ title: About the Project
 [![Contribution](https://img.shields.io/badge/RRH-Contribution-yellow.svg)](https://github.com/tamada/rrh/blob/master/CONTRIBUTION.md)
 
 
-### Code of Conduct
+## :green_book: Code of Conduct
 
 [![Code of Conduct](https://img.shields.io/badge/RRH-Code_of_Conduct-orange.svg)](https://github.com/tamada/rrh/blob/master/CODE_OF_CONDUCT.md)
 
-### License
+## :scroll: License
 
 [Apache License version 2.0](https://github.com/tamada/rrh/blob/master/LICENSE)
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/tamada/rrh/blob/master/LICENSE)
 
-### Discussion
+## :speech_balloon: Discussion
 
 [![Gitter](https://img.shields.io/badge/Gitter-Join_Chat-red.svg)](https://gitter.im/rrh_git/community)
 [![Gitter misc_ja](https://img.shields.io/badge/Gitter-For_Japanese-red.svg)](https://gitter.im/rrh_git/misc_ja)
@@ -43,24 +43,24 @@ Join our Gitter channel if you have any problem or suggestions to `rrh`.
 For Japanese user, `misc_ja` channel has discussions in Japanese.
 The public language of other channels and GitHub project pages are English.
 
-### Authors
+## :busts_in_silhouette: Authors
 
 {{< githubuser tamada >}}
 
-### Why the project name RRH
+## :question: Why the project name RRH
 
 At first, the name of this project was GRIM (Git Repository Integrated Manager).
 However, the means of `grim` is not good, and there are many commands which start with `gr`.
 Therefore, we changed the project name to `rrh`.
 RRH means "Repositories, Ready to Hack" or "Remote Repositories Head," are not the abbreviation of the Red Riding Hood.
 
-### Attributions
+## :handshake: Attributions
 
-#### Icon of RRH
+### Icon of RRH
 
 {{< figure src="/rrh/images/logo.png" width="64" >}} by [iconpon.com](https://www.iconpon.com/)
 
-### Version histories
+## :paw_prints: Version histories
 
 * [v1.1.0](https://github.com/tamada/rrh/releases/tag/v1.1.0) (18 Dec, 2018)
     * [\#79](https://github.com/tamada/rrh/issues/79) (add `rrh group info` sub command)

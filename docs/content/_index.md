@@ -1,5 +1,5 @@
 ---
-title: RRH
+title: ":house: RRH"
 ---
 
 [![Build Status](https://travis-ci.org/tamada/rrh.svg?branch=master)](https://travis-ci.org/tamada/rrh)
@@ -13,27 +13,28 @@ RRH is a simple git repository manager.
 
 ## Table of Contents
 
-* [Description](description)
-* [Installation](installation)
-    * [Homebrew](installation#homebrew)
+* [:bookmark_tabs: Description](description)
+* [:anchor: Installation](installation)
+    * [:beer: Homebrew](installation#beer-homebrew)
     * [Golang](installation#golang)
-    * [Requirements](installation#requirements)
-* [Usage](usage)
+    * [:hammer_and_wrench: Build form source codes](installation#hammer_and_wrench-build-from-source-codes)
+    * [:white_check_mark: Requirements](installation#white_check_mark-requirements)
+* [:fork_and_knife: Usage](usage)
     * [Getting Started](usage#getting-started)
     * [Command references](usage#command-references)
     * [Subcommands](usage#subcommands)
     * [Environment Variables](usage#environment-variables)
-* [Development](development)
+* [:pencil2: Development](development)
     * [Database](development#database)
-* [Utilities](utilities)
+* [:electric_plug: Utilities](utilities)
     * [`cdrrh`](utilities#cdrrh)
     * [`rrhpeco`](utilities#rrhpeco)
-* [About the Project](about)
-    * [Contribution](about#contribution)
-    * [Code of Conduct](about#code-of-conduct)
-    * [License](about#license)
-    * [Discussion](about#disucussion)
-    * [Authors](about#authors)
-    * [Why the project name RRH](about#why-the-project-name-rrh)
-    * [Attributions](about#attributions)
-    * [Version histories](about#version-histories)
+* [:smile: About the Project](about)
+    * [:raised_hand: Contribution](about#raised_hand-contribution)
+    * [:green_book: Code of Conduct](about#green_book-code-of-conduct)
+    * [:scroll: License](about#scroll-license)
+    * [:speech_balloon: Discussion](about#speech_balloon-discussion)
+    * [:busts_in_silhouette: Authors](about#busts_in_silhouette-authors)
+    * [:question: Why the project name RRH](about#question-why-the-project-name-rrh)
+    * [:handshake: Attributions](about#handshake-attributions)
+    * [:paw_prints: Version histories](about#paw_prints-version-histories)

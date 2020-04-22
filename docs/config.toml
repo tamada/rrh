@@ -1,4 +1,4 @@
-baseURL = "http://tamada.github.io/rrh"
+baseURL = "https://tamada.github.io/rrh"
 languageCode = "en-us"
 defaultContentLanguage = "en"
 title = "rrh"
@@ -19,30 +19,30 @@ pygmentsStyle = "pygments"
 
 [menu]
   [[menu.nav]]
-    name = "Home"
+    name = ":house: Home"
     url = "/"
     weight = 1
   [[menu.nav]]
-    name = "Description"
+    name = ":bookmark_tabs: Description"
     url = "/description/"
     weight = 2
   [[menu.nav]]
-    name = "Installation"
+    name = ":anchor: Installation"
     url = "/installation/"
     weight = 3
   [[menu.nav]]
-    name = "Usage"
+    name = ":fork_and_knife: Usage"
     url = "/usage/"
     weight = 4
   [[menu.nav]]
-    name = "Development"
+    name = ":pencil2: Development"
     url = "/development/"
     weight = 5
   [[menu.nav]]
-    name = "Utilities"
+    name = ":electric_plug: Utilities"
     url = "/utilities/"
     weight = 6
   [[menu.nav]]
-    name = "About"
+    name = ":smile: About"
     url = "/about/"
     weight = 7

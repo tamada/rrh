@@ -2,7 +2,7 @@
 
 <h1>{{ .Title | emojify }}</h1>
 
-{{ .Content }}
+{{ .Content | emojify }}
 
 <ul>
 {{ $pages := where site.RegularPages "Type" "in" site.Params.mainSections }}

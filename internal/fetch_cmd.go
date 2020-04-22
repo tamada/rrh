@@ -49,14 +49,14 @@ func (progress *Progress) Increment() {
 FetchCommand represents a command.
 */
 type FetchCommand struct {
-	options *options
+	options *fetchOptions
 }
 
 /*
 FetchCommandFactory returns an instance of command.
 */
 func FetchCommandFactory() (cli.Command, error) {
-	return &FetchCommand{&options{}}, nil
+	return &FetchCommand{new(fetchOptions)}, nil
 }
 
 /*
@@ -122,7 +122,7 @@ func (fetch *FetchCommand) perform(db *lib.Database) []error {
 	return errorlist
 }
 
-type options struct {
+type fetchOptions struct {
 	remote string
 	// key      string
 	// userName string
@@ -131,7 +131,7 @@ type options struct {
 }
 
 func (fetch *FetchCommand) parse(args []string) error {
-	var options = options{"origin", []string{}}
+	var options = fetchOptions{remote: "origin", args: []string{}}
 	flags := flag.NewFlagSet("fetch", flag.ExitOnError)
 	flags.Usage = func() { fmt.Println(fetch.Help()) }
 	flags.StringVarP(&options.remote, "remote", "r", "origin", "remote name")

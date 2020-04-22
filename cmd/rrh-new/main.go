@@ -15,14 +15,18 @@ import (
 	"gopkg.in/src-d/go-git.v4/storage/filesystem"
 )
 
-type newOptions struct {
+type repositoryInfo struct {
 	description string
-	group       string
 	homepage    string
-	parentPath  string
 	privateFlag bool
-	dryrunMode  bool
-	helpFlag    bool
+}
+
+type newOptions struct {
+	group      string
+	parentPath string
+	info       *repositoryInfo
+	dryrunMode bool
+	helpFlag   bool
 }
 
 func getHelpMessage() string {
@@ -37,44 +41,43 @@ OPTIONS
     -h, --help                  print this message.
 ARGUMENTS
     ORGANIZATION    specifies organization, if needed.
-    REPOSITORY      specifies repository name, and it is directory name.
-`
+    REPOSITORY      specifies repository name, and it is directory name.`
 }
 
 func buildFlagSet(config *lib.Config) (*flag.FlagSet, *newOptions) {
-	var opt = newOptions{}
+	var opt = newOptions{info: new(repositoryInfo)}
 	var defaultGroup = config.GetValue(lib.RrhDefaultGroupName)
 	flags := flag.NewFlagSet("new", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(getHelpMessage()) }
-	flags.StringVarP(&opt.description, "description", "d", "", "specifys description of the project")
+	flags.StringVarP(&opt.info.description, "description", "d", "", "specifys description of the project")
 	flags.StringVarP(&opt.group, "group", "g", defaultGroup, "target group")
-	flags.StringVarP(&opt.homepage, "homepage", "H", "", "specifies homepage url")
+	flags.StringVarP(&opt.info.homepage, "homepage", "H", "", "specifies homepage url")
 	flags.StringVarP(&opt.parentPath, "parent-path", "P", ".", "specifies the destination path")
-	flags.BoolVarP(&opt.privateFlag, "private", "p", false, "create a private repository")
+	flags.BoolVarP(&opt.info.privateFlag, "private", "p", false, "create a private repository")
 	flags.BoolVarP(&opt.dryrunMode, "dry-run", "D", false, "performs on dry run mode")
 	flags.BoolVarP(&opt.helpFlag, "help", "h", false, "print this message")
 	return flags, &opt
 }
 
-func createArgsToHubCommand(projectName string, opts *newOptions) []string {
+func createArgsToHubCommand(projectName string, info *repositoryInfo) []string {
 	var args = []string{"create"}
-	if opts.homepage != "" {
+	if info.homepage != "" {
 		args = append(args, "--homepage")
-		args = append(args, opts.homepage)
+		args = append(args, info.homepage)
 	}
-	if opts.privateFlag {
+	if info.privateFlag {
 		args = append(args, "--private")
 	}
-	if opts.description != "" {
+	if info.description != "" {
 		args = append(args, "--description")
-		args = append(args, opts.description)
+		args = append(args, info.description)
 	}
 	args = append(args, projectName)
 	return args
 }
 
 func createProjectPage(repo *repo, opts *newOptions) (string, error) {
-	var argsToHub = createArgsToHubCommand(repo.givenString, opts)
+	var argsToHub = createArgsToHubCommand(repo.givenString, opts.info)
 	var cmdString = "hub " + strings.Join(argsToHub, " ")
 	if opts.dryrunMode {
 		return cmdString, nil
@@ -169,7 +172,7 @@ func registerToGroup(db *lib.Database, repo *repo, opts *newOptions) error {
 		return nil
 	}
 	var remotes, _ = lib.FindRemotes(repo.dest)
-	var _, err1 = db.CreateRepository(repo.repoName, repo.dest, opts.description, remotes)
+	var _, err1 = db.CreateRepository(repo.repoName, repo.dest, opts.info.description, remotes)
 	if err1 != nil {
 		return err1
 	}
@@ -234,7 +237,7 @@ func perform(config *lib.Config, args []string, opts *newOptions) int {
 		return 0
 	}
 	var errs = createRepositories(config, args, opts)
-	return config.PrintErrors(errs)
+	return config.PrintErrors(errs...)
 }
 
 func goMain(args []string) int {

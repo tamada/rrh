@@ -240,7 +240,7 @@ func TestPrintErrors(t *testing.T) {
 	for _, tc := range testcases {
 		config.Update(lib.RrhOnError, tc.onError)
 		var output = lib.CaptureStdout(func() {
-			var statusCode = config.PrintErrors(tc.error)
+			var statusCode = config.PrintErrors(tc.error...)
 			if statusCode != tc.wontStatus {
 				t.Errorf("%v: status code did not match, wont: %d, got: %d", tc, tc.wontStatus, statusCode)
 			}
