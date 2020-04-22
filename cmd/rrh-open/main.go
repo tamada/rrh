@@ -10,7 +10,7 @@ import (
 	"github.com/tamada/rrh/lib"
 )
 
-type options struct {
+type openOptions struct {
 	helpFlag    bool
 	folderFlag  bool
 	browserFlag bool
@@ -27,8 +27,8 @@ ARGUMENTS
     REPOSITORIES     specifies repository names.`
 }
 
-func buildFlagSet() (*flag.FlagSet, *options) {
-	opts := new(options)
+func buildFlagSet() (*flag.FlagSet, *openOptions) {
+	opts := new(openOptions)
 	flags := flag.NewFlagSet("open", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(helpMessage()) }
 	flags.BoolVarP(&opts.helpFlag, "help", "h", false, "print this message")
@@ -37,7 +37,7 @@ func buildFlagSet() (*flag.FlagSet, *options) {
 	return flags, opts
 }
 
-func validateArgs(flags *flag.FlagSet, opts *options) (*options, error) {
+func validateArgs(flags *flag.FlagSet, opts *openOptions) (*openOptions, error) {
 	if !opts.helpFlag && len(flags.Args()) == 1 {
 		return nil, fmt.Errorf("no arguments are specified")
 	}
@@ -47,7 +47,7 @@ func validateArgs(flags *flag.FlagSet, opts *options) (*options, error) {
 	return opts, nil
 }
 
-func parseOptions(args []string) (*options, error) {
+func parseOptions(args []string) (*openOptions, error) {
 	flags, opts := buildFlagSet()
 	if err := flags.Parse(args); err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func parseOptions(args []string) (*options, error) {
 	return validateArgs(flags, opts)
 }
 
-func printErrors(opts *options, err error) int {
+func printErrors(opts *openOptions, err error) int {
 	status := 0
 	if err != nil {
 		fmt.Println(err.Error())
@@ -91,21 +91,21 @@ func convertURL(url string) (string, error) {
 	return url, nil
 }
 
-func generateWebPageUrl(repo *lib.Repository) (string, error) {
+func generateWebPageURL(repo *lib.Repository) (string, error) {
 	if len(repo.Remotes) == 0 {
 		return "", fmt.Errorf("%s: remote repository not found", repo.ID)
 	}
 	return convertURL(repo.Remotes[0].URL)
 }
 
-func execOpen(repo *lib.Repository, opts *options) (string, error) {
+func execOpen(repo *lib.Repository, opts *openOptions) (string, error) {
 	if opts.browserFlag {
-		return generateWebPageUrl(repo)
+		return generateWebPageURL(repo)
 	}
 	return repo.Path, nil
 }
 
-func performEach(arg string, opts *options, db *lib.Database) error {
+func performEach(arg string, opts *openOptions, db *lib.Database) error {
 	repo := db.FindRepository(arg)
 	if repo == nil {
 		return fmt.Errorf("%s: repository not found", arg)
@@ -117,7 +117,7 @@ func performEach(arg string, opts *options, db *lib.Database) error {
 	return open.Start(path)
 }
 
-func perform(args []string, opts *options) int {
+func perform(args []string, opts *openOptions) int {
 	config := lib.OpenConfig()
 	db, err := lib.Open(config)
 	if err != nil {
