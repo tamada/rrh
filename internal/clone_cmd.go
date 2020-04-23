@@ -10,7 +10,7 @@ import (
 
 	"github.com/mitchellh/cli"
 	flag "github.com/spf13/pflag"
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 /*
@@ -69,13 +69,13 @@ func (options *cloneOptions) showError(list []error) {
 Run performs the command.
 */
 func (clone *CloneCommand) Run(args []string) int {
-	var config = lib.OpenConfig()
+	var config = rrh.OpenConfig()
 	arguments, err := clone.parse(args, config)
 	if err != nil || len(arguments) == 0 {
 		fmt.Printf(clone.Help())
 		return 1
 	}
-	db, err := lib.Open(config)
+	db, err := rrh.Open(config)
 	if err != nil {
 		fmt.Println(err.Error())
 		return 2
@@ -83,12 +83,12 @@ func (clone *CloneCommand) Run(args []string) int {
 	return clone.perform(db, arguments)
 }
 
-func (clone *CloneCommand) perform(db *lib.Database, arguments []string) int {
+func (clone *CloneCommand) perform(db *rrh.Database, arguments []string) int {
 	var count, list = clone.DoClone(db, arguments)
 	if len(list) != 0 {
 		clone.options.showError(list)
-		var onError = db.Config.GetValue(lib.RrhOnError)
-		if onError == lib.Fail || onError == lib.FailImmediately {
+		var onError = db.Config.GetValue(rrh.RrhOnError)
+		if onError == rrh.Fail || onError == rrh.FailImmediately {
 			return 1
 		}
 	}
@@ -108,9 +108,9 @@ func printResult(count int, dest string, group string) {
 	}
 }
 
-func (clone *CloneCommand) buildFlagSets(config *lib.Config) (*flag.FlagSet, *cloneOptions) {
-	var defaultGroup = config.GetValue(lib.RrhDefaultGroupName)
-	var destination = config.GetValue(lib.RrhCloneDestination)
+func (clone *CloneCommand) buildFlagSets(config *rrh.Config) (*flag.FlagSet, *cloneOptions) {
+	var defaultGroup = config.GetValue(rrh.RrhDefaultGroupName)
+	var destination = config.GetValue(rrh.RrhCloneDestination)
 	var options = cloneOptions{defaultGroup, ".", false}
 	flags := flag.NewFlagSet("clone", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(clone.Help()) }
@@ -120,7 +120,7 @@ func (clone *CloneCommand) buildFlagSets(config *lib.Config) (*flag.FlagSet, *cl
 	return flags, &options
 }
 
-func (clone *CloneCommand) parse(args []string, config *lib.Config) ([]string, error) {
+func (clone *CloneCommand) parse(args []string, config *rrh.Config) ([]string, error) {
 	var flags, options = clone.buildFlagSets(config)
 	if err := flags.Parse(args); err != nil {
 		return nil, err
@@ -130,12 +130,12 @@ func (clone *CloneCommand) parse(args []string, config *lib.Config) ([]string, e
 	return flags.Args(), nil
 }
 
-func registerPath(db *lib.Database, dest string, repoID string) (*lib.Repository, error) {
+func registerPath(db *rrh.Database, dest string, repoID string) (*rrh.Repository, error) {
 	var path, err = filepath.Abs(dest)
 	if err != nil {
 		return nil, err
 	}
-	var remotes, err2 = lib.FindRemotes(path)
+	var remotes, err2 = rrh.FindRemotes(path)
 	if err2 != nil {
 		return nil, err2
 	}
@@ -147,7 +147,7 @@ func registerPath(db *lib.Database, dest string, repoID string) (*lib.Repository
 	return repo, nil
 }
 
-func (clone *CloneCommand) toDir(db *lib.Database, URL string, dest string, repoID string) (*lib.Repository, error) {
+func (clone *CloneCommand) toDir(db *rrh.Database, URL string, dest string, repoID string) (*rrh.Repository, error) {
 	clone.printIfVerbose(fmt.Sprintf("git clone %s %s (%s)", URL, dest, repoID))
 	var cmd = exec.Command("git", "clone", URL, dest)
 	var err = cmd.Run()
@@ -170,7 +170,7 @@ func isExistDir(path string) bool {
 /*
 DoClone performs `git clone` command and register the cloned repositories to RRH database.
 */
-func (clone *CloneCommand) DoClone(db *lib.Database, arguments []string) (int, []error) {
+func (clone *CloneCommand) DoClone(db *rrh.Database, arguments []string) (int, []error) {
 	if len(arguments) == 1 {
 		var err = clone.doCloneARepository(db, arguments[0])
 		if err != nil {
@@ -181,14 +181,14 @@ func (clone *CloneCommand) DoClone(db *lib.Database, arguments []string) (int, [
 	return clone.doCloneRepositories(db, arguments)
 }
 
-func (clone CloneCommand) doCloneRepositories(db *lib.Database, arguments []string) (int, []error) {
+func (clone CloneCommand) doCloneRepositories(db *rrh.Database, arguments []string) (int, []error) {
 	var errorlist = []error{}
 	var count = 0
 	for _, url := range arguments {
 		var increment, err = clone.doCloneEachRepository(db, url)
 		if err != nil {
 			errorlist = append(errorlist, err)
-			if db.Config.GetValue(lib.RrhOnError) == lib.FailImmediately {
+			if db.Config.GetValue(rrh.RrhOnError) == rrh.FailImmediately {
 				return count, errorlist
 			}
 		}
@@ -197,7 +197,7 @@ func (clone CloneCommand) doCloneRepositories(db *lib.Database, arguments []stri
 	return count, errorlist
 }
 
-func (clone *CloneCommand) relateTo(db *lib.Database, groupID string, repoID string) error {
+func (clone *CloneCommand) relateTo(db *rrh.Database, groupID string, repoID string) error {
 	var _, err = db.AutoCreateGroup(groupID, "", false)
 	if err != nil {
 		return fmt.Errorf("%s: group not found", groupID)
@@ -210,7 +210,7 @@ func (clone *CloneCommand) relateTo(db *lib.Database, groupID string, repoID str
 doCloneEachRepository performes `git clone` for each repository.
 This function is called repeatedly.
 */
-func (clone *CloneCommand) doCloneEachRepository(db *lib.Database, URL string) (int, error) {
+func (clone *CloneCommand) doCloneEachRepository(db *rrh.Database, URL string) (int, error) {
 	var count int
 	var id = findIDFromURL(URL)
 	var path = filepath.Join(clone.options.dest, id)
@@ -224,7 +224,7 @@ func (clone *CloneCommand) doCloneEachRepository(db *lib.Database, URL string) (
 	return count, err
 }
 
-func (clone *CloneCommand) doCloneARepository(db *lib.Database, URL string) error {
+func (clone *CloneCommand) doCloneARepository(db *rrh.Database, URL string) error {
 	var id, path string
 
 	if isExistDir(clone.options.dest) {

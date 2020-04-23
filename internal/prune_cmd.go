@@ -6,7 +6,7 @@ import (
 
 	"github.com/mitchellh/cli"
 	flag "github.com/spf13/pflag"
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 /*
@@ -15,18 +15,18 @@ PruneCommand represents a command.
 type PruneCommand struct {
 	verbose bool
 	dryrun  bool
-	mc      *lib.MessageCenter
+	mc      *rrh.MessageCenter
 }
 
 /*
 PruneCommandFactory returns an instance of the PruneCommand.
 */
 func PruneCommandFactory() (cli.Command, error) {
-	return &PruneCommand{verbose: false, dryrun: false, mc: lib.NewMessageCenter()}, nil
+	return &PruneCommand{verbose: false, dryrun: false, mc: rrh.NewMessageCenter()}, nil
 }
 
-func printResults(prune *PruneCommand, repos []lib.Repository, groups []lib.Group) {
-	prune.mc.Print(os.Stdout, lib.VERBOSE)
+func printResults(prune *PruneCommand, repos []rrh.Repository, groups []rrh.Group) {
+	prune.mc.Print(os.Stdout, rrh.VERBOSE)
 	for _, repo := range repos {
 		fmt.Printf("%s: repository pruned (no relations)\n", repo.ID)
 	}
@@ -42,7 +42,7 @@ func dryrunMode(mode bool) string {
 	return " (dry-run mode)"
 }
 
-func (prune *PruneCommand) perform(db *lib.Database) bool {
+func (prune *PruneCommand) perform(db *rrh.Database) bool {
 	var count = prune.removeNotExistRepository(db)
 	var repos, groups = db.PruneTargets()
 	fmt.Printf("Pruned %d groups, %d repositories%s\n", len(groups), len(repos)+count, dryrunMode(prune.dryrun))
@@ -80,8 +80,8 @@ func (prune *PruneCommand) Run(args []string) int {
 		fmt.Println(err.Error())
 		return 1
 	}
-	var config = lib.OpenConfig()
-	var db, err = lib.Open(config)
+	var config = rrh.OpenConfig()
+	var db, err = rrh.Open(config)
 	if err != nil {
 		fmt.Println(err.Error())
 		return 1
@@ -92,7 +92,7 @@ func (prune *PruneCommand) Run(args []string) int {
 	return 0
 }
 
-func (prune *PruneCommand) deleteNotExistRepository(db *lib.Database, repo string) int {
+func (prune *PruneCommand) deleteNotExistRepository(db *rrh.Database, repo string) int {
 	pushMessage(prune, repo, "not exists")
 	var err = db.DeleteRepository(repo)
 	if err != nil {
@@ -101,7 +101,7 @@ func (prune *PruneCommand) deleteNotExistRepository(db *lib.Database, repo strin
 	return 1
 }
 
-func (prune *PruneCommand) removeNotExistRepository(db *lib.Database) int {
+func (prune *PruneCommand) removeNotExistRepository(db *rrh.Database) int {
 	var removeRepos = []string{}
 	for _, repo := range db.Repositories {
 		var _, err = os.Stat(repo.Path)

@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	flag "github.com/spf13/pflag"
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 	"gopkg.in/src-d/go-billy.v4/osfs"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing/cache"
@@ -44,9 +44,9 @@ ARGUMENTS
     REPOSITORY      specifies repository name, and it is directory name.`
 }
 
-func buildFlagSet(config *lib.Config) (*flag.FlagSet, *newOptions) {
+func buildFlagSet(config *rrh.Config) (*flag.FlagSet, *newOptions) {
 	var opt = newOptions{info: new(repositoryInfo)}
-	var defaultGroup = config.GetValue(lib.RrhDefaultGroupName)
+	var defaultGroup = config.GetValue(rrh.RrhDefaultGroupName)
 	flags := flag.NewFlagSet("new", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(getHelpMessage()) }
 	flags.StringVarP(&opt.info.description, "description", "d", "", "specifys description of the project")
@@ -100,7 +100,7 @@ func createReadme(dest, projectName string) {
 	}
 }
 
-func makeGitDirectory(config *lib.Config, repo *repo, opts *newOptions) error {
+func makeGitDirectory(config *rrh.Config, repo *repo, opts *newOptions) error {
 	if opts.dryrunMode {
 		return nil
 	}
@@ -158,7 +158,7 @@ func findRepoName(arg string) string {
 	return terms[1]
 }
 
-func createRepo(config *lib.Config, arg string, opts *newOptions) (*repo, error) {
+func createRepo(config *rrh.Config, arg string, opts *newOptions) (*repo, error) {
 	var dest, err = findDirectoryName(arg, opts)
 	if err != nil {
 		return nil, err
@@ -167,11 +167,11 @@ func createRepo(config *lib.Config, arg string, opts *newOptions) (*repo, error)
 	return &repo{givenString: arg, dest: dest, repoName: repoName}, nil
 }
 
-func registerToGroup(db *lib.Database, repo *repo, opts *newOptions) error {
+func registerToGroup(db *rrh.Database, repo *repo, opts *newOptions) error {
 	if opts.dryrunMode {
 		return nil
 	}
-	var remotes, _ = lib.FindRemotes(repo.dest)
+	var remotes, _ = rrh.FindRemotes(repo.dest)
 	var _, err1 = db.CreateRepository(repo.repoName, repo.dest, opts.info.description, remotes)
 	if err1 != nil {
 		return err1
@@ -183,7 +183,7 @@ func registerToGroup(db *lib.Database, repo *repo, opts *newOptions) error {
 	return nil
 }
 
-func createRepository(db *lib.Database, arg string, opts *newOptions) error {
+func createRepository(db *rrh.Database, arg string, opts *newOptions) error {
 	var repo, err = createRepo(db.Config, arg, opts)
 	if err == nil {
 		err = makeGitDirectory(db.Config, repo, opts)
@@ -201,28 +201,28 @@ func createRepository(db *lib.Database, arg string, opts *newOptions) error {
 	return err
 }
 
-func isOnError(config *lib.Config, handler string) bool {
-	var onError = config.GetValue(lib.RrhOnError)
+func isOnError(config *rrh.Config, handler string) bool {
+	var onError = config.GetValue(rrh.RrhOnError)
 	return onError == handler
 }
 
-func storeDbWhenSucceeded(db *lib.Database, errors []error) {
+func storeDbWhenSucceeded(db *rrh.Database, errors []error) {
 	var config = db.Config
-	if len(errors) == 0 || isOnError(config, lib.Ignore) {
+	if len(errors) == 0 || isOnError(config, rrh.Ignore) {
 		db.StoreAndClose()
 	}
 }
 
-func createRepositories(config *lib.Config, args []string, opts *newOptions) []error {
+func createRepositories(config *rrh.Config, args []string, opts *newOptions) []error {
 	var errors = []error{}
-	var db, err = lib.Open(config)
+	var db, err = rrh.Open(config)
 	defer storeDbWhenSucceeded(db, errors)
 	if err != nil {
 		return []error{err}
 	}
 	for _, arg := range args[1:] {
 		if err := createRepository(db, arg, opts); err != nil {
-			if isOnError(config, lib.FailImmediately) {
+			if isOnError(config, rrh.FailImmediately) {
 				return []error{err}
 			}
 			errors = append(errors, err)
@@ -231,7 +231,7 @@ func createRepositories(config *lib.Config, args []string, opts *newOptions) []e
 	return errors
 }
 
-func perform(config *lib.Config, args []string, opts *newOptions) int {
+func perform(config *rrh.Config, args []string, opts *newOptions) int {
 	if opts.helpFlag {
 		fmt.Println(getHelpMessage())
 		return 0
@@ -241,7 +241,7 @@ func perform(config *lib.Config, args []string, opts *newOptions) int {
 }
 
 func goMain(args []string) int {
-	var config = lib.OpenConfig()
+	var config = rrh.OpenConfig()
 	var flag, opts = buildFlagSet(config)
 	if err := flag.Parse(args); err != nil {
 		fmt.Println(err.Error())

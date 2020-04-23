@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mitchellh/cli"
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 /*
@@ -75,7 +75,7 @@ func (clc *configListCommand) Help() string {
 Run performs the command.
 */
 func (config *ConfigCommand) Run(args []string) int {
-	c := cli.NewCLI("rrh config", lib.VERSION)
+	c := cli.NewCLI("rrh config", rrh.VERSION)
 	c.Args = args
 	c.Autocomplete = true
 	c.Commands = map[string]cli.CommandFactory{
@@ -99,7 +99,7 @@ func (csc *configSetCommand) Run(args []string) int {
 		fmt.Println(csc.Help())
 		return 1
 	}
-	var config = lib.OpenConfig()
+	var config = rrh.OpenConfig()
 	var err = config.Update(args[0], args[1])
 	if err != nil {
 		fmt.Println(err.Error())
@@ -117,7 +117,7 @@ func (cuc *configUnsetCommand) Run(args []string) int {
 		fmt.Println(cuc.Help())
 		return 1
 	}
-	var config = lib.OpenConfig()
+	var config = rrh.OpenConfig()
 	var err = config.Unset(args[0])
 	if err != nil {
 		var status = config.PrintErrors(err)
@@ -133,14 +133,14 @@ func (cuc *configUnsetCommand) Run(args []string) int {
 Run performs the command.
 */
 func (clc *configListCommand) Run(args []string) int {
-	var config = lib.OpenConfig()
-	for _, label := range lib.AvailableLabels {
+	var config = rrh.OpenConfig()
+	for _, label := range rrh.AvailableLabels {
 		fmt.Println(formatVariableAndValue(config, label))
 	}
 	return 0
 }
 
-func formatVariableAndValue(config *lib.Config, label string) string {
+func formatVariableAndValue(config *rrh.Config, label string) string {
 	var value, readFrom = config.GetString(label)
 	return fmt.Sprintf("%s: %s (%s)",
 		config.Color.ColorizedLabel(label), config.Color.ColorizeConfigValue(value), readFrom)

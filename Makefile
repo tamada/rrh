@@ -12,8 +12,8 @@ update_version:
 	    sed -e 's!Version-[0-9.]*-yellowgreen!Version-${VERSION}-yellowgreen!g' -e 's!tag/v[0-9.]*!tag/v${VERSION}!g' $$i > a ; mv a $$i; \
 	done
 
-	@sed 's/const VERSION = .*/const VERSION = "${VERSION}"/g' lib/config.go > a
-	@mv a lib/config.go
+	@sed 's/const VERSION = .*/const VERSION = "${VERSION}"/g' config.go > a
+	@mv a config.go
 	@sed 's/	\/\/ rrh version .*/	\/\/ rrh version ${VERSION}/g' internal/messages_test.go > a
 	@mv a internal/messages_test.go
 	@echo "Replace version to \"${VERSION}\""
@@ -25,13 +25,14 @@ test: setup
 	$(GO) test -covermode=count -coverprofile=coverage.out $$(go list ./...)
 
 define _buildSubcommand
-	$(GO) build -o rrh-$(1) cmd/rrh-$(1)/*.go
+	$(GO) build -o $(1) cmd/$(1)/*.go
 endef
 
 build: setup
 	$(GO) build
-	 @$(call _buildSubcommand,helloworld)
-	 @$(call _buildSubcommand,new)
+	@$(call _buildSubcommand,rrh)
+	@$(call _buildSubcommand,rrh-helloworld)
+	@$(call _buildSubcommand,rrh-new)
 
 lint: setup format
 	$(GO) vet $$(go list ./...)

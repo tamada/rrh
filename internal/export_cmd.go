@@ -11,7 +11,7 @@ import (
 	"github.com/mitchellh/cli"
 	"github.com/mitchellh/go-homedir"
 	flag "github.com/spf13/pflag"
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 /*
@@ -52,8 +52,8 @@ func (export *ExportCommand) Run(args []string) int {
 		fmt.Println(err.Error())
 		return 1
 	}
-	var config = lib.OpenConfig()
-	db, err := lib.Open(config)
+	var config = rrh.OpenConfig()
+	db, err := rrh.Open(config)
 	if err != nil {
 		fmt.Println(err.Error())
 		return 2
@@ -79,7 +79,7 @@ func hideHome(result string) string {
 	return strings.Replace(result, absPath, "${HOME}", -1)
 }
 
-func (export *ExportCommand) perform(db *lib.Database) int {
+func (export *ExportCommand) perform(db *rrh.Database) int {
 	var result, _ = json.Marshal(db)
 	var stringResult = string(result)
 	if !export.options.noHideHome {

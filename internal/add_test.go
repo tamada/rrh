@@ -4,11 +4,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 func TestInvalidOptions(t *testing.T) {
-	lib.CaptureStdout(func() {
+	rrh.CaptureStdout(func() {
 		var command, _ = AddCommandFactory()
 		var flag = command.Run([]string{"--invalid-option"})
 		if flag != 1 {
@@ -86,13 +86,13 @@ func TestAdd(t *testing.T) {
 		},
 	}
 
-	os.Setenv(lib.RrhConfigPath, "../testdata/config.json")
+	os.Setenv(rrh.RrhConfigPath, "../testdata/config.json")
 	for _, testcase := range testcases {
-		var databaseFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+		var databaseFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 			var command, _ = AddCommandFactory()
 			var status = command.Run(testcase.args)
 
-			var db, _ = lib.Open(config)
+			var db, _ = rrh.Open(config)
 			if status != testcase.statusCode {
 				t.Errorf("%v: status code did not match, wont: %d, got: %d", testcase.args, testcase.statusCode, status)
 			}
@@ -118,13 +118,13 @@ func TestAdd(t *testing.T) {
 }
 
 func TestAddToDifferentGroup(t *testing.T) {
-	os.Setenv(lib.RrhConfigPath, "../testdata/config.json")
-	var databaseFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+	os.Setenv(rrh.RrhConfigPath, "../testdata/config.json")
+	var databaseFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 		var command, _ = AddCommandFactory()
 		command.Run([]string{"../testdata/fibonacci"})
 		command.Run([]string{"-g", "group1", "../testdata/fibonacci"})
 
-		var db, _ = lib.Open(config)
+		var db, _ = rrh.Open(config)
 		if !db.HasGroup("no-group") {
 			t.Error("no-group: group not found")
 		}
@@ -142,14 +142,14 @@ func TestAddToDifferentGroup(t *testing.T) {
 }
 
 func TestAddFailed(t *testing.T) {
-	os.Setenv(lib.RrhConfigPath, "../testdata/nulldb.json")
-	os.Setenv(lib.RrhDatabasePath, "../testdata/test_db.json")
-	os.Setenv(lib.RrhAutoCreateGroup, "false")
-	defer os.Unsetenv(lib.RrhAutoCreateGroup)
+	os.Setenv(rrh.RrhConfigPath, "../testdata/nulldb.json")
+	os.Setenv(rrh.RrhDatabasePath, "../testdata/test_db.json")
+	os.Setenv(rrh.RrhAutoCreateGroup, "false")
+	defer os.Unsetenv(rrh.RrhAutoCreateGroup)
 
 	var add = AddCommand{}
-	var config = lib.OpenConfig()
-	var db, _ = lib.Open(config)
+	var config = rrh.OpenConfig()
+	var db, _ = rrh.Open(config)
 
 	var data = []addOptions{
 		{args: []string{"../not-exist-dir"}, group: "no-group"},

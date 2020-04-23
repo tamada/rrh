@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 const defaultHelpMessage = `rrh [GLOBAL OPTIONS] <SUB COMMANDS> [ARGUMENTS]
@@ -47,7 +47,7 @@ func TestHelpCommand(t *testing.T) {
 	}
 	for _, tc := range testcases {
 		var command, _ = HelpCommandFactory()
-		var message = lib.CaptureStdout(func() {
+		var message = rrh.CaptureStdout(func() {
 			command.Run(tc.args)
 		})
 		message = strings.TrimSpace(message)

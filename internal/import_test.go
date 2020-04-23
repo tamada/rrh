@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 func TestImport(t *testing.T) {
@@ -48,15 +48,15 @@ func TestImport(t *testing.T) {
 	}
 
 	for _, testcase := range testcases {
-		os.Setenv(lib.RrhConfigPath, "../testdata/config.json")
-		var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+		os.Setenv(rrh.RrhConfigPath, "../testdata/config.json")
+		var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 			var command, _ = ImportCommandFactory()
 			var statusCode = command.Run(testcase.args)
 			if statusCode != testcase.statusCode {
 				t.Errorf("%v: status code did not match: wont: %d, got: %d", testcase.args, testcase.statusCode, statusCode)
 			}
 
-			var db, _ = lib.Open(lib.OpenConfig())
+			var db, _ = rrh.Open(rrh.OpenConfig())
 			for _, gcheck := range testcase.gChecks {
 				if db.HasGroup(gcheck.groupName) != gcheck.wontExist {
 					t.Errorf("%v: group %s exist: wont: %v, got: %v", testcase.args, gcheck.groupName, gcheck.wontExist, !gcheck.wontExist)
@@ -95,7 +95,7 @@ func TestParsingFailOfArgs(t *testing.T) {
 	}
 
 	for _, testcase := range testcases {
-		var got = lib.CaptureStdout(func() {
+		var got = rrh.CaptureStdout(func() {
 			var command, _ = ImportCommandFactory()
 			command.Run(testcase.args)
 		})

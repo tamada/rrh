@@ -4,11 +4,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 func TestPerformFetch(t *testing.T) {
-	var dbFile = lib.Rollback("../testdata/database.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/database.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 		var fetch, _ = FetchCommandFactory()
 		var status = fetch.Run([]string{"no-group"})
 		if status != 0 {

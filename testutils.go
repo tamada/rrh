@@ -1,4 +1,4 @@
-package lib
+package rrh
 
 import (
 	"bytes"
@@ -11,7 +11,7 @@ import (
 
 func copyfile(fromfile string) string {
 	var content, _ = ioutil.ReadFile(fromfile)
-	var file, _ = ioutil.TempFile("../testdata/", "tmp")
+	var file, _ = ioutil.TempFile(".", "tmp")
 	file.Write(content)
 	defer file.Close()
 	return file.Name()

@@ -12,7 +12,7 @@ import (
 	"github.com/mitchellh/cli"
 	"github.com/mitchellh/go-homedir"
 	flag "github.com/spf13/pflag"
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 type importOptions struct {
@@ -42,14 +42,14 @@ func (options *importOptions) printIfNeeded(message string) {
 	}
 }
 
-func eraseDatabase(db *lib.Database, command *ImportCommand) {
-	db.Groups = []lib.Group{}
-	db.Repositories = []lib.Repository{}
-	db.Relations = []lib.Relation{}
+func eraseDatabase(db *rrh.Database, command *ImportCommand) {
+	db.Groups = []rrh.Group{}
+	db.Repositories = []rrh.Repository{}
+	db.Relations = []rrh.Relation{}
 	command.options.printIfNeeded("The local database is cleared")
 }
 
-func perform(db *lib.Database, command *ImportCommand) int {
+func perform(db *rrh.Database, command *ImportCommand) int {
 	if command.options.overwrite {
 		eraseDatabase(db, command)
 	}
@@ -75,8 +75,8 @@ func (command *ImportCommand) Run(args []string) int {
 		fmt.Println(err1)
 		return 1
 	}
-	var config = lib.OpenConfig()
-	var db, err2 = lib.Open(config)
+	var config = rrh.OpenConfig()
+	var db, err2 = rrh.Open(config)
 	if err2 != nil {
 		return 2
 	}
@@ -129,8 +129,8 @@ ARGUMENTS
     DATABASE_JSON   the exported RRH database.`
 }
 
-func readNewDB(path string, config *lib.Config) (*lib.Database, error) {
-	var db = lib.Database{Timestamp: lib.Now(), Repositories: []lib.Repository{}, Groups: []lib.Group{}, Relations: []lib.Relation{}, Config: config}
+func readNewDB(path string, config *rrh.Config) (*rrh.Database, error) {
+	var db = rrh.Database{Timestamp: rrh.Now(), Repositories: []rrh.Repository{}, Groups: []rrh.Group{}, Relations: []rrh.Relation{}, Config: config}
 	var bytes, err = ioutil.ReadFile(path)
 	if err != nil {
 		return &db, nil
@@ -143,7 +143,7 @@ func readNewDB(path string, config *lib.Config) (*lib.Database, error) {
 	return &db, nil
 }
 
-func (command *ImportCommand) copyDB(from *lib.Database, to *lib.Database) []error {
+func (command *ImportCommand) copyDB(from *rrh.Database, to *rrh.Database) []error {
 	var errs = []error{}
 	var errs1 = command.copyGroups(from, to)
 	var errs2 = command.copyRepositories(from, to)
@@ -153,7 +153,7 @@ func (command *ImportCommand) copyDB(from *lib.Database, to *lib.Database) []err
 	return append(errs, errs3...)
 }
 
-func (command *ImportCommand) copyGroup(group lib.Group, to *lib.Database) []error {
+func (command *ImportCommand) copyGroup(group rrh.Group, to *rrh.Database) []error {
 	var list = []error{}
 	if to.HasGroup(group.Name) {
 		var successFlag = to.UpdateGroup(group.Name, group)
@@ -170,7 +170,7 @@ func (command *ImportCommand) copyGroup(group lib.Group, to *lib.Database) []err
 	return list
 }
 
-func (command *ImportCommand) copyGroups(from *lib.Database, to *lib.Database) []error {
+func (command *ImportCommand) copyGroups(from *rrh.Database, to *rrh.Database) []error {
 	var list = []error{}
 	for _, group := range from.Groups {
 		var errs = command.copyGroup(group, to)
@@ -182,7 +182,7 @@ func (command *ImportCommand) copyGroups(from *lib.Database, to *lib.Database) [
 	return list
 }
 
-func findOrigin(remotes []lib.Remote) lib.Remote {
+func findOrigin(remotes []rrh.Remote) rrh.Remote {
 	for _, remote := range remotes {
 		if remote.Name == "origin" {
 			return remote
@@ -191,7 +191,7 @@ func findOrigin(remotes []lib.Remote) lib.Remote {
 	return remotes[0]
 }
 
-func doClone(repository lib.Repository, remote lib.Remote) error {
+func doClone(repository rrh.Repository, remote rrh.Remote) error {
 	var cmd = exec.Command("git", "clone", remote.URL, repository.Path)
 	var err = cmd.Run()
 	if err != nil {
@@ -200,7 +200,7 @@ func doClone(repository lib.Repository, remote lib.Remote) error {
 	return nil
 }
 
-func (command *ImportCommand) cloneRepository(repository lib.Repository) error {
+func (command *ImportCommand) cloneRepository(repository rrh.Repository) error {
 	if len(repository.Remotes) == 0 {
 		return fmt.Errorf("%s: could not clone, did not have remotes", repository.ID)
 	}
@@ -210,7 +210,7 @@ func (command *ImportCommand) cloneRepository(repository lib.Repository) error {
 	return err
 }
 
-func (command *ImportCommand) cloneIfNeeded(repository lib.Repository) error {
+func (command *ImportCommand) cloneIfNeeded(repository rrh.Repository) error {
 	if !command.options.autoClone {
 		return fmt.Errorf("%s: repository path did not exist at %s", repository.ID, repository.Path)
 	}
@@ -218,7 +218,7 @@ func (command *ImportCommand) cloneIfNeeded(repository lib.Repository) error {
 	return nil
 }
 
-func (command *ImportCommand) copyRepository(repository lib.Repository, to *lib.Database) []error {
+func (command *ImportCommand) copyRepository(repository rrh.Repository, to *rrh.Database) []error {
 	if to.HasRepository(repository.ID) {
 		return []error{}
 	}
@@ -232,8 +232,8 @@ func (command *ImportCommand) copyRepository(repository lib.Repository, to *lib.
 	return command.copyRepositoryImpl(repository, to)
 }
 
-func (command *ImportCommand) copyRepositoryImpl(repository lib.Repository, to *lib.Database) []error {
-	if err := lib.IsExistAndGitRepository(repository.Path, repository.ID); err != nil {
+func (command *ImportCommand) copyRepositoryImpl(repository rrh.Repository, to *rrh.Database) []error {
+	if err := rrh.IsExistAndGitRepository(repository.Path, repository.ID); err != nil {
 		return []error{err}
 	}
 	to.CreateRepository(repository.ID, repository.Path, repository.Description, repository.Remotes)
@@ -241,7 +241,7 @@ func (command *ImportCommand) copyRepositoryImpl(repository lib.Repository, to *
 	return []error{}
 }
 
-func (command *ImportCommand) copyRepositories(from *lib.Database, to *lib.Database) []error {
+func (command *ImportCommand) copyRepositories(from *rrh.Database, to *rrh.Database) []error {
 	var list = []error{}
 	for _, repository := range from.Repositories {
 		var errs = command.copyRepository(repository, to)
@@ -253,7 +253,7 @@ func (command *ImportCommand) copyRepositories(from *lib.Database, to *lib.Datab
 	return list
 }
 
-func (command *ImportCommand) copyRelation(rel lib.Relation, to *lib.Database) []error {
+func (command *ImportCommand) copyRelation(rel rrh.Relation, to *rrh.Database) []error {
 	var list = []error{}
 	if to.HasGroup(rel.GroupName) && to.HasRepository(rel.RepositoryID) {
 		to.Relate(rel.GroupName, rel.RepositoryID)
@@ -264,7 +264,7 @@ func (command *ImportCommand) copyRelation(rel lib.Relation, to *lib.Database) [
 	return list
 }
 
-func (command *ImportCommand) copyRelations(from *lib.Database, to *lib.Database) []error {
+func (command *ImportCommand) copyRelations(from *rrh.Database, to *rrh.Database) []error {
 	var list = []error{}
 	for _, rel := range from.Relations {
 		var errs = command.copyRelation(rel, to)

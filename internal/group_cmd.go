@@ -6,7 +6,7 @@ import (
 
 	"github.com/mitchellh/cli"
 	flag "github.com/spf13/pflag"
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 /*
@@ -123,7 +123,7 @@ SUBCOMMAND
 Run peforms the command.
 */
 func (group *GroupCommand) Run(args []string) int {
-	c := cli.NewCLI("rrh group", lib.VERSION)
+	c := cli.NewCLI("rrh group", rrh.VERSION)
 	c.Args = args
 	c.Autocomplete = true
 	c.Commands = map[string]cli.CommandFactory{
@@ -178,8 +178,8 @@ func (gac *groupAddCommand) Run(args []string) int {
 	if err != nil {
 		return 1
 	}
-	var config = lib.OpenConfig()
-	var db, err2 = lib.Open(config)
+	var config = rrh.OpenConfig()
+	var db, err2 = rrh.Open(config)
 	if err2 != nil {
 		fmt.Println(err2.Error())
 		return 2
@@ -187,7 +187,7 @@ func (gac *groupAddCommand) Run(args []string) int {
 	return gac.perform(db)
 }
 
-func (gac *groupAddCommand) perform(db *lib.Database) int {
+func (gac *groupAddCommand) perform(db *rrh.Database) int {
 	if len(gac.options.args) == 0 {
 		fmt.Println(gac.Help())
 		return 3
@@ -225,7 +225,7 @@ func (glc *groupListCommand) parse(args []string) (*groupListOptions, error) {
 	return opt, nil
 }
 
-func printGroupInfo(db *lib.Database, group *lib.Group) {
+func printGroupInfo(db *rrh.Database, group *rrh.Group) {
 	count := db.ContainsCount(group.Name)
 	unit := "repositories"
 	if count == 1 {
@@ -234,7 +234,7 @@ func printGroupInfo(db *lib.Database, group *lib.Group) {
 	fmt.Printf("%s: %s (%d %s, omit: %v)\n", group.Name, group.Description, count, unit, group.OmitList)
 }
 
-func (gic *groupInfoCommand) perform(db *lib.Database, args []string) int {
+func (gic *groupInfoCommand) perform(db *rrh.Database, args []string) int {
 	errs := []error{}
 	for _, arg := range args {
 		group := db.FindGroup(arg)
@@ -252,8 +252,8 @@ func (gic *groupInfoCommand) Run(args []string) int {
 		fmt.Println(gic.Help())
 		return 1
 	}
-	var config = lib.OpenConfig()
-	var db, err = lib.Open(config)
+	var config = rrh.OpenConfig()
+	var db, err = rrh.Open(config)
 	if err != nil {
 		fmt.Println(err.Error())
 		return 2
@@ -261,7 +261,7 @@ func (gic *groupInfoCommand) Run(args []string) int {
 	return gic.perform(db, args)
 }
 
-func (goc *groupOfCommand) perform(db *lib.Database, repositoryID string) int {
+func (goc *groupOfCommand) perform(db *rrh.Database, repositoryID string) int {
 	if !db.HasRepository(repositoryID) {
 		fmt.Printf("%s: repository not found\n", repositoryID)
 		return 3
@@ -276,8 +276,8 @@ func (goc *groupOfCommand) Run(args []string) int {
 		fmt.Println(goc.Help())
 		return 1
 	}
-	var config = lib.OpenConfig()
-	var db, err = lib.Open(config)
+	var config = rrh.OpenConfig()
+	var db, err = rrh.Open(config)
 	if err != nil {
 		fmt.Println(err.Error())
 		return 2
@@ -293,14 +293,14 @@ func printRepositoryCount(count int) {
 	}
 }
 
-func findGroupName(name string, nameOnlyFlag bool, config *lib.Config) string {
+func findGroupName(name string, nameOnlyFlag bool, config *rrh.Config) string {
 	if nameOnlyFlag {
 		return name
 	}
 	return config.Color.ColorizedGroupName(name)
 }
 
-func (glc *groupListCommand) printResult(result groupListResult, options *groupListOptions, config *lib.Config) {
+func (glc *groupListCommand) printResult(result groupListResult, options *groupListOptions, config *rrh.Config) {
 	fmt.Print(findGroupName(result.Name, options.nameOnly, config))
 	if !options.nameOnly && options.desc {
 		fmt.Printf(",%s", result.Description)
@@ -314,7 +314,7 @@ func (glc *groupListCommand) printResult(result groupListResult, options *groupL
 	fmt.Println()
 }
 
-func (glc *groupListCommand) printAll(results []groupListResult, options *groupListOptions, config *lib.Config) {
+func (glc *groupListCommand) printAll(results []groupListResult, options *groupListOptions, config *rrh.Config) {
 	for _, result := range results {
 		glc.printResult(result, options, config)
 	}
@@ -328,8 +328,8 @@ func (glc *groupListCommand) Run(args []string) int {
 	if err != nil {
 		return 1
 	}
-	var config = lib.OpenConfig()
-	var db, err2 = lib.Open(config)
+	var config = rrh.OpenConfig()
+	var db, err2 = rrh.Open(config)
 	if err2 != nil {
 		fmt.Println(err2.Error())
 		return 2
@@ -358,7 +358,7 @@ func (grc *groupRemoveCommand) Inquiry(groupName string) bool {
 	if !grc.options.inquiry {
 		return true
 	}
-	return lib.IsInputYes(fmt.Sprintf("%s: remove group? [yN]", groupName))
+	return rrh.IsInputYes(fmt.Sprintf("%s: remove group? [yN]", groupName))
 }
 
 func (grc *groupRemoveCommand) buildFlagSet() (*flag.FlagSet, *groupRemoveOptions) {
@@ -392,8 +392,8 @@ func (grc *groupRemoveCommand) Run(args []string) int {
 	if err != nil {
 		return 1
 	}
-	var config = lib.OpenConfig()
-	var db, err2 = lib.Open(config)
+	var config = rrh.OpenConfig()
+	var db, err2 = rrh.Open(config)
 	if err2 != nil {
 		fmt.Println(err2.Error())
 		return 2
@@ -423,8 +423,8 @@ func (guc *groupUpdateCommand) Run(args []string) int {
 		fmt.Println(err.Error())
 		return 1
 	}
-	var config = lib.OpenConfig()
-	var db, err2 = lib.Open(config)
+	var config = rrh.OpenConfig()
+	var db, err2 = rrh.Open(config)
 	if err2 != nil {
 		fmt.Println(err2.Error())
 		return 2
@@ -516,7 +516,7 @@ type groupListResult struct {
 	Repos       []string
 }
 
-func appendRelations(groupName string, relations []lib.Relation) []string {
+func appendRelations(groupName string, relations []rrh.Relation) []string {
 	var repos = []string{}
 	for _, relation := range relations {
 		if relation.GroupName == groupName {
@@ -526,7 +526,7 @@ func appendRelations(groupName string, relations []lib.Relation) []string {
 	return repos
 }
 
-func (glc *groupListCommand) listGroups(db *lib.Database, listOptions *groupListOptions) []groupListResult {
+func (glc *groupListCommand) listGroups(db *rrh.Database, listOptions *groupListOptions) []groupListResult {
 	var results = []groupListResult{}
 	for _, group := range db.Groups {
 		var result = groupListResult{group.Name, group.Description, []string{}}
@@ -544,7 +544,7 @@ func trueOrFalse(flag string) bool {
 	return false
 }
 
-func (gac *groupAddCommand) addGroups(db *lib.Database, options *groupAddOptions) error {
+func (gac *groupAddCommand) addGroups(db *rrh.Database, options *groupAddOptions) error {
 	for _, groupName := range options.args {
 		var flag = trueOrFalse(options.omit)
 		var _, err = db.CreateGroup(groupName, options.desc, flag)
@@ -555,7 +555,7 @@ func (gac *groupAddCommand) addGroups(db *lib.Database, options *groupAddOptions
 	return nil
 }
 
-func (grc *groupRemoveCommand) removeGroupsImpl(db *lib.Database, groupName string) error {
+func (grc *groupRemoveCommand) removeGroupsImpl(db *rrh.Database, groupName string) error {
 	if grc.options.force {
 		db.ForceDeleteGroup(groupName)
 		grc.printIfVerbose(fmt.Sprintf("%s: group removed", groupName))
@@ -568,7 +568,7 @@ func (grc *groupRemoveCommand) removeGroupsImpl(db *lib.Database, groupName stri
 	return nil
 }
 
-func (grc *groupRemoveCommand) removeGroups(db *lib.Database) error {
+func (grc *groupRemoveCommand) removeGroups(db *rrh.Database) error {
 	for _, groupName := range grc.options.args {
 		if !db.HasGroup(groupName) || !grc.Inquiry(groupName) {
 			return nil
@@ -580,8 +580,8 @@ func (grc *groupRemoveCommand) removeGroups(db *lib.Database) error {
 	return nil
 }
 
-func createNewGroup(opt *groupUpdateOptions, prevGroup *lib.Group) lib.Group {
-	var newGroup = lib.Group{Name: opt.newName, Description: opt.desc, OmitList: strings.ToLower(opt.omitList) == "true"}
+func createNewGroup(opt *groupUpdateOptions, prevGroup *rrh.Group) rrh.Group {
+	var newGroup = rrh.Group{Name: opt.newName, Description: opt.desc, OmitList: strings.ToLower(opt.omitList) == "true"}
 	if opt.desc == "" {
 		newGroup.Description = prevGroup.Description
 	}
@@ -594,7 +594,7 @@ func createNewGroup(opt *groupUpdateOptions, prevGroup *lib.Group) lib.Group {
 	return newGroup
 }
 
-func (guc *groupUpdateCommand) updateGroup(db *lib.Database, opt *groupUpdateOptions) error {
+func (guc *groupUpdateCommand) updateGroup(db *rrh.Database, opt *groupUpdateOptions) error {
 	if !db.HasGroup(opt.target) {
 		return fmt.Errorf("%s: group not found", opt.target)
 	}

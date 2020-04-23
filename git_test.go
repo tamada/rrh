@@ -1,4 +1,4 @@
-package lib
+package rrh
 
 import (
 	"testing"
@@ -36,9 +36,9 @@ func TestFindRemotes(t *testing.T) {
 		errorFlag bool
 		count     int
 	}{
-		{"../testdata/dummygit", true, 0},
-		{"../testdata/helloworld", false, 1},
-		{"../testdata/fibonacci", false, 1},
+		{"testdata/dummygit", true, 0},
+		{"testdata/helloworld", false, 1},
+		{"testdata/fibonacci", false, 1},
 	}
 	for _, td := range testdata {
 		var remotes, err = FindRemotes(td.path)

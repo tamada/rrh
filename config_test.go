@@ -1,4 +1,4 @@
-package lib
+package rrh
 
 import (
 	"errors"
@@ -103,7 +103,7 @@ func TestUpdateTrueFalseValue(t *testing.T) {
 	}
 
 	for _, data := range testdata {
-		var dbfile = Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *Config, oldDB *Database) {
+		var dbfile = Rollback("testdata/test_db.json", "testdata/config.json", func(config *Config, oldDB *Database) {
 			if err := config.Update(data.key, data.value); (err == nil) == data.wantError {
 				t.Errorf("%s: set to \"%s\", error: %s", data.key, data.value, err.Error())
 			}
@@ -128,7 +128,7 @@ func TestUpdateOnError(t *testing.T) {
 	}
 
 	for _, data := range testdata {
-		var dbfile = Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *Config, oldDB *Database) {
+		var dbfile = Rollback("testdata/test_db.json", "testdata/config.json", func(config *Config, oldDB *Database) {
 			if err := config.Update(RrhOnError, data.key); (err == nil) != data.success {
 				t.Errorf("%s: set to \"%s\", success: %v", RrhOnError, data.key, data.success)
 			}
@@ -152,7 +152,7 @@ func TestUpdateValue(t *testing.T) {
 		{"unknown", "hoge4", true, ""},
 	}
 	for _, td := range testdata {
-		var dbfile = Rollback("../testdata/test_db.json", "../testdata/config.json", func(unusedConfig *Config, oldDB *Database) {
+		var dbfile = Rollback("testdata/test_db.json", "testdata/config.json", func(unusedConfig *Config, oldDB *Database) {
 			var config = NewConfig()
 			var err = config.Update(td.label, td.value)
 			if (err == nil) == td.shouldError {
@@ -170,7 +170,7 @@ func TestUpdateValue(t *testing.T) {
 }
 
 func TestConfigIsSet(t *testing.T) {
-	var dbFile = Rollback("../testata/test_db.json", "../testdata/config.json", func(config *Config, db *Database) {
+	var dbFile = Rollback("../testata/test_db.json", "testdata/config.json", func(config *Config, db *Database) {
 		if config.IsSet(RrhConfigPath) {
 			t.Errorf("not boolean variable is specified")
 		}
@@ -225,7 +225,7 @@ func TestPrintErrors(t *testing.T) {
 		{Fail, "msg1+msg2", 5},
 	}
 
-	var dbFile = Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *Config, db *Database) {
+	var dbFile = Rollback("testdata/test_db.json", "testdata/config.json", func(config *Config, db *Database) {
 		for _, tc := range testcases {
 			var output = CaptureStdout(func() {
 				config.Update(RrhOnError, tc.givesOnError)
@@ -245,7 +245,7 @@ func TestPrintErrors(t *testing.T) {
 }
 
 func TestOpenConfigBrokenJson(t *testing.T) {
-	os.Setenv(RrhConfigPath, "../testdata/broken.json")
+	os.Setenv(RrhConfigPath, "testdata/broken.json")
 	var config = OpenConfig()
 	if config != nil {
 		t.Error("broken json returns nil")

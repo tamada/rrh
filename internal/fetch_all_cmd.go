@@ -5,7 +5,7 @@ import (
 
 	"github.com/mitchellh/cli"
 	flag "github.com/spf13/pflag"
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 /*
@@ -43,14 +43,14 @@ func (fetchAll *FetchAllCommand) validateArguments(args []string) (*fetchOptions
 Run performs the command.
 */
 func (fetchAll *FetchAllCommand) Run(args []string) int {
-	var config = lib.OpenConfig()
+	var config = rrh.OpenConfig()
 
 	var options, err = fetchAll.validateArguments(args)
 	if err != nil {
 		fmt.Println(err.Error())
 		return 1
 	}
-	var db, err2 = lib.Open(config)
+	var db, err2 = rrh.Open(config)
 	if err2 != nil {
 		fmt.Println(err2.Error())
 		return 1
@@ -58,7 +58,7 @@ func (fetchAll *FetchAllCommand) Run(args []string) int {
 	return printErrors(config, fetchAll.execFetch(db, options))
 }
 
-func convertToGroupNames(groups []lib.Group) []string {
+func convertToGroupNames(groups []rrh.Group) []string {
 	var result = []string{}
 	for _, group := range groups {
 		result = append(result, group.Name)
@@ -66,16 +66,16 @@ func convertToGroupNames(groups []lib.Group) []string {
 	return result
 }
 
-func (fetchAll *FetchAllCommand) execFetch(db *lib.Database, options *fetchOptions) []error {
-	var onError = db.Config.GetValue(lib.RrhOnError)
+func (fetchAll *FetchAllCommand) execFetch(db *rrh.Database, options *fetchOptions) []error {
+	var onError = db.Config.GetValue(rrh.RrhOnError)
 	var errorlist = []error{}
 	var fetch = FetchCommand{options}
-	var relations = lib.FindTargets(db, convertToGroupNames(db.Groups))
+	var relations = rrh.FindTargets(db, convertToGroupNames(db.Groups))
 	var progress = NewProgress(len(relations))
 	for _, relation := range relations {
 		var err = fetch.FetchRepository(db, &relation, progress)
 		if err != nil {
-			if onError == lib.FailImmediately {
+			if onError == rrh.FailImmediately {
 				return []error{err}
 			}
 			errorlist = append(errorlist, err)

@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 func TestParseError(t *testing.T) {
@@ -17,11 +17,11 @@ func TestParseError(t *testing.T) {
 		{[]string{"group1/repo1", "group3/repo5"}, 4},
 		{[]string{"group1/repo1", "repo2", "group5"}, 4},
 	}
-	os.Setenv(lib.RrhOnError, lib.Fail)
-	os.Setenv(lib.RrhDatabasePath, "../testdata/test_db.json")
-	os.Setenv(lib.RrhConfigPath, "../testdata/config.json")
+	os.Setenv(rrh.RrhOnError, rrh.Fail)
+	os.Setenv(rrh.RrhDatabasePath, "../testdata/test_db.json")
+	os.Setenv(rrh.RrhConfigPath, "../testdata/config.json")
 
-	lib.CaptureStdout(func() {
+	rrh.CaptureStdout(func() {
 		for _, testcase := range testcases {
 			var mv, _ = MoveCommandFactory()
 			var status = mv.Run(testcase.args)
@@ -30,7 +30,7 @@ func TestParseError(t *testing.T) {
 			}
 		}
 	})
-	defer os.Unsetenv(lib.RrhOnError)
+	defer os.Unsetenv(rrh.RrhOnError)
 }
 
 func TestMoveCommand(t *testing.T) {
@@ -66,11 +66,11 @@ func TestMoveCommand(t *testing.T) {
 			{"group1", "repo1", false}}},
 	}
 	for _, item := range cases {
-		var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+		var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 			var mv, _ = MoveCommandFactory()
 			mv.Run(item.args)
 
-			var db, _ = lib.Open(config)
+			var db, _ = rrh.Open(config)
 			for _, rel := range item.relations {
 				if db.HasRelation(rel.group, rel.repo) != rel.hasRelation {
 					t.Errorf("rrh mv %v failed: relation: group %s and repo %s: %v", item.args, rel.group, rel.repo, !rel.hasRelation)
@@ -98,7 +98,7 @@ func TestParseType(t *testing.T) {
 		{"not-exist", GroupOrRepoType, false, "group not found"},
 	}
 
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 		for _, item := range cases {
 			var got, err = parseType(db, item.gives)
 			if got.kind != item.wont && (item.errorFlag && err == nil) {
@@ -132,7 +132,7 @@ func TestVerifyArguments(t *testing.T) {
 		{[]string{"repo1"}, "group5/repo1", RepositoryToRepository, false, ""},
 	}
 
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 		for _, item := range cases {
 			var froms, to = convertToTarget(db, item.givesFrom, item.givesTo)
 			var got, _ = verifyArguments(db, froms, to)
@@ -163,9 +163,9 @@ func TestMergeType(t *testing.T) {
 }
 
 func TestMisc(t *testing.T) {
-	var config = lib.OpenConfig()
+	var config = rrh.OpenConfig()
 	if isFailImmediately(config) {
-		t.Errorf("onError wont: %s, got: %s", lib.Warn, config.GetValue(lib.RrhOnError))
+		t.Errorf("onError wont: %s, got: %s", rrh.Warn, config.GetValue(rrh.RrhOnError))
 	}
 }
 
@@ -188,8 +188,8 @@ func TestVerifyArgumentsOneToOne(t *testing.T) {
 		{GroupType, RepositoryType, Invalid, true},
 	}
 	for _, tc := range testcases {
-		var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
-			var db, _ = lib.Open(config)
+		var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
+			var db, _ = rrh.Open(config)
 			var resultType, err = verifyArgumentsOneToOne(db, target{kind: tc.fromType}, target{kind: tc.toType})
 			if resultType != tc.resultType {
 				t.Errorf("%v: result type did not match, wont: %d, got: %d", tc, tc.resultType, resultType)

@@ -6,13 +6,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
-func open2(jsonName string) *lib.Database {
-	os.Setenv(lib.RrhDatabasePath, fmt.Sprintf("../testdata/%s", jsonName))
-	var config = lib.OpenConfig()
-	var db, _ = lib.Open(config)
+func open2(jsonName string) *rrh.Database {
+	os.Setenv(rrh.RrhDatabasePath, fmt.Sprintf("../testdata/%s", jsonName))
+	var config = rrh.OpenConfig()
+	var db, _ = rrh.Open(config)
 	return db
 }
 
@@ -40,7 +40,7 @@ func TestUnknownOptions(t *testing.T) {
 }
 
 func TestBrokenDatabase(t *testing.T) {
-	var dbFile = lib.Rollback("../testdata/broken.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/broken.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 		var export, _ = ExportCommandFactory()
 		if val := export.Run([]string{}); val != 2 {
 			t.Errorf("broken json successfully read!?: %d", val)
@@ -50,8 +50,8 @@ func TestBrokenDatabase(t *testing.T) {
 }
 
 func TestNullDB(t *testing.T) {
-	os.Setenv(lib.RrhDatabasePath, "../testdata/nulldb.json")
-	var result = lib.CaptureStdout(func() {
+	os.Setenv(rrh.RrhDatabasePath, "../testdata/nulldb.json")
+	var result = rrh.CaptureStdout(func() {
 		var export, _ = ExportCommandFactory()
 		export.Run([]string{})
 	})
@@ -67,8 +67,8 @@ func TestNullDB(t *testing.T) {
 }
 
 func TestNullDBNoIndent(t *testing.T) {
-	os.Setenv(lib.RrhDatabasePath, "../testdata/nulldb.json")
-	var result = lib.CaptureStdout(func() {
+	os.Setenv(rrh.RrhDatabasePath, "../testdata/nulldb.json")
+	var result = rrh.CaptureStdout(func() {
 		var export, _ = ExportCommandFactory()
 		export.Run([]string{"--no-indent"})
 	})
@@ -78,8 +78,8 @@ func TestNullDBNoIndent(t *testing.T) {
 }
 
 func TestTmpDBNoIndent(t *testing.T) {
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
-		var result = lib.CaptureStdout(func() {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
+		var result = rrh.CaptureStdout(func() {
 			var export, _ = ExportCommandFactory()
 			export.Run([]string{"--no-indent"})
 		})
