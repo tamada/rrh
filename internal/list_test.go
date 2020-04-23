@@ -37,8 +37,8 @@ func ExampleListCommand_Run() {
 }
 
 func TestRunByCsvOutput(t *testing.T) {
-	os.Setenv(rrh.RrhDefaultGroupName, "group1")
-	defer os.Unsetenv(rrh.RrhDefaultGroupName)
+	os.Setenv(rrh.DefaultGroupName, "group1")
+	defer os.Unsetenv(rrh.DefaultGroupName)
 	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 		var result = rrh.CaptureStdout(func() {
 			var list, _ = ListCommandFactory()

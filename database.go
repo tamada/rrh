@@ -155,7 +155,7 @@ func (db *Database) FindGroup(groupID string) *Group {
 }
 
 func sortIfNeeded(db *Database) {
-	if !db.Config.IsSet(RrhSortOnUpdating) {
+	if !db.Config.IsSet(SortOnUpdating) {
 		return
 	}
 	sort.Slice(db.Repositories, func(i, j int) bool {
@@ -198,7 +198,7 @@ func (db *Database) AutoCreateGroup(groupID string, description string, omitList
 	if db.HasGroup(groupID) {
 		return db.FindGroup(groupID), nil
 	}
-	if db.Config.IsSet(RrhAutoCreateGroup) {
+	if db.Config.IsSet(AutoCreateGroup) {
 		return db.CreateGroup(groupID, description, omitList)
 	}
 	return nil, fmt.Errorf("%s: could not create group", groupID)
@@ -476,7 +476,7 @@ func (db *Database) ForceDeleteGroup(groupID string) error {
 }
 
 func databasePath(config *Config) string {
-	return config.GetValue(RrhDatabasePath)
+	return config.GetValue(DatabasePath)
 }
 
 /*

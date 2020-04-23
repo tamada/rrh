@@ -87,7 +87,7 @@ func (clone *CloneCommand) perform(db *rrh.Database, arguments []string) int {
 	var count, list = clone.DoClone(db, arguments)
 	if len(list) != 0 {
 		clone.options.showError(list)
-		var onError = db.Config.GetValue(rrh.RrhOnError)
+		var onError = db.Config.GetValue(rrh.OnError)
 		if onError == rrh.Fail || onError == rrh.FailImmediately {
 			return 1
 		}
@@ -109,8 +109,8 @@ func printResult(count int, dest string, group string) {
 }
 
 func (clone *CloneCommand) buildFlagSets(config *rrh.Config) (*flag.FlagSet, *cloneOptions) {
-	var defaultGroup = config.GetValue(rrh.RrhDefaultGroupName)
-	var destination = config.GetValue(rrh.RrhCloneDestination)
+	var defaultGroup = config.GetValue(rrh.DefaultGroupName)
+	var destination = config.GetValue(rrh.CloneDestination)
 	var options = cloneOptions{defaultGroup, ".", false}
 	flags := flag.NewFlagSet("clone", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(clone.Help()) }
@@ -188,7 +188,7 @@ func (clone CloneCommand) doCloneRepositories(db *rrh.Database, arguments []stri
 		var increment, err = clone.doCloneEachRepository(db, url)
 		if err != nil {
 			errorlist = append(errorlist, err)
-			if db.Config.GetValue(rrh.RrhOnError) == rrh.FailImmediately {
+			if db.Config.GetValue(rrh.OnError) == rrh.FailImmediately {
 				return count, errorlist
 			}
 		}

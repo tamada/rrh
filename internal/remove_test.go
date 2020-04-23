@@ -130,7 +130,7 @@ func TestRunRemoveRepository(t *testing.T) {
 func TestRemoveRepository2(t *testing.T) {
 	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 		var rm, _ = RemoveCommandFactory()
-		os.Setenv(rrh.RrhAutoDeleteGroup, "true")
+		os.Setenv(rrh.AutoDeleteGroup, "true")
 		rm.Run([]string{"-v", "group2", "repo1"})
 		var db2, _ = rrh.Open(config)
 		if len(db2.Repositories) != 1 && len(db2.Groups) != 0 {
@@ -141,7 +141,7 @@ func TestRemoveRepository2(t *testing.T) {
 }
 
 func TestBrokenDatabaseOnRemoveCommand(t *testing.T) {
-	os.Setenv(rrh.RrhDatabasePath, "../testdata/broken.json")
+	os.Setenv(rrh.DatabasePath, "../testdata/broken.json")
 	var rm, _ = RemoveCommandFactory()
 	if result := rm.Run([]string{}); result != 2 {
 		t.Errorf("broken database are successfully read!?")

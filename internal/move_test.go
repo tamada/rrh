@@ -17,9 +17,9 @@ func TestParseError(t *testing.T) {
 		{[]string{"group1/repo1", "group3/repo5"}, 4},
 		{[]string{"group1/repo1", "repo2", "group5"}, 4},
 	}
-	os.Setenv(rrh.RrhOnError, rrh.Fail)
-	os.Setenv(rrh.RrhDatabasePath, "../testdata/test_db.json")
-	os.Setenv(rrh.RrhConfigPath, "../testdata/config.json")
+	os.Setenv(rrh.OnError, rrh.Fail)
+	os.Setenv(rrh.DatabasePath, "../testdata/test_db.json")
+	os.Setenv(rrh.ConfigPath, "../testdata/config.json")
 
 	rrh.CaptureStdout(func() {
 		for _, testcase := range testcases {
@@ -30,7 +30,7 @@ func TestParseError(t *testing.T) {
 			}
 		}
 	})
-	defer os.Unsetenv(rrh.RrhOnError)
+	defer os.Unsetenv(rrh.OnError)
 }
 
 func TestMoveCommand(t *testing.T) {
@@ -165,7 +165,7 @@ func TestMergeType(t *testing.T) {
 func TestMisc(t *testing.T) {
 	var config = rrh.OpenConfig()
 	if isFailImmediately(config) {
-		t.Errorf("onError wont: %s, got: %s", rrh.Warn, config.GetValue(rrh.RrhOnError))
+		t.Errorf("onError wont: %s, got: %s", rrh.Warn, config.GetValue(rrh.OnError))
 	}
 }
 

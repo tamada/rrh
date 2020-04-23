@@ -67,7 +67,7 @@ func convertToGroupNames(groups []rrh.Group) []string {
 }
 
 func (fetchAll *FetchAllCommand) execFetch(db *rrh.Database, options *fetchOptions) []error {
-	var onError = db.Config.GetValue(rrh.RrhOnError)
+	var onError = db.Config.GetValue(rrh.OnError)
 	var errorlist = []error{}
 	var fetch = FetchCommand{options}
 	var relations = rrh.FindTargets(db, convertToGroupNames(db.Groups))

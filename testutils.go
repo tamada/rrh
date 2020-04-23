@@ -24,8 +24,8 @@ func Rollback(dbFile, configFile string, f func(config *Config, db *Database)) s
 	var newDBFile = copyfile(dbFile)
 	var newConfigFile = copyfile(configFile)
 	defer os.Remove(newConfigFile)
-	os.Setenv(RrhConfigPath, newConfigFile)
-	os.Setenv(RrhDatabasePath, newDBFile)
+	os.Setenv(ConfigPath, newConfigFile)
+	os.Setenv(DatabasePath, newDBFile)
 
 	var config = OpenConfig()
 	var db, err = Open(config)
@@ -35,8 +35,8 @@ func Rollback(dbFile, configFile string, f func(config *Config, db *Database)) s
 
 	f(config, db)
 
-	os.Setenv(RrhConfigPath, configFile) // replace the path of config file.
-	os.Setenv(RrhDatabasePath, dbFile)
+	os.Setenv(ConfigPath, configFile) // replace the path of config file.
+	os.Setenv(DatabasePath, dbFile)
 
 	return newDBFile
 }

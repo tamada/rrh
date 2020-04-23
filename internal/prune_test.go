@@ -59,7 +59,7 @@ func TestPrune(t *testing.T) {
 }
 
 func TestPruneCommandRunFailedByBrokenDBFile(t *testing.T) {
-	os.Setenv(rrh.RrhDatabasePath, "../testdata/broken.json")
+	os.Setenv(rrh.DatabasePath, "../testdata/broken.json")
 	var prune, _ = PruneCommandFactory()
 	if prune.Run([]string{}) != 1 {
 		t.Error("broken database read successfully.")
@@ -67,7 +67,7 @@ func TestPruneCommandRunFailedByBrokenDBFile(t *testing.T) {
 }
 
 func TestPruneCommandRunFailedByInvalidArgs(t *testing.T) {
-	os.Setenv(rrh.RrhDatabasePath, "../testdata/test_db.json")
+	os.Setenv(rrh.DatabasePath, "../testdata/test_db.json")
 	var prune, _ = PruneCommandFactory()
 	if prune.Run([]string{"--help"}) != 1 {
 		t.Error("successing invalid option parsing.")

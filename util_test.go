@@ -49,8 +49,8 @@ func TestGitRepositoryCheck(t *testing.T) {
 }
 
 func TestStrftime(t *testing.T) {
-	os.Setenv(RrhTimeFormat, Relative)
-	os.Setenv(RrhConfigPath, "testdata/config.json")
+	os.Setenv(TimeFormat, Relative)
+	os.Setenv(ConfigPath, "testdata/config.json")
 
 	var now = time.Now()
 	var testcases = []struct {
@@ -68,15 +68,15 @@ func TestStrftime(t *testing.T) {
 	var config = OpenConfig()
 
 	for _, test := range testcases {
-		os.Setenv(RrhTimeFormat, test.formatter)
+		os.Setenv(TimeFormat, test.formatter)
 		var time = Strftime(test.time, config)
 		if time != test.wont {
 			t.Errorf("wont: %s, got: %s", test.wont, time)
 		}
 	}
 
-	os.Unsetenv(RrhTimeFormat)
-	os.Unsetenv(RrhConfigPath)
+	os.Unsetenv(TimeFormat)
+	os.Unsetenv(ConfigPath)
 }
 
 func TestRollback(t *testing.T) {

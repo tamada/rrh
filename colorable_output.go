@@ -124,8 +124,8 @@ The function is automatically called on loading the config file.
 */
 func InitializeColor(config *Config) *Color {
 	var color = Color{colorSettings{}, colorFuncs{}}
-	var settingString = config.GetValue(RrhColor)
-	if config.IsSet(RrhEnableColorized) && settingString != "" {
+	var settingString = config.GetValue(ColorSetting)
+	if config.IsSet(EnableColorized) && settingString != "" {
 		color.parse(settingString)
 	}
 	color.updateFuncs()

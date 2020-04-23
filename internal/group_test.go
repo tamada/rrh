@@ -142,8 +142,8 @@ func TestAddGroup(t *testing.T) {
 }
 
 func TestGroupInfo(t *testing.T) {
-	os.Setenv(rrh.RrhDatabasePath, "../testdata/test_db.json")
-	os.Setenv(rrh.RrhConfigPath, "../testdata/config.json")
+	os.Setenv(rrh.DatabasePath, "../testdata/test_db.json")
+	os.Setenv(rrh.ConfigPath, "../testdata/config.json")
 
 	var testdata = []struct {
 		args       []string
@@ -166,8 +166,8 @@ func TestGroupInfo(t *testing.T) {
 }
 
 func TestUpdateGroupFailed(t *testing.T) {
-	os.Setenv(rrh.RrhDatabasePath, "../testdata/test_db.json")
-	os.Setenv(rrh.RrhConfigPath, "../testdata/config.json")
+	os.Setenv(rrh.DatabasePath, "../testdata/test_db.json")
+	os.Setenv(rrh.ConfigPath, "../testdata/config.json")
 
 	var testcases = []struct {
 		opt     groupUpdateOptions
@@ -285,7 +285,7 @@ func TestRemoveGroup(t *testing.T) {
 }
 
 func TestInvalidOptionInGroupList(t *testing.T) {
-	os.Setenv(rrh.RrhDatabasePath, "../testdata/test_db.json")
+	os.Setenv(rrh.DatabasePath, "../testdata/test_db.json")
 	rrh.CaptureStdout(func() {
 		var glc, _ = groupListCommandFactory()
 		if val := glc.Run([]string{"--unknown-option"}); val != 1 {

@@ -10,7 +10,7 @@ import (
 )
 
 func open2(jsonName string) *rrh.Database {
-	os.Setenv(rrh.RrhDatabasePath, fmt.Sprintf("../testdata/%s", jsonName))
+	os.Setenv(rrh.DatabasePath, fmt.Sprintf("../testdata/%s", jsonName))
 	var config = rrh.OpenConfig()
 	var db, _ = rrh.Open(config)
 	return db
@@ -50,7 +50,7 @@ func TestBrokenDatabase(t *testing.T) {
 }
 
 func TestNullDB(t *testing.T) {
-	os.Setenv(rrh.RrhDatabasePath, "../testdata/nulldb.json")
+	os.Setenv(rrh.DatabasePath, "../testdata/nulldb.json")
 	var result = rrh.CaptureStdout(func() {
 		var export, _ = ExportCommandFactory()
 		export.Run([]string{})
@@ -67,7 +67,7 @@ func TestNullDB(t *testing.T) {
 }
 
 func TestNullDBNoIndent(t *testing.T) {
-	os.Setenv(rrh.RrhDatabasePath, "../testdata/nulldb.json")
+	os.Setenv(rrh.DatabasePath, "../testdata/nulldb.json")
 	var result = rrh.CaptureStdout(func() {
 		var export, _ = ExportCommandFactory()
 		export.Run([]string{"--no-indent"})

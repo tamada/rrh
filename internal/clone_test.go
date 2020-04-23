@@ -125,7 +125,7 @@ func TestUnknownOption(t *testing.T) {
 }
 
 func TestCloneNotGitRepository(t *testing.T) {
-	os.Setenv(rrh.RrhOnError, "FAIL")
+	os.Setenv(rrh.OnError, "FAIL")
 	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 		var output = rrh.CaptureStdout(func() {
 			var clone, _ = CloneCommandFactory()

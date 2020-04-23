@@ -99,14 +99,14 @@ func (fetch *FetchCommand) Run(args []string) int {
 func (fetch *FetchCommand) findRelations(db *rrh.Database) []rrh.Relation {
 	var args = fetch.options.args
 	if len(args) == 0 {
-		args = []string{db.Config.GetValue(rrh.RrhDefaultGroupName)}
+		args = []string{db.Config.GetValue(rrh.DefaultGroupName)}
 	}
 	return rrh.FindTargets(db, args)
 }
 
 func (fetch *FetchCommand) perform(db *rrh.Database) []error {
 	var errorlist = []error{}
-	var onError = db.Config.GetValue(rrh.RrhOnError)
+	var onError = db.Config.GetValue(rrh.OnError)
 	var relations = fetch.findRelations(db)
 	var progress = NewProgress(len(relations))
 

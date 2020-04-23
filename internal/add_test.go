@@ -86,7 +86,7 @@ func TestAdd(t *testing.T) {
 		},
 	}
 
-	os.Setenv(rrh.RrhConfigPath, "../testdata/config.json")
+	os.Setenv(rrh.ConfigPath, "../testdata/config.json")
 	for _, testcase := range testcases {
 		var databaseFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 			var command, _ = AddCommandFactory()
@@ -118,7 +118,7 @@ func TestAdd(t *testing.T) {
 }
 
 func TestAddToDifferentGroup(t *testing.T) {
-	os.Setenv(rrh.RrhConfigPath, "../testdata/config.json")
+	os.Setenv(rrh.ConfigPath, "../testdata/config.json")
 	var databaseFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 		var command, _ = AddCommandFactory()
 		command.Run([]string{"../testdata/fibonacci"})
@@ -142,10 +142,10 @@ func TestAddToDifferentGroup(t *testing.T) {
 }
 
 func TestAddFailed(t *testing.T) {
-	os.Setenv(rrh.RrhConfigPath, "../testdata/nulldb.json")
-	os.Setenv(rrh.RrhDatabasePath, "../testdata/test_db.json")
-	os.Setenv(rrh.RrhAutoCreateGroup, "false")
-	defer os.Unsetenv(rrh.RrhAutoCreateGroup)
+	os.Setenv(rrh.ConfigPath, "../testdata/nulldb.json")
+	os.Setenv(rrh.DatabasePath, "../testdata/test_db.json")
+	os.Setenv(rrh.AutoCreateGroup, "false")
+	defer os.Unsetenv(rrh.AutoCreateGroup)
 
 	var add = AddCommand{}
 	var config = rrh.OpenConfig()

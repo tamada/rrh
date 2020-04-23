@@ -53,7 +53,7 @@ func (add *AddCommand) showError(errorlist []error, onError string) {
 }
 
 func (add *AddCommand) perform(db *rrh.Database, opt *addOptions) int {
-	var onError = db.Config.GetValue(rrh.RrhOnError)
+	var onError = db.Config.GetValue(rrh.OnError)
 
 	var errorlist = add.AddRepositoriesToGroup(db, opt)
 
@@ -96,7 +96,7 @@ type addOptions struct {
 
 func (add *AddCommand) buildFlagSet(config *rrh.Config) (*flag.FlagSet, *addOptions) {
 	var opt = addOptions{}
-	var defaultGroup = config.GetValue(rrh.RrhDefaultGroupName)
+	var defaultGroup = config.GetValue(rrh.DefaultGroupName)
 	flags := flag.NewFlagSet("add", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(add.Help()) }
 	flags.StringVarP(&opt.group, "group", "g", defaultGroup, "target group")

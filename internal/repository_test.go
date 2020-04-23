@@ -255,7 +255,7 @@ func TestSynopsisOfRepository(t *testing.T) {
 }
 
 func TestRepositoryCommandRunFailedByBrokenDBFile(t *testing.T) {
-	os.Setenv(rrh.RrhDatabasePath, "../testdata/broken.json")
+	os.Setenv(rrh.DatabasePath, "../testdata/broken.json")
 
 	var testcases = []struct {
 		comGenerator func() (cli.Command, error)

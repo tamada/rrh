@@ -104,7 +104,7 @@ func executeExternalCommand(args []string) (int, error) {
 
 func (opts *rrhOptions) updateConfigPath() {
 	if opts.configPath != "" {
-		os.Setenv(rrh.RrhConfigPath, opts.configPath)
+		os.Setenv(rrh.ConfigPath, opts.configPath)
 	}
 }
 

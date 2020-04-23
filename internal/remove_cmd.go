@@ -107,7 +107,7 @@ func (rm *RemoveCommand) perform(db *rrh.Database) int {
 		}
 	}
 	if result == 0 {
-		if db.Config.IsSet(rrh.RrhAutoDeleteGroup) {
+		if db.Config.IsSet(rrh.AutoDeleteGroup) {
 			db.Prune()
 		}
 		db.StoreAndClose()

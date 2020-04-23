@@ -48,7 +48,7 @@ func TestImport(t *testing.T) {
 	}
 
 	for _, testcase := range testcases {
-		os.Setenv(rrh.RrhConfigPath, "../testdata/config.json")
+		os.Setenv(rrh.ConfigPath, "../testdata/config.json")
 		var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 			var command, _ = ImportCommandFactory()
 			var statusCode = command.Run(testcase.args)

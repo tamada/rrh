@@ -132,7 +132,7 @@ func (options *repositoryInfoOptions) printInfoResult(result rrh.Repository, db 
 
 func (info *repositoryInfoCommand) perform(db *rrh.Database, args []string) int {
 	var results, errs = findResults(db, args)
-	var onError = db.Config.GetValue(rrh.RrhOnError)
+	var onError = db.Config.GetValue(rrh.OnError)
 	for _, result := range results {
 		info.options.printInfoResult(result, db)
 	}
@@ -179,7 +179,7 @@ func printListResult(db *rrh.Database, result rrh.Repository, options *repositor
 
 func (list *repositoryListCommand) perform(db *rrh.Database, args []string) int {
 	var results, errs = findAll(db, args)
-	var onError = db.Config.GetValue(rrh.RrhOnError)
+	var onError = db.Config.GetValue(rrh.OnError)
 	for _, result := range results {
 		printListResult(db, result, list.options)
 	}
@@ -474,7 +474,7 @@ func findResults(db *rrh.Database, args []string) ([]rrh.Repository, []error) {
 		var repo = db.FindRepository(arg)
 		if repo == nil {
 			errs = append(errs, fmt.Errorf("%s: repository not found", arg))
-			if db.Config.GetValue(rrh.RrhOnError) == rrh.FailImmediately {
+			if db.Config.GetValue(rrh.OnError) == rrh.FailImmediately {
 				return []rrh.Repository{}, errs
 			}
 		} else {

@@ -7,7 +7,7 @@ import (
 )
 
 func printErrors(config *rrh.Config, errs []error) int {
-	var onError = config.GetValue(rrh.RrhOnError)
+	var onError = config.GetValue(rrh.OnError)
 	if onError != rrh.Ignore {
 		for _, err := range errs {
 			fmt.Println(err.Error())
@@ -20,5 +20,5 @@ func printErrors(config *rrh.Config, errs []error) int {
 }
 
 func isFailImmediately(config *rrh.Config) bool {
-	return config.GetValue(rrh.RrhOnError) == rrh.FailImmediately
+	return config.GetValue(rrh.OnError) == rrh.FailImmediately
 }

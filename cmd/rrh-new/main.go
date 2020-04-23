@@ -46,7 +46,7 @@ ARGUMENTS
 
 func buildFlagSet(config *rrh.Config) (*flag.FlagSet, *newOptions) {
 	var opt = newOptions{info: new(repositoryInfo)}
-	var defaultGroup = config.GetValue(rrh.RrhDefaultGroupName)
+	var defaultGroup = config.GetValue(rrh.DefaultGroupName)
 	flags := flag.NewFlagSet("new", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(getHelpMessage()) }
 	flags.StringVarP(&opt.info.description, "description", "d", "", "specifys description of the project")
@@ -202,7 +202,7 @@ func createRepository(db *rrh.Database, arg string, opts *newOptions) error {
 }
 
 func isOnError(config *rrh.Config, handler string) bool {
-	var onError = config.GetValue(rrh.RrhOnError)
+	var onError = config.GetValue(rrh.OnError)
 	return onError == handler
 }
 

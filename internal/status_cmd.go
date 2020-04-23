@@ -167,7 +167,7 @@ func (status *StatusCommand) parse(args []string, config *rrh.Config) ([]string,
 	}
 	status.options = options
 	if len(flags.Args()) == 0 {
-		return []string{config.GetValue(rrh.RrhDefaultGroupName)}, nil
+		return []string{config.GetValue(rrh.DefaultGroupName)}, nil
 	}
 	return flags.Args(), nil
 }

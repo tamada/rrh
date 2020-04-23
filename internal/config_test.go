@@ -68,16 +68,16 @@ func TestSynopsises(t *testing.T) {
 }
 
 func TestConfigUnset(t *testing.T) {
-	os.Setenv(rrh.RrhOnError, rrh.Fail)
+	os.Setenv(rrh.OnError, rrh.Fail)
 	var testcases = []struct {
 		args      []string
 		status    int
 		wontValue string
 		wontFrom  rrh.ReadFrom
 	}{
-		{[]string{rrh.RrhAutoCreateGroup}, 0, "false", rrh.Default},
+		{[]string{rrh.AutoCreateGroup}, 0, "false", rrh.Default},
 		{[]string{"unknown"}, 5, "", rrh.NotFound},
-		{[]string{rrh.RrhAutoCreateGroup, "tooManyArgs"}, 1, "", ""},
+		{[]string{rrh.AutoCreateGroup, "tooManyArgs"}, 1, "", ""},
 	}
 	for _, tc := range testcases {
 		var dbfile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
@@ -96,13 +96,13 @@ func TestConfigUnset(t *testing.T) {
 		})
 		defer os.Remove(dbfile)
 	}
-	os.Unsetenv(rrh.RrhOnError)
+	os.Unsetenv(rrh.OnError)
 }
 
 func ExampleConfigCommand() {
-	os.Setenv(rrh.RrhConfigPath, "../testdata/config.json")
-	os.Setenv(rrh.RrhHome, "../testdata/")
-	os.Setenv(rrh.RrhDatabasePath, "${RRH_HOME}/test_db.json")
+	os.Setenv(rrh.ConfigPath, "../testdata/config.json")
+	os.Setenv(rrh.Home, "../testdata/")
+	os.Setenv(rrh.DatabasePath, "${RRH_HOME}/test_db.json")
 	var command, _ = ConfigCommandFactory()
 	command.Run([]string{}) // the output of no arguments are same as list subcommand.
 	// Output:
@@ -120,9 +120,9 @@ func ExampleConfigCommand() {
 	// RRH_TIME_FORMAT: relative (default)
 }
 func ExampleConfigCommand_Run() {
-	os.Setenv(rrh.RrhConfigPath, "../testdata/config.json")
-	os.Setenv(rrh.RrhHome, "../testdata/")
-	os.Setenv(rrh.RrhDatabasePath, "${RRH_HOME}/database.json")
+	os.Setenv(rrh.ConfigPath, "../testdata/config.json")
+	os.Setenv(rrh.Home, "../testdata/")
+	os.Setenv(rrh.DatabasePath, "${RRH_HOME}/database.json")
 	var command, _ = ConfigCommandFactory()
 	command.Run([]string{"list"}) // the output of no arguments are same as list subcommand.
 	// Output:
@@ -140,9 +140,9 @@ func ExampleConfigCommand_Run() {
 	// RRH_TIME_FORMAT: relative (default)
 }
 func Example_listCommand_Run() {
-	os.Setenv(rrh.RrhConfigPath, "../testdata/config.json")
-	os.Setenv(rrh.RrhHome, "../testdata/")
-	os.Unsetenv(rrh.RrhDatabasePath)
+	os.Setenv(rrh.ConfigPath, "../testdata/config.json")
+	os.Setenv(rrh.Home, "../testdata/")
+	os.Unsetenv(rrh.DatabasePath)
 	var clc, _ = configListCommandFactory()
 	clc.Run([]string{})
 	// Output:
@@ -161,20 +161,20 @@ func Example_listCommand_Run() {
 }
 
 func TestLoadConfigFile(t *testing.T) {
-	os.Setenv(rrh.RrhConfigPath, "../testdata/config.json")
+	os.Setenv(rrh.ConfigPath, "../testdata/config.json")
 
 	var testdata = []struct {
 		key   string
 		value string
 		from  rrh.ReadFrom
 	}{
-		{rrh.RrhAutoDeleteGroup, "false", rrh.ConfigFile},
-		{rrh.RrhAutoCreateGroup, "true", rrh.ConfigFile},
-		{rrh.RrhSortOnUpdating, "true", rrh.ConfigFile},
-		{rrh.RrhConfigPath, "../testdata/config.json", rrh.Env},
-		{rrh.RrhTimeFormat, rrh.Relative, rrh.Default},
-		{rrh.RrhOnError, rrh.Warn, rrh.Default},
-		{rrh.RrhEnableColorized, "false", rrh.Default},
+		{rrh.AutoDeleteGroup, "false", rrh.ConfigFile},
+		{rrh.AutoCreateGroup, "true", rrh.ConfigFile},
+		{rrh.SortOnUpdating, "true", rrh.ConfigFile},
+		{rrh.ConfigPath, "../testdata/config.json", rrh.Env},
+		{rrh.TimeFormat, rrh.Relative, rrh.Default},
+		{rrh.OnError, rrh.Warn, rrh.Default},
+		{rrh.EnableColorized, "false", rrh.Default},
 		{"unknown", "", rrh.NotFound},
 	}
 
@@ -187,24 +187,24 @@ func TestLoadConfigFile(t *testing.T) {
 }
 
 func TestOpenConfig(t *testing.T) {
-	os.Unsetenv(rrh.RrhHome)
-	os.Unsetenv(rrh.RrhDatabasePath)
-	os.Unsetenv(rrh.RrhConfigPath)
+	os.Unsetenv(rrh.Home)
+	os.Unsetenv(rrh.DatabasePath)
+	os.Unsetenv(rrh.ConfigPath)
 	var home, _ = homedir.Dir()
 	var testdata = []struct {
 		key  string
 		want string
 	}{
-		{rrh.RrhHome, fmt.Sprintf("%s/.rrh", home)},
-		{rrh.RrhConfigPath, fmt.Sprintf("%s/.rrh/config.json", home)},
-		{rrh.RrhDatabasePath, fmt.Sprintf("%s/.rrh/database.json", home)},
-		{rrh.RrhDefaultGroupName, "no-group"},
-		{rrh.RrhCloneDestination, "."},
-		{rrh.RrhOnError, rrh.Warn},
-		{rrh.RrhAutoCreateGroup, "false"},
-		{rrh.RrhAutoDeleteGroup, "false"},
-		{rrh.RrhSortOnUpdating, "false"},
-		{rrh.RrhTimeFormat, rrh.Relative},
+		{rrh.Home, fmt.Sprintf("%s/.rrh", home)},
+		{rrh.ConfigPath, fmt.Sprintf("%s/.rrh/config.json", home)},
+		{rrh.DatabasePath, fmt.Sprintf("%s/.rrh/database.json", home)},
+		{rrh.DefaultGroupName, "no-group"},
+		{rrh.CloneDestination, "."},
+		{rrh.OnError, rrh.Warn},
+		{rrh.AutoCreateGroup, "false"},
+		{rrh.AutoDeleteGroup, "false"},
+		{rrh.SortOnUpdating, "false"},
+		{rrh.TimeFormat, rrh.Relative},
 		{"unknown", ""},
 	}
 	// os.Unsetenv(RrhConfigPath)
@@ -238,7 +238,7 @@ func TestPrintErrors(t *testing.T) {
 
 	var config = rrh.NewConfig()
 	for _, tc := range testcases {
-		config.Update(rrh.RrhOnError, tc.onError)
+		config.Update(rrh.OnError, tc.onError)
 		var output = rrh.CaptureStdout(func() {
 			var statusCode = config.PrintErrors(tc.error...)
 			if statusCode != tc.wontStatus {
@@ -262,7 +262,7 @@ func TestConfigSet(t *testing.T) {
 		{[]string{"RRH_DEFAULT_GROUP_NAME", "newgroup"}, 0, "newgroup", rrh.ConfigFile},
 		{[]string{"RRH_DEFAULT_GROUP_NAME"}, 1, "", ""},
 		{[]string{"RRH_AUTO_DELETE_GROUP", "yes"}, 2, "", ""},
-		{[]string{rrh.RrhConfigPath, "../testdata/broken.json"}, 2, "", ""},
+		{[]string{rrh.ConfigPath, "../testdata/broken.json"}, 2, "", ""},
 	}
 	for _, td := range testdata {
 		var dbfile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
@@ -287,10 +287,10 @@ func TestConfigSet(t *testing.T) {
 }
 
 func TestFormatVariableAndValue(t *testing.T) {
-	os.Setenv(rrh.RrhConfigPath, "../testdata/config.json")
+	os.Setenv(rrh.ConfigPath, "../testdata/config.json")
 	var config = rrh.OpenConfig()
-	assert(t, formatVariableAndValue(config, rrh.RrhDefaultGroupName), "RRH_DEFAULT_GROUP_NAME: no-group (default)")
-	if config.IsSet(rrh.RrhOnError) {
+	assert(t, formatVariableAndValue(config, rrh.DefaultGroupName), "RRH_DEFAULT_GROUP_NAME: no-group (default)")
+	if config.IsSet(rrh.OnError) {
 		t.Errorf("IsSet accepts only bool variable")
 	}
 }
