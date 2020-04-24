@@ -8,7 +8,7 @@ title: ":fork_and_knife: Usage"
 
 * `rrh list` shows managed repositories.
 * `rrh add <REPO>` adds the given repository under the `rrh` management.
-* type [`cdrrh`](#cdrrh) on Terminal, then type TAB, TAB, TAB!
+* type [`cdrrh`](../utilities/#cdrrh) on Terminal, then type TAB, TAB, TAB!
 
 
 ## Command references

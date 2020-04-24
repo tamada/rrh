@@ -62,6 +62,8 @@ RRH means "Repositories, Ready to Hack" or "Remote Repositories Head," are not t
 
 ## :paw_prints: Version histories
 
+* [v1.2.0](https://github.com/tamada/rrh/releases/tag/v1.2.0) (24 Apr, 2020)
+    * [\#83](https://github.com/tamada/rrh/issues/83) (introduce `rrh open` sub command)
 * [v1.1.0](https://github.com/tamada/rrh/releases/tag/v1.1.0) (18 Dec, 2018)
     * [\#79](https://github.com/tamada/rrh/issues/79) (add `rrh group info` sub command)
     * [\#77](https://github.com/tamada/rrh/issues/77) (introduce `rrh repository update-remotes` sub command)
