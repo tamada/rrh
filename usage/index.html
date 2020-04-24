@@ -28,7 +28,7 @@
 <body>
   <section class="page-header">
   
-  <img src="https://tamada.github.io/rrh/images/logo.png" class="avatar" alt="project_logo">
+  <img src="/rrh/images/logo.png" class="avatar" alt="project_logo">
   
   <h1 class="project-name">
     rrh
@@ -92,7 +92,7 @@
 <ul>
 <li><code>rrh list</code> shows managed repositories.</li>
 <li><code>rrh add &lt;REPO&gt;</code> adds the given repository under the <code>rrh</code> management.</li>
-<li>type <a href="#cdrrh"><code>cdrrh</code></a> on Terminal, then type TAB, TAB, TAB!</li>
+<li>type <a href="../utilities/#cdrrh"><code>cdrrh</code></a> on Terminal, then type TAB, TAB, TAB!</li>
 </ul>
 <h2 id="command-references">Command references</h2>
 <div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh <span style="color:#666">[</span>GLOBAL OPTIONS<span style="color:#666">]</span> &lt;SUB COMMANDS&gt; <span style="color:#666">[</span>ARGUMENTS<span style="color:#666">]</span>
@@ -112,6 +112,7 @@ AVAILABLE SUB COMMANDS:
     import       import the given database.
     list         print managed repositories and their groups.
     mv           move the repositories from groups to another group.
+    open         open folder or web page of the given repositories.
     prune        prune unnecessary repositories and groups.
     repository   manages repositories.
     rm           remove given repository from database.
@@ -261,6 +262,15 @@ OPTIONS
 ARGUMENTS
     FROMS...        specifies move from, formatted in &lt;GROUP_NAME/REPO_ID&gt;, or &lt;GROUP_NAME&gt;
     TO              specifies move to, formatted in &lt;GROUP_NAME&gt;
+</code></pre></div><h4 id="rrh-open"><code>rrh open</code></h4>
+<p>Opens folder or web page of the given repositories.</p>
+<div class="highlight"><pre style=";-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rrh open <span style="color:#666">[</span>OPTIONS<span style="color:#666">]</span> &lt;REPOSITORIES...&gt;
+OPTIONS
+    -f, --folder     open the folder of the specified repository <span style="color:#666">(</span>Default<span style="color:#666">)</span>.
+    -w, --webpage    open the webpage of the specified repository.
+    -h, --help       print this message.
+ARGUMENTS
+    REPOSITORIES     specifies repository names.
 </code></pre></div><h4 id="rrh-prune"><code>rrh prune</code></h4>
 <p>Deletes unnecessary groups and repositories.
 The unnecessary groups are no repositories in them.
@@ -468,6 +478,13 @@ This variable availables only environment variable.</li>
 
   </section>
   
+  
+  <script>
+  window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+  ga('create', 'UA-62401730-6', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <script async src='https://www.google-analytics.com/analytics.js'></script>
   
 
 </body>

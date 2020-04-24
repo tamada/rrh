@@ -16,9 +16,9 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://tamada.github.io/rrh/installation/</guid>
-      <description>:beer: Homebrew Install rrh via Homebrew, simply run:
+      <description>🍺 Homebrew Install rrh via Homebrew, simply run:
 $ brew tap tamada/brew $ brew install rrh Golang To install cli, simply run:
-$ go get git@github.com/tamada/rrh.git :hammer_and_wrench: Build from source codes $ git clone https://github.com/tamada/rrh.git $ cd rrh $ make :white_check_mark: Requirements  Runtime  Bash 4.x or after, for completion.  zsh?, and fish?, I do not use them, so I do not know. For macOS user, the default shell of the macOS is bash 3.</description>
+$ go get git@github.com/tamada/rrh.git 🛠️ Build from source codes $ git clone https://github.com/tamada/rrh.git $ cd rrh $ make ✅ Requirements  Runtime  Bash 4.x or after, for completion.  zsh?, and fish?, I do not use them, so I do not know. For macOS user, the default shell of the macOS is bash 3.</description>
     </item>
     
     <item>
@@ -70,9 +70,9 @@ rrhpeco(){ csv=$(rrh list --path --csv | peco) cd $(echo $csv | awk -F , &amp;#3
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://tamada.github.io/rrh/about/</guid>
-      <description>:raised_hand: Contribution  Fork the project. (https://github.com/tamada/rrh/fork) Create a feature branch. (git checkout -b FEATURE_BRANCH_NAME) Edit the source files and Commit your changes. Create tests and commit them. Rebase your local changes against the master branch. Run the test suite with the make test and confirm that passes. Create a new pull request. Confirm all checks pass.  
-:green_book: Code of Conduct 
-:scroll: License Apache License version 2.</description>
+      <description>✋ Contribution  Fork the project. (https://github.com/tamada/rrh/fork) Create a feature branch. (git checkout -b FEATURE_BRANCH_NAME) Edit the source files and Commit your changes. Create tests and commit them. Rebase your local changes against the master branch. Run the test suite with the make test and confirm that passes. Create a new pull request. Confirm all checks pass.  
+📗 Code of Conduct 
+📜 License Apache License version 2.</description>
     </item>
     
   </channel>
