@@ -6,7 +6,7 @@ import (
 
 	"github.com/mitchellh/cli"
 	flag "github.com/spf13/pflag"
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 /*
@@ -87,8 +87,8 @@ func (fetch *FetchCommand) Run(args []string) int {
 		fmt.Println(err.Error())
 		return 1
 	}
-	var config = lib.OpenConfig()
-	var db, err2 = lib.Open(config)
+	var config = rrh.OpenConfig()
+	var db, err2 = rrh.Open(config)
 	if err2 != nil {
 		fmt.Println(err2.Error())
 		return 1
@@ -96,24 +96,24 @@ func (fetch *FetchCommand) Run(args []string) int {
 	return printErrors(config, fetch.perform(db))
 }
 
-func (fetch *FetchCommand) findRelations(db *lib.Database) []lib.Relation {
+func (fetch *FetchCommand) findRelations(db *rrh.Database) []rrh.Relation {
 	var args = fetch.options.args
 	if len(args) == 0 {
-		args = []string{db.Config.GetValue(lib.RrhDefaultGroupName)}
+		args = []string{db.Config.GetValue(rrh.DefaultGroupName)}
 	}
-	return lib.FindTargets(db, args)
+	return rrh.FindTargets(db, args)
 }
 
-func (fetch *FetchCommand) perform(db *lib.Database) []error {
+func (fetch *FetchCommand) perform(db *rrh.Database) []error {
 	var errorlist = []error{}
-	var onError = db.Config.GetValue(lib.RrhOnError)
+	var onError = db.Config.GetValue(rrh.OnError)
 	var relations = fetch.findRelations(db)
 	var progress = NewProgress(len(relations))
 
 	for _, relation := range relations {
 		var err = fetch.FetchRepository(db, &relation, progress)
 		if err != nil {
-			if onError == lib.FailImmediately {
+			if onError == rrh.FailImmediately {
 				return []error{err}
 			}
 			errorlist = append(errorlist, err)
@@ -148,7 +148,7 @@ DoFetch executes fetch operation of git.
 Currently, fetch is conducted by the system call.
 Ideally, fetch is performed by using go-git.
 */
-func (fetch *FetchCommand) DoFetch(repo *lib.Repository, relation *lib.Relation, progress *Progress) error {
+func (fetch *FetchCommand) DoFetch(repo *rrh.Repository, relation *rrh.Relation, progress *Progress) error {
 	var cmd = exec.Command("git", "fetch", fetch.options.remote)
 	cmd.Dir = repo.Path
 	progress.Increment()
@@ -164,7 +164,7 @@ func (fetch *FetchCommand) DoFetch(repo *lib.Repository, relation *lib.Relation,
 /*
 FetchRepository execute `git fetch` on the given repository.
 */
-func (fetch *FetchCommand) FetchRepository(db *lib.Database, relation *lib.Relation, progress *Progress) error {
+func (fetch *FetchCommand) FetchRepository(db *rrh.Database, relation *rrh.Relation, progress *Progress) error {
 	var repository = db.FindRepository(relation.RepositoryID)
 	if repository == nil {
 		return fmt.Errorf("%s: repository not found", relation)

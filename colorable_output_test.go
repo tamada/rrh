@@ -1,4 +1,4 @@
-package lib
+package rrh
 
 import (
 	"os"
@@ -8,9 +8,9 @@ import (
 )
 
 func TestEnableColorize(t *testing.T) {
-	os.Setenv(RrhConfigPath, "../testdata/config.json")
+	os.Setenv(ConfigPath, "testdata/config.json")
 	var config = OpenConfig()
-	config.Update(RrhEnableColorized, "true")
+	config.Update(EnableColorized, "true")
 	var cs = InitializeColor(config)
 
 	var groupName1 = cs.ColorizedGroupName("group")

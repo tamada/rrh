@@ -5,11 +5,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 func ExampleGroupCommand_Run() {
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 		var gc, _ = GroupCommandFactory()
 		gc.Run([]string{"list"})
 	})
@@ -21,7 +21,7 @@ func ExampleGroupCommand_Run() {
 }
 
 func Example_groupListCommand_Run() {
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 		var glc, _ = groupListCommandFactory()
 		glc.Run([]string{"-d", "-r"})
 	})
@@ -33,7 +33,7 @@ func Example_groupListCommand_Run() {
 }
 
 func Example_groupOfCommand_Run() {
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 		var goc, _ = groupOfCommandFactory()
 		goc.Run([]string{"repo1"})
 	})
@@ -43,7 +43,7 @@ func Example_groupOfCommand_Run() {
 }
 
 func Example_groupInfoCommand_Run() {
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 		var gic, _ = groupInfoCommandFactory()
 		gic.Run([]string{"group1", "group2", "groupN"})
 	})
@@ -55,8 +55,8 @@ func Example_groupInfoCommand_Run() {
 }
 
 func TestGroupListOnlyName(t *testing.T) {
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
-		var output = lib.CaptureStdout(func() {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
+		var output = rrh.CaptureStdout(func() {
 			var glc, _ = GroupCommandFactory()
 			glc.Run([]string{"list", "--only-groupname"})
 		})
@@ -82,8 +82,8 @@ ARGUMENTS
     REPOSITORY_ID     show the groups of the repository.`},
 	}
 	for _, tc := range testcases {
-		var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
-			var output = lib.CaptureStdout(func() {
+		var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
+			var output = rrh.CaptureStdout(func() {
 				var command, _ = groupOfCommandFactory()
 				command.Run(tc.args)
 			})
@@ -116,12 +116,12 @@ func TestAddGroup(t *testing.T) {
 		{[]string{"add"}, 3, []groupChecker{}},
 	}
 	for _, testcase := range testcases {
-		var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+		var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 			var gac, _ = GroupCommandFactory()
 			if val := gac.Run(testcase.args); val != testcase.statusCode {
 				t.Errorf("%v: test failed, wont: %d, got: %d", testcase.args, testcase.statusCode, val)
 			}
-			var db2, _ = lib.Open(config)
+			var db2, _ = rrh.Open(config)
 			for _, checker := range testcase.checkers {
 				if db2.HasGroup(checker.groupName) != checker.existFlag {
 					t.Errorf("%v: group check failed: %s, wont: %v, got: %v", testcase.args, checker.groupName, checker.existFlag, !checker.existFlag)
@@ -142,8 +142,8 @@ func TestAddGroup(t *testing.T) {
 }
 
 func TestGroupInfo(t *testing.T) {
-	os.Setenv(lib.RrhDatabasePath, "../testdata/test_db.json")
-	os.Setenv(lib.RrhConfigPath, "../testdata/config.json")
+	os.Setenv(rrh.DatabasePath, "../testdata/test_db.json")
+	os.Setenv(rrh.ConfigPath, "../testdata/config.json")
 
 	var testdata = []struct {
 		args       []string
@@ -154,7 +154,7 @@ func TestGroupInfo(t *testing.T) {
 		{[]string{"group1"}, 0},
 	}
 	for _, td := range testdata {
-		var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+		var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 			var gic = groupInfoCommand{}
 			var status = gic.Run(td.args)
 			if status != td.wontStatus {
@@ -166,8 +166,8 @@ func TestGroupInfo(t *testing.T) {
 }
 
 func TestUpdateGroupFailed(t *testing.T) {
-	os.Setenv(lib.RrhDatabasePath, "../testdata/test_db.json")
-	os.Setenv(lib.RrhConfigPath, "../testdata/config.json")
+	os.Setenv(rrh.DatabasePath, "../testdata/test_db.json")
+	os.Setenv(rrh.ConfigPath, "../testdata/config.json")
 
 	var testcases = []struct {
 		opt     groupUpdateOptions
@@ -176,9 +176,9 @@ func TestUpdateGroupFailed(t *testing.T) {
 		{groupUpdateOptions{"newName", "desc", "omitList", "target"}, true},
 	}
 	for _, testcase := range testcases {
-		var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+		var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 			var guc = groupUpdateCommand{}
-			var db, _ = lib.Open(config)
+			var db, _ = rrh.Open(config)
 			var err = guc.updateGroup(db, &testcase.opt)
 			if (err != nil) != testcase.errFlag {
 				t.Errorf("%v: test failed: err wont: %v, got: %v: err (%v)", testcase.opt, testcase.errFlag, !testcase.errFlag, err)
@@ -216,12 +216,12 @@ func TestUpdateGroup(t *testing.T) {
 		{[]string{"update", "group1", "group4"}, 1, []groupChecker{}, []relation{}},
 	}
 	for _, testcase := range testcases {
-		var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+		var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 			var guc, _ = GroupCommandFactory()
 			if val := guc.Run(testcase.args); val != testcase.statusCode {
 				t.Errorf("%v: group update failed status code wont: %d, got: %d", testcase.args, testcase.statusCode, val)
 			}
-			var db2, _ = lib.Open(config)
+			var db2, _ = rrh.Open(config)
 			for _, gec := range testcase.gexists {
 				if db2.HasGroup(gec.groupName) != gec.existFlag {
 					t.Errorf("%s: exist check failed wont: %v, got: %v", gec.groupName, gec.existFlag, !gec.existFlag)
@@ -259,12 +259,12 @@ func TestRemoveGroup(t *testing.T) {
 		{[]string{"rm"}, 1, []groupChecker{}},
 	}
 	for _, testcase := range testcases {
-		var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+		var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 			var grc, _ = GroupCommandFactory()
 			if val := grc.Run(testcase.args); val != testcase.statusCode {
 				t.Errorf("%v: group remove failed: wont: %d, got: %d", testcase.args, testcase.statusCode, val)
 			}
-			var db2, _ = lib.Open(config)
+			var db2, _ = rrh.Open(config)
 			for _, checker := range testcase.checkers {
 				if db2.HasGroup(checker.groupName) != checker.existFlag {
 					t.Errorf("%v: exist check failed: wont: %v, got: %v", testcase.args, checker.existFlag, !checker.existFlag)
@@ -285,8 +285,8 @@ func TestRemoveGroup(t *testing.T) {
 }
 
 func TestInvalidOptionInGroupList(t *testing.T) {
-	os.Setenv(lib.RrhDatabasePath, "../testdata/test_db.json")
-	lib.CaptureStdout(func() {
+	os.Setenv(rrh.DatabasePath, "../testdata/test_db.json")
+	rrh.CaptureStdout(func() {
 		var glc, _ = groupListCommandFactory()
 		if val := glc.Run([]string{"--unknown-option"}); val != 1 {
 			t.Error("list subcommand accept unknown-option!")

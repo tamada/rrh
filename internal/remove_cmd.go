@@ -6,7 +6,7 @@ import (
 
 	"github.com/mitchellh/cli"
 	flag "github.com/spf13/pflag"
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 type removeOptions struct {
@@ -36,12 +36,12 @@ func (options *removeOptions) printIfVerbose(message string) {
 	}
 }
 
-func (rm *RemoveCommand) executeRemoveGroup(db *lib.Database, groupName string) error {
+func (rm *RemoveCommand) executeRemoveGroup(db *rrh.Database, groupName string) error {
 	var group = db.FindGroup(groupName)
 	if group == nil {
 		return fmt.Errorf("%s: group not found", groupName)
 	}
-	if rm.options.inquiry && !lib.IsInputYes(fmt.Sprintf("%s: Remove group? [yN]> ", groupName)) {
+	if rm.options.inquiry && !rrh.IsInputYes(fmt.Sprintf("%s: Remove group? [yN]> ", groupName)) {
 		rm.options.printIfVerbose(fmt.Sprintf("%s: group do not removed", groupName))
 		return nil
 	}
@@ -57,11 +57,11 @@ func (rm *RemoveCommand) executeRemoveGroup(db *lib.Database, groupName string) 
 	return err
 }
 
-func (rm *RemoveCommand) executeRemoveRepository(db *lib.Database, repoID string) error {
+func (rm *RemoveCommand) executeRemoveRepository(db *rrh.Database, repoID string) error {
 	if !db.HasRepository(repoID) {
 		return fmt.Errorf("%s: repository not found", repoID)
 	}
-	if rm.options.inquiry && !lib.IsInputYes(fmt.Sprintf("%s: Remove repository? [yN]> ", repoID)) {
+	if rm.options.inquiry && !rrh.IsInputYes(fmt.Sprintf("%s: Remove repository? [yN]> ", repoID)) {
 		rm.options.printIfVerbose(fmt.Sprintf("%s: repository do not removed", repoID))
 		return nil
 	}
@@ -72,13 +72,13 @@ func (rm *RemoveCommand) executeRemoveRepository(db *lib.Database, repoID string
 	return nil
 }
 
-func (rm *RemoveCommand) executeRemoveFromGroup(db *lib.Database, groupName string, repoID string) error {
+func (rm *RemoveCommand) executeRemoveFromGroup(db *rrh.Database, groupName string, repoID string) error {
 	db.Unrelate(groupName, repoID)
 	rm.options.printIfVerbose(fmt.Sprintf("%s: removed from group %s", repoID, groupName))
 	return nil
 }
 
-func (rm *RemoveCommand) executeRemove(db *lib.Database, target string) error {
+func (rm *RemoveCommand) executeRemove(db *rrh.Database, target string) error {
 	var data = strings.Split(target, "/")
 	if len(data) == 2 {
 		return rm.executeRemoveFromGroup(db, data[0], data[1])
@@ -97,7 +97,7 @@ func (rm *RemoveCommand) executeRemove(db *lib.Database, target string) error {
 	return fmt.Errorf("%s: not found in repositories and groups", target)
 }
 
-func (rm *RemoveCommand) perform(db *lib.Database) int {
+func (rm *RemoveCommand) perform(db *rrh.Database) int {
 	var result = 0
 	for _, target := range rm.options.args {
 		var err = rm.executeRemove(db, target)
@@ -107,7 +107,7 @@ func (rm *RemoveCommand) perform(db *lib.Database) int {
 		}
 	}
 	if result == 0 {
-		if db.Config.IsSet(lib.RrhAutoDeleteGroup) {
+		if db.Config.IsSet(rrh.AutoDeleteGroup) {
 			db.Prune()
 		}
 		db.StoreAndClose()
@@ -124,8 +124,8 @@ func (rm *RemoveCommand) Run(args []string) int {
 		return 1
 	}
 	rm.options = options
-	var config = lib.OpenConfig()
-	var db, err1 = lib.Open(config)
+	var config = rrh.OpenConfig()
+	var db, err1 = rrh.Open(config)
 	if err1 != nil {
 		fmt.Println(err1.Error())
 		return 2

@@ -5,7 +5,7 @@ import (
 
 	"github.com/mitchellh/cli"
 	flag "github.com/spf13/pflag"
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 type listOptions struct {
@@ -38,7 +38,7 @@ func (options *listOptions) isChecked(target bool) bool {
 	return target || options.all
 }
 
-func (options *listOptions) printResultAsCsv(result Result, repo Repo, remote *lib.Remote) {
+func (options *listOptions) printResultAsCsv(result Result, repo Repo, remote *rrh.Remote) {
 	fmt.Printf("%s", result.GroupName)
 	if options.isChecked(options.description) {
 		fmt.Printf(",%s", result.Description)
@@ -88,12 +88,12 @@ printColoriezdRepositoryID prints the repository name in color.
 Coloring escape sequence breaks the printf position arrangement.
 Therefore, we arranges the positions by spacing behind the colored repository name.
 */
-func printColoriezdRepositoryID(repoName string, length int, config *lib.Config) {
+func printColoriezdRepositoryID(repoName string, length int, config *rrh.Config) {
 	var formatter = fmt.Sprintf("    %%s%%%ds", length-len(repoName))
 	fmt.Printf(formatter, config.Color.ColorizedRepositoryID(repoName), "")
 }
 
-func (options *listOptions) printRepo(repo Repo, result Result, maxLength int, config *lib.Config) {
+func (options *listOptions) printRepo(repo Repo, result Result, maxLength int, config *rrh.Config) {
 	printColoriezdRepositoryID(repo.Name, maxLength, config)
 	if options.localPath || options.all {
 		fmt.Printf("  %s", repo.Path)
@@ -111,7 +111,7 @@ func (options *listOptions) isPrintSimple(result Result) bool {
 	return !options.noOmit && result.OmitList && len(options.args) == 0
 }
 
-func printGroupName(result Result, config *lib.Config) int {
+func printGroupName(result Result, config *rrh.Config) int {
 	if len(result.Repos) == 1 {
 		fmt.Printf("%s (1 repository)\n", config.Color.ColorizedGroupName(result.GroupName))
 	} else {
@@ -120,7 +120,7 @@ func printGroupName(result Result, config *lib.Config) int {
 	return len(result.Repos)
 }
 
-func (options *listOptions) printResult(result Result, config *lib.Config) int {
+func (options *listOptions) printResult(result Result, config *rrh.Config) int {
 	var repoCount = printGroupName(result, config)
 	if !options.isPrintSimple(result) {
 		if options.description || options.all {
@@ -164,7 +164,7 @@ func printGroupAndRepoCount(groupCount int, repoCount int) {
 	fmt.Printf("%d %s, %d %s\n", groupCount, groupLabel, repoCount, repoLabel)
 }
 
-func (options *listOptions) printResults(results []Result, config *lib.Config) int {
+func (options *listOptions) printResults(results []Result, config *rrh.Config) int {
 	if options.csv {
 		return options.printResultsAsCsv(results)
 	} else if options.repoNameOnly || options.groupRepoName {
@@ -178,7 +178,7 @@ func (options *listOptions) printResults(results []Result, config *lib.Config) i
 	return 0
 }
 
-func (list *ListCommand) findAndPrintResult(db *lib.Database) int {
+func (list *ListCommand) findAndPrintResult(db *rrh.Database) int {
 	results, err := list.FindResults(db)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -203,8 +203,8 @@ func (list *ListCommand) Run(args []string) int {
 	if err != nil {
 		return list.printError(err, true, 1)
 	}
-	var config = lib.OpenConfig()
-	db, err := lib.Open(config)
+	var config = rrh.OpenConfig()
+	db, err := rrh.Open(config)
 	if err != nil {
 		return list.printError(err, false, 2)
 	}
@@ -271,7 +271,7 @@ Repo represents the result for showing of repositories.
 type Repo struct {
 	Name    string
 	Path    string
-	Remotes []lib.Remote
+	Remotes []rrh.Remote
 }
 
 /*
@@ -284,7 +284,7 @@ type Result struct {
 	Repos       []Repo
 }
 
-func (list *ListCommand) findList(db *lib.Database, groupName string) (*Result, error) {
+func (list *ListCommand) findList(db *rrh.Database, groupName string) (*Result, error) {
 	var repos = []Repo{}
 	var group = db.FindGroup(groupName)
 	if group == nil {
@@ -303,7 +303,7 @@ func (list *ListCommand) findList(db *lib.Database, groupName string) (*Result, 
 	return &Result{group.Name, group.Description, group.OmitList, repos}, nil
 }
 
-func (list *ListCommand) findAllGroupNames(db *lib.Database) []string {
+func (list *ListCommand) findAllGroupNames(db *rrh.Database) []string {
 	var names = []string{}
 	for _, group := range db.Groups {
 		names = append(names, group.Name)
@@ -314,7 +314,7 @@ func (list *ListCommand) findAllGroupNames(db *lib.Database) []string {
 /*
 FindResults returns the result list of list command.
 */
-func (list *ListCommand) FindResults(db *lib.Database) ([]Result, error) {
+func (list *ListCommand) FindResults(db *rrh.Database) ([]Result, error) {
 	var groups = list.options.args
 	if len(groups) == 0 {
 		groups = list.findAllGroupNames(db)

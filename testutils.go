@@ -1,4 +1,4 @@
-package lib
+package rrh
 
 import (
 	"bytes"
@@ -11,7 +11,7 @@ import (
 
 func copyfile(fromfile string) string {
 	var content, _ = ioutil.ReadFile(fromfile)
-	var file, _ = ioutil.TempFile("../testdata/", "tmp")
+	var file, _ = ioutil.TempFile(".", "tmp")
 	file.Write(content)
 	defer file.Close()
 	return file.Name()
@@ -24,8 +24,8 @@ func Rollback(dbFile, configFile string, f func(config *Config, db *Database)) s
 	var newDBFile = copyfile(dbFile)
 	var newConfigFile = copyfile(configFile)
 	defer os.Remove(newConfigFile)
-	os.Setenv(RrhConfigPath, newConfigFile)
-	os.Setenv(RrhDatabasePath, newDBFile)
+	os.Setenv(ConfigPath, newConfigFile)
+	os.Setenv(DatabasePath, newDBFile)
 
 	var config = OpenConfig()
 	var db, err = Open(config)
@@ -35,8 +35,8 @@ func Rollback(dbFile, configFile string, f func(config *Config, db *Database)) s
 
 	f(config, db)
 
-	os.Setenv(RrhConfigPath, configFile) // replace the path of config file.
-	os.Setenv(RrhDatabasePath, dbFile)
+	os.Setenv(ConfigPath, configFile) // replace the path of config file.
+	os.Setenv(DatabasePath, dbFile)
 
 	return newDBFile
 }

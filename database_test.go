@@ -1,4 +1,4 @@
-package lib
+package rrh
 
 import (
 	"fmt"
@@ -7,8 +7,8 @@ import (
 )
 
 func openDatabase() *Database {
-	os.Setenv(RrhDatabasePath, "../testdata/database.json")
-	os.Setenv(RrhConfigPath, "../testdata/config.json")
+	os.Setenv(DatabasePath, "testdata/database.json")
+	os.Setenv(ConfigPath, "testdata/config.json")
 	var config = OpenConfig()
 	var db, _ = Open(config)
 	return db
@@ -29,8 +29,8 @@ func TestRelationStringer(t *testing.T) {
 }
 
 func TestOpenBrokenJson(t *testing.T) {
-	os.Setenv(RrhConfigPath, "../testdata/config.json")
-	os.Setenv(RrhDatabasePath, "../testdata/broken.json")
+	os.Setenv(ConfigPath, "testdata/config.json")
+	os.Setenv(DatabasePath, "testdata/broken.json")
 	var config = OpenConfig()
 	var _, err = Open(config)
 	if err == nil {
@@ -55,7 +55,7 @@ func TestAutoCreateGroup(t *testing.T) {
 		t.Errorf("existing group did not match, wont: %v, got: %v", Group{"group1", "desc1", true}, group2)
 	}
 
-	db.Config.Update(RrhAutoCreateGroup, "false")
+	db.Config.Update(AutoCreateGroup, "false")
 	var _, err3 = db.AutoCreateGroup("failgroup", "desc", true)
 	if err3 == nil {
 		t.Errorf("auto create group should fail: %s", err3.Error())
@@ -63,8 +63,8 @@ func TestAutoCreateGroup(t *testing.T) {
 }
 
 func TestOpenNonExistFile(t *testing.T) {
-	os.Setenv(RrhConfigPath, "../testdata/config.json")
-	os.Setenv(RrhDatabasePath, "../testdata/not-exist-file.json")
+	os.Setenv(ConfigPath, "testdata/config.json")
+	os.Setenv(DatabasePath, "testdata/not-exist-file.json")
 	var config = OpenConfig()
 	var db, _ = Open(config)
 
@@ -77,8 +77,8 @@ func TestOpenNonExistFile(t *testing.T) {
 }
 
 func TestOpenNullDatabase(t *testing.T) {
-	os.Setenv(RrhConfigPath, "../testdata/config.json")
-	os.Setenv(RrhDatabasePath, "../testdata/nulldb.json")
+	os.Setenv(ConfigPath, "testdata/config.json")
+	os.Setenv(DatabasePath, "testdata/nulldb.json")
 	var config = OpenConfig()
 	var db, _ = Open(config)
 
@@ -94,7 +94,7 @@ func TestOpenNullDatabase(t *testing.T) {
 }
 
 func TestStore(t *testing.T) {
-	var dbFile = Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *Config, db *Database) {
+	var dbFile = Rollback("testdata/test_db.json", "testdata/config.json", func(config *Config, db *Database) {
 		db.CreateGroup("group1", "desc1", false)
 		db.CreateGroup("group2", "desc2", false)
 		db.CreateRepository("repo1", "path1", "desc1", []Remote{})
@@ -346,7 +346,7 @@ func TestFindRelations(t *testing.T) {
 }
 
 func TestUpdateRepository(t *testing.T) {
-	var dbFile = Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *Config, db *Database) {
+	var dbFile = Rollback("testdata/test_db.json", "testdata/config.json", func(config *Config, db *Database) {
 		if !db.UpdateRepository("repo1", Repository{ID: "newRepo1", Path: "newPath1", Description: "desc1"}) {
 			t.Errorf("Update failed")
 		}
@@ -385,7 +385,7 @@ func TestFindTargets(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		var dbFile = Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *Config, db *Database) {
+		var dbFile = Rollback("testdata/test_db.json", "testdata/config.json", func(config *Config, db *Database) {
 			var rels = FindTargets(db, tc.groupNames)
 
 			if len(rels) != tc.size {

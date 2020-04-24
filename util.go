@@ -1,4 +1,4 @@
-package lib
+package rrh
 
 import (
 	"bufio"
@@ -34,7 +34,7 @@ func CreateParentDir(path string) error {
 Strftime returns the string of the given time.
 */
 func Strftime(time time.Time, config *Config) string {
-	var format = config.GetValue(RrhTimeFormat)
+	var format = config.GetValue(TimeFormat)
 	if format != Relative {
 		return time.Format(format)
 	}

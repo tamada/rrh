@@ -6,7 +6,7 @@ import (
 
 	"github.com/mitchellh/cli"
 	flag "github.com/spf13/pflag"
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 /*
@@ -61,7 +61,7 @@ type targets struct {
 	to    target
 }
 
-func parseCompound(db *lib.Database, types []string, original string) (target, error) {
+func parseCompound(db *rrh.Database, types []string, original string) (target, error) {
 	var groupFound = db.HasGroup(types[0])
 	var repoFound = db.HasRepository(types[1])
 	if !groupFound && !repoFound {
@@ -76,7 +76,7 @@ func parseCompound(db *lib.Database, types []string, original string) (target, e
 	return target{GroupAndRepoType, types[0], types[1], original}, nil
 }
 
-func parseEither(db *lib.Database, typeString string) (target, error) {
+func parseEither(db *rrh.Database, typeString string) (target, error) {
 	var groupFound = db.HasGroup(typeString)
 	var repositoryFound = db.HasRepository(typeString)
 	if groupFound && repositoryFound {
@@ -89,7 +89,7 @@ func parseEither(db *lib.Database, typeString string) (target, error) {
 	return target{GroupOrRepoType, typeString, "", typeString}, nil
 }
 
-func parseType(db *lib.Database, typeString string) (target, error) {
+func parseType(db *rrh.Database, typeString string) (target, error) {
 	if strings.Contains(typeString, "/") {
 		var types = strings.SplitN(typeString, "/", 2)
 		return parseCompound(db, types, typeString)
@@ -137,7 +137,7 @@ func isRepositoryToRepository(fromType targetKind, toType targetKind) bool {
 // 	return toType != GroupType && toType != GroupOrRepoType
 // }
 
-func verifyArgumentsOneToOne(db *lib.Database, from target, to target) (targetKind, error) {
+func verifyArgumentsOneToOne(db *rrh.Database, from target, to target) (targetKind, error) {
 	if from.kind == Unknown {
 		return Invalid, fmt.Errorf("%s: unknown type not acceptable", from.original)
 	}
@@ -170,7 +170,7 @@ func isGroupAndRepoOrRepoType(kind targetKind) bool {
 	return kind == GroupAndRepoType || kind == RepositoryType
 }
 
-func verifyArgumentsMoreToOne(db *lib.Database, froms []target, to target) (targetKind, error) {
+func verifyArgumentsMoreToOne(db *rrh.Database, froms []target, to target) (targetKind, error) {
 	if isNotGroupAndGroupOrRepoType(to.kind) {
 		return Invalid, fmt.Errorf("types of froms and to did not match: from: %v, to: %v (%d)", froms, to.original, to.kind)
 	}
@@ -185,14 +185,14 @@ func verifyArgumentsMoreToOne(db *lib.Database, froms []target, to target) (targ
 	return GroupsToGroup, nil
 }
 
-func verifyArguments(db *lib.Database, froms []target, to target) (targetKind, error) {
+func verifyArguments(db *rrh.Database, froms []target, to target) (targetKind, error) {
 	if len(froms) == 1 {
 		return verifyArgumentsOneToOne(db, froms[0], to)
 	}
 	return verifyArgumentsMoreToOne(db, froms, to)
 }
 
-func convertToTarget(db *lib.Database, froms []string, to string) ([]target, target) {
+func convertToTarget(db *rrh.Database, froms []string, to string) ([]target, target) {
 	var targetFrom = []target{}
 	for _, from := range froms {
 		var f, _ = parseType(db, from)
@@ -202,7 +202,7 @@ func convertToTarget(db *lib.Database, froms []string, to string) ([]target, tar
 	return targetFrom, targetTo
 }
 
-func (mv *MoveCommand) performImpl(db *lib.Database, targets targets, executionType targetKind) []error {
+func (mv *MoveCommand) performImpl(db *rrh.Database, targets targets, executionType targetKind) []error {
 	switch executionType {
 	case GroupToGroup:
 		return mv.moveGroupToGroup(db, targets.froms[0], targets.to)
@@ -221,7 +221,7 @@ func (mv *MoveCommand) performImpl(db *lib.Database, targets targets, executionT
 	return []error{}
 }
 
-func (mv *MoveCommand) moveRepositoryToRepository(db *lib.Database, from target, to target) error {
+func (mv *MoveCommand) moveRepositoryToRepository(db *rrh.Database, from target, to target) error {
 	if from.repositoryName != to.repositoryName {
 		return fmt.Errorf("repository name did not match: %s, %s", from.original, to.original)
 	}
@@ -237,7 +237,7 @@ func (mv *MoveCommand) moveRepositoryToRepository(db *lib.Database, from target,
 	return nil
 }
 
-func (mv *MoveCommand) moveRepositoryToGroup(db *lib.Database, from target, to target) error {
+func (mv *MoveCommand) moveRepositoryToGroup(db *rrh.Database, from target, to target) error {
 	if to.kind == GroupType || to.kind == GroupOrRepoType {
 		if _, err := db.AutoCreateGroup(to.original, "", false); err != nil {
 			return err
@@ -249,7 +249,7 @@ func (mv *MoveCommand) moveRepositoryToGroup(db *lib.Database, from target, to t
 	db.Relate(to.original, from.repositoryName)
 	return nil
 }
-func (mv *MoveCommand) moveRepositoriesToGroup(db *lib.Database, froms []target, to target) []error {
+func (mv *MoveCommand) moveRepositoriesToGroup(db *rrh.Database, froms []target, to target) []error {
 	var list = []error{}
 	for _, from := range froms {
 		var err = mv.moveRepositoryToGroup(db, from, to)
@@ -263,7 +263,7 @@ func (mv *MoveCommand) moveRepositoriesToGroup(db *lib.Database, froms []target,
 	return list
 }
 
-func (mv *MoveCommand) moveGroupsToGroup(db *lib.Database, froms []target, to target) []error {
+func (mv *MoveCommand) moveGroupsToGroup(db *rrh.Database, froms []target, to target) []error {
 	var list = []error{}
 	for _, from := range froms {
 		var errs = mv.moveGroupToGroup(db, from, to)
@@ -277,7 +277,7 @@ func (mv *MoveCommand) moveGroupsToGroup(db *lib.Database, froms []target, to ta
 	return list
 }
 
-func (mv *MoveCommand) moveGroupToGroup(db *lib.Database, from target, to target) []error {
+func (mv *MoveCommand) moveGroupToGroup(db *rrh.Database, from target, to target) []error {
 	if _, err := db.AutoCreateGroup(to.groupName, "", false); err != nil {
 		return []error{err}
 	}
@@ -291,7 +291,7 @@ func (mv *MoveCommand) moveGroupToGroup(db *lib.Database, from target, to target
 	return []error{}
 }
 
-func (mv *MoveCommand) perform(db *lib.Database) int {
+func (mv *MoveCommand) perform(db *rrh.Database) int {
 	var from, to = convertToTarget(db, mv.options.from, mv.options.to)
 	var executionType, err = verifyArguments(db, from, to)
 	if err != nil {
@@ -314,8 +314,8 @@ func (mv *MoveCommand) Run(args []string) int {
 		fmt.Println(err1.Error())
 		return 1
 	}
-	var config = lib.OpenConfig()
-	var db, err2 = lib.Open(config)
+	var config = rrh.OpenConfig()
+	var db, err2 = rrh.Open(config)
 	if err2 != nil {
 		fmt.Println(err2.Error())
 		return 2

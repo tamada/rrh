@@ -7,7 +7,7 @@ import (
 	"github.com/mitchellh/cli"
 	"github.com/skratchdot/open-golang/open"
 	flag "github.com/spf13/pflag"
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 /*
@@ -115,21 +115,21 @@ func convertURL(url string) (string, error) {
 	return url, nil
 }
 
-func generateWebPageURL(repo *lib.Repository) (string, error) {
+func generateWebPageURL(repo *rrh.Repository) (string, error) {
 	if len(repo.Remotes) == 0 {
 		return "", fmt.Errorf("%s: remote repository not found", repo.ID)
 	}
 	return convertURL(repo.Remotes[0].URL)
 }
 
-func execOpen(repo *lib.Repository, opts *openOptions) (string, error) {
+func execOpen(repo *rrh.Repository, opts *openOptions) (string, error) {
 	if opts.browserFlag {
 		return generateWebPageURL(repo)
 	}
 	return repo.Path, nil
 }
 
-func performEach(arg string, opts *openOptions, db *lib.Database) error {
+func performEach(arg string, opts *openOptions, db *rrh.Database) error {
 	repo := db.FindRepository(arg)
 	if repo == nil {
 		return fmt.Errorf("%s: repository not found", arg)
@@ -142,8 +142,8 @@ func performEach(arg string, opts *openOptions, db *lib.Database) error {
 }
 
 func performOpen(args []string, opts *openOptions) int {
-	config := lib.OpenConfig()
-	db, err := lib.Open(config)
+	config := rrh.OpenConfig()
+	db, err := rrh.Open(config)
 	if err != nil {
 		fmt.Println(err.Error())
 		return 1

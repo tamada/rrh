@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/mitchellh/go-homedir"
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 func assert(t *testing.T, actual string, expected string) {
@@ -68,26 +68,26 @@ func TestSynopsises(t *testing.T) {
 }
 
 func TestConfigUnset(t *testing.T) {
-	os.Setenv(lib.RrhOnError, lib.Fail)
+	os.Setenv(rrh.OnError, rrh.Fail)
 	var testcases = []struct {
 		args      []string
 		status    int
 		wontValue string
-		wontFrom  lib.ReadFrom
+		wontFrom  rrh.ReadFrom
 	}{
-		{[]string{lib.RrhAutoCreateGroup}, 0, "false", lib.Default},
-		{[]string{"unknown"}, 5, "", lib.NotFound},
-		{[]string{lib.RrhAutoCreateGroup, "tooManyArgs"}, 1, "", ""},
+		{[]string{rrh.AutoCreateGroup}, 0, "false", rrh.Default},
+		{[]string{"unknown"}, 5, "", rrh.NotFound},
+		{[]string{rrh.AutoCreateGroup, "tooManyArgs"}, 1, "", ""},
 	}
 	for _, tc := range testcases {
-		var dbfile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+		var dbfile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 			var cuc, _ = configUnsetCommandFactory()
 			var statusCode = cuc.Run(tc.args)
 			if statusCode != tc.status {
 				t.Errorf("%v: status code did not match, wont: %d, got: %d", tc, tc.status, statusCode)
 			}
 			if statusCode == 0 {
-				var config = lib.OpenConfig()
+				var config = rrh.OpenConfig()
 				var value, from = config.GetString(tc.args[0])
 				if value != tc.wontValue || from != tc.wontFrom {
 					t.Errorf("%v: did not match: wont: (%s, %s), got: (%s, %s)", tc, tc.wontValue, tc.wontFrom, value, from)
@@ -96,13 +96,13 @@ func TestConfigUnset(t *testing.T) {
 		})
 		defer os.Remove(dbfile)
 	}
-	os.Unsetenv(lib.RrhOnError)
+	os.Unsetenv(rrh.OnError)
 }
 
 func ExampleConfigCommand() {
-	os.Setenv(lib.RrhConfigPath, "../testdata/config.json")
-	os.Setenv(lib.RrhHome, "../testdata/")
-	os.Setenv(lib.RrhDatabasePath, "${RRH_HOME}/test_db.json")
+	os.Setenv(rrh.ConfigPath, "../testdata/config.json")
+	os.Setenv(rrh.Home, "../testdata/")
+	os.Setenv(rrh.DatabasePath, "${RRH_HOME}/test_db.json")
 	var command, _ = ConfigCommandFactory()
 	command.Run([]string{}) // the output of no arguments are same as list subcommand.
 	// Output:
@@ -120,9 +120,9 @@ func ExampleConfigCommand() {
 	// RRH_TIME_FORMAT: relative (default)
 }
 func ExampleConfigCommand_Run() {
-	os.Setenv(lib.RrhConfigPath, "../testdata/config.json")
-	os.Setenv(lib.RrhHome, "../testdata/")
-	os.Setenv(lib.RrhDatabasePath, "${RRH_HOME}/database.json")
+	os.Setenv(rrh.ConfigPath, "../testdata/config.json")
+	os.Setenv(rrh.Home, "../testdata/")
+	os.Setenv(rrh.DatabasePath, "${RRH_HOME}/database.json")
 	var command, _ = ConfigCommandFactory()
 	command.Run([]string{"list"}) // the output of no arguments are same as list subcommand.
 	// Output:
@@ -140,9 +140,9 @@ func ExampleConfigCommand_Run() {
 	// RRH_TIME_FORMAT: relative (default)
 }
 func Example_listCommand_Run() {
-	os.Setenv(lib.RrhConfigPath, "../testdata/config.json")
-	os.Setenv(lib.RrhHome, "../testdata/")
-	os.Unsetenv(lib.RrhDatabasePath)
+	os.Setenv(rrh.ConfigPath, "../testdata/config.json")
+	os.Setenv(rrh.Home, "../testdata/")
+	os.Unsetenv(rrh.DatabasePath)
 	var clc, _ = configListCommandFactory()
 	clc.Run([]string{})
 	// Output:
@@ -161,24 +161,24 @@ func Example_listCommand_Run() {
 }
 
 func TestLoadConfigFile(t *testing.T) {
-	os.Setenv(lib.RrhConfigPath, "../testdata/config.json")
+	os.Setenv(rrh.ConfigPath, "../testdata/config.json")
 
 	var testdata = []struct {
 		key   string
 		value string
-		from  lib.ReadFrom
+		from  rrh.ReadFrom
 	}{
-		{lib.RrhAutoDeleteGroup, "false", lib.ConfigFile},
-		{lib.RrhAutoCreateGroup, "true", lib.ConfigFile},
-		{lib.RrhSortOnUpdating, "true", lib.ConfigFile},
-		{lib.RrhConfigPath, "../testdata/config.json", lib.Env},
-		{lib.RrhTimeFormat, lib.Relative, lib.Default},
-		{lib.RrhOnError, lib.Warn, lib.Default},
-		{lib.RrhEnableColorized, "false", lib.Default},
-		{"unknown", "", lib.NotFound},
+		{rrh.AutoDeleteGroup, "false", rrh.ConfigFile},
+		{rrh.AutoCreateGroup, "true", rrh.ConfigFile},
+		{rrh.SortOnUpdating, "true", rrh.ConfigFile},
+		{rrh.ConfigPath, "../testdata/config.json", rrh.Env},
+		{rrh.TimeFormat, rrh.Relative, rrh.Default},
+		{rrh.OnError, rrh.Warn, rrh.Default},
+		{rrh.EnableColorized, "false", rrh.Default},
+		{"unknown", "", rrh.NotFound},
 	}
 
-	var config = lib.OpenConfig()
+	var config = rrh.OpenConfig()
 	for _, data := range testdata {
 		if val, from := config.GetString(data.key); val != data.value || from != data.from {
 			t.Errorf("%s: want: (%s, %s), got: (%s, %s)", data.key, data.value, data.from, val, from)
@@ -187,30 +187,30 @@ func TestLoadConfigFile(t *testing.T) {
 }
 
 func TestOpenConfig(t *testing.T) {
-	os.Unsetenv(lib.RrhHome)
-	os.Unsetenv(lib.RrhDatabasePath)
-	os.Unsetenv(lib.RrhConfigPath)
+	os.Unsetenv(rrh.Home)
+	os.Unsetenv(rrh.DatabasePath)
+	os.Unsetenv(rrh.ConfigPath)
 	var home, _ = homedir.Dir()
 	var testdata = []struct {
 		key  string
 		want string
 	}{
-		{lib.RrhHome, fmt.Sprintf("%s/.rrh", home)},
-		{lib.RrhConfigPath, fmt.Sprintf("%s/.rrh/config.json", home)},
-		{lib.RrhDatabasePath, fmt.Sprintf("%s/.rrh/database.json", home)},
-		{lib.RrhDefaultGroupName, "no-group"},
-		{lib.RrhCloneDestination, "."},
-		{lib.RrhOnError, lib.Warn},
-		{lib.RrhAutoCreateGroup, "false"},
-		{lib.RrhAutoDeleteGroup, "false"},
-		{lib.RrhSortOnUpdating, "false"},
-		{lib.RrhTimeFormat, lib.Relative},
+		{rrh.Home, fmt.Sprintf("%s/.rrh", home)},
+		{rrh.ConfigPath, fmt.Sprintf("%s/.rrh/config.json", home)},
+		{rrh.DatabasePath, fmt.Sprintf("%s/.rrh/database.json", home)},
+		{rrh.DefaultGroupName, "no-group"},
+		{rrh.CloneDestination, "."},
+		{rrh.OnError, rrh.Warn},
+		{rrh.AutoCreateGroup, "false"},
+		{rrh.AutoDeleteGroup, "false"},
+		{rrh.SortOnUpdating, "false"},
+		{rrh.TimeFormat, rrh.Relative},
 		{"unknown", ""},
 	}
 	// os.Unsetenv(RrhConfigPath)
 	// os.Unsetenv(RrhHome)
 
-	var config = lib.OpenConfig()
+	var config = rrh.OpenConfig()
 	for _, data := range testdata {
 		if value := config.GetDefaultValue(data.key); value != data.want {
 			t.Errorf("%s: want: %s, got: %s", data.key, data.want, value)
@@ -226,20 +226,20 @@ func TestPrintErrors(t *testing.T) {
 		wontStatus int
 		someOutput bool
 	}{
-		{lib.Ignore, []error{}, 0, false},
-		{lib.Ignore, []error{errors.New("error")}, 0, false},
-		{lib.Warn, []error{}, 0, false},
-		{lib.Warn, []error{errors.New("error")}, 0, true},
-		{lib.Fail, []error{}, 0, false},
-		{lib.Fail, []error{errors.New("error")}, 5, true},
-		{lib.FailImmediately, []error{}, 0, false},
-		{lib.FailImmediately, []error{errors.New("error")}, 5, true},
+		{rrh.Ignore, []error{}, 0, false},
+		{rrh.Ignore, []error{errors.New("error")}, 0, false},
+		{rrh.Warn, []error{}, 0, false},
+		{rrh.Warn, []error{errors.New("error")}, 0, true},
+		{rrh.Fail, []error{}, 0, false},
+		{rrh.Fail, []error{errors.New("error")}, 5, true},
+		{rrh.FailImmediately, []error{}, 0, false},
+		{rrh.FailImmediately, []error{errors.New("error")}, 5, true},
 	}
 
-	var config = lib.NewConfig()
+	var config = rrh.NewConfig()
 	for _, tc := range testcases {
-		config.Update(lib.RrhOnError, tc.onError)
-		var output = lib.CaptureStdout(func() {
+		config.Update(rrh.OnError, tc.onError)
+		var output = rrh.CaptureStdout(func() {
 			var statusCode = config.PrintErrors(tc.error...)
 			if statusCode != tc.wontStatus {
 				t.Errorf("%v: status code did not match, wont: %d, got: %d", tc, tc.wontStatus, statusCode)
@@ -257,22 +257,22 @@ func TestConfigSet(t *testing.T) {
 		args       []string
 		statusCode int
 		value      string
-		location   lib.ReadFrom
+		location   rrh.ReadFrom
 	}{
-		{[]string{"RRH_DEFAULT_GROUP_NAME", "newgroup"}, 0, "newgroup", lib.ConfigFile},
+		{[]string{"RRH_DEFAULT_GROUP_NAME", "newgroup"}, 0, "newgroup", rrh.ConfigFile},
 		{[]string{"RRH_DEFAULT_GROUP_NAME"}, 1, "", ""},
 		{[]string{"RRH_AUTO_DELETE_GROUP", "yes"}, 2, "", ""},
-		{[]string{lib.RrhConfigPath, "../testdata/broken.json"}, 2, "", ""},
+		{[]string{rrh.ConfigPath, "../testdata/broken.json"}, 2, "", ""},
 	}
 	for _, td := range testdata {
-		var dbfile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+		var dbfile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 			var set, _ = configSetCommandFactory()
 			var status = set.Run(td.args)
 			if status != td.statusCode {
 				t.Errorf("%v: status code did not match, wont: %d, got: %d", td.args, td.statusCode, status)
 			}
 			if status == 0 {
-				var config = lib.OpenConfig()
+				var config = rrh.OpenConfig()
 				var value, from = config.GetString(td.args[0])
 				if value != td.value {
 					t.Errorf("%v: set value did not match, wont: %s, got: %s", td.args, td.value, value)
@@ -287,10 +287,10 @@ func TestConfigSet(t *testing.T) {
 }
 
 func TestFormatVariableAndValue(t *testing.T) {
-	os.Setenv(lib.RrhConfigPath, "../testdata/config.json")
-	var config = lib.OpenConfig()
-	assert(t, formatVariableAndValue(config, lib.RrhDefaultGroupName), "RRH_DEFAULT_GROUP_NAME: no-group (default)")
-	if config.IsSet(lib.RrhOnError) {
+	os.Setenv(rrh.ConfigPath, "../testdata/config.json")
+	var config = rrh.OpenConfig()
+	assert(t, formatVariableAndValue(config, rrh.DefaultGroupName), "RRH_DEFAULT_GROUP_NAME: no-group (default)")
+	if config.IsSet(rrh.OnError) {
 		t.Errorf("IsSet accepts only bool variable")
 	}
 }

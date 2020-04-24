@@ -6,7 +6,7 @@ import (
 
 	"github.com/mitchellh/cli"
 	flag "github.com/spf13/pflag"
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 /*
@@ -26,19 +26,19 @@ const (
 
 type statusOptions struct {
 	csv    bool
-	option *lib.StatusOption
+	option *rrh.StatusOption
 	format string
 }
 
-func (options *statusOptions) strftime(time *time.Time, config *lib.Config) string {
+func (options *statusOptions) strftime(time *time.Time, config *rrh.Config) string {
 	if time == nil {
 		return ""
 	}
 	switch options.format {
 	case relative:
-		return lib.HumanizeTime(*time)
+		return rrh.HumanizeTime(*time)
 	case notSpecified:
-		return lib.Strftime(*time, config)
+		return rrh.Strftime(*time, config)
 	}
 	return time.Format(timeformat)
 }
@@ -47,7 +47,7 @@ func (options *statusOptions) strftime(time *time.Time, config *lib.Config) stri
 StatusCommandFactory returns an instance of the StatusCommand.
 */
 func StatusCommandFactory() (cli.Command, error) {
-	return &StatusCommand{&statusOptions{false, lib.NewStatusOption(), notSpecified}}, nil
+	return &StatusCommand{&statusOptions{false, rrh.NewStatusOption(), notSpecified}}, nil
 }
 
 /*
@@ -68,7 +68,7 @@ ARGUMENTS
                                  the command shows the result of the default group.`
 }
 
-func (status *StatusCommand) parseFmtString(results []lib.Status) string {
+func (status *StatusCommand) parseFmtString(results []rrh.Status) string {
 	var max = 0
 	for _, result := range results {
 		var len = len(result.BranchName)
@@ -79,14 +79,14 @@ func (status *StatusCommand) parseFmtString(results []lib.Status) string {
 	return fmt.Sprintf("        %%-%ds    %%-22s    %%s\n", max)
 }
 
-func (status *StatusCommand) printResultInCsv(results []lib.Status, config *lib.Config) {
+func (status *StatusCommand) printResultInCsv(results []rrh.Status, config *rrh.Config) {
 	for _, result := range results {
 		var timeString = status.options.strftime(result.LastModified, config)
 		fmt.Printf("%s,%s,%s,%s,%s\n", result.Relation.GroupName, result.Relation.RepositoryID, result.BranchName, timeString, result.Description)
 	}
 }
 
-func (status *StatusCommand) printResult(results []lib.Status, config *lib.Config) {
+func (status *StatusCommand) printResult(results []rrh.Status, config *rrh.Config) {
 	var groupName = results[0].Relation.GroupName
 	var repositoryName = results[0].Relation.RepositoryID
 	fmt.Printf("%s\n    %s\n", config.Color.ColorizedGroupName(groupName), config.Color.ColorizedRepositoryID(repositoryName))
@@ -108,7 +108,7 @@ func (status *StatusCommand) printResult(results []lib.Status, config *lib.Confi
 	}
 }
 
-func (status *StatusCommand) runStatus(db *lib.Database, arg string) int {
+func (status *StatusCommand) runStatus(db *rrh.Database, arg string) int {
 	var errorFlag = 0
 	var result, err = status.executeStatus(db, arg)
 	if len(err) != 0 {
@@ -130,13 +130,13 @@ func (status *StatusCommand) runStatus(db *lib.Database, arg string) int {
 Run performs the command.
 */
 func (status *StatusCommand) Run(args []string) int {
-	var config = lib.OpenConfig()
+	var config = rrh.OpenConfig()
 	arguments, err := status.parse(args, config)
 	if err != nil {
 		fmt.Println(err.Error())
 		return 1
 	}
-	db, err := lib.Open(config)
+	db, err := rrh.Open(config)
 	if err != nil {
 		fmt.Println(err.Error())
 		return 1
@@ -150,7 +150,7 @@ func (status *StatusCommand) Run(args []string) int {
 }
 
 func (status *StatusCommand) buildFlagSet() (*flag.FlagSet, *statusOptions) {
-	var options = statusOptions{false, lib.NewStatusOption(), notSpecified}
+	var options = statusOptions{false, rrh.NewStatusOption(), notSpecified}
 	flags := flag.NewFlagSet("status", flag.ExitOnError)
 	flags.Usage = func() { fmt.Println(status.Help()) }
 	flags.BoolVarP(&options.csv, "csv", "c", false, "csv format")
@@ -160,14 +160,14 @@ func (status *StatusCommand) buildFlagSet() (*flag.FlagSet, *statusOptions) {
 	return flags, &options
 }
 
-func (status *StatusCommand) parse(args []string, config *lib.Config) ([]string, error) {
+func (status *StatusCommand) parse(args []string, config *rrh.Config) ([]string, error) {
 	var flags, options = status.buildFlagSet()
 	if err := flags.Parse(args); err != nil {
 		return nil, err
 	}
 	status.options = options
 	if len(flags.Args()) == 0 {
-		return []string{config.GetValue(lib.RrhDefaultGroupName)}, nil
+		return []string{config.GetValue(rrh.DefaultGroupName)}, nil
 	}
 	return flags.Args(), nil
 }
@@ -179,12 +179,12 @@ func (status *StatusCommand) Synopsis() string {
 	return "show git status of repositories."
 }
 
-func (status *StatusCommand) executeStatus(db *lib.Database, name string) ([]lib.Status, []error) {
+func (status *StatusCommand) executeStatus(db *rrh.Database, name string) ([]rrh.Status, []error) {
 	if db.HasGroup(name) {
 		return status.executeStatusOnGroup(db, name)
 	}
 	if db.HasRepository(name) {
-		var results, err = status.options.option.StatusOfRepository(db, &lib.Relation{GroupName: "unknown-group", RepositoryID: name})
+		var results, err = status.options.option.StatusOfRepository(db, &rrh.Relation{GroupName: "unknown-group", RepositoryID: name})
 		if err != nil {
 			return results, []error{err}
 		}
@@ -193,15 +193,15 @@ func (status *StatusCommand) executeStatus(db *lib.Database, name string) ([]lib
 	return nil, []error{fmt.Errorf("%s: group and repository not found", name)}
 }
 
-func (status *StatusCommand) executeStatusOnGroup(db *lib.Database, groupName string) ([]lib.Status, []error) {
+func (status *StatusCommand) executeStatusOnGroup(db *rrh.Database, groupName string) ([]rrh.Status, []error) {
 	var group = db.FindGroup(groupName)
 	if group == nil {
 		return nil, []error{fmt.Errorf("%s: group not found", groupName)}
 	}
 	var errors = []error{}
-	var results = []lib.Status{}
+	var results = []rrh.Status{}
 	for _, repoID := range db.FindRelationsOfGroup(groupName) {
-		var sr, err = status.options.option.StatusOfRepository(db, &lib.Relation{GroupName: groupName, RepositoryID: repoID})
+		var sr, err = status.options.option.StatusOfRepository(db, &rrh.Relation{GroupName: groupName, RepositoryID: repoID})
 		if err != nil {
 			errors = append(errors, err)
 		} else {

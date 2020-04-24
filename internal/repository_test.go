@@ -6,11 +6,11 @@ import (
 	"testing"
 
 	"github.com/mitchellh/cli"
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 func Example_repositoryUpdateRemotesCommand_Run() {
-	var dbFile = lib.Rollback("../testdata/remotes.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/remotes.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 		var command, _ = repositoryUpdateRemotesCommandFactory()
 		command.Run([]string{"--verbose", "--dry-run"})
 	})
@@ -35,8 +35,8 @@ func TestRepository(t *testing.T) {
 		{[]string{"list", "--with-group", "repo1"}, 0, "group1/repo1", false},
 	}
 	for _, tc := range testcases {
-		var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
-			var output = lib.CaptureStdout(func() {
+		var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
+			var output = rrh.CaptureStdout(func() {
 				var command, _ = RepositoryCommandFactory()
 				var status = command.Run(tc.args)
 				if status != tc.status {
@@ -45,7 +45,7 @@ func TestRepository(t *testing.T) {
 			})
 			if !tc.ignoreOutput {
 				output = strings.TrimSpace(output)
-				output = lib.ReplaceNewline(output, "+")
+				output = rrh.ReplaceNewline(output, "+")
 				if output != tc.output {
 					t.Errorf("%v: output did not match, wont: %s, got: %s", tc.args, tc.output, output)
 				}
@@ -72,8 +72,8 @@ func TestListRepository(t *testing.T) {
 		{[]string{"--invalid-option"}, 1, "", true},
 	}
 	for _, tc := range testcases {
-		var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
-			var output = lib.CaptureStdout(func() {
+		var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
+			var output = rrh.CaptureStdout(func() {
 				var listCommand, _ = repositoryListCommandFactory()
 				var status = listCommand.Run(tc.args)
 				if status != tc.status {
@@ -82,7 +82,7 @@ func TestListRepository(t *testing.T) {
 			})
 			if !tc.ignoreOutput {
 				output = strings.TrimSpace(output)
-				output = lib.ReplaceNewline(output, "+")
+				output = rrh.ReplaceNewline(output, "+")
 				if output != tc.output {
 					t.Errorf("%v: output did not match, wont: %s, got: %s", tc.args, tc.output, output)
 				}
@@ -108,8 +108,8 @@ func TestInfoRepository(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
-			var output = lib.CaptureStdout(func() {
+		var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
+			var output = rrh.CaptureStdout(func() {
 				var infoCommand, _ = repositoryInfoCommandFactory()
 				var status = infoCommand.Run(tc.args)
 				if status != tc.status {
@@ -118,7 +118,7 @@ func TestInfoRepository(t *testing.T) {
 			})
 			if !tc.ignoreOutput {
 				output = strings.TrimSpace(output)
-				output = lib.ReplaceNewline(output, "+")
+				output = rrh.ReplaceNewline(output, "+")
 				if output != tc.output {
 					t.Errorf("%v: result did not match, wont: \"%s\", got: \"%s\"", tc.args, tc.output, output)
 				}
@@ -133,10 +133,10 @@ func TestUpdateRepository(t *testing.T) {
 		args       []string
 		statusCode int
 		newRepoID  string
-		wontRepo   *lib.Repository
+		wontRepo   *rrh.Repository
 	}{
-		{[]string{"--id", "newRepo1", "--path", "newPath1", "--desc", "desc1", "repo1"}, 0, "newRepo1", &lib.Repository{ID: "newRepo1", Description: "desc1", Path: "newPath1"}},
-		{[]string{"-d", "desc2", "repo2"}, 0, "repo2", &lib.Repository{ID: "repo2", Description: "desc2", Path: "path2"}},
+		{[]string{"--id", "newRepo1", "--path", "newPath1", "--desc", "desc1", "repo1"}, 0, "newRepo1", &rrh.Repository{ID: "newRepo1", Description: "desc1", Path: "newPath1"}},
+		{[]string{"-d", "desc2", "repo2"}, 0, "repo2", &rrh.Repository{ID: "repo2", Description: "desc2", Path: "path2"}},
 		{[]string{"repo4"}, 3, "repo4", nil},                             // unknown repository
 		{[]string{"--invalid-option"}, 1, "never used", nil},             // invalid option
 		{[]string{}, 1, "never used", nil},                               // missing arguments.
@@ -144,7 +144,7 @@ func TestUpdateRepository(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+		var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 			var updateCommand, _ = repositoryUpdateCommandFactory()
 			var status = updateCommand.Run(tc.args)
 			if status != tc.statusCode {
@@ -153,7 +153,7 @@ func TestUpdateRepository(t *testing.T) {
 			if status != 0 {
 				return
 			}
-			var db, _ = lib.Open(config)
+			var db, _ = rrh.Open(config)
 			var repo = db.FindRepository(tc.newRepoID)
 			if repo == nil {
 				t.Errorf("%s: new repository do not found", tc.newRepoID)
@@ -255,7 +255,7 @@ func TestSynopsisOfRepository(t *testing.T) {
 }
 
 func TestRepositoryCommandRunFailedByBrokenDBFile(t *testing.T) {
-	os.Setenv(lib.RrhDatabasePath, "../testdata/broken.json")
+	os.Setenv(rrh.DatabasePath, "../testdata/broken.json")
 
 	var testcases = []struct {
 		comGenerator func() (cli.Command, error)

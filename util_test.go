@@ -1,4 +1,4 @@
-package lib
+package rrh
 
 import (
 	"fmt"
@@ -34,10 +34,10 @@ func TestGitRepositoryCheck(t *testing.T) {
 		path      string
 		errorFlag bool
 	}{
-		{"../testdata/fibonacci", false},
-		{"../testdata/database.json", true},
-		{"../testdata/other", true},
-		{"../not-exist", true},
+		{"testdata/fibonacci", false},
+		{"testdata/database.json", true},
+		{"testdata/other", true},
+		{"testdata/not-exist", true},
 	}
 	for _, testcase := range testcases {
 		var absPath, _ = filepath.Abs(testcase.path)
@@ -49,8 +49,8 @@ func TestGitRepositoryCheck(t *testing.T) {
 }
 
 func TestStrftime(t *testing.T) {
-	os.Setenv(RrhTimeFormat, Relative)
-	os.Setenv(RrhConfigPath, "../testdata/config.json")
+	os.Setenv(TimeFormat, Relative)
+	os.Setenv(ConfigPath, "testdata/config.json")
 
 	var now = time.Now()
 	var testcases = []struct {
@@ -68,19 +68,19 @@ func TestStrftime(t *testing.T) {
 	var config = OpenConfig()
 
 	for _, test := range testcases {
-		os.Setenv(RrhTimeFormat, test.formatter)
+		os.Setenv(TimeFormat, test.formatter)
 		var time = Strftime(test.time, config)
 		if time != test.wont {
 			t.Errorf("wont: %s, got: %s", test.wont, time)
 		}
 	}
 
-	os.Unsetenv(RrhTimeFormat)
-	os.Unsetenv(RrhConfigPath)
+	os.Unsetenv(TimeFormat)
+	os.Unsetenv(ConfigPath)
 }
 
 func TestRollback(t *testing.T) {
-	var file = Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *Config, db *Database) {
+	var file = Rollback("testdata/test_db.json", "testdata/config.json", func(config *Config, db *Database) {
 		db.ForceDeleteGroup("group1")
 		db.ForceDeleteGroup("group2")
 		db.DeleteRepository("repo1")

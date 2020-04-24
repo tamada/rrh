@@ -3,6 +3,8 @@ languageCode = "en-us"
 defaultContentLanguage = "en"
 title = "rrh"
 theme = "cayman-hugo-theme"
+enableEmoji = true
+googleAnalytics = "UA-62401730-6"
 
 pygmentsCodefences = true
 pygmentsStyle = "pygments"

@@ -6,7 +6,7 @@ import (
 
 	"github.com/mitchellh/cli"
 	flag "github.com/spf13/pflag"
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 /*
@@ -44,7 +44,7 @@ func (add *AddCommand) Synopsis() string {
 }
 
 func (add *AddCommand) showError(errorlist []error, onError string) {
-	if len(errorlist) == 0 || onError == lib.Ignore {
+	if len(errorlist) == 0 || onError == rrh.Ignore {
 		return
 	}
 	for _, item := range errorlist {
@@ -52,14 +52,14 @@ func (add *AddCommand) showError(errorlist []error, onError string) {
 	}
 }
 
-func (add *AddCommand) perform(db *lib.Database, opt *addOptions) int {
-	var onError = db.Config.GetValue(lib.RrhOnError)
+func (add *AddCommand) perform(db *rrh.Database, opt *addOptions) int {
+	var onError = db.Config.GetValue(rrh.OnError)
 
 	var errorlist = add.AddRepositoriesToGroup(db, opt)
 
 	add.showError(errorlist, onError)
 
-	if onError == lib.Fail || onError == lib.FailImmediately {
+	if onError == rrh.Fail || onError == rrh.FailImmediately {
 		return 1
 	}
 	var err2 = db.StoreAndClose()
@@ -74,13 +74,13 @@ func (add *AddCommand) perform(db *lib.Database, opt *addOptions) int {
 Run function performs the command.
 */
 func (add *AddCommand) Run(args []string) int {
-	var config = lib.OpenConfig()
+	var config = rrh.OpenConfig()
 	var opt, err = add.parse(args, config)
 	if err != nil {
 		fmt.Println(err.Error())
 		return 1
 	}
-	var db, err2 = lib.Open(config)
+	var db, err2 = rrh.Open(config)
 	if err2 != nil {
 		fmt.Println(err2.Error())
 		return 2
@@ -94,9 +94,9 @@ type addOptions struct {
 	args   []string
 }
 
-func (add *AddCommand) buildFlagSet(config *lib.Config) (*flag.FlagSet, *addOptions) {
+func (add *AddCommand) buildFlagSet(config *rrh.Config) (*flag.FlagSet, *addOptions) {
 	var opt = addOptions{}
-	var defaultGroup = config.GetValue(lib.RrhDefaultGroupName)
+	var defaultGroup = config.GetValue(rrh.DefaultGroupName)
 	flags := flag.NewFlagSet("add", flag.ContinueOnError)
 	flags.Usage = func() { fmt.Println(add.Help()) }
 	flags.StringVarP(&opt.group, "group", "g", defaultGroup, "target group")
@@ -104,7 +104,7 @@ func (add *AddCommand) buildFlagSet(config *lib.Config) (*flag.FlagSet, *addOpti
 	return flags, &opt
 }
 
-func (add *AddCommand) parse(args []string, config *lib.Config) (*addOptions, error) {
+func (add *AddCommand) parse(args []string, config *rrh.Config) (*addOptions, error) {
 	var flags, opt = add.buildFlagSet(config)
 	if err := flags.Parse(args); err != nil {
 		return nil, err
@@ -115,7 +115,7 @@ func (add *AddCommand) parse(args []string, config *lib.Config) (*addOptions, er
 	return opt, nil
 }
 
-func isDuplicateRepository(db *lib.Database, repoID string, path string) error {
+func isDuplicateRepository(db *rrh.Database, repoID string, path string) error {
 	var repo = db.FindRepository(repoID)
 	if repo != nil && repo.Path != path {
 		return fmt.Errorf("%s: duplicate repository id", repoID)
@@ -130,16 +130,16 @@ func findIDFromPath(repoID string, absPath string) string {
 	return repoID
 }
 
-func (add *AddCommand) addRepositoryToGroup(db *lib.Database, rel lib.Relation, path string) []error {
+func (add *AddCommand) addRepositoryToGroup(db *rrh.Database, rel rrh.Relation, path string) []error {
 	var absPath, _ = filepath.Abs(path)
 	var id = findIDFromPath(rel.RepositoryID, absPath)
-	if err1 := lib.IsExistAndGitRepository(absPath, path); err1 != nil {
+	if err1 := rrh.IsExistAndGitRepository(absPath, path); err1 != nil {
 		return []error{err1}
 	}
 	if err1 := isDuplicateRepository(db, id, absPath); err1 != nil {
 		return []error{err1}
 	}
-	var remotes, err2 = lib.FindRemotes(absPath)
+	var remotes, err2 = rrh.FindRemotes(absPath)
 	if err2 != nil {
 		return []error{err2}
 	}
@@ -162,7 +162,7 @@ func validateArguments(args []string, repoID string) error {
 /*
 AddRepositoriesToGroup registers the given repositories to the specified group.
 */
-func (add *AddCommand) AddRepositoriesToGroup(db *lib.Database, opt *addOptions) []error {
+func (add *AddCommand) AddRepositoriesToGroup(db *rrh.Database, opt *addOptions) []error {
 	var _, err = db.AutoCreateGroup(opt.group, "", false)
 	if err != nil {
 		return []error{err}
@@ -172,7 +172,7 @@ func (add *AddCommand) AddRepositoriesToGroup(db *lib.Database, opt *addOptions)
 	}
 	var errorlist = []error{}
 	for _, item := range opt.args {
-		var list = add.addRepositoryToGroup(db, lib.Relation{RepositoryID: opt.repoID, GroupName: opt.group}, item)
+		var list = add.addRepositoryToGroup(db, rrh.Relation{RepositoryID: opt.repoID, GroupName: opt.group}, item)
 		errorlist = append(errorlist, list...)
 	}
 	return errorlist

@@ -4,11 +4,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 func ExampleListCommand() {
-	var dbFile = lib.Rollback("../testdata/database.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/database.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 		var list, _ = ListCommandFactory()
 		list.Run([]string{})
 	})
@@ -21,7 +21,7 @@ func ExampleListCommand() {
 }
 
 func ExampleListCommand_Run() {
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 		var list, _ = ListCommandFactory()
 		list.Run([]string{"--desc", "--path"})
 	})
@@ -37,14 +37,14 @@ func ExampleListCommand_Run() {
 }
 
 func TestRunByCsvOutput(t *testing.T) {
-	os.Setenv(lib.RrhDefaultGroupName, "group1")
-	defer os.Unsetenv(lib.RrhDefaultGroupName)
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
-		var result = lib.CaptureStdout(func() {
+	os.Setenv(rrh.DefaultGroupName, "group1")
+	defer os.Unsetenv(rrh.DefaultGroupName)
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
+		var result = rrh.CaptureStdout(func() {
 			var list, _ = ListCommandFactory()
 			list.Run([]string{"--all-entries", "--csv"})
 		})
-		result = lib.ReplaceNewline(result, "&")
+		result = rrh.ReplaceNewline(result, "&")
 		var want = "group1,desc1,repo1,path1&group3,desc3,repo2,path2,origin,git@github.com:example/repo2.git"
 		if result != want {
 			t.Errorf("result did not match, wont: %s, got: %s", want, result)
@@ -64,15 +64,15 @@ func TestSimpleResults(t *testing.T) {
 		{[]string{"not-included-group"}, 3, ""},
 	}
 	for _, tc := range testcases {
-		var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
-			var result = lib.CaptureStdout(func() {
+		var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
+			var result = rrh.CaptureStdout(func() {
 				var list, _ = ListCommandFactory()
 				var status = list.Run(tc.args)
 				if status != tc.status {
 					t.Errorf("%v: status code did not match: wont: %d, got: %d", tc.args, tc.status, status)
 				}
 			})
-			result = lib.ReplaceNewline(result, ",")
+			result = rrh.ReplaceNewline(result, ",")
 			if tc.status == 0 && result != tc.result {
 				t.Errorf("%v: result did not match: wont: %s, got: %s", tc.args, tc.result, result)
 			}
@@ -82,7 +82,7 @@ func TestSimpleResults(t *testing.T) {
 }
 
 func TestFailedByUnknownOption(t *testing.T) {
-	lib.CaptureStdout(func() {
+	rrh.CaptureStdout(func() {
 		var list, _ = ListCommandFactory()
 		if val := list.Run([]string{"--unknown"}); val != 1 {
 			t.Error("unknown option parsed!?")
@@ -119,12 +119,12 @@ func TestFindResults(t *testing.T) {
 		targets []string
 		want    []Result
 	}{
-		{[]string{"group1"}, []Result{{"group1", "desc1", false, []Repo{{"repo1", "path1", []lib.Remote{}}}}}},
+		{[]string{"group1"}, []Result{{"group1", "desc1", false, []Repo{{"repo1", "path1", []rrh.Remote{}}}}}},
 		{[]string{"group2"}, []Result{{"group2", "desc2", false, []Repo{}}}},
 	}
 
 	for _, data := range testdata {
-		var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
+		var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 			list.options.args = data.targets
 			var results, err = list.FindResults(db)
 			if err != nil {

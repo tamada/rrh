@@ -4,11 +4,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 func ExampleRemoveCommand_Run() {
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 		var rm, _ = RemoveCommandFactory()
 		rm.Run([]string{"-v", "group2", "repo1"})
 	})
@@ -18,7 +18,7 @@ func ExampleRemoveCommand_Run() {
 }
 
 func TestCommandUnknownGroupAndRepository(t *testing.T) {
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 		var rm = RemoveCommand{}
 		var err = rm.executeRemove(db, "not_exist_group_and_repository")
 		if err.Error() != "not_exist_group_and_repository: not found in repositories and groups" {
@@ -39,7 +39,7 @@ func TestRemoveRepository(t *testing.T) {
 		{"repo1", true, "group1", 0},
 	}
 	for _, tc := range testcases {
-		var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
+		var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 			var rm = RemoveCommand{&removeOptions{}}
 			var err = rm.executeRemoveRepository(db, tc.repositoryName)
 			if (err == nil) != tc.removeSuccess {
@@ -57,7 +57,7 @@ func TestRemoveRepository(t *testing.T) {
 }
 
 func TestRemoveCommandForGroup(t *testing.T) {
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 		var rm = RemoveCommand{&removeOptions{}}
 		if err := rm.executeRemoveGroup(db, "unknown-group"); err == nil {
 			t.Error("unknown-group: found")
@@ -74,9 +74,9 @@ func TestRemoveCommandForGroup(t *testing.T) {
 }
 
 func TestRemoveCommandRemoveTargetIsBothInGroupAndRepository(t *testing.T) {
-	var dbFile = lib.Rollback("../testdata/nulldb.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/nulldb.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 		db.CreateGroup("groupOrRepo", "same name as Repository", false)
-		db.CreateRepository("groupOrRepo", "unknownpath", "desc", []lib.Remote{})
+		db.CreateRepository("groupOrRepo", "unknownpath", "desc", []rrh.Remote{})
 		var rm = RemoveCommand{&removeOptions{}}
 		var err = rm.executeRemove(db, "groupOrRepo")
 		if err.Error() != "groupOrRepo: exists in repositories and groups" {
@@ -87,7 +87,7 @@ func TestRemoveCommandRemoveTargetIsBothInGroupAndRepository(t *testing.T) {
 }
 
 func TestRemoveEntryFailed(t *testing.T) {
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 		var rm = RemoveCommand{&removeOptions{}}
 		var err = rm.executeRemoveFromGroup(db, "group2", "repo2")
 		if err != nil {
@@ -98,10 +98,10 @@ func TestRemoveEntryFailed(t *testing.T) {
 }
 
 func TestRemoveRelation(t *testing.T) {
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 		var rm, _ = RemoveCommandFactory()
 		rm.Run([]string{"-v", "group1/repo1"})
-		var db2, _ = lib.Open(config)
+		var db2, _ = rrh.Open(config)
 		if len(db2.Repositories) != 2 && len(db2.Groups) != 3 {
 			t.Error("repositories and groups are removed!")
 		}
@@ -113,10 +113,10 @@ func TestRemoveRelation(t *testing.T) {
 }
 
 func TestRunRemoveRepository(t *testing.T) {
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 		var rm, _ = RemoveCommandFactory()
 		rm.Run([]string{"-v", "group2", "repo1"})
-		var db2, _ = lib.Open(config)
+		var db2, _ = rrh.Open(config)
 		if len(db2.Repositories) != 1 && len(db2.Groups) != 2 {
 			t.Errorf("repositories: %d, groups: %d\n", len(db2.Repositories), len(db2.Groups))
 		}
@@ -128,11 +128,11 @@ func TestRunRemoveRepository(t *testing.T) {
 }
 
 func TestRemoveRepository2(t *testing.T) {
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 		var rm, _ = RemoveCommandFactory()
-		os.Setenv(lib.RrhAutoDeleteGroup, "true")
+		os.Setenv(rrh.AutoDeleteGroup, "true")
 		rm.Run([]string{"-v", "group2", "repo1"})
-		var db2, _ = lib.Open(config)
+		var db2, _ = rrh.Open(config)
 		if len(db2.Repositories) != 1 && len(db2.Groups) != 0 {
 			t.Errorf("repositories: %d, groups: %d\n", len(db2.Repositories), len(db2.Groups))
 		}
@@ -141,7 +141,7 @@ func TestRemoveRepository2(t *testing.T) {
 }
 
 func TestBrokenDatabaseOnRemoveCommand(t *testing.T) {
-	os.Setenv(lib.RrhDatabasePath, "../testdata/broken.json")
+	os.Setenv(rrh.DatabasePath, "../testdata/broken.json")
 	var rm, _ = RemoveCommandFactory()
 	if result := rm.Run([]string{}); result != 2 {
 		t.Errorf("broken database are successfully read!?")
@@ -149,7 +149,7 @@ func TestBrokenDatabaseOnRemoveCommand(t *testing.T) {
 }
 
 func TestUnknownOptionsOnRemoveCommand(t *testing.T) {
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 		var rm, _ = RemoveCommandFactory()
 		if result := rm.Run([]string{"--unknown"}); result != 1 {
 			t.Errorf("unknown option was not failed: %d", result)

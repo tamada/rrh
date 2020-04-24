@@ -1,4 +1,4 @@
-package lib
+package rrh
 
 import (
 	"encoding/json"
@@ -13,37 +13,37 @@ import (
 /*
 VERSION shows the version of RRH.
 */
-const VERSION = "1.1.0"
+const VERSION = "1.2.0"
 
 /*
 The environment variable names.
 */
 const (
-	RrhAutoDeleteGroup  = "RRH_AUTO_DELETE_GROUP"
-	RrhAutoCreateGroup  = "RRH_AUTO_CREATE_GROUP"
-	RrhCloneDestination = "RRH_CLONE_DESTINATION"
-	RrhColor            = "RRH_COLOR"
-	RrhConfigPath       = "RRH_CONFIG_PATH"
-	RrhDatabasePath     = "RRH_DATABASE_PATH"
-	RrhDefaultGroupName = "RRH_DEFAULT_GROUP_NAME"
-	RrhEnableColorized  = "RRH_ENABLE_COLORIZED"
-	RrhHome             = "RRH_HOME"
-	RrhOnError          = "RRH_ON_ERROR"
-	RrhSortOnUpdating   = "RRH_SORT_ON_UPDATING"
-	RrhTimeFormat       = "RRH_TIME_FORMAT"
+	AutoDeleteGroup  = "RRH_AUTO_DELETE_GROUP"
+	AutoCreateGroup  = "RRH_AUTO_CREATE_GROUP"
+	CloneDestination = "RRH_CLONE_DESTINATION"
+	ColorSetting     = "RRH_COLOR"
+	ConfigPath       = "RRH_CONFIG_PATH"
+	DatabasePath     = "RRH_DATABASE_PATH"
+	DefaultGroupName = "RRH_DEFAULT_GROUP_NAME"
+	EnableColorized  = "RRH_ENABLE_COLORIZED"
+	Home             = "RRH_HOME"
+	OnError          = "RRH_ON_ERROR"
+	SortOnUpdating   = "RRH_SORT_ON_UPDATING"
+	TimeFormat       = "RRH_TIME_FORMAT"
 )
 
 /*
 AvailableLabels represents the labels availables in the config.
 */
 var AvailableLabels = []string{
-	RrhAutoCreateGroup, RrhAutoDeleteGroup, RrhCloneDestination, RrhColor,
-	RrhConfigPath, RrhDatabasePath, RrhDefaultGroupName, RrhEnableColorized,
-	RrhHome, RrhOnError, RrhSortOnUpdating, RrhTimeFormat,
+	AutoCreateGroup, AutoDeleteGroup, CloneDestination, ColorSetting,
+	ConfigPath, DatabasePath, DefaultGroupName, EnableColorized,
+	Home, OnError, SortOnUpdating, TimeFormat,
 }
 var boolLabels = []string{
-	RrhAutoCreateGroup, RrhAutoDeleteGroup, RrhEnableColorized,
-	RrhSortOnUpdating,
+	AutoCreateGroup, AutoDeleteGroup, EnableColorized,
+	SortOnUpdating,
 }
 
 /*
@@ -92,24 +92,24 @@ type ReadFrom string
 
 var defaultValues = Config{
 	values: map[string]string{
-		RrhAutoCreateGroup:  "false",
-		RrhAutoDeleteGroup:  "false",
-		RrhCloneDestination: ".",
-		RrhColor:            "repository:fg=red+group:fg=magenta+label:op=bold+configValue:fg=green",
-		RrhConfigPath:       "${RRH_HOME}/config.json",
-		RrhDatabasePath:     "${RRH_HOME}/database.json",
-		RrhDefaultGroupName: "no-group",
-		RrhEnableColorized:  "false",
-		RrhHome:             "${HOME}/.rrh",
-		RrhOnError:          Warn,
-		RrhSortOnUpdating:   "false",
-		RrhTimeFormat:       Relative,
+		AutoCreateGroup:  "false",
+		AutoDeleteGroup:  "false",
+		CloneDestination: ".",
+		ColorSetting:     "repository:fg=red+group:fg=magenta+label:op=bold+configValue:fg=green",
+		ConfigPath:       "${RRH_HOME}/config.json",
+		DatabasePath:     "${RRH_HOME}/database.json",
+		DefaultGroupName: "no-group",
+		EnableColorized:  "false",
+		Home:             "${HOME}/.rrh",
+		OnError:          Warn,
+		SortOnUpdating:   "false",
+		TimeFormat:       Relative,
 	},
 	Color: &Color{},
 }
 
 func (config *Config) isOnErrorIgnoreOrWarn() bool {
-	var onError = config.GetValue(RrhOnError)
+	var onError = config.GetValue(OnError)
 	return onError == Ignore || onError == Warn
 }
 
@@ -128,7 +128,7 @@ PrintErrors prints errors and returns the status code by following the value of 
 If the value of RrhOnError is Ignore or Warn, this method returns 0, otherwise, non-zero value.
 */
 func (config *Config) PrintErrors(errs ...error) int {
-	if config.GetValue(RrhOnError) != Ignore {
+	if config.GetValue(OnError) != Ignore {
 		for _, err := range errs {
 			printErrorImpl(err)
 		}
@@ -180,8 +180,8 @@ func validateArgumentsOnUpdate(label string, value string) error {
 	if !contains(AvailableLabels, label) {
 		return fmt.Errorf("%s: unknown variable name", label)
 	}
-	if label == RrhConfigPath {
-		return fmt.Errorf("%s: cannot set in config file", RrhConfigPath)
+	if label == ConfigPath {
+		return fmt.Errorf("%s: cannot set in config file", ConfigPath)
 	}
 	return nil
 }
@@ -204,7 +204,7 @@ func (config *Config) Update(label string, value string) error {
 	if contains(boolLabels, label) {
 		return config.updateBoolValue(label, value)
 	}
-	if label == RrhOnError {
+	if label == OnError {
 		var newValue, err = normalizeValueOfOnError(value)
 		if err != nil {
 			return err
@@ -232,7 +232,7 @@ func (config *Config) replaceHome(value string) string {
 		value = strings.Replace(value, "${HOME}", home, 1)
 	}
 	if strings.Contains(value, "${RRH_HOME}") {
-		var rrhHome = config.GetValue(RrhHome)
+		var rrhHome = config.GetValue(Home)
 		value = strings.Replace(value, "${RRH_HOME}", strings.TrimRight(rrhHome, "/"), -1)
 	}
 	return value
@@ -290,7 +290,7 @@ func (config *Config) findDefaultValue(label string) (string, ReadFrom) {
 StoreConfig saves the store.
 */
 func (config *Config) StoreConfig() error {
-	var configPath = config.GetValue(RrhConfigPath)
+	var configPath = config.GetValue(ConfigPath)
 	var err1 = CreateParentDir(configPath)
 	if err1 != nil {
 		return err1
@@ -315,7 +315,7 @@ The load path is based on `RrhConfigPath` of the environment variables.
 */
 func OpenConfig() *Config {
 	var config = NewConfig()
-	var configPath, _ = config.getStringFromEnv(RrhConfigPath)
+	var configPath, _ = config.getStringFromEnv(ConfigPath)
 	bytes, err := ioutil.ReadFile(configPath)
 	if err != nil {
 		return config

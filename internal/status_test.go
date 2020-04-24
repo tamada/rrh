@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 func TestStrftime(t *testing.T) {
@@ -15,12 +15,12 @@ func TestStrftime(t *testing.T) {
 		time        *time.Time
 		wontMessage string
 	}{
-		{lib.Relative, &targetTime, "1 week ago"},
-		{lib.Relative, nil, ""},
+		{rrh.Relative, &targetTime, "1 week ago"},
+		{rrh.Relative, nil, ""},
 		{notSpecified, &targetTime, "1 week ago"},
 		{absolute, &targetTime, targetTime.Format("2006-01-02 03:04:05-07")},
 	}
-	var config = lib.OpenConfig()
+	var config = rrh.OpenConfig()
 	for _, tc := range testcases {
 		statusOptions.format = tc.timeFormat
 

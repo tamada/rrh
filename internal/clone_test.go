@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 func cleanup(dirs []string) {
@@ -16,7 +16,7 @@ func cleanup(dirs []string) {
 	}
 }
 
-func validate(repo lib.Repository, repoID string, repoPath string) string {
+func validate(repo rrh.Repository, repoID string, repoPath string) string {
 	var dir, _ = filepath.Abs(repoPath)
 	if repo.ID != repoID || repo.Path != dir {
 		return fmt.Sprintf("wont: %s (%s), got: %s (%s)", repoID, dir, repo.ID, repo.Path)
@@ -38,14 +38,14 @@ func contains(slice []string, checkItem string) bool {
 }
 
 func TestCommand_MultipleProjects(t *testing.T) {
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 		var clone, _ = CloneCommandFactory()
 		clone.Run([]string{"--verbose", "-d", "../testdata/hoge", "-g", "not-exist-group",
 			"../testdata/helloworld",
 			"../testdata/fibonacci"})
 		defer cleanup([]string{"../testdata/hoge"})
 
-		var db, _ = lib.Open(config)
+		var db, _ = rrh.Open(config)
 
 		if !db.HasRepository("helloworld") && !db.HasRepository("fibonacci") {
 			t.Fatal("helloworld and fibonacci were not registered.")
@@ -70,12 +70,12 @@ func TestCommand_MultipleProjects(t *testing.T) {
 }
 
 func TestCommand_Run(t *testing.T) {
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDB *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDB *rrh.Database) {
 		var clone, _ = CloneCommandFactory()
 		clone.Run([]string{"https://htamada@bitbucket.org/htamada/helloworld.git"})
 		defer cleanup([]string{"./helloworld"})
 
-		var db, _ = lib.Open(config)
+		var db, _ = rrh.Open(config)
 
 		if !db.HasRepository("helloworld") {
 			t.Fatal("helloworld was not registered.")
@@ -92,12 +92,12 @@ func TestCommand_Run(t *testing.T) {
 }
 
 func TestCommand_SpecifyingId(t *testing.T) {
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, oldDb *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, oldDb *rrh.Database) {
 		var clone, _ = CloneCommandFactory()
 		clone.Run([]string{"--dest", "../testdata/newid", "../testdata/helloworld"})
 		defer cleanup([]string{"../testdata/newid"})
 
-		var db, _ = lib.Open(config)
+		var db, _ = rrh.Open(config)
 
 		if len(db.Repositories) != 3 {
 			t.Fatal("newid was not registered.")
@@ -111,8 +111,8 @@ func TestCommand_SpecifyingId(t *testing.T) {
 }
 
 func TestUnknownOption(t *testing.T) {
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
-		var output = lib.CaptureStdout(func() {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
+		var output = rrh.CaptureStdout(func() {
 			var clone, _ = CloneCommandFactory()
 			clone.Run([]string{})
 		})
@@ -125,9 +125,9 @@ func TestUnknownOption(t *testing.T) {
 }
 
 func TestCloneNotGitRepository(t *testing.T) {
-	os.Setenv(lib.RrhOnError, "FAIL")
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
-		var output = lib.CaptureStdout(func() {
+	os.Setenv(rrh.OnError, "FAIL")
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
+		var output = rrh.CaptureStdout(func() {
 			var clone, _ = CloneCommandFactory()
 			clone.Run([]string{"../testdata"})
 		})

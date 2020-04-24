@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/mitchellh/cli"
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 /*
@@ -119,7 +119,7 @@ func (help *HelpCommand) Run(args []string) int {
 Run performs the command.
 */
 func (version *VersionCommand) Run(args []string) int {
-	fmt.Printf("rrh version %s\n", lib.VERSION)
+	fmt.Printf("rrh version %s\n", rrh.VERSION)
 	return 0
 }
 

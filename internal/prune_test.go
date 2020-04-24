@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/tamada/rrh/lib"
+	"github.com/tamada/rrh"
 )
 
 func TestSynopsis(t *testing.T) {
@@ -41,7 +41,7 @@ func TestPrune(t *testing.T) {
 		[]groupExistChecker{{"group1", true}, {"group2", false}, {"group3", true}},
 		[]repositoryExistChecker{{"repo1", true}, {"repo2", true}, {"repo3", false}},
 	}
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 		db.Prune()
 
 		for _, gc := range tc.gchecker {
@@ -59,7 +59,7 @@ func TestPrune(t *testing.T) {
 }
 
 func TestPruneCommandRunFailedByBrokenDBFile(t *testing.T) {
-	os.Setenv(lib.RrhDatabasePath, "../testdata/broken.json")
+	os.Setenv(rrh.DatabasePath, "../testdata/broken.json")
 	var prune, _ = PruneCommandFactory()
 	if prune.Run([]string{}) != 1 {
 		t.Error("broken database read successfully.")
@@ -67,7 +67,7 @@ func TestPruneCommandRunFailedByBrokenDBFile(t *testing.T) {
 }
 
 func TestPruneCommandRunFailedByInvalidArgs(t *testing.T) {
-	os.Setenv(lib.RrhDatabasePath, "../testdata/test_db.json")
+	os.Setenv(rrh.DatabasePath, "../testdata/test_db.json")
 	var prune, _ = PruneCommandFactory()
 	if prune.Run([]string{"--help"}) != 1 {
 		t.Error("successing invalid option parsing.")
@@ -75,7 +75,7 @@ func TestPruneCommandRunFailedByInvalidArgs(t *testing.T) {
 }
 
 func ExamplePruneCommand_Run() {
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 		var prune, _ = PruneCommandFactory()
 		prune.Run([]string{})
 	})
@@ -84,7 +84,7 @@ func ExamplePruneCommand_Run() {
 }
 
 func ExamplePruneCommand_Run_DryrunMode() {
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 		var prune, _ = PruneCommandFactory()
 		prune.Run([]string{"--dry-run"})
 	})
@@ -98,7 +98,7 @@ func ExamplePruneCommand_Run_DryrunMode() {
 }
 
 func ExamplePruneCommand_Run_VerboseMode() {
-	var dbFile = lib.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *lib.Config, db *lib.Database) {
+	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 		var prune, _ = PruneCommandFactory()
 		prune.Run([]string{"--verbose"})
 	})

@@ -8,12 +8,12 @@ import (
 	"strings"
 
 	"github.com/mitchellh/cli"
+	"github.com/tamada/rrh"
 	"github.com/tamada/rrh/internal"
-	"github.com/tamada/rrh/lib"
 )
 
 func executeInternalCommand(commands map[string]cli.CommandFactory, args []string) (int, error) {
-	var c = cli.NewCLI("rrh", lib.VERSION)
+	var c = cli.NewCLI("rrh", rrh.VERSION)
 	c.Name = "rrh"
 	c.Args = args
 	c.Autocomplete = true
@@ -104,7 +104,7 @@ func executeExternalCommand(args []string) (int, error) {
 
 func (opts *rrhOptions) updateConfigPath() {
 	if opts.configPath != "" {
-		os.Setenv(lib.RrhConfigPath, opts.configPath)
+		os.Setenv(rrh.ConfigPath, opts.configPath)
 	}
 }
 

@@ -1,4 +1,4 @@
-package lib
+package rrh
 
 import (
 	"errors"
@@ -18,8 +18,8 @@ func TestValidateArgumentsOnUpdate(t *testing.T) {
 		wontError   bool
 		wontMessage string
 	}{
-		{RrhHome, "~/.rrh", false, ""},
-		{RrhConfigPath, "~/.rrh_config", true, RrhConfigPath + ": cannot set in config file"},
+		{Home, "~/.rrh", false, ""},
+		{ConfigPath, "~/.rrh_config", true, ConfigPath + ": cannot set in config file"},
 		{"UnknownVariableName", "hoge", true, "UnknownVariableName: unknown variable name"},
 	}
 
@@ -92,18 +92,18 @@ func TestUpdateTrueFalseValue(t *testing.T) {
 		wantError bool
 		wantValue string
 	}{
-		{RrhAutoDeleteGroup, "True", false, "true"},
-		{RrhAutoDeleteGroup, "FALSE", false, "false"},
-		{RrhAutoDeleteGroup, "FALSE", false, "false"},
-		{RrhAutoDeleteGroup, "YES", true, ""},
-		{RrhAutoCreateGroup, "FALSE", false, "false"},
-		{RrhAutoCreateGroup, "YES", true, ""},
-		{RrhSortOnUpdating, "FALSE", false, "false"},
-		{RrhSortOnUpdating, "YES", true, ""},
+		{AutoDeleteGroup, "True", false, "true"},
+		{AutoDeleteGroup, "FALSE", false, "false"},
+		{AutoDeleteGroup, "FALSE", false, "false"},
+		{AutoDeleteGroup, "YES", true, ""},
+		{AutoCreateGroup, "FALSE", false, "false"},
+		{AutoCreateGroup, "YES", true, ""},
+		{SortOnUpdating, "FALSE", false, "false"},
+		{SortOnUpdating, "YES", true, ""},
 	}
 
 	for _, data := range testdata {
-		var dbfile = Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *Config, oldDB *Database) {
+		var dbfile = Rollback("testdata/test_db.json", "testdata/config.json", func(config *Config, oldDB *Database) {
 			if err := config.Update(data.key, data.value); (err == nil) == data.wantError {
 				t.Errorf("%s: set to \"%s\", error: %s", data.key, data.value, err.Error())
 			}
@@ -128,9 +128,9 @@ func TestUpdateOnError(t *testing.T) {
 	}
 
 	for _, data := range testdata {
-		var dbfile = Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *Config, oldDB *Database) {
-			if err := config.Update(RrhOnError, data.key); (err == nil) != data.success {
-				t.Errorf("%s: set to \"%s\", success: %v", RrhOnError, data.key, data.success)
+		var dbfile = Rollback("testdata/test_db.json", "testdata/config.json", func(config *Config, oldDB *Database) {
+			if err := config.Update(OnError, data.key); (err == nil) != data.success {
+				t.Errorf("%s: set to \"%s\", success: %v", OnError, data.key, data.success)
 			}
 		})
 		defer os.Remove(dbfile)
@@ -144,15 +144,15 @@ func TestUpdateValue(t *testing.T) {
 		shouldError bool
 		wontValue   string
 	}{
-		{RrhConfigPath, "hogehoge", true, ""},
-		{RrhHome, "hoge1", false, "hoge1"},
-		{RrhDatabasePath, "hoge2", false, "hoge2"},
-		{RrhDefaultGroupName, "hoge3", false, "hoge3"},
-		{RrhTimeFormat, "not-relative-string", false, "not-relative-string"},
+		{ConfigPath, "hogehoge", true, ""},
+		{Home, "hoge1", false, "hoge1"},
+		{DatabasePath, "hoge2", false, "hoge2"},
+		{DefaultGroupName, "hoge3", false, "hoge3"},
+		{TimeFormat, "not-relative-string", false, "not-relative-string"},
 		{"unknown", "hoge4", true, ""},
 	}
 	for _, td := range testdata {
-		var dbfile = Rollback("../testdata/test_db.json", "../testdata/config.json", func(unusedConfig *Config, oldDB *Database) {
+		var dbfile = Rollback("testdata/test_db.json", "testdata/config.json", func(unusedConfig *Config, oldDB *Database) {
 			var config = NewConfig()
 			var err = config.Update(td.label, td.value)
 			if (err == nil) == td.shouldError {
@@ -170,12 +170,12 @@ func TestUpdateValue(t *testing.T) {
 }
 
 func TestConfigIsSet(t *testing.T) {
-	var dbFile = Rollback("../testata/test_db.json", "../testdata/config.json", func(config *Config, db *Database) {
-		if config.IsSet(RrhConfigPath) {
+	var dbFile = Rollback("../testata/test_db.json", "testdata/config.json", func(config *Config, db *Database) {
+		if config.IsSet(ConfigPath) {
 			t.Errorf("not boolean variable is specified")
 		}
 		var home, _ = homedir.Dir()
-		if config.GetDefaultValue(RrhConfigPath) != filepath.Join(home, ".rrh/config.json") {
+		if config.GetDefaultValue(ConfigPath) != filepath.Join(home, ".rrh/config.json") {
 			t.Errorf("RrhConfigPath did not match")
 		}
 		var _, from1 = config.findDefaultValue("UnknownVariable")
@@ -190,15 +190,15 @@ func TestConfigIsSet(t *testing.T) {
 		if err == nil {
 			t.Errorf("Unknown variable can Unset")
 		}
-		var beforeFlag = config.IsSet(RrhAutoCreateGroup)
-		config.Unset(RrhAutoCreateGroup)
-		var afterFlag = config.IsSet(RrhAutoCreateGroup)
+		var beforeFlag = config.IsSet(AutoCreateGroup)
+		config.Unset(AutoCreateGroup)
+		var afterFlag = config.IsSet(AutoCreateGroup)
 		if afterFlag || !beforeFlag {
 			t.Errorf("beforeFlag should be true, and afterFlag should be false after Unset of RrhAutoCreateGroup")
 		}
 		config.StoreConfig()
 		var config2 = OpenConfig()
-		var afterFlag2 = config2.IsSet(RrhAutoCreateGroup)
+		var afterFlag2 = config2.IsSet(AutoCreateGroup)
 		if afterFlag2 {
 			t.Errorf("afterFlag2 should be false because unset and store the config")
 		}
@@ -225,10 +225,10 @@ func TestPrintErrors(t *testing.T) {
 		{Fail, "msg1+msg2", 5},
 	}
 
-	var dbFile = Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *Config, db *Database) {
+	var dbFile = Rollback("testdata/test_db.json", "testdata/config.json", func(config *Config, db *Database) {
 		for _, tc := range testcases {
 			var output = CaptureStdout(func() {
-				config.Update(RrhOnError, tc.givesOnError)
+				config.Update(OnError, tc.givesOnError)
 				var status = config.PrintErrors(errs...)
 				if status != tc.wontStatus {
 					t.Errorf("Status code of printErrors did not match, wont %d, got %d", tc.wontStatus, status)
@@ -245,7 +245,7 @@ func TestPrintErrors(t *testing.T) {
 }
 
 func TestOpenConfigBrokenJson(t *testing.T) {
-	os.Setenv(RrhConfigPath, "../testdata/broken.json")
+	os.Setenv(ConfigPath, "testdata/broken.json")
 	var config = OpenConfig()
 	if config != nil {
 		t.Error("broken json returns nil")
