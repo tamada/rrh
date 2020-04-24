@@ -3,8 +3,6 @@ on:
     push:
         branches:
             - "**"
-env:
-    TZ: 'Asia/Tokyo'
 jobs:
     build:
         runs-on: ${{ matrix.os }}
@@ -15,6 +13,10 @@ jobs:
                     - macOS-latest
                     - windows-latest
         steps:
+            - name: Setup timezone
+              uses: zcong1993/setup-timezone@master
+              with:
+                  timezone: Asia/Tokyo
             - name: setup go
               uses: actions/setup-go@v1
               with:
