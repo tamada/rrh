@@ -1,5 +1,5 @@
 ---
-title: ":house: RRH"
+title: ":house: Home"
 ---
 
 [![Build Status](https://github.com/tamada/rrh/workflows/build/badge.svg?branch=master)](https://github.com/tamada/rrh/actions?workflow=build)
