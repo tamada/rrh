@@ -9,6 +9,7 @@ import (
 
 	"github.com/mitchellh/cli"
 	"github.com/tamada/rrh"
+	"github.com/tamada/rrh/cmd/rrh/commands"
 	"github.com/tamada/rrh/internal"
 )
 
@@ -123,6 +124,14 @@ func goMain(args []string) (int, error) {
 }
 
 func main() {
+	err := commands.Execute()
+	if err != nil {
+		os.Exit(1)
+	}
+	os.Exit(0)
+}
+
+func main2() {
 	var exitStatus, err = goMain(os.Args)
 	if err != nil {
 		fmt.Println(err.Error())

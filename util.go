@@ -2,7 +2,9 @@ package rrh
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -65,4 +67,34 @@ func IsExistAndGitRepository(absPath string, path string) error {
 		return fmt.Errorf("%s: not git repository", path)
 	}
 	return nil
+}
+
+func LoadJson(filePath string, v interface{}) error {
+	reader, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
+	defer reader.Close()
+	bytes, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(bytes, v)
+}
+
+func StoreJson(filePath string, v interface{}) error {
+	bytes, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	writer, err := os.OpenFile(filePath, os.O_CREATE, 0644)
+	if err != nil {
+		return err
+	}
+	defer writer.Close()
+	n, err := writer.Write(bytes)
+	if n != len(bytes) {
+		return fmt.Errorf("cannot write fully %d/%d", n, len(bytes))
+	}
+	return err
 }
