@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -13,14 +14,19 @@ func AliasCommand() *cobra.Command {
 	aliasCommand := &cobra.Command{
 		Use:   "alias",
 		Short: "manages alias",
+		PreRunE: func(c *cobra.Command, args []string) error {
+			if aliasOpts.removeFlag && len(args) == 0 {
+				return errors.New("remove flag requires arguments")
+			}
+			return nil
+		},
 		RunE: func(c *cobra.Command, args []string) error {
-			fmt.Printf("alias args: %v\n", args)
 			alias, err := loadAliases()
 			if err != nil {
 				return err
 			} else if len(args) == 0 {
 				return listAlias(c, alias)
-			} else if v, err := c.Flags().GetBool("remove"); v && err != nil {
+			} else if aliasOpts.removeFlag {
 				return removeAliases(c, args, alias)
 			} else {
 				return registerAlias(c, args, alias)
@@ -28,10 +34,17 @@ func AliasCommand() *cobra.Command {
 		},
 	}
 	flags := aliasCommand.Flags()
-	flags.BoolP("remove", "r", false, "remove the specified alias name")
-	flags.BoolP("dry-run", "d", false, "dry-run mode")
+	flags.BoolVarP(&aliasOpts.removeFlag, "remove", "r", false, "remove the specified alias name")
+	flags.BoolVarP(&aliasOpts.dryRunFlag, "dry-run", "D", false, "dry-run mode")
 
 	return aliasCommand
+}
+
+var aliasOpts = &aliasOptions{}
+
+type aliasOptions struct {
+	removeFlag bool
+	dryRunFlag bool
 }
 
 type Alias struct {

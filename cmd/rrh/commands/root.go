@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/tamada/rrh/cmd/rrh/commands/group"
+	"github.com/tamada/rrh/cmd/rrh/commands/prune"
 )
 
 var (
@@ -45,7 +47,8 @@ func RootCommand() *cobra.Command {
 
 func registerSubCommands(c *cobra.Command) {
 	c.AddCommand(AliasCommand())
-	c.AddCommand(PruneCommand())
+	c.AddCommand(prune.New())
+	c.AddCommand(group.New())
 }
 
 func loadAndFindAlias(c *cobra.Command, args []string) (*Alias, error) {

@@ -97,8 +97,8 @@ func TestStore(t *testing.T) {
 	var dbFile = Rollback("testdata/test_db.json", "testdata/config.json", func(config *Config, db *Database) {
 		db.CreateGroup("group1", "desc1", false)
 		db.CreateGroup("group2", "desc2", false)
-		db.CreateRepository("repo1", "path1", "desc1", []Remote{})
-		db.CreateRepository("repo2", "path2", "desc2", []Remote{})
+		db.CreateRepository("repo1", "path1", "desc1", []*Remote{})
+		db.CreateRepository("repo2", "path2", "desc2", []*Remote{})
 		db.Relate("group1", "repo1")
 		db.StoreAndClose()
 
@@ -126,8 +126,8 @@ func TestPrune(t *testing.T) {
 	var db = openDatabase()
 	db.CreateGroup("group1", "desc1", false)
 	db.CreateGroup("group2", "desc2", false)
-	db.CreateRepository("repo1", "path1", "desc1", []Remote{})
-	db.CreateRepository("repo2", "path2", "desc2", []Remote{})
+	db.CreateRepository("repo1", "path1", "desc1", []*Remote{})
+	db.CreateRepository("repo2", "path2", "desc2", []*Remote{})
 	db.Relate("group1", "repo1")
 	db.Prune()
 
@@ -146,8 +146,8 @@ func TestDeleteGroup(t *testing.T) {
 	var db = openDatabase()
 	db.CreateGroup("group1", "desc1", false)
 	db.CreateGroup("group2", "desc2", false)
-	db.CreateRepository("repo1", "path1", "desc1", []Remote{})
-	db.CreateRepository("repo2", "path2", "desc2", []Remote{})
+	db.CreateRepository("repo1", "path1", "desc1", []*Remote{})
+	db.CreateRepository("repo2", "path2", "desc2", []*Remote{})
 	db.Relate("group1", "repo1")
 
 	if err := db.DeleteGroup("unknown"); err == nil {
@@ -169,8 +169,8 @@ func TestDeleteGroup(t *testing.T) {
 
 func TestDeleteRepository(t *testing.T) {
 	var db = openDatabase()
-	db.CreateRepository("repo1", "path1", "desc1", []Remote{})
-	db.CreateRepository("repo2", "path2", "desc2", []Remote{})
+	db.CreateRepository("repo1", "path1", "desc1", []*Remote{})
+	db.CreateRepository("repo2", "path2", "desc2", []*Remote{})
 	if err := db.DeleteRepository("unknown"); err == nil {
 		t.Error("unknown: repository found!")
 	}
@@ -183,7 +183,7 @@ func TestDeleteRepository(t *testing.T) {
 func TestUnrelate(t *testing.T) {
 	var db = openDatabase()
 
-	db.CreateRepository("somerepo", "unknown", "desc", []Remote{})
+	db.CreateRepository("somerepo", "unknown", "desc", []*Remote{})
 	db.CreateGroup("group2", "desc2", false)
 	db.Relate("group2", "somerepo")
 	db.Relate("no-group", "somerepo")
@@ -199,12 +199,12 @@ func TestUnrelate(t *testing.T) {
 func TestCreateRepository(t *testing.T) {
 	var db = openDatabase()
 	// rrh is already registered repository, therefore, the CreateRepository will fail.
-	var r1, err1 = db.CreateRepository("rrh", "unknown", "desc", []Remote{})
+	var r1, err1 = db.CreateRepository("rrh", "unknown", "desc", []*Remote{})
 	if r1 != nil && err1 == nil {
 		t.Error(err1.Error())
 	}
 
-	var r2, err2 = db.CreateRepository("somerepo", "unknown", "desc", []Remote{{"name1", "url1"}, {"name2", "url2"}})
+	var r2, err2 = db.CreateRepository("somerepo", "unknown", "desc", []*Remote{{"name1", "url1"}, {"name2", "url2"}})
 	if r2 == nil && err2 != nil {
 		t.Error("somerepo: cannot create repository")
 	}
@@ -269,7 +269,7 @@ func TestCreateGroupRelateAndUnrelate(t *testing.T) {
 func TestUpdateGroup(t *testing.T) {
 	var db = openDatabase()
 
-	db.UpdateGroup("no-group", Group{"updated-group", "description", false})
+	db.UpdateGroup("no-group", &Group{"updated-group", "description", false})
 	var group = db.FindGroup("updated-group")
 	if group.Name != "updated-group" {
 		t.Error("Update is failed (group name was not updated)")
@@ -278,7 +278,7 @@ func TestUpdateGroup(t *testing.T) {
 		t.Error("Update is failed (description was not updated)")
 	}
 
-	if db.UpdateGroup("unknown", Group{"never used", "never used2", false}) {
+	if db.UpdateGroup("unknown", &Group{"never used", "never used2", false}) {
 		t.Error("unknown group is successfully updated.")
 	}
 }

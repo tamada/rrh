@@ -119,8 +119,8 @@ func TestFindResults(t *testing.T) {
 		targets []string
 		want    []Result
 	}{
-		{[]string{"group1"}, []Result{{"group1", "desc1", false, []Repo{{"repo1", "path1", []rrh.Remote{}}}}}},
-		{[]string{"group2"}, []Result{{"group2", "desc2", false, []Repo{}}}},
+		{[]string{"group1"}, []Result{{"group1", "desc1", false, []*Repo{{"repo1", "path1", []*rrh.Remote{}}}}}},
+		{[]string{"group2"}, []Result{{"group2", "desc2", false, []*Repo{}}}},
 	}
 
 	for _, data := range testdata {

@@ -58,7 +58,7 @@ func (fetchAll *FetchAllCommand) Run(args []string) int {
 	return printErrors(config, fetchAll.execFetch(db, options))
 }
 
-func convertToGroupNames(groups []rrh.Group) []string {
+func convertToGroupNames(groups []*rrh.Group) []string {
 	var result = []string{}
 	for _, group := range groups {
 		result = append(result, group.Name)

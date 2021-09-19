@@ -98,3 +98,12 @@ func StoreJson(filePath string, v interface{}) error {
 	}
 	return err
 }
+
+func FindIn(target string, list []string) bool {
+	for _, item := range list {
+		if target == item {
+			return true
+		}
+	}
+	return false
+}

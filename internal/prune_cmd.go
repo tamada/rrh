@@ -25,7 +25,7 @@ func PruneCommandFactory() (cli.Command, error) {
 	return &PruneCommand{verbose: false, dryrun: false, mc: rrh.NewMessageCenter()}, nil
 }
 
-func printResults(prune *PruneCommand, repos []rrh.Repository, groups []rrh.Group) {
+func printResults(prune *PruneCommand, repos []*rrh.Repository, groups []*rrh.Group) {
 	prune.mc.Print(os.Stdout, rrh.VERBOSE)
 	for _, repo := range repos {
 		fmt.Printf("%s: repository pruned (no relations)\n", repo.ID)
@@ -44,7 +44,7 @@ func dryrunMode(mode bool) string {
 
 func (prune *PruneCommand) perform(db *rrh.Database) bool {
 	var count = prune.removeNotExistRepository(db)
-	var repos, groups = db.PruneTargets()
+	var repos, groups = db.Prune()
 	fmt.Printf("Pruned %d groups, %d repositories%s\n", len(groups), len(repos)+count, dryrunMode(prune.dryrun))
 	db.Prune()
 	if prune.verbose || prune.dryrun {

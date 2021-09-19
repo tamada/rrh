@@ -43,9 +43,9 @@ func (options *importOptions) printIfNeeded(message string) {
 }
 
 func eraseDatabase(db *rrh.Database, command *ImportCommand) {
-	db.Groups = []rrh.Group{}
-	db.Repositories = []rrh.Repository{}
-	db.Relations = []rrh.Relation{}
+	db.Groups = []*rrh.Group{}
+	db.Repositories = []*rrh.Repository{}
+	db.Relations = []*rrh.Relation{}
 	command.options.printIfNeeded("The local database is cleared")
 }
 
@@ -130,7 +130,7 @@ ARGUMENTS
 }
 
 func readNewDB(path string, config *rrh.Config) (*rrh.Database, error) {
-	var db = rrh.Database{Timestamp: rrh.Now(), Repositories: []rrh.Repository{}, Groups: []rrh.Group{}, Relations: []rrh.Relation{}, Config: config}
+	var db = rrh.Database{Timestamp: rrh.Now(), Repositories: []*rrh.Repository{}, Groups: []*rrh.Group{}, Relations: []*rrh.Relation{}, Config: config}
 	var bytes, err = ioutil.ReadFile(path)
 	if err != nil {
 		return &db, nil
@@ -153,7 +153,7 @@ func (command *ImportCommand) copyDB(from *rrh.Database, to *rrh.Database) []err
 	return append(errs, errs3...)
 }
 
-func (command *ImportCommand) copyGroup(group rrh.Group, to *rrh.Database) []error {
+func (command *ImportCommand) copyGroup(group *rrh.Group, to *rrh.Database) []error {
 	var list = []error{}
 	if to.HasGroup(group.Name) {
 		var successFlag = to.UpdateGroup(group.Name, group)
@@ -182,7 +182,7 @@ func (command *ImportCommand) copyGroups(from *rrh.Database, to *rrh.Database) [
 	return list
 }
 
-func findOrigin(remotes []rrh.Remote) rrh.Remote {
+func findOrigin(remotes []*rrh.Remote) *rrh.Remote {
 	for _, remote := range remotes {
 		if remote.Name == "origin" {
 			return remote
@@ -191,7 +191,7 @@ func findOrigin(remotes []rrh.Remote) rrh.Remote {
 	return remotes[0]
 }
 
-func doClone(repository rrh.Repository, remote rrh.Remote) error {
+func doClone(repository *rrh.Repository, remote *rrh.Remote) error {
 	var cmd = exec.Command("git", "clone", remote.URL, repository.Path)
 	var err = cmd.Run()
 	if err != nil {
@@ -200,7 +200,7 @@ func doClone(repository rrh.Repository, remote rrh.Remote) error {
 	return nil
 }
 
-func (command *ImportCommand) cloneRepository(repository rrh.Repository) error {
+func (command *ImportCommand) cloneRepository(repository *rrh.Repository) error {
 	if len(repository.Remotes) == 0 {
 		return fmt.Errorf("%s: could not clone, did not have remotes", repository.ID)
 	}
@@ -210,7 +210,7 @@ func (command *ImportCommand) cloneRepository(repository rrh.Repository) error {
 	return err
 }
 
-func (command *ImportCommand) cloneIfNeeded(repository rrh.Repository) error {
+func (command *ImportCommand) cloneIfNeeded(repository *rrh.Repository) error {
 	if !command.options.autoClone {
 		return fmt.Errorf("%s: repository path did not exist at %s", repository.ID, repository.Path)
 	}
@@ -218,7 +218,7 @@ func (command *ImportCommand) cloneIfNeeded(repository rrh.Repository) error {
 	return nil
 }
 
-func (command *ImportCommand) copyRepository(repository rrh.Repository, to *rrh.Database) []error {
+func (command *ImportCommand) copyRepository(repository *rrh.Repository, to *rrh.Database) []error {
 	if to.HasRepository(repository.ID) {
 		return []error{}
 	}
@@ -232,7 +232,7 @@ func (command *ImportCommand) copyRepository(repository rrh.Repository, to *rrh.
 	return command.copyRepositoryImpl(repository, to)
 }
 
-func (command *ImportCommand) copyRepositoryImpl(repository rrh.Repository, to *rrh.Database) []error {
+func (command *ImportCommand) copyRepositoryImpl(repository *rrh.Repository, to *rrh.Database) []error {
 	if err := rrh.IsExistAndGitRepository(repository.Path, repository.ID); err != nil {
 		return []error{err}
 	}
@@ -253,7 +253,7 @@ func (command *ImportCommand) copyRepositories(from *rrh.Database, to *rrh.Datab
 	return list
 }
 
-func (command *ImportCommand) copyRelation(rel rrh.Relation, to *rrh.Database) []error {
+func (command *ImportCommand) copyRelation(rel *rrh.Relation, to *rrh.Database) []error {
 	var list = []error{}
 	if to.HasGroup(rel.GroupName) && to.HasRepository(rel.RepositoryID) {
 		to.Relate(rel.GroupName, rel.RepositoryID)

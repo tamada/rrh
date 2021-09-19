@@ -76,7 +76,7 @@ func TestRemoveCommandForGroup(t *testing.T) {
 func TestRemoveCommandRemoveTargetIsBothInGroupAndRepository(t *testing.T) {
 	var dbFile = rrh.Rollback("../testdata/nulldb.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 		db.CreateGroup("groupOrRepo", "same name as Repository", false)
-		db.CreateRepository("groupOrRepo", "unknownpath", "desc", []rrh.Remote{})
+		db.CreateRepository("groupOrRepo", "unknownpath", "desc", []*rrh.Remote{})
 		var rm = RemoveCommand{&removeOptions{}}
 		var err = rm.executeRemove(db, "groupOrRepo")
 		if err.Error() != "groupOrRepo: exists in repositories and groups" {

@@ -38,7 +38,7 @@ func (options *listOptions) isChecked(target bool) bool {
 	return target || options.all
 }
 
-func (options *listOptions) printResultAsCsv(result Result, repo Repo, remote *rrh.Remote) {
+func (options *listOptions) printResultAsCsv(result *Result, repo *Repo, remote *rrh.Remote) {
 	fmt.Printf("%s", result.GroupName)
 	if options.isChecked(options.description) {
 		fmt.Printf(",%s", result.Description)
@@ -53,17 +53,17 @@ func (options *listOptions) printResultAsCsv(result Result, repo Repo, remote *r
 	fmt.Println()
 }
 
-func (options *listOptions) printRepoAsCsv(repo Repo, result Result) {
+func (options *listOptions) printRepoAsCsv(repo *Repo, result *Result) {
 	if len(repo.Remotes) > 0 && (options.remoteURL || options.all) {
 		for _, remote := range repo.Remotes {
-			options.printResultAsCsv(result, repo, &remote)
+			options.printResultAsCsv(result, repo, remote)
 		}
 	} else {
 		options.printResultAsCsv(result, repo, nil)
 	}
 }
 
-func (options *listOptions) printResultsAsCsv(results []Result) int {
+func (options *listOptions) printResultsAsCsv(results []*Result) int {
 	for _, result := range results {
 		for _, repo := range result.Repos {
 			options.printRepoAsCsv(repo, result)
@@ -72,7 +72,7 @@ func (options *listOptions) printResultsAsCsv(results []Result) int {
 	return 0
 }
 
-func findMaxLengthOfRepositoryName(repos []Repo) int {
+func findMaxLengthOfRepositoryName(repos []*Repo) int {
 	var max = len("Description")
 	for _, repo := range repos {
 		var len = len(repo.Name)
@@ -93,7 +93,7 @@ func printColoriezdRepositoryID(repoName string, length int, config *rrh.Config)
 	fmt.Printf(formatter, config.Color.ColorizedRepositoryID(repoName), "")
 }
 
-func (options *listOptions) printRepo(repo Repo, result Result, maxLength int, config *rrh.Config) {
+func (options *listOptions) printRepo(repo *Repo, result *Result, maxLength int, config *rrh.Config) {
 	printColoriezdRepositoryID(repo.Name, maxLength, config)
 	if options.localPath || options.all {
 		fmt.Printf("  %s", repo.Path)
@@ -107,11 +107,11 @@ func (options *listOptions) printRepo(repo Repo, result Result, maxLength int, c
 	fmt.Println()
 }
 
-func (options *listOptions) isPrintSimple(result Result) bool {
+func (options *listOptions) isPrintSimple(result *Result) bool {
 	return !options.noOmit && result.OmitList && len(options.args) == 0
 }
 
-func printGroupName(result Result, config *rrh.Config) int {
+func printGroupName(result *Result, config *rrh.Config) int {
 	if len(result.Repos) == 1 {
 		fmt.Printf("%s (1 repository)\n", config.Color.ColorizedGroupName(result.GroupName))
 	} else {
@@ -120,7 +120,7 @@ func printGroupName(result Result, config *rrh.Config) int {
 	return len(result.Repos)
 }
 
-func (options *listOptions) printResult(result Result, config *rrh.Config) int {
+func (options *listOptions) printResult(result *Result, config *rrh.Config) int {
 	var repoCount = printGroupName(result, config)
 	if !options.isPrintSimple(result) {
 		if options.description || options.all {
@@ -135,7 +135,7 @@ func (options *listOptions) printResult(result Result, config *rrh.Config) int {
 	return repoCount
 }
 
-func (options *listOptions) printSimpleResult(repo Repo, result Result) {
+func (options *listOptions) printSimpleResult(repo *Repo, result *Result) {
 	if options.repoNameOnly {
 		fmt.Println(repo.Name)
 	} else if options.groupRepoName {
@@ -143,7 +143,7 @@ func (options *listOptions) printSimpleResult(repo Repo, result Result) {
 	}
 }
 
-func (options *listOptions) printSimpleResults(results []Result) int {
+func (options *listOptions) printSimpleResults(results []*Result) int {
 	for _, result := range results {
 		for _, repo := range result.Repos {
 			options.printSimpleResult(repo, result)
@@ -164,7 +164,7 @@ func printGroupAndRepoCount(groupCount int, repoCount int) {
 	fmt.Printf("%d %s, %d %s\n", groupCount, groupLabel, repoCount, repoLabel)
 }
 
-func (options *listOptions) printResults(results []Result, config *rrh.Config) int {
+func (options *listOptions) printResults(results []*Result, config *rrh.Config) int {
 	if options.csv {
 		return options.printResultsAsCsv(results)
 	} else if options.repoNameOnly || options.groupRepoName {
@@ -271,7 +271,7 @@ Repo represents the result for showing of repositories.
 type Repo struct {
 	Name    string
 	Path    string
-	Remotes []rrh.Remote
+	Remotes []*rrh.Remote
 }
 
 /*
@@ -281,11 +281,11 @@ type Result struct {
 	GroupName   string
 	Description string
 	OmitList    bool
-	Repos       []Repo
+	Repos       []*Repo
 }
 
 func (list *ListCommand) findList(db *rrh.Database, groupName string) (*Result, error) {
-	var repos = []Repo{}
+	var repos = []*Repo{}
 	var group = db.FindGroup(groupName)
 	if group == nil {
 		return nil, fmt.Errorf("%s: group not found", groupName)
@@ -296,7 +296,7 @@ func (list *ListCommand) findList(db *rrh.Database, groupName string) (*Result, 
 			if repo == nil {
 				return nil, fmt.Errorf("%s: repository not found", relation.RepositoryID)
 			}
-			repos = append(repos, Repo{repo.ID, repo.Path, repo.Remotes})
+			repos = append(repos, &Repo{repo.ID, repo.Path, repo.Remotes})
 		}
 	}
 
@@ -314,18 +314,18 @@ func (list *ListCommand) findAllGroupNames(db *rrh.Database) []string {
 /*
 FindResults returns the result list of list command.
 */
-func (list *ListCommand) FindResults(db *rrh.Database) ([]Result, error) {
+func (list *ListCommand) FindResults(db *rrh.Database) ([]*Result, error) {
 	var groups = list.options.args
 	if len(groups) == 0 {
 		groups = list.findAllGroupNames(db)
 	}
-	var results = []Result{}
+	var results = []*Result{}
 	for _, group := range groups {
 		var list, err = list.findList(db, group)
 		if err != nil {
 			return nil, err
 		}
-		results = append(results, *list)
+		results = append(results, list)
 	}
 	return results, nil
 }

@@ -98,12 +98,12 @@ func (info *repositoryInfoCommand) parseOptions(args []string) error {
 	return nil
 }
 
-func groupList(result rrh.Repository, db *rrh.Database) string {
+func groupList(result *rrh.Repository, db *rrh.Database) string {
 	var groups = db.FindRelationsOfRepository(result.ID)
 	return strings.Join(groups, ", ")
 }
 
-func (options *repositoryInfoOptions) printInfo(result rrh.Repository, db *rrh.Database) {
+func (options *repositoryInfoOptions) printInfo(result *rrh.Repository, db *rrh.Database) {
 	var config = db.Config
 	fmt.Printf("%-12s %s\n", config.Color.ColorizedLabel("ID:"), config.Color.ColorizedRepositoryID(result.ID))
 	fmt.Printf("%-12s %s\n", config.Color.ColorizedLabel("Groups:"), groupList(result, db))
@@ -114,14 +114,14 @@ func (options *repositoryInfoOptions) printInfo(result rrh.Repository, db *rrh.D
 	}
 }
 
-func printRemoteInfo(remotes []rrh.Remote, config *rrh.Config) {
+func printRemoteInfo(remotes []*rrh.Remote, config *rrh.Config) {
 	fmt.Printf("%-12s\n", config.Color.ColorizedLabel("Remote:"))
 	for _, remote := range remotes {
 		fmt.Printf("    %s: %s\n", config.Color.ColorizedLabel(remote.Name), remote.URL)
 	}
 }
 
-func (options *repositoryInfoOptions) printInfoResult(result rrh.Repository, db *rrh.Database) {
+func (options *repositoryInfoOptions) printInfoResult(result *rrh.Repository, db *rrh.Database) {
 	var config = db.Config
 	if options.csv {
 		fmt.Printf("%s,%s,%s\n", config.Color.ColorizedRepositoryID(result.ID), result.Description, result.Path)
@@ -158,14 +158,14 @@ func (info *repositoryInfoCommand) Run(args []string) int {
 	return info.perform(db, info.options.args)
 }
 
-func printListWithGroup(db *rrh.Database, result rrh.Repository) {
+func printListWithGroup(db *rrh.Database, result *rrh.Repository) {
 	var groups = db.FindRelationsOfRepository(result.ID)
 	for _, group := range groups {
 		fmt.Printf("%s/%s\n", group, result.ID)
 	}
 }
 
-func printListResult(db *rrh.Database, result rrh.Repository, options *repositoryListOptions) {
+func printListResult(db *rrh.Database, result *rrh.Repository, options *repositoryListOptions) {
 	if options.group {
 		printListWithGroup(db, result)
 	}
@@ -299,7 +299,7 @@ func (ur *repositoryUpdateRemotesCommand) parseOptions(args []string) error {
 	return nil
 }
 
-func createString(remotes []rrh.Remote) string {
+func createString(remotes []*rrh.Remote) string {
 	var remoteStrings = []string{}
 	for _, r := range remotes {
 		remoteStrings = append(remoteStrings, r.String())
@@ -307,11 +307,11 @@ func createString(remotes []rrh.Remote) string {
 	return strings.Join(remoteStrings, ",")
 }
 
-func createStrings(remotes1, remotes2 []rrh.Remote) string {
+func createStrings(remotes1, remotes2 []*rrh.Remote) string {
 	return fmt.Sprintf("{ %s } -> { %s }", createString(remotes1), createString(remotes2))
 }
 
-func isSameRemotes(remotes1, remotes2 []rrh.Remote) bool {
+func isSameRemotes(remotes1, remotes2 []*rrh.Remote) bool {
 	if len(remotes1) != len(remotes2) {
 		return false
 	}
@@ -341,8 +341,8 @@ func (ur *repositoryUpdateRemotesCommand) updateRemote(repo *rrh.Repository) (*r
 func (ur *repositoryUpdateRemotesCommand) execute(db *rrh.Database) int {
 	var updateFlag = false
 	for i, repo := range db.Repositories {
-		var repo2, flag = ur.updateRemote(&repo)
-		db.Repositories[i] = *repo2
+		var repo2, flag = ur.updateRemote(repo)
+		db.Repositories[i] = repo2
 		updateFlag = updateFlag || flag
 	}
 	if updateFlag || !ur.options.dryRun {
@@ -460,25 +460,25 @@ func (repository *RepositoryCommand) Synopsis() string {
 	return "manages repositories."
 }
 
-func findAll(db *rrh.Database, args []string) ([]rrh.Repository, []error) {
+func findAll(db *rrh.Database, args []string) ([]*rrh.Repository, []error) {
 	if len(args) > 0 {
 		return findResults(db, args)
 	}
 	return db.Repositories, []error{}
 }
 
-func findResults(db *rrh.Database, args []string) ([]rrh.Repository, []error) {
-	var results = []rrh.Repository{}
+func findResults(db *rrh.Database, args []string) ([]*rrh.Repository, []error) {
+	var results = []*rrh.Repository{}
 	var errs = []error{}
 	for _, arg := range args {
 		var repo = db.FindRepository(arg)
 		if repo == nil {
 			errs = append(errs, fmt.Errorf("%s: repository not found", arg))
 			if db.Config.GetValue(rrh.OnError) == rrh.FailImmediately {
-				return []rrh.Repository{}, errs
+				return []*rrh.Repository{}, errs
 			}
 		} else {
-			results = append(results, *repo)
+			results = append(results, repo)
 		}
 	}
 	return results, errs

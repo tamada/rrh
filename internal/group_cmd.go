@@ -300,7 +300,7 @@ func findGroupName(name string, nameOnlyFlag bool, config *rrh.Config) string {
 	return config.Color.ColorizedGroupName(name)
 }
 
-func (glc *groupListCommand) printResult(result groupListResult, options *groupListOptions, config *rrh.Config) {
+func (glc *groupListCommand) printResult(result *groupListResult, options *groupListOptions, config *rrh.Config) {
 	fmt.Print(findGroupName(result.Name, options.nameOnly, config))
 	if !options.nameOnly && options.desc {
 		fmt.Printf(",%s", result.Description)
@@ -314,7 +314,7 @@ func (glc *groupListCommand) printResult(result groupListResult, options *groupL
 	fmt.Println()
 }
 
-func (glc *groupListCommand) printAll(results []groupListResult, options *groupListOptions, config *rrh.Config) {
+func (glc *groupListCommand) printAll(results []*groupListResult, options *groupListOptions, config *rrh.Config) {
 	for _, result := range results {
 		glc.printResult(result, options, config)
 	}
@@ -516,7 +516,7 @@ type groupListResult struct {
 	Repos       []string
 }
 
-func appendRelations(groupName string, relations []rrh.Relation) []string {
+func appendRelations(groupName string, relations []*rrh.Relation) []string {
 	var repos = []string{}
 	for _, relation := range relations {
 		if relation.GroupName == groupName {
@@ -526,10 +526,10 @@ func appendRelations(groupName string, relations []rrh.Relation) []string {
 	return repos
 }
 
-func (glc *groupListCommand) listGroups(db *rrh.Database, listOptions *groupListOptions) []groupListResult {
-	var results = []groupListResult{}
+func (glc *groupListCommand) listGroups(db *rrh.Database, listOptions *groupListOptions) []*groupListResult {
+	var results = []*groupListResult{}
 	for _, group := range db.Groups {
-		var result = groupListResult{group.Name, group.Description, []string{}}
+		var result = &groupListResult{group.Name, group.Description, []string{}}
 		result.Repos = appendRelations(group.Name, db.Relations)
 		results = append(results, result)
 	}
@@ -580,8 +580,8 @@ func (grc *groupRemoveCommand) removeGroups(db *rrh.Database) error {
 	return nil
 }
 
-func createNewGroup(opt *groupUpdateOptions, prevGroup *rrh.Group) rrh.Group {
-	var newGroup = rrh.Group{Name: opt.newName, Description: opt.desc, OmitList: strings.ToLower(opt.omitList) == "true"}
+func createNewGroup(opt *groupUpdateOptions, prevGroup *rrh.Group) *rrh.Group {
+	var newGroup = &rrh.Group{Name: opt.newName, Description: opt.desc, OmitList: strings.ToLower(opt.omitList) == "true"}
 	if opt.desc == "" {
 		newGroup.Description = prevGroup.Description
 	}
