@@ -18,6 +18,11 @@ func PerformRrhCommand(c *cobra.Command, args []string, f func(c *cobra.Command,
 	return f(c, args, db)
 }
 
+func IsVerbose(c *cobra.Command) bool {
+	flag, err := c.PersistentFlags().GetBool("verbose")
+	return err != nil && flag
+}
+
 var structValidator = validator.New()
 
 func ValidateOptions(s interface{}) error {

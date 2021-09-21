@@ -30,10 +30,12 @@ func RootCommand() *cobra.Command {
 			} else if done, err := findAndExecuteExternalCommand(c, args); done {
 				return err
 			}
-			return fmt.Errorf("%s: not found internal, external command and alias", args[0])
+
+			return fmt.Errorf("%s: not found internal commands, external commands and aliases", args[0])
 		},
 	}
 	rootCmd.SilenceUsage = true
+	rootCmd.SetOut(os.Stdout)
 
 	flags := rootCmd.PersistentFlags()
 	flags.BoolVarP(&verboseMode, "verbose", "v", false, "verbose mod")

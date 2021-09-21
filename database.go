@@ -39,6 +39,14 @@ type Group struct {
 	OmitList    bool   `json:"omit_list"`
 }
 
+func (r *Repository) Identifier() string {
+	return r.ID
+}
+
+func (g *Group) Identifier() string {
+	return g.Name
+}
+
 /*
 Relation represents the relation between group and the repository.
 */

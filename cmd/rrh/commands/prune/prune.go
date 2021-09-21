@@ -1,7 +1,6 @@
 package prune
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -15,18 +14,18 @@ type pruneOptions struct {
 
 var pruneOpts = &pruneOptions{}
 
+func Execute(args []string) error {
+	pruneCommand := New()
+	pruneCommand.SetArgs(args)
+	return pruneCommand.Execute()
+}
+
 func New() *cobra.Command {
 	pruneCommand := &cobra.Command{
 		Use:   "prune",
 		Short: "prune unnecessary entries in the rrh database",
 		RunE: func(c *cobra.Command, args []string) error {
-			return common.PerformRrhCommand(c, args, func(c *cobra.Command, args []string, db *rrh.Database) error {
-				dryRunFlag := pruneOpts.dryRunFlag
-				if perform(c, db) || !dryRunFlag {
-					db.StoreAndClose()
-				}
-				return nil
-			})
+			return common.PerformRrhCommand(c, args, performPrune)
 		},
 	}
 
@@ -36,6 +35,18 @@ func New() *cobra.Command {
 	return pruneCommand
 }
 
+func performPrune(c *cobra.Command, args []string, db *rrh.Database) error {
+	dryRunFlag := pruneOpts.dryRunFlag
+	err := perform(c, db)
+	if err != nil {
+		return err
+	}
+	if !dryRunFlag {
+		db.StoreAndClose()
+	}
+	return nil
+}
+
 func dryRunMode(c *cobra.Command) string {
 	if pruneOpts.dryRunFlag {
 		return " (dry-run mode)"
@@ -43,27 +54,18 @@ func dryRunMode(c *cobra.Command) string {
 	return ""
 }
 
-func perform(c *cobra.Command, db *rrh.Database) bool {
-	var count = removeNotExistRepository(c, db, pruneOpts.dryRunFlag)
-	var repos, groups = db.Prune()
-	c.Printf("Pruned %d groups, %d repositories%s\n", len(groups), len(repos)+count, dryRunMode(c))
-	if pruneOpts.dryRunFlag {
-		printResults(c, repos, groups)
+func perform(c *cobra.Command, db *rrh.Database) error {
+	var repos = removeNotExistRepository(c, db, pruneOpts.dryRunFlag)
+	var repos2, groups = db.Prune()
+	c.Printf("Pruned %d groups and %d repositories%s\n", len(groups), len(repos)+len(repos2), dryRunMode(c))
+	if pruneOpts.dryRunFlag || common.IsVerbose(c) {
+		printNotExistRepository(c, repos)
+		printNoRelationsResults(c, repos2, groups)
 	}
-
-	return true
+	return nil
 }
 
-func deleteNotExistRepository(c *cobra.Command, db *rrh.Database, repo string) int {
-	rrh.PrintIfVerbose(c, fmt.Sprintf("%s: repository removed, not exists in path", repo))
-	var err = db.DeleteRepository(repo)
-	if err != nil {
-		return 0
-	}
-	return 1
-}
-
-func removeNotExistRepository(c *cobra.Command, db *rrh.Database, dryRunMode bool) int {
+func removeNotExistRepository(c *cobra.Command, db *rrh.Database, dryRunMode bool) []string {
 	var removeRepos = []string{}
 	for _, repo := range db.Repositories {
 		var _, err = os.Stat(repo.Path)
@@ -72,18 +74,27 @@ func removeNotExistRepository(c *cobra.Command, db *rrh.Database, dryRunMode boo
 		}
 	}
 
-	var count = 0
+	result := []string{}
 	for _, repo := range removeRepos {
-		count += deleteNotExistRepository(c, db, repo)
+		err := db.DeleteRepository(repo)
+		if err == nil {
+			result = append(result, repo)
+		}
 	}
-	return count
+	return result
 }
 
-func printResults(c *cobra.Command, repos []*rrh.Repository, groups []*rrh.Group) {
+func printNotExistRepository(c *cobra.Command, ids []string) {
+	for _, id := range ids {
+		c.Printf("%s: repository pruned (not exists)\n", id)
+	}
+}
+
+func printNoRelationsResults(c *cobra.Command, repos []*rrh.Repository, groups []*rrh.Group) {
 	for _, repo := range repos {
-		fmt.Printf("%s: repository pruned (no relations)\n", repo.ID)
+		c.Printf("%s: repository pruned (no relations)\n", repo.ID)
 	}
 	for _, group := range groups {
-		fmt.Printf("%s: group pruned (no relations)\n", group.Name)
+		c.Printf("%s: group pruned (no relations)\n", group.Name)
 	}
 }

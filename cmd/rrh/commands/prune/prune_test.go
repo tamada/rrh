@@ -25,7 +25,7 @@ func TestPrune(t *testing.T) {
 		[]groupExistChecker{{"group1", true}, {"group2", false}, {"group3", true}},
 		[]repositoryExistChecker{{"repo1", true}, {"repo2", true}, {"repo3", false}},
 	}
-	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
+	var dbFile = rrh.Rollback("../../../../testdata/test_db.json", "../../../../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 		db.Prune()
 
 		for _, gc := range tc.gchecker {
@@ -43,30 +43,32 @@ func TestPrune(t *testing.T) {
 }
 
 func TestPruneCommandRunFailedByBrokenDBFile(t *testing.T) {
-	os.Setenv(rrh.DatabasePath, "../testdata/broken.json")
+	os.Setenv(rrh.DatabasePath, "../../../../testdata/broken.json")
 	var prune = New()
-	if prune.Execute() != nil {
+	if err := prune.Execute(); err == nil {
 		t.Error("broken database read successfully.")
 	}
 }
 
 func ExamplePruneCommand_Run() {
-	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
+	var dbFile = rrh.Rollback("../../../../testdata/test_db.json", "../../../../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 		var prune = New()
+		prune.SetOut(os.Stdout)
 		prune.Execute()
 	})
 	defer os.Remove(dbFile)
-	// Output: Pruned 3 groups, 2 repositories
+	// Output: Pruned 3 groups and 2 repositories
 }
 
 func ExamplePruneCommand_Run_DryrunMode() {
-	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
+	var dbFile = rrh.Rollback("../../../../testdata/test_db.json", "../../../../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 		var prune = New()
-		os.Args = []string{"--dry-run"}
+		prune.SetArgs([]string{"--dry-run"})
+		prune.SetOut(os.Stdout)
 		prune.Execute()
 	})
 	defer os.Remove(dbFile)
-	// Output: Pruned 3 groups, 2 repositories (dry-run mode)
+	// Output: Pruned 3 groups and 2 repositories (dry-run mode)
 	// repo1: repository pruned (not exists)
 	// repo2: repository pruned (not exists)
 	// group1: group pruned (no relations)
@@ -75,16 +77,11 @@ func ExamplePruneCommand_Run_DryrunMode() {
 }
 
 func ExamplePruneCommand_Run_VerboseMode() {
-	var dbFile = rrh.Rollback("../testdata/test_db.json", "../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
+	var dbFile = rrh.Rollback("../../../../testdata/test_db.json", "../../../../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 		var prune = New()
-		os.Args = []string{"--verbose"}
+		prune.SetOut(os.Stdout)
 		prune.Execute()
 	})
 	defer os.Remove(dbFile)
-	// Output: Pruned 3 groups, 2 repositories
-	// repo1: repository pruned (not exists)
-	// repo2: repository pruned (not exists)
-	// group1: group pruned (no relations)
-	// group2: group pruned (no relations)
-	// group3: group pruned (no relations)
+	// Output: Pruned 3 groups and 2 repositories
 }
