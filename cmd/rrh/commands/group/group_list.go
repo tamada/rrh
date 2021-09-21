@@ -24,6 +24,7 @@ const (
 type listOptions struct {
 	format  string
 	entries []string
+	header  bool
 }
 
 var listOpts = &listOptions{}
@@ -43,6 +44,7 @@ func createGroupListCommand() *cobra.Command {
 	flags := command.Flags()
 	flags.StringVarP(&listOpts.format, "format", "f", "table", "specifies the output format. Available values: csv, json, and table.")
 	flags.StringSliceVarP(&listOpts.entries, "entry", "e", []string{"name", "count"}, "specifies the printing entries separated with comma. Available vaues: all, name, desc, repo, abbrev, and count")
+	flags.BoolVarP(&listOpts.header, "without-header", "H", false, "print without headers")
 
 	return command
 }
@@ -107,7 +109,7 @@ func listGroups(c *cobra.Command, args []string, db *rrh.Database) error {
 	if err != nil {
 		return err
 	}
-	formatter, err := common.NewFormatter(listOpts.format)
+	formatter, err := common.NewFormatter(listOpts.format, !listOpts.header)
 	if err != nil {
 		return err
 	}
@@ -157,28 +159,4 @@ func groupListResult(printTarget groupEntry, db *rrh.Database) (headers []string
 		results = append(results, resultItems)
 	}
 	return createHeaders(printTarget), results, nil
-}
-
-func printGroupList(c *cobra.Command, printTarget groupEntry, db *rrh.Database) error {
-	for _, group := range db.Groups {
-		resultItems := []string{}
-		if printTarget&name == name {
-			resultItems = append(resultItems, group.Name)
-		}
-		if printTarget&desc == desc {
-			resultItems = append(resultItems, group.Description)
-		}
-		if printTarget&abbrev == abbrev {
-			resultItems = append(resultItems, strconv.FormatBool(group.OmitList))
-		}
-		if printTarget&repo == repo {
-			list := db.FindRelationsOfGroup(group.Name)
-			resultItems = append(resultItems, fmt.Sprintf("%v", list))
-		}
-		if printTarget&count == count {
-			resultItems = append(resultItems, repositoryCount(db, group.Name))
-		}
-		c.Println(strings.Join(resultItems, ","))
-	}
-	return nil
 }

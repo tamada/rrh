@@ -1,6 +1,7 @@
 package group
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -32,21 +33,71 @@ func createGroupRemoveCommand() *cobra.Command {
 	return c
 }
 
+type removeResult struct {
+	groupName  string
+	removeDone bool
+	err        error
+	message    string
+}
+
+func (rr *removeResult) Err() error {
+	return rr.err
+}
+
+func newRemoveResult(name string, doneFlag bool, err error, message string) *removeResult {
+	return &removeResult{
+		groupName:  name,
+		removeDone: doneFlag,
+		err:        err,
+		message:    message,
+	}
+}
+
 func executeGroupRemove(c *cobra.Command, args []string, db *rrh.Database) error {
 	// verbose, _ := c.PersistentFlags().GetBool("verbose")
+	messages := []*removeResult{}
 	for _, groupName := range args {
 		group := db.FindGroup(groupName)
 		if group == nil && !removeOpts.force {
-			return fmt.Errorf("%s: group not found", groupName)
+			messages = append(messages, newRemoveResult(groupName, false, errors.New("group not found"), ""))
 		}
-		if group != nil || !inquiryRemovingGroup(removeOpts.inquiry, groupName) {
-			return nil
-		}
-		if err := removeGroupsImpl(c, db, groupName); err != nil {
-			return err
+		if group != nil {
+			if !inquiryRemovingGroup(removeOpts.inquiry, groupName) {
+				messages = append(messages, newRemoveResult(groupName, false, nil, "not remove by the user request"))
+			}
+			if err := removeGroupsImpl(c, db, groupName); err != nil {
+				messages = append(messages, newRemoveResult(groupName, false, err, ""))
+			} else {
+				messages = append(messages, newRemoveResult(groupName, true, nil, "remove done"))
+			}
 		}
 	}
-	return nil
+	return storeDatabase(c, db, messages)
+}
+
+func storeDatabase(c *cobra.Command, db *rrh.Database, messages []*removeResult) error {
+	if removeOpts.dryRunFlag {
+		for _, result := range messages {
+			if result.err != nil {
+				c.Printf("%s: %s (remove error)\n", result.groupName, result.err.Error())
+			} else if result.removeDone {
+				c.Printf("%s: %s (dry run mode)\n", result.groupName, result.message)
+			} else {
+				c.Printf("%s: %s\n", result.groupName, result.message)
+			}
+		}
+	} else {
+		db.StoreAndClose()
+	}
+	return common.MergeErrors(convert(messages))
+}
+
+func convert(results []*removeResult) []common.Resulter {
+	resulters := []common.Resulter{}
+	for _, result := range results {
+		resulters = append(resulters, result)
+	}
+	return resulters
 }
 
 func removeGroupsImpl(c *cobra.Command, db *rrh.Database, groupName string) error {

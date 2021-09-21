@@ -47,22 +47,23 @@ func ValidateFormatter(formatter string) error {
 
 }
 
-func NewFormatter(formatter string) (Formatter, error) {
+func NewFormatter(formatter string, withHeader bool) (Formatter, error) {
 	switch strings.ToLower(formatter) {
 	case "json":
 		return &jsonFormat{}, nil
 	case "csv":
-		return &csvFormat{}, nil
+		return &csvFormat{header: withHeader}, nil
 	case "table":
-		return &tableFormat{}, nil
+		return &tableFormat{header: withHeader}, nil
 	default:
 		return nil, fmt.Errorf("%s: unknown format. available values: table, csv, and json", formatter)
 	}
 }
 
-type jsonFormat struct{}
-type csvFormat struct{}
-type tableFormat struct{}
+type jsonFormat struct {
+}
+type csvFormat struct{ header bool }
+type tableFormat struct{ header bool }
 
 func (jf *jsonFormat) Format(w io.Writer, headers []string, values [][]string) error {
 	writer := jsonwriter.New(w)
@@ -91,7 +92,9 @@ func writeRepositories(writer *jsonwriter.Writer, repos string) {
 
 func (cf *csvFormat) Format(w io.Writer, headers []string, values [][]string) error {
 	writer := csv.NewWriter(w)
-	writer.Write(headers)
+	if cf.header {
+		writer.Write(headers)
+	}
 	for _, line := range values {
 		writer.Write(line)
 	}
@@ -101,7 +104,9 @@ func (cf *csvFormat) Format(w io.Writer, headers []string, values [][]string) er
 
 func (tf *tableFormat) Format(w io.Writer, headers []string, values [][]string) error {
 	table := tablewriter.NewWriter(w)
-	table.SetHeader(headers)
+	if tf.header {
+		table.SetHeader(headers)
+	}
 	table.AppendBulk(values)
 	table.Render()
 	return nil
