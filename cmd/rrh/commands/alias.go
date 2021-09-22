@@ -13,7 +13,7 @@ import (
 func AliasCommand() *cobra.Command {
 	aliasCommand := &cobra.Command{
 		Use:   "alias",
-		Short: "manages alias",
+		Short: "manage alias (different names of the commands)",
 		PreRunE: func(c *cobra.Command, args []string) error {
 			if aliasOpts.removeFlag && len(args) == 0 {
 				return errors.New("remove flag requires arguments")

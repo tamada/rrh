@@ -10,6 +10,7 @@ import (
 )
 
 func PerformRrhCommand(c *cobra.Command, args []string, f func(c *cobra.Command, args []string, db *rrh.Database) error) error {
+	c.SilenceUsage = true
 	var config = rrh.OpenConfig()
 	var db, err = rrh.Open(config)
 	if err != nil {

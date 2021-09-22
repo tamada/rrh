@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/tamada/rrh/cmd/rrh/commands/add"
 	"github.com/tamada/rrh/cmd/rrh/commands/group"
 	"github.com/tamada/rrh/cmd/rrh/commands/prune"
 )
@@ -30,11 +31,9 @@ func RootCommand() *cobra.Command {
 			} else if done, err := findAndExecuteExternalCommand(c, args); done {
 				return err
 			}
-
 			return fmt.Errorf("%s: not found internal commands, external commands and aliases", args[0])
 		},
 	}
-	rootCmd.SilenceUsage = true
 	rootCmd.SetOut(os.Stdout)
 
 	flags := rootCmd.PersistentFlags()
@@ -51,6 +50,7 @@ func registerSubCommands(c *cobra.Command) {
 	c.AddCommand(AliasCommand())
 	c.AddCommand(prune.New())
 	c.AddCommand(group.New())
+	c.AddCommand(add.New())
 }
 
 func loadAndFindAlias(c *cobra.Command, args []string) (*Alias, error) {

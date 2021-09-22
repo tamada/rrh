@@ -6,10 +6,21 @@ type Resulter interface {
 	Err() error
 }
 
-type errorList []error
+type ErrorList []error
+
+func NewErrorList() ErrorList {
+	return []error{}
+}
+
+func (el ErrorList) Append(err error) ErrorList {
+	if el != nil && err != nil {
+		el = append(el, err)
+	}
+	return el
+}
 
 func MergeErrors(resulters []Resulter) error {
-	errs := errorList{}
+	errs := ErrorList{}
 	for _, resulter := range resulters {
 		err := resulter.Err()
 		if err != nil {
@@ -22,10 +33,18 @@ func MergeErrors(resulters []Resulter) error {
 	return errs
 }
 
-func (el errorList) Error() string {
+func (el ErrorList) IsErr() bool {
+	return el != nil && len(el) > 0
+}
+
+func (el ErrorList) IsNil() bool {
+	return el == nil || len(el) == 0
+}
+
+func (el ErrorList) Error() string {
 	messages := []string{}
 	for _, err := range el {
 		messages = append(messages, err.Error())
 	}
-	return strings.Join(messages, ",")
+	return strings.Join(messages, "\n")
 }
