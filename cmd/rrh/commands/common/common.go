@@ -19,6 +19,10 @@ func PerformRrhCommand(c *cobra.Command, args []string, f func(c *cobra.Command,
 	return f(c, args, db)
 }
 
+func IsFailImmediately(config *rrh.Config) bool {
+	return config.GetValue(rrh.OnError) == rrh.FailImmediately
+}
+
 func IsVerbose(c *cobra.Command) bool {
 	flag, err := c.PersistentFlags().GetBool("verbose")
 	return err != nil && flag

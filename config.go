@@ -6,8 +6,6 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
-
-	"github.com/mitchellh/go-homedir"
 )
 
 /*
@@ -228,7 +226,7 @@ func (config *Config) IsSet(label string) bool {
 
 func (config *Config) replaceHome(value string) string {
 	if strings.Contains(value, "${HOME}") {
-		var home, _ = homedir.Dir()
+		var home, _ = os.UserHomeDir()
 		value = strings.Replace(value, "${HOME}", home, 1)
 	}
 	if strings.Contains(value, "${RRH_HOME}") {

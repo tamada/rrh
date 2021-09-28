@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/mitchellh/cli"
-	"github.com/mitchellh/go-homedir"
 	flag "github.com/spf13/pflag"
 	"github.com/tamada/rrh"
 )
@@ -71,7 +70,7 @@ func indentJSON(result string) (string, error) {
 }
 
 func hideHome(result string) string {
-	var home, err = homedir.Dir()
+	var home, err = os.UserHomeDir()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Warning: chould not get home directory")
 	}

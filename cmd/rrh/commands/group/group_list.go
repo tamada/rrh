@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/dustin/go-humanize/english"
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
 	"github.com/tamada/rrh/cmd/rrh/commands/common"
@@ -49,18 +50,18 @@ func createGroupListCommand() *cobra.Command {
 }
 
 func validateListOpts(opts *listOptions) error {
-	err := common.ValidateGroupEntries(opts.entries)
+	err := ValidateEntries(opts.entries)
 	if err != nil {
 		return err
 	}
-	return common.ValidateFormatter(opts.format)
+	return ValidateFormatter(opts.format)
 }
 
 func listGroups(c *cobra.Command, args []string, db *rrh.Database) error {
 	if len(listOpts.entries) == 0 {
 		listOpts.entries = []string{"name", "count"}
 	}
-	entry, err := common.NewGroupEntries(listOpts.entries)
+	entry, err := NewEntries(listOpts.entries)
 	if err != nil {
 		return err
 	}
@@ -68,14 +69,14 @@ func listGroups(c *cobra.Command, args []string, db *rrh.Database) error {
 	if err != nil {
 		return err
 	}
-	formatter, err := common.NewFormatter(listOpts.format, !listOpts.header)
+	formatter, err := NewFormatter(listOpts.format, !listOpts.header)
 	if err != nil {
 		return err
 	}
 	return formatter.Print(c, headers, results)
 }
 
-func groupListResult(ge common.GroupEntry, db *rrh.Database) (headers []string, values [][]string, err error) {
+func groupListResult(ge Entries, db *rrh.Database) (headers []string, values [][]string, err error) {
 	results := [][]string{}
 	for _, group := range db.Groups {
 		resultItems := []string{}
@@ -93,7 +94,8 @@ func groupListResult(ge common.GroupEntry, db *rrh.Database) (headers []string, 
 			resultItems = append(resultItems, fmt.Sprintf("%v", list))
 		}
 		if ge.IsCount() {
-			resultItems = append(resultItems, repositoryCount(db, group.Name))
+			count := db.ContainsCount(group.Name)
+			resultItems = append(resultItems, english.Plural(count, "repository", "repositories"))
 		}
 		results = append(results, resultItems)
 	}

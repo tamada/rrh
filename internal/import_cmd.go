@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/mitchellh/cli"
-	"github.com/mitchellh/go-homedir"
 	flag "github.com/spf13/pflag"
 	"github.com/tamada/rrh"
 )
@@ -277,7 +276,7 @@ func (command *ImportCommand) copyRelations(from *rrh.Database, to *rrh.Database
 }
 
 func replaceHome(bytes []byte) string {
-	var home, err = homedir.Dir()
+	var home, err = os.UserHomeDir()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Warning: could not get home directory")
 	}

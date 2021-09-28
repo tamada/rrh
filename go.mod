@@ -8,12 +8,12 @@ require (
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/gookit/color v1.1.7
-	github.com/karlseguin/jsonwriter v1.0.3 // indirect
+	github.com/karlseguin/expect v1.0.8 // indirect
+	github.com/karlseguin/jsonwriter v1.0.3
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattn/go-isatty v0.0.8 // indirect
 	github.com/mitchellh/cli v1.0.0
-	github.com/mitchellh/go-homedir v1.1.0
-	github.com/olekukonko/tablewriter v0.0.5 // indirect
+	github.com/olekukonko/tablewriter v0.0.5
 	github.com/posener/complete v1.2.1 // indirect
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/spf13/cobra v1.2.1

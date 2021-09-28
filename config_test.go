@@ -7,8 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-
-	"github.com/mitchellh/go-homedir"
 )
 
 func TestValidateArgumentsOnUpdate(t *testing.T) {
@@ -174,7 +172,7 @@ func TestConfigIsSet(t *testing.T) {
 		if config.IsSet(ConfigPath) {
 			t.Errorf("not boolean variable is specified")
 		}
-		var home, _ = homedir.Dir()
+		var home, _ = os.UserHomeDir()
 		if config.GetDefaultValue(ConfigPath) != filepath.Join(home, ".rrh/config.json") {
 			t.Errorf("RrhConfigPath did not match")
 		}

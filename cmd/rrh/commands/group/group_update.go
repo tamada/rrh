@@ -52,11 +52,3 @@ func updateGroup(c *cobra.Command, args []string, db *rrh.Database) error {
 	}
 	return nil
 }
-
-func repositoryCount(db *rrh.Database, groupName string) string {
-	count := db.ContainsCount(groupName)
-	if count == 1 {
-		return "1 repository"
-	}
-	return fmt.Sprintf("%d repositories", count)
-}

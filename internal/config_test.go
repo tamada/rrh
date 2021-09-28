@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mitchellh/go-homedir"
 	"github.com/tamada/rrh"
 )
 
@@ -190,7 +189,7 @@ func TestOpenConfig(t *testing.T) {
 	os.Unsetenv(rrh.Home)
 	os.Unsetenv(rrh.DatabasePath)
 	os.Unsetenv(rrh.ConfigPath)
-	var home, _ = homedir.Dir()
+	var home, _ = os.UserHomeDir()
 	var testdata = []struct {
 		key  string
 		want string
