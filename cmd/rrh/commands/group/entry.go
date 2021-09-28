@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/tamada/rrh"
+	"github.com/tamada/rrh/cmd/rrh/commands/common"
 )
 
 type Entries int
@@ -63,19 +63,7 @@ func (ge Entries) StringArray() []string {
 
 func ValidateEntries(entries []string) error {
 	availables := []string{"all", "name", "count", "desc", "repo", "abbrev"}
-	messages := []string{}
-	for _, entry := range entries {
-		entry = strings.ToLower(entry)
-		if !rrh.FindIn(entry, availables) {
-			messages = append(messages, entry)
-		}
-	}
-	if len(messages) == 0 {
-		return nil
-	} else if len(messages) == 1 {
-		return fmt.Errorf("%s: unknown entry. available values: %s", messages[0], strings.Join(availables, ","))
-	}
-	return fmt.Errorf("%s: unknown entries. available values: %s", strings.Join(messages, ","), strings.Join(availables, ", "))
+	return common.ValidateValues(entries, availables)
 }
 
 func (ge Entries) IsName() bool {

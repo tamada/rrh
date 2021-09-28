@@ -3,12 +3,12 @@ package group
 import (
 	"bytes"
 	"encoding/csv"
-	"fmt"
 	"io"
 	"strings"
 
 	"github.com/karlseguin/jsonwriter"
 	"github.com/olekukonko/tablewriter"
+	"github.com/tamada/rrh/cmd/rrh/commands/common"
 )
 
 type Printer interface {
@@ -37,17 +37,14 @@ func printByFormatter(printer Printer, f Formatter, headers []string, items [][]
 
 func ValidateFormatter(formatter string) error {
 	availables := []string{"table", "csv", "json"}
-	newFormat := strings.ToLower(formatter)
-	for _, a := range availables {
-		if newFormat == a {
-			return nil
-		}
-	}
-	return fmt.Errorf("%s: unknown format. available values: %s", formatter, strings.Join(availables, ","))
+	return common.ValidateValue(formatter, availables)
 
 }
 
 func NewFormatter(formatter string, withHeader bool) (Formatter, error) {
+	if err := ValidateFormatter(formatter); err != nil {
+		return nil, err
+	}
 	switch strings.ToLower(formatter) {
 	case "json":
 		return &jsonFormat{}, nil
@@ -56,7 +53,7 @@ func NewFormatter(formatter string, withHeader bool) (Formatter, error) {
 	case "table":
 		return &tableFormat{header: withHeader}, nil
 	default:
-		return nil, fmt.Errorf("%s: unknown format. available values: table, csv, and json", formatter)
+		panic("never reach this line!")
 	}
 }
 

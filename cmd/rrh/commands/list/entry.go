@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/tamada/rrh"
+	"github.com/tamada/rrh/cmd/rrh/commands/common"
 )
 
 type Entries int
@@ -80,15 +80,5 @@ func newListEntry(entries []string) (Entries, error) {
 
 func ValidateEntries(entries []string) error {
 	availables := []string{"group", "note", "id", "desc", "count", "path", "summary", "remote", "all"}
-	no := []string{}
-	for _, entry := range entries {
-		lowerEntry := strings.ToLower(entry)
-		if !rrh.FindIn(lowerEntry, availables) {
-			no = append(no, entry)
-		}
-	}
-	if len(no) == 0 {
-		return nil
-	}
-	return fmt.Errorf("%v: not available entries. availables: %v", no, availables)
+	return common.ValidateValues(entries, availables)
 }

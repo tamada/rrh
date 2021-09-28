@@ -10,9 +10,11 @@ import (
 )
 
 func PerformRrhCommand(c *cobra.Command, args []string, f func(c *cobra.Command, args []string, db *rrh.Database) error) error {
-	c.SilenceUsage = true
-	var config = rrh.OpenConfig()
-	var db, err = rrh.Open(config)
+	if c != nil {
+		c.SilenceUsage = true
+	}
+	config := rrh.OpenConfig()
+	db, err := rrh.Open(config)
 	if err != nil {
 		return err
 	}
@@ -29,6 +31,41 @@ func IsVerbose(c *cobra.Command) bool {
 }
 
 var structValidator = validator.New()
+
+func ValidateValue(value string, availables []string) error {
+	return ValidateValues([]string{value}, availables)
+}
+
+func ValidateValues(values []string, availables []string) error {
+	no := []string{}
+	for _, value := range values {
+		lowerValue := strings.ToLower(value)
+		if !rrh.FindIn(lowerValue, availables) {
+			no = append(no, value)
+		}
+	}
+	if len(no) == 0 {
+		return nil
+	} else if len(no) == 1 {
+		return fmt.Errorf("%v: not available entry. availables: %v", JoinArray(no), JoinArray(availables))
+	}
+	return fmt.Errorf("%v: not available entries. availables: %v", JoinArray(no), JoinArray(availables))
+}
+
+func JoinArray(array []string) string {
+	switch len(array) {
+	case 0:
+		return ""
+	case 1:
+		return array[0]
+	case 2:
+		return array[0] + " and " + array[1]
+	default:
+		newArray := []string{array[0] + ", " + array[1]}
+		newArray = append(newArray, array[2:]...)
+		return JoinArray(newArray)
+	}
+}
 
 func ValidateOptions(s interface{}) error {
 	errs := structValidator.Struct(s)
