@@ -20,12 +20,11 @@ func (df *defaultFormat) formatEach(writer *bufio.Writer, r *Result, li Entries,
 		writer.WriteString(" (" + english.Plural(len(r.Repos), "repository", "repositories") + ")")
 	}
 	if !noAbbrevFlag && r.Abbrev {
-		writer.WriteString(" (abbreviate repositiries)")
-	}
-	if li.IsNote() {
-		writer.WriteString(fmt.Sprintf("\n    Note: %s", r.Note))
-	}
-	if noAbbrevFlag || !r.Abbrev {
+		writer.WriteString(" (abbreviate repositories)")
+	} else {
+		if li.IsNote() {
+			writer.WriteString(fmt.Sprintf("\n    Note: %s", r.Note))
+		}
 		printRepositoryInfo(writer, r, li)
 	}
 	writer.WriteString("\n")
@@ -67,7 +66,7 @@ func computeWidth(r *Result) int {
 
 func (df *defaultFormat) formatSummary(writer *bufio.Writer, r []*Result) {
 	groupCount, repoCount, actualRepo := summarize(r)
-	writer.WriteString(fmt.Sprintf("%s, %s", english.Plural(groupCount, "group", ""), english.Plural(repoCount, "repository", "repositories")))
+	writer.WriteString(fmt.Sprintf("%s, and %s", english.Plural(groupCount, "group", ""), english.Plural(repoCount, "repository", "repositories")))
 	if actualRepo != repoCount {
 		writer.WriteString(fmt.Sprintf(" (actually %s)", english.Plural(actualRepo, "repository", "repositories")))
 	}

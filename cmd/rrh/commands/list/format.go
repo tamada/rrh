@@ -44,18 +44,6 @@ func newFormatter(formatter string) (formatter, error) {
 	}
 }
 
-type csvFormat struct {
-}
-type tableFormat struct {
-}
-
-func (cf *csvFormat) Format(w io.Writer, r []*Result, li Entries, noAbbrevFlag bool) error {
-	return nil
-}
-func (tf *tableFormat) Format(w io.Writer, r []*Result, le Entries, noAbbrevFlag bool) error {
-	return nil
-}
-
 func summarize(r []*Result) (groupCount, repositoryCount, actualRepositoryCount int) {
 	repos := map[string]string{}
 	repoCount := 0

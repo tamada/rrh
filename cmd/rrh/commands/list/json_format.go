@@ -46,7 +46,7 @@ func formatResult(writer *jsonwriter.Writer, r *Result, li Entries, noAbbrevFlag
 		writer.Array("repositories", func() {
 			for _, repo := range r.Repos {
 				writer.ArrayObject(func() {
-					formatEachRepo(writer, repo, li, noAbbrevFlag)
+					formatJsonEachRepo(writer, repo, li, noAbbrevFlag)
 				})
 			}
 		})
@@ -55,7 +55,7 @@ func formatResult(writer *jsonwriter.Writer, r *Result, li Entries, noAbbrevFlag
 	}
 }
 
-func formatEachRepo(writer *jsonwriter.Writer, repo *Repo, li Entries, noAbbrevFlag bool) {
+func formatJsonEachRepo(writer *jsonwriter.Writer, repo *Repo, li Entries, noAbbrevFlag bool) {
 	if li.IsRepositoryId() {
 		writer.KeyValue("id", repo.Name)
 	}
