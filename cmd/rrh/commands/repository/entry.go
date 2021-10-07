@@ -31,7 +31,8 @@ func (re Entries) StringArray() []string {
 		results = append(results, "path")
 	}
 	if re.IsRemotes() {
-		results = append(results, "remotes")
+		results = append(results, "remote name")
+		results = append(results, "remote url")
 	}
 	if re.IsGroup() {
 		results = append(results, "groups")
@@ -80,13 +81,13 @@ func NewEntries(entries []string) (Entries, error) {
 		case "remote":
 			result = result | remotes
 		default:
-			return 0, fmt.Errorf("%s: invalid entry, availables are: all, id, desc, path, group, remote and count", entry)
+			return 0, fmt.Errorf("%s: invalid entry, availables are: all, id, desc, path, remote, group, and count", entry)
 		}
 	}
 	return result, nil
 }
 
 func ValidateEntries(entries []string) error {
-	availables := []string{"all", "id", "count", "desc", "path", "group", "remote"}
+	availables := []string{"all", "id", "desc", "path", "remote", "group", "count"}
 	return common.ValidateValues(entries, availables)
 }

@@ -28,9 +28,9 @@ func createGroupUpdateCommand() *cobra.Command {
 		},
 	}
 	flags := command.Flags()
-	flags.StringVarP(&updateOpts.name, "name", "n", "", "change the group name to the given string")
-	flags.StringVarP(&updateOpts.desc, "desc", "d", "", "change the description to the given string")
-	flags.StringVarP(&updateOpts.abbrev, "abbrev", "a", "false", "change abbrev flag of the group, the given string must be true or false")
+	flags.StringVarP(&updateOpts.name, "name", "", "", "specify the new group name")
+	flags.StringVarP(&updateOpts.desc, "note", "", "", "specify the new note of the group")
+	flags.StringVarP(&updateOpts.abbrev, "abbrev", "", "false", "specify the new abbrev flag of the group, the given string must be true or false")
 	flags.BoolVarP(&updateOpts.dryRunFlag, "dry-run", "D", false, "dry-run mode")
 	return command
 }
@@ -47,8 +47,8 @@ func updateGroup(c *cobra.Command, args []string, db *rrh.Database) error {
 	c.Printf("update %s -> %v", args[0], group)
 	if updateOpts.dryRunFlag {
 		c.Println("(dry run mode)")
-	} else {
-		c.Println()
+		return nil
 	}
-	return nil
+	c.Println()
+	return db.StoreAndClose()
 }

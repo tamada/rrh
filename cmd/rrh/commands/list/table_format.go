@@ -8,11 +8,14 @@ import (
 )
 
 type tableFormat struct {
+	headerFlag bool
 }
 
 func (tf *tableFormat) Format(w io.Writer, r []*Result, le Entries, noAbbrevFlag bool) error {
 	writer := tablewriter.NewWriter(w)
-	writer.SetHeader(tf.header(le))
+	if tf.headerFlag {
+		writer.SetHeader(le.StringArray())
+	}
 	for _, result := range r {
 		tf.formatEach(writer, result, le)
 	}
@@ -31,30 +34,6 @@ func (tf *tableFormat) formatEach(w *tablewriter.Table, r *Result, le Entries) {
 			w.Append(array)
 		}
 	}
-}
-
-func (tf *tableFormat) header(le Entries) []string {
-	labels := []string{}
-	if le.IsGroupName() {
-		labels = append(labels, "group")
-	}
-	if le.IsNote() {
-		labels = append(labels, "note")
-	}
-	if le.IsRepositoryId() {
-		labels = append(labels, "repository")
-	}
-	if le.IsRepositoryDesc() {
-		labels = append(labels, "description")
-	}
-	if le.IsRepositoryPath() {
-		labels = append(labels, "path")
-	}
-	if le.IsRepositoryRemotes() {
-		labels = append(labels, "remote name")
-		labels = append(labels, "remote url")
-	}
-	return labels
 }
 
 func (tf *tableFormat) formatEachRepo(r *Result, repo *Repo, remote *rrh.Remote, le Entries) []string {

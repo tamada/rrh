@@ -1,7 +1,6 @@
 package list
 
 import (
-	"bytes"
 	"io"
 	"strings"
 
@@ -12,21 +11,12 @@ type formatter interface {
 	Format(w io.Writer, r []*Result, li Entries, noAbbrevFlag bool) error
 }
 
-func toBytes(f formatter, r []*Result, li Entries, noAbbrevFlag bool) (string, error) {
-	buffer := &bytes.Buffer{}
-	err := f.Format(buffer, r, li, noAbbrevFlag)
-	if err != nil {
-		return "", err
-	}
-	return buffer.String(), nil
-}
-
 func validateFormat(formatter string) error {
 	availables := []string{"default", "json", "csv", "table"}
 	return common.ValidateValue(formatter, availables)
 }
 
-func newFormatter(formatter string) (formatter, error) {
+func newFormatter(formatter string, headerFlag bool) (formatter, error) {
 	if err := validateFormat(formatter); err != nil {
 		return nil, err
 	}
@@ -36,9 +26,9 @@ func newFormatter(formatter string) (formatter, error) {
 	case "json":
 		return &jsonFormat{}, nil
 	case "csv":
-		return &csvFormat{}, nil
+		return &csvFormat{headerFlag: headerFlag}, nil
 	case "table":
-		return &tableFormat{}, nil
+		return &tableFormat{headerFlag: headerFlag}, nil
 	default:
 		panic("never reach this line!")
 	}

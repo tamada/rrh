@@ -1,7 +1,6 @@
 package group
 
 import (
-	"bytes"
 	"encoding/csv"
 	"io"
 	"strings"
@@ -22,21 +21,10 @@ type Printer interface {
 
 type Formatter interface {
 	Format(writer io.Writer, headers []string, items [][]string) error
-	Print(printer Printer, headers []string, items [][]string) error
-}
-
-func printByFormatter(printer Printer, f Formatter, headers []string, items [][]string) error {
-	buffer := &bytes.Buffer{}
-	err := f.Format(buffer, headers, items)
-	if err != nil {
-		return err
-	}
-	printer.Print(buffer.String())
-	return nil
 }
 
 func ValidateFormatter(formatter string) error {
-	availables := []string{"table", "csv", "json"}
+	availables := []string{"table", "csv", "json", "default"}
 	return common.ValidateValue(formatter, availables)
 
 }
@@ -51,7 +39,9 @@ func NewFormatter(formatter string, withHeader bool) (Formatter, error) {
 	case "csv":
 		return &csvFormat{header: withHeader}, nil
 	case "table":
-		return &tableFormat{header: withHeader}, nil
+		return &tableFormat{header: withHeader, border: true}, nil
+	case "default":
+		return &tableFormat{header: false, border: false}, nil
 	default:
 		panic("never reach this line!")
 	}
@@ -60,7 +50,10 @@ func NewFormatter(formatter string, withHeader bool) (Formatter, error) {
 type jsonFormat struct {
 }
 type csvFormat struct{ header bool }
-type tableFormat struct{ header bool }
+type tableFormat struct {
+	header bool
+	border bool
+}
 
 func (jf *jsonFormat) Format(w io.Writer, headers []string, values [][]string) error {
 	writer := jsonwriter.New(w)
@@ -104,17 +97,12 @@ func (tf *tableFormat) Format(w io.Writer, headers []string, values [][]string) 
 	if tf.header {
 		table.SetHeader(headers)
 	}
+	table.SetBorder(tf.border)
+	if !tf.border {
+		table.SetNoWhiteSpace(true)
+		table.SetTablePadding("  ")
+	}
 	table.AppendBulk(values)
 	table.Render()
 	return nil
-}
-
-func (jf *jsonFormat) Print(printer Printer, headers []string, items [][]string) error {
-	return printByFormatter(printer, jf, headers, items)
-}
-func (cf *csvFormat) Print(printer Printer, headers []string, items [][]string) error {
-	return printByFormatter(printer, cf, headers, items)
-}
-func (tf *tableFormat) Print(printer Printer, headers []string, items [][]string) error {
-	return printByFormatter(printer, tf, headers, items)
 }

@@ -42,9 +42,9 @@ func createGroupListCommand() *cobra.Command {
 		},
 	}
 	flags := command.Flags()
-	flags.StringVarP(&listOpts.format, "format", "f", "table", "specifies the output format. Available values: csv, json, and table.")
+	flags.StringVarP(&listOpts.format, "format", "f", "default", "specifies the output format. Available values: csv, json, and table.")
 	flags.StringSliceVarP(&listOpts.entries, "entry", "e", []string{"name", "count"}, "specifies the printing entries separated with comma. Available vaues: all, name, desc, repo, abbrev, and count")
-	flags.BoolVarP(&listOpts.header, "without-header", "H", false, "print without headers")
+	flags.BoolVarP(&listOpts.header, "no-header", "H", false, "print without headers")
 
 	return command
 }
@@ -73,7 +73,7 @@ func listGroups(c *cobra.Command, args []string, db *rrh.Database) error {
 	if err != nil {
 		return err
 	}
-	return formatter.Print(c, headers, results)
+	return formatter.Format(c.OutOrStdout(), headers, results)
 }
 
 func groupListResult(ge Entries, db *rrh.Database) (headers []string, values [][]string, err error) {
@@ -95,7 +95,8 @@ func groupListResult(ge Entries, db *rrh.Database) (headers []string, values [][
 		}
 		if ge.IsCount() {
 			count := db.ContainsCount(group.Name)
-			resultItems = append(resultItems, english.Plural(count, "repository", "repositories"))
+			countString := fmt.Sprintf("%3d %s", count, english.PluralWord(count, "repository", ""))
+			resultItems = append(resultItems, countString)
 		}
 		results = append(results, resultItems)
 	}

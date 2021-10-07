@@ -14,13 +14,14 @@ func New() *cobra.Command {
 		Short: "list groups and repositories",
 		Args:  cobra.ArbitraryArgs,
 		RunE: func(c *cobra.Command, args []string) error {
-			return common.PerformRrhCommand(c, args, perform)
+			return common.PerformRrhCommand(c, args, Perform)
 		},
 	}
 	flags := cmd.Flags()
 	flags.StringSliceVarP(&listOpts.entries, "entry", "e", []string{"group", "count", "id", "path", "summary"}, "specifies the printing entries.\navailables: all, group, note, count, id, desc, path, remote, and summary")
 	flags.StringVarP(&listOpts.format, "format", "f", "default", "specifies the output format. availables: csv, default, and json")
 	flags.BoolVarP(&listOpts.noAbbrev, "no-abbrev", "a", false, "no abbrev mode")
+	flags.BoolVarP(&listOpts.header, "no-header", "H", false, "print without header")
 	return cmd
 }
 
@@ -34,7 +35,7 @@ func validateOpts(c *cobra.Command) error {
 	return nil
 }
 
-func perform(c *cobra.Command, args []string, db *rrh.Database) error {
+func Perform(c *cobra.Command, args []string, db *rrh.Database) error {
 	if err := validateOpts(c); err != nil {
 		return err
 	}
@@ -51,15 +52,14 @@ func performImpl(c *cobra.Command, args []string, db *rrh.Database) error {
 	if err != nil {
 		return err
 	}
-	formatter, err := newFormatter(listOpts.format)
+	formatter, err := newFormatter(listOpts.format, listOpts.header)
 	if err != nil {
 		return err
 	}
-	r, err := toBytes(formatter, results, le, listOpts.noAbbrev)
+	err = formatter.Format(c.OutOrStdout(), results, le, listOpts.noAbbrev)
 	if err != nil {
 		return err
 	}
-	c.Print(r)
 	return nil
 }
 
@@ -69,6 +69,7 @@ type listOptions struct {
 	format   string
 	entries  []string
 	noAbbrev bool
+	header   bool
 }
 
 /*

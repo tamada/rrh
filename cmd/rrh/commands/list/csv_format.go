@@ -8,10 +8,15 @@ import (
 )
 
 type csvFormat struct {
+	headerFlag bool
 }
 
 func (cf *csvFormat) Format(w io.Writer, r []*Result, li Entries, noAbbrevFlag bool) error {
 	writer := csv.NewWriter(w)
+	if cf.headerFlag {
+		header := li.StringArray()
+		writer.Write(header)
+	}
 	for _, result := range r {
 		cf.formatEach(writer, result, li)
 	}

@@ -13,7 +13,13 @@ func NewErrorList() ErrorList {
 }
 
 func (el ErrorList) Append(err error) ErrorList {
-	if el != nil && err != nil {
+	if el == nil || err == nil {
+		return el
+	}
+	el2, ok := err.(ErrorList)
+	if ok {
+		el = append(el, el2...)
+	} else {
 		el = append(el, err)
 	}
 	return el
@@ -31,6 +37,13 @@ func MergeErrors(resulters []Resulter) error {
 		return nil
 	}
 	return errs
+}
+
+func (el ErrorList) NilOrThis() error {
+	if el.IsNil() {
+		return nil
+	}
+	return el
 }
 
 func (el ErrorList) IsErr() bool {

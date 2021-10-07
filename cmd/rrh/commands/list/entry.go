@@ -78,6 +78,30 @@ func newListEntry(entries []string) (Entries, error) {
 	return result, nil
 }
 
+func (li Entries) StringArray() []string {
+	result := []string{}
+	if li.IsGroupName() {
+		result = append(result, "group")
+	}
+	if li.IsNote() {
+		result = append(result, "note")
+	}
+	if li.IsRepositoryId() {
+		result = append(result, "repository id")
+	}
+	if li.IsRepositoryDesc() {
+		result = append(result, "description")
+	}
+	if li.IsRepositoryPath() {
+		result = append(result, "repository path")
+	}
+	if li.IsRepositoryRemotes() {
+		result = append(result, "remote name")
+		result = append(result, "remote url")
+	}
+	return result
+}
+
 func ValidateEntries(entries []string) error {
 	availables := []string{"group", "note", "id", "desc", "count", "path", "summary", "remote", "all"}
 	return common.ValidateValues(entries, availables)

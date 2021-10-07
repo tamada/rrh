@@ -3,6 +3,7 @@ package prune
 import (
 	"os"
 
+	"github.com/dustin/go-humanize/english"
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
 	"github.com/tamada/rrh/cmd/rrh/commands/common"
@@ -24,11 +25,11 @@ func New() *cobra.Command {
 	pruneCommand := &cobra.Command{
 		Use:   "prune",
 		Short: "prune unnecessary entries in the rrh database",
+		Args:  cobra.NoArgs,
 		RunE: func(c *cobra.Command, args []string) error {
 			return common.PerformRrhCommand(c, args, performPrune)
 		},
 	}
-
 	flags := pruneCommand.Flags()
 	flags.BoolVarP(&pruneOpts.dryRunFlag, "dry-run", "D", false, "dry-run mode")
 
@@ -47,7 +48,7 @@ func performPrune(c *cobra.Command, args []string, db *rrh.Database) error {
 	return nil
 }
 
-func dryRunMode(c *cobra.Command) string {
+func dryRunMode() string {
 	if pruneOpts.dryRunFlag {
 		return " (dry-run mode)"
 	}
@@ -57,7 +58,9 @@ func dryRunMode(c *cobra.Command) string {
 func perform(c *cobra.Command, db *rrh.Database) error {
 	var repos = removeNotExistRepository(c, db, pruneOpts.dryRunFlag)
 	var repos2, groups = db.Prune()
-	c.Printf("Pruned %d groups and %d repositories%s\n", len(groups), len(repos)+len(repos2), dryRunMode(c))
+	c.Printf("Pruned %s", english.Plural(len(groups), "group", ""))
+	c.Printf(" and %s", english.Plural(len(repos)+len(repos2), "repository", ""))
+	c.Printf("%s\n", dryRunMode())
 	if pruneOpts.dryRunFlag || common.IsVerbose(c) {
 		printNotExistRepository(c, repos)
 		printNoRelationsResults(c, repos2, groups)

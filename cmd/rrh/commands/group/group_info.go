@@ -3,6 +3,7 @@ package group
 import (
 	"fmt"
 
+	"github.com/dustin/go-humanize/english"
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
 	"github.com/tamada/rrh/cmd/rrh/commands/common"
@@ -21,14 +22,12 @@ func createGroupInfoCommand() *cobra.Command {
 }
 
 func printGroupInfos(c *cobra.Command, args []string, db *rrh.Database) error {
+	el := common.NewErrorList()
 	for _, groupName := range args {
 		err := printGroupInfo(c, groupName, db)
-		if err != nil {
-			// return err
-			c.Println(err.Error())
-		}
+		el = el.Append(err)
 	}
-	return nil
+	return el.NilOrThis()
 }
 
 func printGroupInfo(c *cobra.Command, groupName string, db *rrh.Database) error {
@@ -37,10 +36,6 @@ func printGroupInfo(c *cobra.Command, groupName string, db *rrh.Database) error 
 		return fmt.Errorf("%s: group not found", groupName)
 	}
 	count := db.ContainsCount(group.Name)
-	unit := "repositories"
-	if count == 1 {
-		unit = "repository"
-	}
-	fmt.Printf("%s: %s (%d %s, abbrev: %v)\n", group.Name, group.Description, count, unit, group.OmitList)
+	c.Printf("%s: %s (%s, abbrev: %v)\n", group.Name, group.Description, english.Plural(count, "repository", ""), group.OmitList)
 	return nil
 }

@@ -12,6 +12,7 @@ import (
 	"github.com/tamada/rrh/cmd/rrh/commands/group"
 	"github.com/tamada/rrh/cmd/rrh/commands/list"
 	"github.com/tamada/rrh/cmd/rrh/commands/prune"
+	"github.com/tamada/rrh/cmd/rrh/commands/repository"
 )
 
 var (
@@ -53,6 +54,7 @@ func registerSubCommands(c *cobra.Command) {
 	c.AddCommand(group.New())
 	c.AddCommand(add.New())
 	c.AddCommand(list.New())
+	c.AddCommand(repository.New())
 }
 
 func loadAndFindAlias(c *cobra.Command, args []string) (*Alias, error) {

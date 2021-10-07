@@ -35,7 +35,7 @@ func createGroupAddCommand() *cobra.Command {
 		},
 	}
 	flags := command.Flags()
-	flags.StringVarP(&createOpts.desc, "desc", "d", "", "specifies the description")
+	flags.StringVarP(&createOpts.desc, "note", "n", "", "specifies the note")
 	flags.StringVarP(&createOpts.abbrevFlag, "abbrev", "a", "false", "set the group as the abbrev")
 	flags.BoolVarP(&createOpts.dryRunFlag, "dry-run", "D", false, "dry-run mode")
 	return command
