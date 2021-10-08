@@ -9,8 +9,10 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh/cmd/rrh/commands/add"
+	"github.com/tamada/rrh/cmd/rrh/commands/execcmd"
 	"github.com/tamada/rrh/cmd/rrh/commands/group"
 	"github.com/tamada/rrh/cmd/rrh/commands/list"
+	"github.com/tamada/rrh/cmd/rrh/commands/open"
 	"github.com/tamada/rrh/cmd/rrh/commands/prune"
 	"github.com/tamada/rrh/cmd/rrh/commands/repository"
 )
@@ -55,6 +57,8 @@ func registerSubCommands(c *cobra.Command) {
 	c.AddCommand(add.New())
 	c.AddCommand(list.New())
 	c.AddCommand(repository.New())
+	c.AddCommand(execcmd.New())
+	c.AddCommand(open.New())
 }
 
 func loadAndFindAlias(c *cobra.Command, args []string) (*Alias, error) {
