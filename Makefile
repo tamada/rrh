@@ -15,8 +15,6 @@ update_version:
 
 	@sed 's/const VERSION = .*/const VERSION = "${VERSION}"/g' config.go > a
 	@mv a config.go
-	@sed 's/	\/\/ rrh version .*/	\/\/ rrh version ${VERSION}/g' internal/messages_test.go > a
-	@mv a internal/messages_test.go
 	@echo "Replace version to \"${VERSION}\""
 
 setup: deps update_version

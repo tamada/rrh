@@ -7,135 +7,126 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/mitchellh/cli"
-	"github.com/tamada/rrh"
-	"github.com/tamada/rrh/cmd/rrh/commands"
-	"github.com/tamada/rrh/internal"
+	"github.com/spf13/cobra"
+	"github.com/tamada/rrh/cmd/rrh/commands/add"
+	"github.com/tamada/rrh/cmd/rrh/commands/clone"
+	"github.com/tamada/rrh/cmd/rrh/commands/config"
+	"github.com/tamada/rrh/cmd/rrh/commands/execcmd"
+	"github.com/tamada/rrh/cmd/rrh/commands/group"
+	"github.com/tamada/rrh/cmd/rrh/commands/list"
+	"github.com/tamada/rrh/cmd/rrh/commands/open"
+	"github.com/tamada/rrh/cmd/rrh/commands/prune"
+	"github.com/tamada/rrh/cmd/rrh/commands/repository"
 )
 
-func executeInternalCommand(commands map[string]cli.CommandFactory, args []string) (int, error) {
-	var c = cli.NewCLI("rrh", rrh.VERSION)
-	c.Name = "rrh"
-	c.Args = args
-	c.Autocomplete = true
-	c.Commands = commands
-	return c.Run()
-}
+var (
+	verboseMode bool
+	configFile  string
+)
 
-func executeCommand(path string, args []string) (int, error) {
-	var cmd = exec.Command(path, args...)
-	var output, err = cmd.Output()
-	if err != nil {
-		return 4, err
+func rootCommand() *cobra.Command {
+	rootCmd := &cobra.Command{
+		Short: "Remote Repositories Head/Repositories, Ready to Hack",
+		Use:   "rrh",
+		Args:  cobra.ArbitraryArgs,
+		RunE: func(c *cobra.Command, args []string) error {
+			if len(args) == 0 {
+				return fmt.Errorf("subcommand not found")
+			} else if done, err := findAndExecuteAlias(c, args); done {
+				return err
+			} else if done, err := findAndExecuteExternalCommand(c, args); done {
+				return err
+			}
+			return fmt.Errorf("%s: not found internal commands, external commands and aliases", args[0])
+		},
 	}
-	fmt.Print(string(output))
-	return 0, nil
+	rootCmd.SetOut(os.Stdout)
+
+	flags := rootCmd.PersistentFlags()
+	flags.BoolVarP(&verboseMode, "verbose", "v", false, "verbose mod")
+	flags.StringVarP(&configFile, "config-file", "c", "${HOME}/.config/rrh/config.json",
+		"specifies the config file path.")
+
+	registerSubCommands(rootCmd)
+
+	return rootCmd
 }
 
-func findExecutableFromPathEnv(commandName string) string {
+func registerSubCommands(c *cobra.Command) {
+	c.AddCommand(AliasCommand())
+	c.AddCommand(add.New())
+	c.AddCommand(clone.New())
+	c.AddCommand(config.New())
+	c.AddCommand(execcmd.New())
+	c.AddCommand(group.New())
+	c.AddCommand(list.New())
+	c.AddCommand(open.New())
+	c.AddCommand(prune.New())
+	c.AddCommand(repository.New())
+}
+
+func loadAndFindAlias(c *cobra.Command, args []string) (*Alias, error) {
+	aliases, err := loadAliases()
+	if err != nil {
+		return nil, err
+	}
+	alias := findAlias(args[0], aliases)
+	if alias == nil {
+		return nil, fmt.Errorf("%s: alias not found", args[0])
+	}
+	return alias, nil
+}
+
+func findAndExecuteAlias(c *cobra.Command, args []string) (bool, error) {
+	alias, err := loadAndFindAlias(c, args)
+	if err != nil {
+		return false, err
+	}
+	return true, executeAlias(c, args, alias)
+}
+
+func executeCommand(commandPath string, c *cobra.Command, args []string) error {
+	cmd := exec.Command(commandPath, args...)
+	output, err := cmd.CombinedOutput()
+	c.Print(string(output))
+	return err
+}
+
+func findAndExecuteExternalCommand(c *cobra.Command, args []string) (bool, error) {
+	commandName := fmt.Sprintf("rrh-%s", args[0])
+	command, err := findExecutableFromPathEnv(commandName)
+	if err != nil {
+		return false, err
+	}
+	return true, executeCommand(command, c, args[1:])
+}
+
+func findExecutableFromPathEnv(commandName string) (string, error) {
 	var pathEnv = os.Getenv("PATH")
 	for _, env := range strings.Split(pathEnv, ":") {
 		if findExecutableFromDir(env, commandName) {
-			return filepath.Join(env, commandName)
+			return filepath.Join(env, commandName), nil
 		}
 	}
-	return ""
+	return "", fmt.Errorf("%s: command not found", commandName)
 }
 
 func findExecutableFromDir(dir, commandName string) bool {
-	var path = filepath.Join(dir, commandName)
-	var finfo, err = os.Stat(path)
+	path := filepath.Join(dir, commandName)
+	finfo, err := os.Stat(path)
 	if err != nil {
 		return false
 	}
-	if finfo.Mode().IsRegular() && (finfo.Mode().Perm()&0777) == 0755 {
+	if finfo.Mode().IsRegular() && (finfo.Mode().Perm()&0555) == 0555 {
 		return true
 	}
 	return false
 }
 
-type rrhOptions struct {
-	help       bool
-	version    bool
-	configPath string
-}
-
-func parseOptions(args []string, opts *rrhOptions) []string {
-	var configPathFlag = false
-	for i, arg := range args {
-		if strings.HasPrefix(arg, "-") {
-			switch arg {
-			case "-h", "--help":
-				opts.help = true
-			case "-v", "--version":
-				opts.version = true
-			case "-c", "--config-file":
-				configPathFlag = true
-			}
-		} else if configPathFlag {
-			opts.configPath = arg
-			configPathFlag = false
-		} else {
-			return args[i:]
-		}
-	}
-	return []string{}
-}
-
-func (opts *rrhOptions) printHelpOrVersion(args []string) (int, error) {
-	if opts.version {
-		var com, _ = internal.VersionCommandFactory()
-		com.Run([]string{})
-	}
-	if opts.help || (!opts.version && len(args) == 0) {
-		var com, _ = internal.HelpCommandFactory()
-		com.Run([]string{})
-	}
-	return 0, nil
-}
-
-func executeExternalCommand(args []string) (int, error) {
-	var commandName = fmt.Sprintf("rrh-%s", args[0])
-	var executablePath = findExecutableFromPathEnv(commandName)
-	if executablePath == "" {
-		return 3, fmt.Errorf("%s: command not found", args[0])
-	}
-	return executeCommand(executablePath, args[1:])
-}
-
-func (opts *rrhOptions) updateConfigPath() {
-	if opts.configPath != "" {
-		os.Setenv(rrh.ConfigPath, opts.configPath)
-	}
-}
-
-func goMain(args []string) (int, error) {
-	var commands = internal.BuildCommandFactoryMap()
-	var opts = new(rrhOptions)
-	var newArgs = parseOptions(args[1:], opts)
-	if len(newArgs) == 0 || opts.help || opts.version {
-		return opts.printHelpOrVersion(newArgs)
-	}
-	opts.updateConfigPath()
-	if commands[newArgs[0]] != nil {
-		return executeInternalCommand(commands, newArgs)
-	}
-	return executeExternalCommand(newArgs)
-}
-
 func main() {
-	err := commands.Execute()
+	err := rootCommand().Execute()
 	if err != nil {
 		os.Exit(1)
 	}
 	os.Exit(0)
-}
-
-func main2() {
-	var exitStatus, err = goMain(os.Args)
-	if err != nil {
-		fmt.Println(err.Error())
-		fmt.Println(internal.GenerateDefaultHelp())
-	}
-	os.Exit(exitStatus)
 }
