@@ -9,6 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh/cmd/rrh/commands/add"
+	"github.com/tamada/rrh/cmd/rrh/commands/clone"
 	"github.com/tamada/rrh/cmd/rrh/commands/config"
 	"github.com/tamada/rrh/cmd/rrh/commands/execcmd"
 	"github.com/tamada/rrh/cmd/rrh/commands/group"
@@ -54,6 +55,7 @@ func RootCommand() *cobra.Command {
 func registerSubCommands(c *cobra.Command) {
 	c.AddCommand(AliasCommand())
 	c.AddCommand(add.New())
+	c.AddCommand(clone.New())
 	c.AddCommand(config.New())
 	c.AddCommand(execcmd.New())
 	c.AddCommand(group.New())
