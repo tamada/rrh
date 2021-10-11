@@ -3,6 +3,7 @@ package repository
 import (
 	"fmt"
 
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
 	"github.com/tamada/rrh/cmd/rrh/commands/common"
@@ -54,7 +55,7 @@ func findGroups(args []string, db *rrh.Database) ([]*rrh.Group, error) {
 		if group != nil {
 			results = append(results, group)
 		} else {
-			errs.Append(fmt.Errorf("%s: group not found", arg))
+			errs = errs.Append(fmt.Errorf("%s: group not found", arg))
 		}
 	}
 	return results, errs.NilOrThis()
@@ -75,38 +76,13 @@ func executeList(c *cobra.Command, db *rrh.Database, groups []*rrh.Group, li Ent
 	return err.NilOrThis()
 }
 
-func calculateMaxWidth(data [][]string, extractor func(datum []string) string) int {
-	max := -1
-	for _, datum := range data {
-		str := extractor(datum)
-		max = rrh.MaxInt(max, len(str))
-	}
-	return max
-}
-
 func printAll(c *cobra.Command, r [][]string, li Entries) {
-	maxWidth := calculateMaxWidth(r, func(rr []string) string { return rr[0] })
-	formatter := fmt.Sprintf("%%-%ds", maxWidth)
-	for _, result := range r {
-		first := 0
-		if li.IsGroup() || li.IsId() {
-			c.Printf(formatter, result[0])
-			first = first + 1
-		}
-		for i := first; i < len(result); i++ {
-			c.Printf("    %s", result[i])
-		}
-		c.Println()
-	}
-	/*
-		buf := bytes.NewBuffer([]byte{})
-		table := tablewriter.NewWriter(buf)
-		table.SetBorder(false)
-		table.SetHeaderLine(false)
-		table.AppendBulk(r)
-		table.Render()
-		c.Println(buf.String())
-	*/
+	table := tablewriter.NewWriter(c.OutOrStdout())
+	table.SetBorder(false)
+	table.SetNoWhiteSpace(true)
+	table.SetTablePadding("    ")
+	table.AppendBulk(r)
+	table.Render()
 }
 
 func findRepositories(group *rrh.Group, db *rrh.Database) ([]*rrh.Repository, common.ErrorList) {
@@ -125,7 +101,10 @@ func findRepositories(group *rrh.Group, db *rrh.Database) ([]*rrh.Repository, co
 }
 
 func formatRepository(c *cobra.Command, group *rrh.Group, repo *rrh.Repository, li Entries) []string {
-	results := []string{formatRepositoryName(group, repo, li)}
+	results := []string{}
+	if li.IsGroup() || li.IsId() {
+		results = append(results, formatRepositoryName(group, repo, li))
+	}
 	if li.IsPath() {
 		results = append(results, repo.Path)
 	}

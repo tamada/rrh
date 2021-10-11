@@ -28,7 +28,7 @@ func NewEntries(entries []string) (Entries, error) {
 			result |= groupName
 		case "repo":
 			result |= repositories
-		case "desc":
+		case "note":
 			result |= groupDesc
 		case "abbrev":
 			result |= abbrevFlag
@@ -47,7 +47,7 @@ func (ge Entries) StringArray() []string {
 		headers = append(headers, "name")
 	}
 	if ge.IsDesc() {
-		headers = append(headers, "description")
+		headers = append(headers, "note")
 	}
 	if ge.IsAbbrev() {
 		headers = append(headers, "abbrev")
@@ -62,7 +62,7 @@ func (ge Entries) StringArray() []string {
 }
 
 func ValidateEntries(entries []string) error {
-	availables := []string{"all", "name", "count", "desc", "repo", "abbrev"}
+	availables := []string{"all", "name", "count", "note", "repo", "abbrev"}
 	return common.ValidateValues(entries, availables)
 }
 

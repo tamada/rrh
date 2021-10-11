@@ -43,7 +43,7 @@ func createGroupListCommand() *cobra.Command {
 	}
 	flags := command.Flags()
 	flags.StringVarP(&listOpts.format, "format", "f", "default", "specifies the output format. Available values: csv, json, and table.")
-	flags.StringSliceVarP(&listOpts.entries, "entry", "e", []string{"name", "count"}, "specifies the printing entries separated with comma. Available vaues: all, name, desc, repo, abbrev, and count")
+	flags.StringSliceVarP(&listOpts.entries, "entry", "e", []string{"name", "count"}, "specifies the printing entries separated with comma. Available vaues: all, name, note, repo, abbrev, and count")
 	flags.BoolVarP(&listOpts.header, "no-header", "H", false, "print without headers")
 
 	return command
@@ -95,8 +95,7 @@ func groupListResult(ge Entries, db *rrh.Database) (headers []string, values [][
 		}
 		if ge.IsCount() {
 			count := db.ContainsCount(group.Name)
-			countString := fmt.Sprintf("%3d %s", count, english.PluralWord(count, "repository", ""))
-			resultItems = append(resultItems, countString)
+			resultItems = append(resultItems, english.Plural(count, "repository", ""))
 		}
 		results = append(results, resultItems)
 	}

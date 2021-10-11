@@ -168,7 +168,7 @@ func TestUpdateValue(t *testing.T) {
 }
 
 func TestConfigIsSet(t *testing.T) {
-	var dbFile = Rollback("../testata/test_db.json", "testdata/config.json", func(config *Config, db *Database) {
+	var dbFile = Rollback("testdata/test_db.json", "testdata/config.json", func(config *Config, db *Database) {
 		if config.IsSet(ConfigPath) {
 			t.Errorf("not boolean variable is specified")
 		}

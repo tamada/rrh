@@ -12,11 +12,11 @@ func TestGroupEntriesTest(t *testing.T) {
 		iserror bool
 		array   []string
 	}{
-		{[]string{"all"}, false, []string{"name", "description", "abbrev", "repositories"}},
-		{[]string{"name", "desc"}, false, []string{"name", "description"}},
+		{[]string{"all"}, false, []string{"name", "note", "abbrev", "repositories"}},
+		{[]string{"name", "note"}, false, []string{"name", "note"}},
 		{[]string{"hoge"}, true, []string{}},
 		{[]string{"hoge", "fuga"}, true, []string{}},
-		{[]string{"name", "desc", "abbrev", "repo", "count"}, false, []string{"name", "description", "abbrev", "repositories", "repository count"}},
+		{[]string{"name", "note", "abbrev", "repo", "count"}, false, []string{"name", "note", "abbrev", "repositories", "repository count"}},
 	}
 	for _, td := range testdata {
 		err := ValidateEntries(td.args)

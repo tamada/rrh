@@ -74,10 +74,10 @@ func TestGroupAdd(t *testing.T) {
 		statusCode int
 		checkers   []groupChecker
 	}{
-		{[]string{"add", "--desc", "desc4", "group4"}, 0, []groupChecker{{"group4", true, "desc4", false}}},
-		{[]string{"add", "-d", "desc4", "-a", "true", "group4"}, 0, []groupChecker{{"group4", true, "desc4", true}}},
-		{[]string{"add", "-d", "desc4", "--abbrev", "false", "group4"}, 0, []groupChecker{{"group4", true, "desc4", false}}},
-		{[]string{"add", "-d", "desc4", "-a", "true", "group1"}, 4, []groupChecker{}},
+		{[]string{"add", "--note", "desc4", "group4"}, 0, []groupChecker{{"group4", true, "desc4", false}}},
+		{[]string{"add", "-n", "desc4", "-a", "true", "group4"}, 0, []groupChecker{{"group4", true, "desc4", true}}},
+		{[]string{"add", "-n", "desc4", "--abbrev", "false", "group4"}, 0, []groupChecker{{"group4", true, "desc4", false}}},
+		{[]string{"add", "-n", "desc4", "-a", "true", "group1"}, 4, []groupChecker{}},
 		{[]string{"add"}, 3, []groupChecker{}},
 	}
 	for _, testcase := range testcases {
@@ -109,28 +109,10 @@ func TestGroupAdd(t *testing.T) {
 
 }
 
-func ExampleGroupCommand_Run() {
-	dbFile := rrh.Rollback("../../../../testdata/test_db.json", "../../../../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
-		cmd := New()
-		cmd.SetArgs([]string{})
-		cmd.SetOut(os.Stdout)
-		cmd.Execute()
-	})
-	defer os.Remove(dbFile)
-	// Output:
-	// +--------+------------------+
-	// |  NAME  | REPOSITORY COUNT |
-	// +--------+------------------+
-	// | group1 | 1 repository     |
-	// | group2 | 0 repositories   |
-	// | group3 | 1 repository     |
-	// +--------+------------------+
-}
-
 func ExampleGroupListCommand_Run() {
 	dbFile := rrh.Rollback("../../../../testdata/test_db.json", "../../../../testdata/config.json", func(config *rrh.Config, db *rrh.Database) {
 		cmd := New()
-		cmd.SetArgs([]string{"list", "--entry", "repo", "-f", "csv", "--without-header", "-e", "name,count,desc"})
+		cmd.SetArgs([]string{"list", "-f", "csv", "--no-header", "-e", "name,count,repo,note"})
 		cmd.SetOut(os.Stdout)
 		cmd.Execute()
 	})
@@ -158,11 +140,12 @@ func ExampleGroupInfoCommand_Run() {
 		cmd := New()
 		cmd.SetArgs([]string{"info", "group1", "group2", "groupN"})
 		cmd.SetOut(os.Stdout)
+		cmd.SetErr(os.Stdout)
 		cmd.Execute()
 	})
 	defer os.Remove(dbFile)
 	// Output:
 	// group1: desc1 (1 repository, abbrev: false)
 	// group2: desc2 (0 repositories, abbrev: false)
-	// groupN: group not found
+	// Error: groupN: group not found
 }

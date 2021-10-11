@@ -12,11 +12,11 @@ func TestRepositoryEntriesTest(t *testing.T) {
 		iserror bool
 		array   []string
 	}{
-		{[]string{"all"}, false, []string{"id", "description", "path", "remotes", "groups"}},
+		{[]string{"all"}, false, []string{"id", "description", "path", "remote name", "remote url", "groups"}},
 		{[]string{"id", "desc"}, false, []string{"id", "description"}},
 		{[]string{"hoge"}, true, []string{}},
 		{[]string{"hoge", "fuga"}, true, []string{}},
-		{[]string{"id", "desc", "path", "remote", "group", "count"}, false, []string{"id", "description", "path", "remotes", "groups", "group count"}},
+		{[]string{"id", "desc", "path", "remote", "group", "count"}, false, []string{"id", "description", "path", "remote name", "remote url", "groups", "group count"}},
 		{[]string{"count"}, false, []string{"group count"}},
 	}
 	for _, td := range testdata {
