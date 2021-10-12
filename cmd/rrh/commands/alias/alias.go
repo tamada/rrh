@@ -90,7 +90,7 @@ func removeAliases(cmd *cobra.Command, args []string, aliasList []*Command, conf
 	if len(resultAliases) < len(aliasList) && err != nil && dryRunMode {
 		storeAliases(resultAliases, config)
 	}
-	printDryRun(cmd, fmt.Sprintf("%s: remove alias (dry run mode)", strings.Join(foundNames, ",")))
+	printDryRun(cmd, fmt.Sprintf("%s: remove alias (dry-run mode)", strings.Join(foundNames, ",")))
 	return createError(notFoundNames)
 }
 

@@ -46,7 +46,7 @@ func updateGroup(c *cobra.Command, args []string, db *rrh.Database) error {
 	}
 	c.Printf("update %s -> %v", args[0], group)
 	if updateOpts.dryRunFlag {
-		c.Println("(dry run mode)")
+		c.Println("(dry-run mode)")
 		return nil
 	}
 	c.Println()
