@@ -3,7 +3,7 @@
 [![codebeat badge](https://codebeat.co/badges/15e04551-d448-4ad3-be1d-e98b1e586f1a)](https://codebeat.co/projects/github-com-tamada-rrh-master)
 [![go report](https://goreportcard.com/badge/github.com/tamada/rrh)](https://goreportcard.com/report/github.com/tamada/rrh)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/tamada/rrh/blob/master/LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.2.0-yellowgreen.svg)](https://github.com/tamada/rrh/releases/tag/v1.2.0)
+[![Version](https://img.shields.io/badge/Version-2.0.0-yellowgreen.svg)](https://github.com/tamada/rrh/releases/tag/v2.0.0)
 
 # RRH
 
@@ -691,20 +691,20 @@ RRH means "Repositories, Ready to Hack" or "Remote Repositories Head," are not t
 
 ### Version histories
 
-* [v1.1.0](https://github.com/tamada/rrh/releases/tag/v1.2.0) (18 Dec, 2018)
+* [v1.1.0](https://github.com/tamada/rrh/releases/tag/v2.0.0) (18 Dec, 2018)
     * [\#79](https://github.com/tamada/rrh/issues/79) (add `rrh group info` sub command)
     * [\#77](https://github.com/tamada/rrh/issues/77) (introduce `rrh repository update-remotes` sub command)
     * [\#81](https://github.com/tamada/rrh/issues/81) (introduce options for `rrh prune` command)
-* [v1.0.4](https://github.com/tamada/rrh/releases/tag/v1.2.0) (13 Jul, 2018)
+* [v1.0.4](https://github.com/tamada/rrh/releases/tag/v2.0.0) (13 Jul, 2018)
     * [\#74](https://github.com/tamada/rrh/issues/74) (permission of created README.md by rrh-new was invalid (204))
     * [\#75](https://github.com/tamada/rrh/issues/75) (Introduce `--dry-run` option to `rrh new` command)
-* [v1.0.3](https://github.com/tamada/rrh/releases/tag/v1.2.0) (29 Jun, 2018)
+* [v1.0.3](https://github.com/tamada/rrh/releases/tag/v2.0.0) (29 Jun, 2018)
     * [\#72](https://github.com/tamada/rrh/issues/72) (Print belonging groups on `rrh repository info`)
-* [v1.0.2](https://github.com/tamada/rrh/releases/tag/v1.2.0) (29 Jun, 2018)
+* [v1.0.2](https://github.com/tamada/rrh/releases/tag/v2.0.0) (29 Jun, 2018)
     * [\#67](https://github.com/tamada/rrh/issues/67) (implements `rrh new` sub command)
-* [v1.0.1](https://github.com/tamada/rrh/releases/tag/v1.2.0) (26 Jun, 2018)
+* [v1.0.1](https://github.com/tamada/rrh/releases/tag/v2.0.0) (26 Jun, 2018)
     * [\#68](https://github.com/tamada/rrh/issues/68) (`rrh group` prints `rrh config list`)
-* [v1.0.0](https://github.com/tamada/rrh/releases/tag/v1.2.0) (18 Jun, 2018)
+* [v1.0.0](https://github.com/tamada/rrh/releases/tag/v2.0.0) (18 Jun, 2018)
     * The first public release.
 
 ## Table of Contents

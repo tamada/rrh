@@ -9,6 +9,7 @@ import (
 
 	flag "github.com/spf13/pflag"
 	"github.com/tamada/rrh"
+	"github.com/tamada/rrh/cmd/rrh/commands/common"
 	"gopkg.in/src-d/go-billy.v4/osfs"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing/cache"
@@ -34,7 +35,7 @@ func getHelpMessage() string {
 OPTIONS
     -d, --description <DESC>    specifies short description of the repository.
     -D, --dry-run               performs on dry run mode.
-    -g, --group <GROUP>         specifies group name.
+    -g, --groups <GROUPS>       specifies group name.
     -H, --homepage <URL>        specifies homepage url.
     -p, --private               create a private repository.
     -P, --parent-path <PATH>    specifies the destination path (default: '.').
@@ -201,31 +202,23 @@ func createRepository(db *rrh.Database, arg string, opts *newOptions) error {
 	return err
 }
 
-func isOnError(config *rrh.Config, handler string) bool {
-	var onError = config.GetValue(rrh.OnError)
-	return onError == handler
-}
-
-func storeDbWhenSucceeded(db *rrh.Database, errors []error) {
-	var config = db.Config
-	if len(errors) == 0 || isOnError(config, rrh.Ignore) {
+func storeDbWhenSucceeded(db *rrh.Database, errors common.ErrorList) {
+	if errors.IsNil() {
 		db.StoreAndClose()
 	}
 }
 
-func createRepositories(config *rrh.Config, args []string, opts *newOptions) []error {
-	var errors = []error{}
+func createRepositories(config *rrh.Config, args []string, opts *newOptions) error {
+	var errors = common.NewErrorList()
 	var db, err = rrh.Open(config)
 	defer storeDbWhenSucceeded(db, errors)
-	if err != nil {
-		return []error{err}
+	errors = errors.Append(err)
+	if errors.IsErr() {
+		return errors
 	}
 	for _, arg := range args[1:] {
 		if err := createRepository(db, arg, opts); err != nil {
-			if isOnError(config, rrh.FailImmediately) {
-				return []error{err}
-			}
-			errors = append(errors, err)
+			errors = errors.Append(err)
 		}
 	}
 	return errors
@@ -237,7 +230,11 @@ func perform(config *rrh.Config, args []string, opts *newOptions) int {
 		return 0
 	}
 	var errs = createRepositories(config, args, opts)
-	return config.PrintErrors(errs...)
+	fmt.Println(errs.Error())
+	if errs != nil {
+		return 1
+	}
+	return 0
 }
 
 func goMain(args []string) int {

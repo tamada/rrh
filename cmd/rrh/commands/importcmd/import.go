@@ -96,13 +96,10 @@ func copyGroup(group *rrh.Group, to *rrh.Database) common.ErrorList {
 }
 
 func copyGroups(from *rrh.Database, to *rrh.Database) common.ErrorList {
-	var list = []error{}
+	list := common.NewErrorList()
 	for _, group := range from.Groups {
 		var errs = copyGroup(group, to)
-		list = append(list, errs...)
-		if len(errs) != 0 && common.IsFailImmediately(from.Config) {
-			return list
-		}
+		list = list.Append(errs)
 	}
 	return list
 }
@@ -165,13 +162,10 @@ func copyRepositoryImpl(repository *rrh.Repository, to *rrh.Database) common.Err
 }
 
 func copyRepositories(from *rrh.Database, to *rrh.Database) []error {
-	var list = []error{}
+	var list = common.NewErrorList()
 	for _, repository := range from.Repositories {
 		var errs = copyRepository(repository, to)
-		list = append(list, errs...)
-		if len(errs) > 0 && common.IsFailImmediately(from.Config) {
-			return list
-		}
+		list = list.Append(errs)
 	}
 	return list
 }
@@ -187,13 +181,10 @@ func copyRelation(rel *rrh.Relation, to *rrh.Database) common.ErrorList {
 }
 
 func copyRelations(from *rrh.Database, to *rrh.Database) common.ErrorList {
-	var list = []error{}
+	var list = common.NewErrorList()
 	for _, rel := range from.Relations {
 		var errs = copyRelation(rel, to)
-		list = append(list, errs...)
-		if len(errs) > 0 && common.IsFailImmediately(from.Config) {
-			return list
-		}
+		list = list.Append(errs)
 	}
 	return list
 }

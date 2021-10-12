@@ -1,10 +1,8 @@
 package config
 
 import (
-	"errors"
 	"fmt"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/tamada/rrh"
@@ -57,7 +55,6 @@ func ExampleConfigCommand() {
 	// RRH_DEFAULT_GROUP_NAME: no-group (default)
 	// RRH_ENABLE_COLORIZED: false (default)
 	// RRH_HOME: ../../../../testdata/ (environment)
-	// RRH_ON_ERROR: WARN (default)
 	// RRH_SORT_ON_UPDATING: true (config_file)
 	// RRH_TIME_FORMAT: relative (default)
 }
@@ -80,7 +77,6 @@ func ExampleConfigCommand_Run() {
 	// RRH_DEFAULT_GROUP_NAME: no-group (default)
 	// RRH_ENABLE_COLORIZED: false (default)
 	// RRH_HOME: ../../../../testdata/ (environment)
-	// RRH_ON_ERROR: WARN (default)
 	// RRH_SORT_ON_UPDATING: true (config_file)
 	// RRH_TIME_FORMAT: relative (default)
 }
@@ -102,7 +98,6 @@ func Example_listCommand_Run() {
 	// RRH_DEFAULT_GROUP_NAME: no-group (default)
 	// RRH_ENABLE_COLORIZED: false (default)
 	// RRH_HOME: ../../../../testdata/ (environment)
-	// RRH_ON_ERROR: WARN (default)
 	// RRH_SORT_ON_UPDATING: true (config_file)
 	// RRH_TIME_FORMAT: relative (default)
 }
@@ -120,7 +115,6 @@ func TestLoadConfigFile(t *testing.T) {
 		{rrh.SortOnUpdating, "true", rrh.ConfigFile},
 		{rrh.ConfigPath, "../../../../testdata/config.json", rrh.Env},
 		{rrh.TimeFormat, rrh.Relative, rrh.Default},
-		{rrh.OnError, rrh.Warn, rrh.Default},
 		{rrh.EnableColorized, "false", rrh.Default},
 		{"unknown", "", rrh.NotFound},
 	}
@@ -147,7 +141,6 @@ func TestOpenConfig(t *testing.T) {
 		{rrh.DatabasePath, fmt.Sprintf("%s/.rrh/database.json", home)},
 		{rrh.DefaultGroupName, "no-group"},
 		{rrh.CloneDestination, "."},
-		{rrh.OnError, rrh.Warn},
 		{rrh.AutoCreateGroup, "false"},
 		{rrh.AutoDeleteGroup, "false"},
 		{rrh.SortOnUpdating, "false"},
@@ -164,39 +157,6 @@ func TestOpenConfig(t *testing.T) {
 		}
 	}
 	assert(t, config.GetDefaultValue("unknown"), "")
-}
-
-func TestPrintErrors(t *testing.T) {
-	var testcases = []struct {
-		onError    string
-		error      []error
-		wontStatus int
-		someOutput bool
-	}{
-		{rrh.Ignore, []error{}, 0, false},
-		{rrh.Ignore, []error{errors.New("error")}, 0, false},
-		{rrh.Warn, []error{}, 0, false},
-		{rrh.Warn, []error{errors.New("error")}, 0, true},
-		{rrh.Fail, []error{}, 0, false},
-		{rrh.Fail, []error{errors.New("error")}, 5, true},
-		{rrh.FailImmediately, []error{}, 0, false},
-		{rrh.FailImmediately, []error{errors.New("error")}, 5, true},
-	}
-
-	var config = rrh.NewConfig()
-	for _, tc := range testcases {
-		config.Update(rrh.OnError, tc.onError)
-		var output = rrh.CaptureStdout(func() {
-			var statusCode = config.PrintErrors(tc.error...)
-			if statusCode != tc.wontStatus {
-				t.Errorf("%v: status code did not match, wont: %d, got: %d", tc, tc.wontStatus, statusCode)
-			}
-		})
-		output = strings.TrimSpace(output)
-		if (output == "") == tc.someOutput {
-			t.Errorf("%v: output did not match, wont: %v, got: %v (%s)", tc, tc.someOutput, !tc.someOutput, output)
-		}
-	}
 }
 
 func TestConfigSet(t *testing.T) {

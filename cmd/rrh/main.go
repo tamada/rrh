@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/tamada/rrh"
 	"github.com/tamada/rrh/cmd/rrh/commands/add"
 	"github.com/tamada/rrh/cmd/rrh/commands/clone"
 	"github.com/tamada/rrh/cmd/rrh/commands/config"
@@ -26,9 +27,10 @@ var (
 
 func rootCommand() *cobra.Command {
 	rootCmd := &cobra.Command{
-		Short: "Remote Repositories Head/Repositories, Ready to Hack",
-		Use:   "rrh",
-		Args:  cobra.ArbitraryArgs,
+		Short:   "Remote Repositories Head/Repositories, Ready to Hack",
+		Use:     "rrh",
+		Version: rrh.VERSION,
+		Args:    cobra.ArbitraryArgs,
 		RunE: func(c *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return fmt.Errorf("subcommand not found")

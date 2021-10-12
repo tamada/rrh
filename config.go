@@ -11,7 +11,7 @@ import (
 /*
 VERSION shows the version of RRH.
 */
-const VERSION = "1.2.0"
+const VERSION = "2.0.0"
 
 /*
 The environment variable names.
@@ -26,7 +26,6 @@ const (
 	DefaultGroupName = "RRH_DEFAULT_GROUP_NAME"
 	EnableColorized  = "RRH_ENABLE_COLORIZED"
 	Home             = "RRH_HOME"
-	OnError          = "RRH_ON_ERROR"
 	SortOnUpdating   = "RRH_SORT_ON_UPDATING"
 	TimeFormat       = "RRH_TIME_FORMAT"
 )
@@ -37,7 +36,7 @@ AvailableLabels represents the labels availables in the config.
 var AvailableLabels = []string{
 	AutoCreateGroup, AutoDeleteGroup, CloneDestination, ColorSetting,
 	ConfigPath, DatabasePath, DefaultGroupName, EnableColorized,
-	Home, OnError, SortOnUpdating, TimeFormat,
+	Home, SortOnUpdating, TimeFormat,
 }
 var boolLabels = []string{
 	AutoCreateGroup, AutoDeleteGroup, EnableColorized,
@@ -99,16 +98,10 @@ var defaultValues = Config{
 		DefaultGroupName: "no-group",
 		EnableColorized:  "false",
 		Home:             "${HOME}/.rrh",
-		OnError:          Warn,
 		SortOnUpdating:   "false",
 		TimeFormat:       Relative,
 	},
 	Color: &Color{},
-}
-
-func (config *Config) isOnErrorIgnoreOrWarn() bool {
-	var onError = config.GetValue(OnError)
-	return onError == Ignore || onError == Warn
 }
 
 func printErrorImpl(err error) {
@@ -117,23 +110,20 @@ func printErrorImpl(err error) {
 	}
 }
 
-func isErrorOrIgnore(errs []error, config *Config) bool {
-	return len(errs) == 0 || errs[0] == nil || config.isOnErrorIgnoreOrWarn()
-}
-
 /*
 PrintErrors prints errors and returns the status code by following the value of RrhOnError.
 If the value of RrhOnError is Ignore or Warn, this method returns 0, otherwise, non-zero value.
 */
-func (config *Config) PrintErrors(errs ...error) int {
-	if config.GetValue(OnError) != Ignore {
-		for _, err := range errs {
-			printErrorImpl(err)
+func (config *Config) PrintErrors2(errs ...error) int {
+	/*	if config.GetValue(OnError) != Ignore {
+			for _, err := range errs {
+				printErrorImpl(err)
+			}
 		}
-	}
-	if isErrorOrIgnore(errs, config) {
-		return 0
-	}
+		if isErrorOrIgnore(errs, config) {
+			return 0
+		}
+	*/
 	return 5
 }
 
@@ -201,13 +191,6 @@ func (config *Config) Update(label string, value string) error {
 	}
 	if contains(boolLabels, label) {
 		return config.updateBoolValue(label, value)
-	}
-	if label == OnError {
-		var newValue, err = normalizeValueOfOnError(value)
-		if err != nil {
-			return err
-		}
-		value = newValue
 	}
 	config.values[label] = value
 	return nil
