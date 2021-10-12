@@ -150,7 +150,7 @@ func TestConfigIsSet(t *testing.T) {
 			t.Errorf("not boolean variable is specified")
 		}
 		var home, _ = os.UserHomeDir()
-		if config.GetDefaultValue(ConfigPath) != filepath.Join(home, ".rrh/config.json") {
+		if config.GetDefaultValue(ConfigPath) != filepath.Join(home, ".config/rrh/config.json") {
 			t.Errorf("RrhConfigPath did not match")
 		}
 		var _, from1 = config.findDefaultValue("UnknownVariable")

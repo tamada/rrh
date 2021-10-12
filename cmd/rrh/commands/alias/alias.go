@@ -1,4 +1,4 @@
-package main
+package alias
 
 import (
 	"errors"
@@ -6,11 +6,10 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"github.com/tamada/rrh"
 )
 
-func AliasCommand() *cobra.Command {
+func New() *cobra.Command {
 	aliasCommand := &cobra.Command{
 		Use:   "alias",
 		Short: "manage alias (different names of the commands)",
@@ -21,15 +20,16 @@ func AliasCommand() *cobra.Command {
 			return nil
 		},
 		RunE: func(c *cobra.Command, args []string) error {
-			alias, err := loadAliases()
+			config := rrh.OpenConfig()
+			alias, err := LoadAliases(config)
 			if err != nil {
 				return err
 			} else if len(args) == 0 {
 				return listAlias(c, alias)
 			} else if aliasOpts.removeFlag {
-				return removeAliases(c, args, alias)
+				return removeAliases(c, args, alias, config)
 			} else {
-				return registerAlias(c, args, alias)
+				return registerAlias(c, args, alias, config)
 			}
 		},
 	}
@@ -47,32 +47,32 @@ type aliasOptions struct {
 	dryRunFlag bool
 }
 
-type Alias struct {
+type Command struct {
 	Name   string   `json:"name"`
 	Values []string `json:"values"`
 }
 
-func loadAliases() ([]*Alias, error) {
-	path := viper.GetString("alias_file_path")
-	alias := []*Alias{}
+func LoadAliases(config *rrh.Config) ([]*Command, error) {
+	path := config.GetValue(rrh.AliasPath)
+	alias := []*Command{}
 	err := rrh.LoadJson(path, &alias)
 	return alias, err
 }
 
-func storeAliases(aliasList []*Alias) error {
-	path := viper.GetString("alias_file_path")
+func storeAliases(aliasList []*Command, config *rrh.Config) error {
+	path := config.GetValue(rrh.AliasPath)
 	rrh.StoreJson(path, aliasList)
 	return nil
 }
 
-func listAlias(cmd *cobra.Command, aliasList []*Alias) error {
+func listAlias(cmd *cobra.Command, aliasList []*Command) error {
 	for _, a := range aliasList {
 		cmd.Printf("%s=%s\n", a.Name, strings.Join(a.Values, " "))
 	}
 	return nil
 }
 
-func removeAliases(cmd *cobra.Command, args []string, aliasList []*Alias) error {
+func removeAliases(cmd *cobra.Command, args []string, aliasList []*Command, config *rrh.Config) error {
 	notFoundNames := []string{}
 	foundNames := []string{}
 	resultAliases := aliasList
@@ -82,13 +82,13 @@ func removeAliases(cmd *cobra.Command, args []string, aliasList []*Alias) error 
 			notFoundNames = append(notFoundNames, arg)
 		} else {
 			foundNames = append(foundNames, arg)
-			rrh.PrintIfVerbose(cmd, fmt.Sprintf("remove %s from alias list", arg))
+			cmd.Printf("remove %s from alias list", arg)
 		}
 		resultAliases = r
 	}
 	dryRunMode, err := cmd.Flags().GetBool("dry-run")
 	if len(resultAliases) < len(aliasList) && err != nil && dryRunMode {
-		storeAliases(resultAliases)
+		storeAliases(resultAliases, config)
 	}
 	printDryRun(cmd, fmt.Sprintf("%s: remove alias (dry run mode)", strings.Join(foundNames, ",")))
 	return createError(notFoundNames)
@@ -112,9 +112,9 @@ func createError(names []string) error {
 	}
 }
 
-func removeIt(aliasName string, aliasList []*Alias) ([]*Alias, error) {
+func removeIt(aliasName string, aliasList []*Command) ([]*Command, error) {
 	foundFlag := false
-	resultList := []*Alias{}
+	resultList := []*Command{}
 	for _, alias := range aliasList {
 		if alias.Name == aliasName {
 			foundFlag = true
@@ -128,7 +128,7 @@ func removeIt(aliasName string, aliasList []*Alias) ([]*Alias, error) {
 	return resultList, nil
 }
 
-func findAlias(name string, aliasList []*Alias) *Alias {
+func FindAlias(name string, aliasList []*Command) *Command {
 	for _, alias := range aliasList {
 		if alias.Name == name {
 			return alias
@@ -137,23 +137,23 @@ func findAlias(name string, aliasList []*Alias) *Alias {
 	return nil
 }
 
-func registerAlias(cmd *cobra.Command, args []string, aliasList []*Alias) error {
-	if item := findAlias(args[0], aliasList); item != nil {
+func registerAlias(cmd *cobra.Command, args []string, aliasList []*Command, config *rrh.Config) error {
+	if item := FindAlias(args[0], aliasList); item != nil {
 		return fmt.Errorf("%s: already registered alias", args[0])
 	}
-	alias := &Alias{Name: args[0], Values: args[1:]}
+	alias := &Command{Name: args[0], Values: args[1:]}
 	newList := append(aliasList, alias)
 	dryRunMode, err := cmd.Flags().GetBool("dry-run")
 	if err == nil || !dryRunMode {
-		return storeAliases(newList)
+		return storeAliases(newList, config)
 	}
 	return nil
 }
 
-func executeAlias(cmd *cobra.Command, args []string, alias *Alias) error {
-	newArgs := alias.Values
+func (cmd *Command) Execute(c *cobra.Command, args []string) error {
+	newArgs := cmd.Values
 	newArgs = append(newArgs, args[1:]...)
-	root := cmd.Root()
+	root := c.Root()
 	root.SetArgs(newArgs)
 	return root.Execute()
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
 	"github.com/tamada/rrh/cmd/rrh/commands/add"
+	"github.com/tamada/rrh/cmd/rrh/commands/alias"
 	"github.com/tamada/rrh/cmd/rrh/commands/clone"
 	"github.com/tamada/rrh/cmd/rrh/commands/config"
 	"github.com/tamada/rrh/cmd/rrh/commands/execcmd"
@@ -32,9 +33,10 @@ func rootCommand() *cobra.Command {
 		Version: rrh.VERSION,
 		Args:    cobra.ArbitraryArgs,
 		RunE: func(c *cobra.Command, args []string) error {
+			config := rrh.OpenConfig()
 			if len(args) == 0 {
 				return fmt.Errorf("subcommand not found")
-			} else if done, err := findAndExecuteAlias(c, args); done {
+			} else if done, err := findAndExecuteAlias(c, args, config); done {
 				return err
 			} else if done, err := findAndExecuteExternalCommand(c, args); done {
 				return err
@@ -55,7 +57,7 @@ func rootCommand() *cobra.Command {
 }
 
 func registerSubCommands(c *cobra.Command) {
-	c.AddCommand(AliasCommand())
+	c.AddCommand(alias.New())
 	c.AddCommand(add.New())
 	c.AddCommand(clone.New())
 	c.AddCommand(config.New())
@@ -67,24 +69,24 @@ func registerSubCommands(c *cobra.Command) {
 	c.AddCommand(repository.New())
 }
 
-func loadAndFindAlias(c *cobra.Command, args []string) (*Alias, error) {
-	aliases, err := loadAliases()
+func loadAndFindAlias(c *cobra.Command, args []string, config *rrh.Config) (*alias.Command, error) {
+	aliases, err := alias.LoadAliases(config)
 	if err != nil {
 		return nil, err
 	}
-	alias := findAlias(args[0], aliases)
+	alias := alias.FindAlias(args[0], aliases)
 	if alias == nil {
 		return nil, fmt.Errorf("%s: alias not found", args[0])
 	}
 	return alias, nil
 }
 
-func findAndExecuteAlias(c *cobra.Command, args []string) (bool, error) {
-	alias, err := loadAndFindAlias(c, args)
+func findAndExecuteAlias(c *cobra.Command, args []string, config *rrh.Config) (bool, error) {
+	command, err := loadAndFindAlias(c, args, config)
 	if err != nil {
 		return false, err
 	}
-	return true, executeAlias(c, args, alias)
+	return true, command.Execute(c, args)
 }
 
 func executeCommand(commandPath string, c *cobra.Command, args []string) error {

@@ -46,6 +46,7 @@ func ExampleConfigCommand() {
 	cmd.SetOut(os.Stdout)
 	cmd.Execute()
 	// Output:
+	// RRH_ALIAS_PATH: ../../../../testdata/alias.json (default)
 	// RRH_AUTO_CREATE_GROUP: true (config_file)
 	// RRH_AUTO_DELETE_GROUP: false (config_file)
 	// RRH_CLONE_DESTINATION: . (default)
@@ -68,6 +69,7 @@ func ExampleConfigCommand_Run() {
 	cmd.SetOut(os.Stdout)
 	cmd.Execute()
 	// Output:
+	// RRH_ALIAS_PATH: ../../../../testdata/alias.json (default)
 	// RRH_AUTO_CREATE_GROUP: true (config_file)
 	// RRH_AUTO_DELETE_GROUP: false (config_file)
 	// RRH_CLONE_DESTINATION: . (default)
@@ -89,6 +91,7 @@ func Example_listCommand_Run() {
 	cmd.SetOut(os.Stdout)
 	cmd.Execute()
 	// Output:
+	// RRH_ALIAS_PATH: ../../../../testdata/alias.json (default)
 	// RRH_AUTO_CREATE_GROUP: true (config_file)
 	// RRH_AUTO_DELETE_GROUP: false (config_file)
 	// RRH_CLONE_DESTINATION: . (default)
@@ -136,9 +139,9 @@ func TestOpenConfig(t *testing.T) {
 		key  string
 		want string
 	}{
-		{rrh.Home, fmt.Sprintf("%s/.rrh", home)},
-		{rrh.ConfigPath, fmt.Sprintf("%s/.rrh/config.json", home)},
-		{rrh.DatabasePath, fmt.Sprintf("%s/.rrh/database.json", home)},
+		{rrh.Home, fmt.Sprintf("%s/.config/rrh", home)},
+		{rrh.ConfigPath, fmt.Sprintf("%s/.config/rrh/config.json", home)},
+		{rrh.DatabasePath, fmt.Sprintf("%s/.config/rrh/database.json", home)},
 		{rrh.DefaultGroupName, "no-group"},
 		{rrh.CloneDestination, "."},
 		{rrh.AutoCreateGroup, "false"},
