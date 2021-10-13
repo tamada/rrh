@@ -17,6 +17,7 @@ const VERSION = "2.0.0"
 The environment variable names.
 */
 const (
+	AliasPath        = "RRH_ALIAS_PATH"
 	AutoDeleteGroup  = "RRH_AUTO_DELETE_GROUP"
 	AutoCreateGroup  = "RRH_AUTO_CREATE_GROUP"
 	CloneDestination = "RRH_CLONE_DESTINATION"
@@ -34,9 +35,9 @@ const (
 AvailableLabels represents the labels availables in the config.
 */
 var AvailableLabels = []string{
-	AutoCreateGroup, AutoDeleteGroup, CloneDestination, ColorSetting,
-	ConfigPath, DatabasePath, DefaultGroupName, EnableColorized,
-	Home, SortOnUpdating, TimeFormat,
+	AliasPath, AutoCreateGroup, AutoDeleteGroup, CloneDestination,
+	ColorSetting, ConfigPath, DatabasePath, DefaultGroupName,
+	EnableColorized, Home, SortOnUpdating, TimeFormat,
 }
 var boolLabels = []string{
 	AutoCreateGroup, AutoDeleteGroup, EnableColorized,
@@ -89,6 +90,7 @@ type ReadFrom string
 
 var defaultValues = Config{
 	values: map[string]string{
+		AliasPath:        "${RRH_HOME}/alias.json",
 		AutoCreateGroup:  "false",
 		AutoDeleteGroup:  "false",
 		CloneDestination: ".",
@@ -97,34 +99,11 @@ var defaultValues = Config{
 		DatabasePath:     "${RRH_HOME}/database.json",
 		DefaultGroupName: "no-group",
 		EnableColorized:  "false",
-		Home:             "${HOME}/.rrh",
+		Home:             "${HOME}/.config/rrh",
 		SortOnUpdating:   "false",
 		TimeFormat:       Relative,
 	},
 	Color: &Color{},
-}
-
-func printErrorImpl(err error) {
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-}
-
-/*
-PrintErrors prints errors and returns the status code by following the value of RrhOnError.
-If the value of RrhOnError is Ignore or Warn, this method returns 0, otherwise, non-zero value.
-*/
-func (config *Config) PrintErrors2(errs ...error) int {
-	/*	if config.GetValue(OnError) != Ignore {
-			for _, err := range errs {
-				printErrorImpl(err)
-			}
-		}
-		if isErrorOrIgnore(errs, config) {
-			return 0
-		}
-	*/
-	return 5
 }
 
 func trueOrFalse(value string) (string, error) {

@@ -34,7 +34,7 @@ func getHelpMessage() string {
 	return `rrh new [OPTIONS] <[ORGANIZATION/]REPOSITORIES...>
 OPTIONS
     -d, --description <DESC>    specifies short description of the repository.
-    -D, --dry-run               performs on dry run mode.
+    -D, --dry-run               performs on dry-run mode.
     -g, --groups <GROUPS>       specifies group name.
     -H, --homepage <URL>        specifies homepage url.
     -p, --private               create a private repository.
@@ -55,7 +55,7 @@ func buildFlagSet(config *rrh.Config) (*flag.FlagSet, *newOptions) {
 	flags.StringVarP(&opt.info.homepage, "homepage", "H", "", "specifies homepage url")
 	flags.StringVarP(&opt.parentPath, "parent-path", "P", ".", "specifies the destination path")
 	flags.BoolVarP(&opt.info.privateFlag, "private", "p", false, "create a private repository")
-	flags.BoolVarP(&opt.dryrunMode, "dry-run", "D", false, "performs on dry run mode")
+	flags.BoolVarP(&opt.dryrunMode, "dry-run", "D", false, "performs on dry-run mode")
 	flags.BoolVarP(&opt.helpFlag, "help", "h", false, "print this message")
 	return flags, &opt
 }

@@ -81,7 +81,7 @@ func storeDatabase(c *cobra.Command, db *rrh.Database, messages []*removeResult)
 			if result.err != nil {
 				c.Printf("%s: %s (remove error)\n", result.groupName, result.err.Error())
 			} else if result.removeDone {
-				c.Printf("%s: %s (dry run mode)\n", result.groupName, result.message)
+				c.Printf("%s: %s (dry-run mode)\n", result.groupName, result.message)
 			} else {
 				c.Printf("%s: %s\n", result.groupName, result.message)
 			}
