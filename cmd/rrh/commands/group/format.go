@@ -7,17 +7,8 @@ import (
 
 	"github.com/karlseguin/jsonwriter"
 	"github.com/olekukonko/tablewriter"
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
+	"github.com/tamada/rrh/cmd/rrh/commands/utils"
 )
-
-type Printer interface {
-	Print(i ...interface{})
-	Printf(format string, i ...interface{})
-	Println(i ...interface{})
-	PrintErr(i ...interface{})
-	PrintErrf(format string, i ...interface{})
-	PrintErrln(i ...interface{})
-}
 
 type Formatter interface {
 	Format(writer io.Writer, headers []string, items [][]string) error
@@ -25,7 +16,7 @@ type Formatter interface {
 
 func ValidateFormatter(formatter string) error {
 	availables := []string{"table", "csv", "json", "default"}
-	return common.ValidateValue(formatter, availables)
+	return utils.ValidateValue(formatter, availables)
 
 }
 

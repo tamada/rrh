@@ -8,7 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
+	"github.com/tamada/rrh/cmd/rrh/commands/utils"
+	"github.com/tamada/rrh/common"
 )
 
 func New() *cobra.Command {
@@ -17,7 +18,7 @@ func New() *cobra.Command {
 		Short: "execute the specified command on the specified repositories",
 		Args:  validateArguments,
 		RunE: func(c *cobra.Command, args []string) error {
-			return common.PerformRrhCommand(c, args, performExec)
+			return utils.PerformRrhCommand(c, args, performExec)
 		},
 	}
 	flags := cmd.Flags()

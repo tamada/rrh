@@ -2,7 +2,7 @@ package group
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
+	"github.com/tamada/rrh/cmd/rrh/commands/utils"
 )
 
 func New() *cobra.Command {
@@ -10,7 +10,7 @@ func New() *cobra.Command {
 		Use:   "group [subcommand]",
 		Short: "manage the groups for the rrh database",
 		RunE: func(c *cobra.Command, args []string) error {
-			return common.PerformRrhCommand(c, args, listGroups)
+			return utils.PerformRrhCommand(c, args, listGroups)
 		},
 	}
 	registerGroupCommands(groupCommand)

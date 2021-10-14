@@ -11,7 +11,8 @@ import (
 	"github.com/dustin/go-humanize/english"
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
+	"github.com/tamada/rrh/cmd/rrh/commands/utils"
+	"github.com/tamada/rrh/common"
 )
 
 func New() *cobra.Command {
@@ -20,7 +21,7 @@ func New() *cobra.Command {
 		Short: "run \"git clone\" and register it to a group",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
-			return common.PerformRrhCommand(c, args, performClone)
+			return utils.PerformRrhCommand(c, args, performClone)
 		},
 	}
 	flags := cmd.Flags()

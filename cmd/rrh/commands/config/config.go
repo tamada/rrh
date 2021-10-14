@@ -3,7 +3,7 @@ package config
 import (
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
+	"github.com/tamada/rrh/common"
 )
 
 func New() *cobra.Command {

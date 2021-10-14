@@ -6,7 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
+	"github.com/tamada/rrh/cmd/rrh/commands/utils"
+	"github.com/tamada/rrh/common"
 )
 
 type moveOptions struct {
@@ -21,7 +22,7 @@ func New() *cobra.Command {
 		Short: "move the repositories from groups to another group",
 		Args:  cobra.MinimumNArgs(2),
 		RunE: func(c *cobra.Command, args []string) error {
-			return common.PerformRrhCommand(c, args, performMove)
+			return utils.PerformRrhCommand(c, args, performMove)
 		},
 	}
 	cmd.Flags().BoolVarP(&moveOpts.dryRunFlag, "dry-run", "D", false, "dry-run mode")

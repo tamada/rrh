@@ -8,7 +8,8 @@ import (
 	"github.com/dustin/go-humanize/english"
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
+	"github.com/tamada/rrh/cmd/rrh/commands/utils"
+	"github.com/tamada/rrh/common"
 )
 
 func newInfoCommand() *cobra.Command {
@@ -17,7 +18,7 @@ func newInfoCommand() *cobra.Command {
 		Short: "show repository information",
 		Args:  validateArgs,
 		RunE: func(c *cobra.Command, args []string) error {
-			return common.PerformRrhCommand(c, args, performInfo)
+			return utils.PerformRrhCommand(c, args, performInfo)
 		},
 	}
 	flags := cmd.Flags()

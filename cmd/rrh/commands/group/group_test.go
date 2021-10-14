@@ -132,7 +132,7 @@ func ExampleGroupOfCommand_Run() {
 	})
 	defer os.Remove(dbFile)
 	// Output:
-	// repo1,[group1]
+	// repo1: group1
 }
 
 func ExampleGroupInfoCommand_Run() {

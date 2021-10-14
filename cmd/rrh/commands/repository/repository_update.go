@@ -9,7 +9,7 @@ import (
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
+	"github.com/tamada/rrh/cmd/rrh/commands/utils"
 )
 
 func newUpdateCommand() *cobra.Command {
@@ -18,7 +18,7 @@ func newUpdateCommand() *cobra.Command {
 		Args:  validateUpdate,
 		Short: "update repository information",
 		RunE: func(c *cobra.Command, args []string) error {
-			return common.PerformRrhCommand(c, args, performUpdate)
+			return utils.PerformRrhCommand(c, args, performUpdate)
 		},
 	}
 	flags := cmd.Flags()

@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
+	"github.com/tamada/rrh/cmd/rrh/commands/utils"
 )
 
 func New() *cobra.Command {
@@ -14,7 +14,7 @@ func New() *cobra.Command {
 		Short: "list groups and repositories",
 		Args:  cobra.ArbitraryArgs,
 		RunE: func(c *cobra.Command, args []string) error {
-			return common.PerformRrhCommand(c, args, Perform)
+			return utils.PerformRrhCommand(c, args, Perform)
 		},
 	}
 	flags := cmd.Flags()
@@ -52,7 +52,7 @@ func performImpl(c *cobra.Command, args []string, db *rrh.Database) error {
 	if err != nil {
 		return err
 	}
-	formatter, err := newFormatter(listOpts.format, listOpts.header)
+	formatter, err := newFormatter(listOpts.format, listOpts.header, db.Config)
 	if err != nil {
 		return err
 	}
