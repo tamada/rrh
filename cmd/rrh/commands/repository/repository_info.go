@@ -52,12 +52,23 @@ func performInfo(c *cobra.Command, args []string, db *rrh.Database) error {
 	return el.NilOrThis()
 }
 
+func findColoredGroup(db *rrh.Database, repoID string) []string {
+	deco := db.Config.Decorator
+	groups := db.FindRelationsOfRepository(repoID)
+	results := []string{}
+	for _, group := range groups {
+		results = append(results, deco.GroupName(group))
+	}
+	return results
+}
+
 func printRepository(c *cobra.Command, repo *rrh.Repository, e Entries, db *rrh.Database) error {
+	deco := db.Config.Decorator
 	if e.IsId() {
-		c.Printf("Repository Id: %s\n", repo.ID)
+		c.Printf("Repository Id: %s\n", deco.RepositoryID(repo.ID))
 	}
 	if e.IsGroup() {
-		groups := db.FindRelationsOfRepository(repo.ID)
+		groups := findColoredGroup(db, repo.ID)
 		if len(groups) > 0 {
 			c.Printf("%s: %s\n", english.PluralWord(len(groups), "Group", "Groups"), strings.Join(groups, ", "))
 		}
