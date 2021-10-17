@@ -23,7 +23,7 @@ func New() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add <REPOs...>",
 		Args:  validateArgs,
-		Short: "add repositories on the local path to rrh database",
+		Short: "add the given repositories to the rrh database",
 		RunE: func(c *cobra.Command, args []string) error {
 			return utils.PerformRrhCommand(c, args, perform)
 		},

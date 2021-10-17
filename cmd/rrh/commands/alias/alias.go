@@ -22,7 +22,9 @@ func New() *cobra.Command {
     update
         alias grlist --update -- repository list --entry id
     remove
-        alias --remove grlist`,
+        alias --remove grlist
+    execute
+        type the registered alias name instead of rrh sub command`,
 		RunE: func(c *cobra.Command, args []string) error {
 			config := rrh.OpenConfig()
 			alias, err := LoadAliases(config)
