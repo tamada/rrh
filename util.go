@@ -61,12 +61,18 @@ func IsExistAndGitRepository(absPath string, path string) error {
 	if !fmode.IsDir() {
 		return fmt.Errorf("%s: not directory", path)
 	}
-	fmode, err = os.Stat(filepath.Join(absPath, ".git"))
+
+	_, err = os.Stat(filepath.Join(absPath, ".git"))
 	// If the repository of path is submodule, `.git` will be a file to indicate the `.git` directory.
 	if os.IsNotExist(err) {
 		return fmt.Errorf("%s: not git repository", path)
 	}
 	return nil
+}
+
+func IsExist(path string) bool {
+	var _, err = os.Stat(path)
+	return !os.IsNotExist(err)
 }
 
 func LoadJson(filePath string, v interface{}) error {
@@ -84,19 +90,12 @@ func LoadJson(filePath string, v interface{}) error {
 
 func StoreJson(filePath string, v interface{}) error {
 	bytes, err := json.Marshal(v)
+	fmt.Printf("marshal: (%v) \"%v\" \n", err, string(bytes))
 	if err != nil {
 		return err
 	}
-	writer, err := os.OpenFile(filePath, os.O_CREATE, 0644)
-	if err != nil {
-		return err
-	}
-	defer writer.Close()
-	n, err := writer.Write(bytes)
-	if n != len(bytes) {
-		return fmt.Errorf("cannot write fully %d/%d", n, len(bytes))
-	}
-	return err
+	fmt.Printf("filePath: %s\n", filePath)
+	return ioutil.WriteFile(filePath, bytes, 0644)
 }
 
 func FindIn(target string, list []string) bool {

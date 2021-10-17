@@ -6,7 +6,8 @@ import (
 	"github.com/dustin/go-humanize/english"
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
+	"github.com/tamada/rrh/cmd/rrh/commands/utils"
+	"github.com/tamada/rrh/common"
 )
 
 func createGroupInfoCommand() *cobra.Command {
@@ -15,7 +16,7 @@ func createGroupInfoCommand() *cobra.Command {
 		Short: "print the information of the specified group",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
-			return common.PerformRrhCommand(c, args, printGroupInfos)
+			return utils.PerformRrhCommand(c, args, printGroupInfos)
 		},
 	}
 	return command
@@ -36,6 +37,7 @@ func printGroupInfo(c *cobra.Command, groupName string, db *rrh.Database) error 
 		return fmt.Errorf("%s: group not found", groupName)
 	}
 	count := db.ContainsCount(group.Name)
-	c.Printf("%s: %s (%s, abbrev: %v)\n", group.Name, group.Description, english.Plural(count, "repository", ""), group.OmitList)
+	decoratedName := db.Config.Decorator.GroupName(group.Name)
+	c.Printf("%s: %s (%s, abbrev: %v)\n", decoratedName, group.Description, english.Plural(count, "repository", ""), group.OmitList)
 	return nil
 }

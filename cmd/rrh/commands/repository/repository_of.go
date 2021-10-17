@@ -5,8 +5,9 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
 	"github.com/tamada/rrh/cmd/rrh/commands/list"
+	"github.com/tamada/rrh/cmd/rrh/commands/utils"
+	"github.com/tamada/rrh/common"
 )
 
 func newOfCommand() *cobra.Command {
@@ -15,8 +16,7 @@ func newOfCommand() *cobra.Command {
 		Short: "show repository list of the given groups. This is an alias of \"rrh list\" command",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
-
-			return common.PerformRrhCommand(c, args, performOf)
+			return utils.PerformRrhCommand(c, args, performOf)
 		},
 	}
 	return cmd

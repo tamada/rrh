@@ -7,7 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
+	"github.com/tamada/rrh/cmd/rrh/commands/utils"
+	"github.com/tamada/rrh/common"
 )
 
 type addOptions struct {
@@ -24,7 +25,7 @@ func New() *cobra.Command {
 		Args:  validateArgs,
 		Short: "add repositories on the local path to rrh database",
 		RunE: func(c *cobra.Command, args []string) error {
-			return common.PerformRrhCommand(c, args, perform)
+			return utils.PerformRrhCommand(c, args, perform)
 		},
 	}
 	flags := cmd.Flags()

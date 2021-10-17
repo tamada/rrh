@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
+	"github.com/tamada/rrh/cmd/rrh/commands/utils"
 )
 
 type updateOptions struct {
@@ -24,7 +24,7 @@ func createGroupUpdateCommand() *cobra.Command {
 		Short: "update the information of the specified group",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
-			return common.PerformRrhCommand(c, args, updateGroup)
+			return utils.PerformRrhCommand(c, args, updateGroup)
 		},
 	}
 	flags := command.Flags()

@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
+	"github.com/tamada/rrh/cmd/rrh/commands/utils"
 )
 
 type createOptions struct {
@@ -22,7 +22,7 @@ func createGroupAddCommand() *cobra.Command {
 		Short: "add groups to the rrh database",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
-			return common.PerformRrhCommand(c, args, func(c *cobra.Command, args []string, db *rrh.Database) error {
+			return utils.PerformRrhCommand(c, args, func(c *cobra.Command, args []string, db *rrh.Database) error {
 				if err := createAndAddGroup(c, args[0], db); err != nil {
 					return err
 				}

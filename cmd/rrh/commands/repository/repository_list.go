@@ -6,7 +6,8 @@ import (
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
+	"github.com/tamada/rrh/cmd/rrh/commands/utils"
+	"github.com/tamada/rrh/common"
 )
 
 type listOptions struct {
@@ -23,7 +24,7 @@ func newListCommand() *cobra.Command {
 			return ValidateEntries(listOpts.entries)
 		},
 		RunE: func(c *cobra.Command, args []string) error {
-			return common.PerformRrhCommand(c, args, performList)
+			return utils.PerformRrhCommand(c, args, performList)
 		},
 	}
 	flags := cmd.Flags()

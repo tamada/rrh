@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/tamada/rrh"
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
+	"github.com/tamada/rrh/common"
 )
 
 func TestParseError(t *testing.T) {

@@ -6,7 +6,9 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
+	"github.com/tamada/rrh/cmd/rrh/commands/utils"
+	"github.com/tamada/rrh/common"
+	"github.com/tamada/rrh/decorator"
 )
 
 type removeOptions struct {
@@ -22,7 +24,7 @@ func createGroupRemoveCommand() *cobra.Command {
 		Use:  "rm <GROUP NAMEs...>",
 		Args: cobra.MinimumNArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
-			return common.PerformRrhCommand(c, args, executeGroupRemove)
+			return utils.PerformRrhCommand(c, args, executeGroupRemove)
 		},
 	}
 	flags := c.Flags()
@@ -44,9 +46,9 @@ func (rr *removeResult) Err() error {
 	return rr.err
 }
 
-func newRemoveResult(name string, doneFlag bool, err error, message string) *removeResult {
+func newRemoveResult(deco decorator.Decorator, name string, doneFlag bool, err error, message string) *removeResult {
 	return &removeResult{
-		groupName:  name,
+		groupName:  deco.GroupName(name),
 		removeDone: doneFlag,
 		err:        err,
 		message:    message,
@@ -59,16 +61,16 @@ func executeGroupRemove(c *cobra.Command, args []string, db *rrh.Database) error
 	for _, groupName := range args {
 		group := db.FindGroup(groupName)
 		if group == nil && !removeOpts.force {
-			messages = append(messages, newRemoveResult(groupName, false, errors.New("group not found"), ""))
+			messages = append(messages, newRemoveResult(db.Config.Decorator, groupName, false, errors.New("group not found"), ""))
 		}
 		if group != nil {
 			if !inquiryRemovingGroup(removeOpts.inquiry, groupName) {
-				messages = append(messages, newRemoveResult(groupName, false, nil, "not remove by the user request"))
+				messages = append(messages, newRemoveResult(db.Config.Decorator, groupName, false, nil, "not remove by the user request"))
 			}
 			if err := removeGroupsImpl(c, db, groupName); err != nil {
-				messages = append(messages, newRemoveResult(groupName, false, err, ""))
+				messages = append(messages, newRemoveResult(db.Config.Decorator, groupName, false, err, ""))
 			} else {
-				messages = append(messages, newRemoveResult(groupName, true, nil, "remove done"))
+				messages = append(messages, newRemoveResult(db.Config.Decorator, groupName, true, nil, "remove done"))
 			}
 		}
 	}

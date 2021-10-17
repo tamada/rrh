@@ -6,7 +6,7 @@ import (
 	"github.com/dustin/go-humanize/english"
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
+	"github.com/tamada/rrh/cmd/rrh/commands/utils"
 )
 
 type pruneOptions struct {
@@ -27,7 +27,7 @@ func New() *cobra.Command {
 		Short: "prune unnecessary entries in the rrh database",
 		Args:  cobra.NoArgs,
 		RunE: func(c *cobra.Command, args []string) error {
-			return common.PerformRrhCommand(c, args, performPrune)
+			return utils.PerformRrhCommand(c, args, performPrune)
 		},
 	}
 	flags := pruneCommand.Flags()
@@ -61,7 +61,7 @@ func perform(c *cobra.Command, db *rrh.Database) error {
 	c.Printf("Pruned %s", english.Plural(len(groups), "group", ""))
 	c.Printf(" and %s", english.Plural(len(repos)+len(repos2), "repository", ""))
 	c.Printf("%s\n", dryRunMode())
-	if pruneOpts.dryRunFlag || common.IsVerbose(c) {
+	if pruneOpts.dryRunFlag || utils.IsVerbose(c) {
 		printNotExistRepository(c, repos)
 		printNoRelationsResults(c, repos2, groups)
 	}

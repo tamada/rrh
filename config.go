@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/tamada/rrh/decorator"
 )
 
 /*
@@ -78,8 +80,9 @@ const (
 Config shows the values of configuration variables.
 */
 type Config struct {
-	values map[string]string
-	Color  *Color
+	values    map[string]string
+	Decorator decorator.Decorator
+	Color     *Color
 }
 
 /*
@@ -285,6 +288,15 @@ func OpenConfig() *Config {
 		return nil
 	}
 	config.values = values
-	config.Color = InitializeColor(config)
+	config.Decorator = initDecorator(config)
 	return config
+}
+
+func initDecorator(config *Config) decorator.Decorator {
+	var settingString = config.GetValue(ColorSetting)
+	if config.IsSet(EnableColorized) && settingString != "" {
+		decorator, _ := decorator.New(settingString)
+		return decorator
+	}
+	return decorator.NewNoDecorator()
 }

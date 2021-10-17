@@ -10,7 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
+	"github.com/tamada/rrh/cmd/rrh/commands/utils"
 )
 
 type exportOptions struct {
@@ -26,7 +26,7 @@ func New() *cobra.Command {
 		Short: "export rrh database to stdout",
 		Args:  cobra.NoArgs,
 		RunE: func(c *cobra.Command, args []string) error {
-			return common.PerformRrhCommand(c, args, perform)
+			return utils.PerformRrhCommand(c, args, perform)
 		},
 	}
 	flags := cmd.Flags()

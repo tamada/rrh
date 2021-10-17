@@ -4,7 +4,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
+	"github.com/tamada/rrh"
+	"github.com/tamada/rrh/cmd/rrh/commands/utils"
 )
 
 type formatter interface {
@@ -13,16 +14,16 @@ type formatter interface {
 
 func validateFormat(formatter string) error {
 	availables := []string{"default", "json", "csv", "table"}
-	return common.ValidateValue(formatter, availables)
+	return utils.ValidateValue(formatter, availables)
 }
 
-func newFormatter(formatter string, headerFlag bool) (formatter, error) {
+func newFormatter(formatter string, headerFlag bool, config *rrh.Config) (formatter, error) {
 	if err := validateFormat(formatter); err != nil {
 		return nil, err
 	}
 	switch strings.ToLower(formatter) {
 	case "default":
-		return &defaultFormat{}, nil
+		return &defaultFormat{deco: config.Decorator}, nil
 	case "json":
 		return &jsonFormat{}, nil
 	case "csv":

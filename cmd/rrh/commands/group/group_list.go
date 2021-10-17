@@ -7,7 +7,7 @@ import (
 	"github.com/dustin/go-humanize/english"
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
+	"github.com/tamada/rrh/cmd/rrh/commands/utils"
 )
 
 type groupEntry int
@@ -38,7 +38,7 @@ func createGroupListCommand() *cobra.Command {
 		},
 		Short: "print the group list",
 		RunE: func(c *cobra.Command, args []string) error {
-			return common.PerformRrhCommand(c, args, listGroups)
+			return utils.PerformRrhCommand(c, args, listGroups)
 		},
 	}
 	flags := command.Flags()
@@ -78,10 +78,11 @@ func listGroups(c *cobra.Command, args []string, db *rrh.Database) error {
 
 func groupListResult(ge Entries, db *rrh.Database) (headers []string, values [][]string, err error) {
 	results := [][]string{}
+	decorator := db.Config.Decorator
 	for _, group := range db.Groups {
 		resultItems := []string{}
 		if ge.IsName() {
-			resultItems = append(resultItems, group.Name)
+			resultItems = append(resultItems, decorator.GroupName(group.Name))
 		}
 		if ge.IsDesc() {
 			resultItems = append(resultItems, group.Description)

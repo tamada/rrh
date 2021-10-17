@@ -7,14 +7,16 @@ import (
 
 	"github.com/dustin/go-humanize/english"
 	"github.com/tamada/rrh"
+	"github.com/tamada/rrh/decorator"
 )
 
 type defaultFormat struct {
+	deco decorator.Decorator
 }
 
 func (df *defaultFormat) formatEach(writer *bufio.Writer, r *Result, li Entries, noAbbrevFlag bool) error {
 	if li.IsGroupName() {
-		writer.WriteString(r.GroupName)
+		writer.WriteString(df.deco.GroupName(r.GroupName))
 	}
 	if li.IsRepositoryCount() {
 		writer.WriteString(" (" + english.Plural(len(r.Repos), "repository", "repositories") + ")")
@@ -25,18 +27,19 @@ func (df *defaultFormat) formatEach(writer *bufio.Writer, r *Result, li Entries,
 		if li.IsNote() {
 			writer.WriteString(fmt.Sprintf("\n    Note: %s", r.Note))
 		}
-		printRepositoryInfo(writer, r, li)
+		df.printRepositoryInfo(writer, r, li)
 	}
 	writer.WriteString("\n")
 	return nil
 }
 
-func printRepositoryInfo(writer *bufio.Writer, r *Result, li Entries) {
-	repositoryIdFormatter := repositoryIdFormatter(r)
+func (df *defaultFormat) printRepositoryInfo(writer *bufio.Writer, r *Result, li Entries) {
+	width := computeWidth(r)
 	for _, repo := range r.Repos {
 		writer.WriteString("\n")
 		if li.IsRepositoryId() {
-			writer.WriteString(fmt.Sprintf(repositoryIdFormatter, repo.Name))
+			formatter := fmt.Sprintf("    %%s%%%ds", width-len(repo.Name))
+			writer.WriteString(fmt.Sprintf(formatter, df.deco.RepositoryID(repo.Name), ""))
 		}
 		if li.IsRepositoryPath() {
 			writer.WriteString(fmt.Sprintf("    %s", repo.Path))
@@ -53,7 +56,7 @@ func printRepositoryInfo(writer *bufio.Writer, r *Result, li Entries) {
 }
 
 func repositoryIdFormatter(r *Result) string {
-	return fmt.Sprintf("    %%-%ds", computeWidth(r))
+	return fmt.Sprintf("    %%s%%%ds", computeWidth(r))
 }
 
 func computeWidth(r *Result) int {

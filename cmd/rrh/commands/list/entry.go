@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
+	"github.com/tamada/rrh/cmd/rrh/commands/utils"
 )
 
 type Entries int
@@ -104,5 +104,5 @@ func (li Entries) StringArray() []string {
 
 func ValidateEntries(entries []string) error {
 	availables := []string{"group", "note", "id", "desc", "count", "path", "summary", "remote", "all"}
-	return common.ValidateValues(entries, availables)
+	return utils.ValidateValues(entries, availables)
 }

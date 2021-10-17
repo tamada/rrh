@@ -7,7 +7,8 @@ import (
 	"github.com/skratchdot/open-golang/open"
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
-	"github.com/tamada/rrh/cmd/rrh/commands/common"
+	"github.com/tamada/rrh/cmd/rrh/commands/utils"
+	"github.com/tamada/rrh/common"
 )
 
 func New() *cobra.Command {
@@ -16,7 +17,7 @@ func New() *cobra.Command {
 		Short: "open the folder or web page of the given repositories",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
-			return common.PerformRrhCommand(c, args, performOpen)
+			return utils.PerformRrhCommand(c, args, performOpen)
 		},
 	}
 	flags := cmd.Flags()
