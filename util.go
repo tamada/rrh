@@ -70,6 +70,14 @@ func IsExistAndGitRepository(absPath string, path string) error {
 	return nil
 }
 
+func IsExistDir(path string) bool {
+	fmode, err := os.Stat(path)
+	if !os.IsNotExist(err) {
+		return fmode.IsDir()
+	}
+	return false
+}
+
 func IsExist(path string) bool {
 	var _, err = os.Stat(path)
 	return !os.IsNotExist(err)

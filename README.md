@@ -11,13 +11,13 @@ RRH is a simple git repository manager.
 
 ## Table of contents
 
-* [Description](#description)
-* [Installation](#installation)
-* [Usage](#usage)
-* [Development](#development)
-* [Utilities](#utilities)
-* [About the Project](#about-the-project)
-* [Table of contents](#table-of-contents)
+- [Description](#description)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Development](#development)
+- [Utilities](#utilities)
+- [About the Project](#about-the-project)
+- [Table of contents](#table-of-contents)
 
 ## Description
 
@@ -30,10 +30,10 @@ I know the tool [ghq](https://github.com/motemen/ghq), manages the git repositor
 However, I cannot use it for the following reasons.
 
 1. there are quite many repositories in my home directory.
-    * To start using ghq, we clone the repositories.
-      However, I did not accept to clone all of the repositories.
+   - To start using ghq, we clone the repositories.
+     However, I did not accept to clone all of the repositories.
 2. The location of repositories is fixed in the config file and is accepted only one location.
-    * I decide the directory layout in my home directory.
+   - I decide the directory layout in my home directory.
 
 Additionally, I edit several repositories in a day, when I work hard.
 Consequently, the progress of each repository is obscured; I cannot remember a lot of things.
@@ -62,14 +62,19 @@ $ go get git@github.com/tamada/rrh.git
 
 ### Requirements
 
-* Runtime
-    * Bash 4.x or after, for completion.
-        * [zsh](http://www.zsh.org/)?, and [fish](https://fishshell.com/)?, I do not use them, so I do not know.
-        * For macOS user, the default shell of the macOS is bash 3.x, therefore, the completion is not work enough.
-            * `rrh` is maybe work on Windows, and Linux. I do not use them.
-* Development
-    * Go 1.12
-    * See `go.mod`
+- Runtime
+  - Bash 4.x or after, for completion.
+    - [zsh](http://www.zsh.org/)?, and [fish](https://fishshell.com/)?, I do not use them, so I do not know.
+    - For macOS user, the default shell of the macOS is bash 3.x, therefore, the completion is not work enough.
+      - `rrh` is maybe work on Windows, and Linux. I do not use them.
+- Development
+  - Go 1.12
+  - See `go.mod`
+
+### For 1.x.x Users
+
+`rrh` updates the default config and database paths from `"${HOME}/.rrh"` to `"${HOME}/.config/rrh"`.
+Therefore, please move the previous database and config to the new location by executing `rrh migrate 1.x.x`.
 
 ## Usage
 
@@ -77,9 +82,9 @@ $ go get git@github.com/tamada/rrh.git
 
 RRH has various subcommands, however, `list` and `add` subcommand make you happy.
 
-* `rrh list` shows managed repositories.
-* `rrh add <REPO>` adds the given repository under the RRH management.
-* type [`cdrrh`](#cdrrh) on Terminal, then type TAB, TAB, TAB!
+- `rrh list` shows managed repositories.
+- `rrh add <REPO>` adds the given repository under the RRH management.
+- type [`cdrrh`](#cdrrh) on Terminal, then type TAB, TAB, TAB!
 
 ### Command references
 
@@ -135,8 +140,8 @@ Runs `git clone` command and registers the cloned repository to RRH database.
 The following steps identify the id of the repository.
 
 1. If the length of `REMOTE_REPOS` is 1, and `DEST` exists, then the last entry of `REMOTE_REPOS` is repository id by eliminating the suffix `.git`.
-3. If the length of `REMOTE_REPOS` is 1, and `DEST` does not exist, then the last entry of `DEST` is repository id.
-2. If the length of `REMOTE_REPOS` is greater than 1, then the last entry of each `REMOTE_REPOS` is repository ids by eliminating the suffix `.git`.
+2. If the length of `REMOTE_REPOS` is 1, and `DEST` does not exist, then the last entry of `DEST` is repository id.
+3. If the length of `REMOTE_REPOS` is greater than 1, then the last entry of each `REMOTE_REPOS` is repository ids by eliminating the suffix `.git`.
 
 ```sh
 rrh clone [OPTIONS] <REMOTE_REPOS...>
@@ -469,89 +474,89 @@ We can see those variables by running `rrh config` sub-command.
 
 #### `RRH_HOME`
 
-* specifies the location of the RRH database and config file.
-* Default: `/Users/tamada/.rrh`
+- specifies the location of the RRH database and config file.
+- Default: `/Users/tamada/.rrh`
 
 #### `RRH_CONFIG_PATH`
 
-* specifies the location of the location path.
-    * RRH ignores to specify `RRH_CONFIG_PATH` in the config file.
-      This variable availables only environment variable.
-* Default: `${RRH_HOME}/config.json`
+- specifies the location of the location path.
+  - RRH ignores to specify `RRH_CONFIG_PATH` in the config file.
+    This variable availables only environment variable.
+- Default: `${RRH_HOME}/config.json`
 
 #### `RRH_DATABASE_PATH`
 
-* specifies the location of the database path.
-* Default: `${RRH_HOME}/database.json`
+- specifies the location of the database path.
+- Default: `${RRH_HOME}/database.json`
 
 #### `RRH_DEFAULT_GROUP_NAME`
 
-* specifies the default group name.
-* Default: `no-group`
+- specifies the default group name.
+- Default: `no-group`
 
 #### `RRH_CLONE_DESTINATION`
 
-* specifies the destination by cloning the repository.
-* Default: `.`
+- specifies the destination by cloning the repository.
+- Default: `.`
 
 #### `RRH_ON_ERROR`
 
-* specifies the behaviors of RRH on error.
-* Default: `WARN`
-* Available values: `FAIL_IMMEDIATELY`, `FAIL`, `WARN`, and `IGNORE`
-    * `FAIL_IMMEDIATELY`
-        * reports error immediately and quits RRH with a non-zero status.
-    * `FAIL`
-        * runs through all targets and reports errors if needed, then quits RRH with a non-zero status.
-    * `WARN`
-        * runs through all targets and reports errors if needed, then quits RRH successfully.
-    * `IGNORE`
-        * runs all targets and no reports errors.
+- specifies the behaviors of RRH on error.
+- Default: `WARN`
+- Available values: `FAIL_IMMEDIATELY`, `FAIL`, `WARN`, and `IGNORE`
+  - `FAIL_IMMEDIATELY`
+    - reports error immediately and quits RRH with a non-zero status.
+  - `FAIL`
+    - runs through all targets and reports errors if needed, then quits RRH with a non-zero status.
+  - `WARN`
+    - runs through all targets and reports errors if needed, then quits RRH successfully.
+  - `IGNORE`
+    - runs all targets and no reports errors.
 
 #### `RRH_TIME_FORMAT`
 
-* specifies the time format for `status` command.
-* Default: `relative`
-* Available value: `relative` and the time format for Go lang.
-    * `relative`
-        * shows times by humanized format (e.g., 2 weeks ago)
-    * Other strings
-        * regard as formatting layout and give to `Format` method of the time.
-            * see [Time.Format](https://golang.org/pkg/time/#Time.Format), for more detail.
+- specifies the time format for `status` command.
+- Default: `relative`
+- Available value: `relative` and the time format for Go lang.
+  - `relative`
+    - shows times by humanized format (e.g., 2 weeks ago)
+  - Other strings
+    - regard as formatting layout and give to `Format` method of the time.
+      - see [Time.Format](https://golang.org/pkg/time/#Time.Format), for more detail.
 
 #### `RRH_AUTO_CREATE_GROUP`
 
-* specifies to create the group when the not existing group was specified, and it needs to create.
-* Default: false
+- specifies to create the group when the not existing group was specified, and it needs to create.
+- Default: false
 
 #### `RRH_AUTO_DELETE_GROUP`
 
-* specifies to delete the group when some group was no more needed.
-* Default: false
+- specifies to delete the group when some group was no more needed.
+- Default: false
 
 #### `RRH_SORT_ON_UPDATING`
 
-* specifies to sort database entries on updating database.
-* Default: false
+- specifies to sort database entries on updating database.
+- Default: false
 
 #### `RRH_COLOR`
 
-* specifies the colors of the output.
-* Default: `"repository:fg=red+group:fg=magenta+label:op=bold+configValue:fg=green"`
-* Format: `"repository:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+group:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+label:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+configValue:fg=<COLOR>;bg=<COLOR>;op=<STYLE>"`
-    * Available `COLOR`s
-        * red, cyan, blue, black, green, white, yellow, magenta.
-    * Available `STYLE`s
-        * bold, underscore.
-    * Delimiter of repository, group and label is `+`, delimiter of type and value is `:`, delimiter of each label is `;`, and delimiter of each value is `,`.
-* Examples:
-    * `RRH_COLOR: repository:fg=red+group:fg=cyan;op=bold,underscore`
-        * Repository: red, Group: cyan in bold with underscore.
+- specifies the colors of the output.
+- Default: `"repository:fg=red+group:fg=magenta+label:op=bold+configValue:fg=green"`
+- Format: `"repository:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+group:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+label:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+configValue:fg=<COLOR>;bg=<COLOR>;op=<STYLE>"`
+  - Available `COLOR`s
+    - red, cyan, blue, black, green, white, yellow, magenta.
+  - Available `STYLE`s
+    - bold, underscore.
+  - Delimiter of repository, group and label is `+`, delimiter of type and value is `:`, delimiter of each label is `;`, and delimiter of each value is `,`.
+- Examples:
+  - `RRH_COLOR: repository:fg=red+group:fg=cyan;op=bold,underscore`
+    - Repository: red, Group: cyan in bold with underscore.
 
 #### `RRH_ENABLE_COLORIZED`
 
-* specifies to colorize the output. The colors of output were specified on [`RRH_COLOR`](#rrh_color)
-* Default: false
+- specifies to colorize the output. The colors of output were specified on [`RRH_COLOR`](#rrh_color)
+- Default: false
 
 ## Development
 
@@ -673,7 +678,7 @@ The public language of other channels and GitHub pages are English.
 
 ### Author
 
-* [Haruaki Tamada](https://github.com/tamada)
+- [Haruaki Tamada](https://github.com/tamada)
 
 ### Why the project name RRH
 
@@ -688,64 +693,63 @@ RRH means "Repositories, Ready to Hack" or "Remote Repositories Head," are not t
 
 ![icon of rrh](https://raw.githubusercontent.com/tamada/rrh/master/docs/static/favicon-64x64.png) by [iconpon.com](https://www.iconpon.com/)
 
-
 ### Version histories
 
-* [v1.1.0](https://github.com/tamada/rrh/releases/tag/v2.0.0) (18 Dec, 2018)
-    * [\#79](https://github.com/tamada/rrh/issues/79) (add `rrh group info` sub command)
-    * [\#77](https://github.com/tamada/rrh/issues/77) (introduce `rrh repository update-remotes` sub command)
-    * [\#81](https://github.com/tamada/rrh/issues/81) (introduce options for `rrh prune` command)
-* [v1.0.4](https://github.com/tamada/rrh/releases/tag/v2.0.0) (13 Jul, 2018)
-    * [\#74](https://github.com/tamada/rrh/issues/74) (permission of created README.md by rrh-new was invalid (204))
-    * [\#75](https://github.com/tamada/rrh/issues/75) (Introduce `--dry-run` option to `rrh new` command)
-* [v1.0.3](https://github.com/tamada/rrh/releases/tag/v2.0.0) (29 Jun, 2018)
-    * [\#72](https://github.com/tamada/rrh/issues/72) (Print belonging groups on `rrh repository info`)
-* [v1.0.2](https://github.com/tamada/rrh/releases/tag/v2.0.0) (29 Jun, 2018)
-    * [\#67](https://github.com/tamada/rrh/issues/67) (implements `rrh new` sub command)
-* [v1.0.1](https://github.com/tamada/rrh/releases/tag/v2.0.0) (26 Jun, 2018)
-    * [\#68](https://github.com/tamada/rrh/issues/68) (`rrh group` prints `rrh config list`)
-* [v1.0.0](https://github.com/tamada/rrh/releases/tag/v2.0.0) (18 Jun, 2018)
-    * The first public release.
+- [v1.1.0](https://github.com/tamada/rrh/releases/tag/v2.0.0) (18 Dec, 2018)
+  - [\#79](https://github.com/tamada/rrh/issues/79) (add `rrh group info` sub command)
+  - [\#77](https://github.com/tamada/rrh/issues/77) (introduce `rrh repository update-remotes` sub command)
+  - [\#81](https://github.com/tamada/rrh/issues/81) (introduce options for `rrh prune` command)
+- [v1.0.4](https://github.com/tamada/rrh/releases/tag/v2.0.0) (13 Jul, 2018)
+  - [\#74](https://github.com/tamada/rrh/issues/74) (permission of created README.md by rrh-new was invalid (204))
+  - [\#75](https://github.com/tamada/rrh/issues/75) (Introduce `--dry-run` option to `rrh new` command)
+- [v1.0.3](https://github.com/tamada/rrh/releases/tag/v2.0.0) (29 Jun, 2018)
+  - [\#72](https://github.com/tamada/rrh/issues/72) (Print belonging groups on `rrh repository info`)
+- [v1.0.2](https://github.com/tamada/rrh/releases/tag/v2.0.0) (29 Jun, 2018)
+  - [\#67](https://github.com/tamada/rrh/issues/67) (implements `rrh new` sub command)
+- [v1.0.1](https://github.com/tamada/rrh/releases/tag/v2.0.0) (26 Jun, 2018)
+  - [\#68](https://github.com/tamada/rrh/issues/68) (`rrh group` prints `rrh config list`)
+- [v1.0.0](https://github.com/tamada/rrh/releases/tag/v2.0.0) (18 Jun, 2018)
+  - The first public release.
 
 ## Table of Contents
 
-* [Description](#description)
-* [Installation](#installation)
-    * [Homebrew](#homebrew)
-    * [Golang](#golang)
-    * [Requirements](#requirements)
-* [Usage](#usage)
-    * [Getting started](#getting-started)
-    * [Command references](#command-references)
-    * [Subcommands](#subcommands)
-        * [`rrh add`](#rrh-add)
-        * [`rrh clone`](#rrh-clone)
-        * [`rrh config`](#rrh-config)
-        * [`rrh export`](#rrh-export)
-        * [`rrh fetch`](#rrh-fetch)
-        * [`rrh fetch-all`](#rrh-fetch-all)
-        * [`rrh group`](#rrh-group)
-        * [`rrh help`](#rrh-help)
-        * [`rrh import`](#rrh-import)
-        * [`rrh list`](#rrh-list)
-        * [`rrh mv`](#rrh-mv)
-        * [`rrh prune`](#rrh-prune)
-        * [`rrh repository`](#rrh-repository)
-        * [`rrh rm`](#rrh-rm)
-        * [`rrh status`](#rrh-status)
-        * [`rrh version`](#rrh-version)
-    * [Environment variables](#environment-variables)
-* [Development](#development)
-    * [Database](#database)
-* [Utilities](#utilities)
-    * [`cdrrh`](#cdrrh)
-    * [`rrhpeco`](#rrhpeco)
-* [About the Project](#about-the-project)
-    * [Contribution](#contribution)
-    * [Code of Conduct](#code-of-conduct)
-    * [License](#license)
-    * [Discussion](#discussion)
-    * [Author](#author)
-    * [Why the project name RRH?](#why-the-project-name-rrh)
-    * [Attributions](#attributions)
-    * [Version histories](#version-histories)
+- [Description](#description)
+- [Installation](#installation)
+  - [Homebrew](#homebrew)
+  - [Golang](#golang)
+  - [Requirements](#requirements)
+- [Usage](#usage)
+  - [Getting started](#getting-started)
+  - [Command references](#command-references)
+  - [Subcommands](#subcommands)
+    - [`rrh add`](#rrh-add)
+    - [`rrh clone`](#rrh-clone)
+    - [`rrh config`](#rrh-config)
+    - [`rrh export`](#rrh-export)
+    - [`rrh fetch`](#rrh-fetch)
+    - [`rrh fetch-all`](#rrh-fetch-all)
+    - [`rrh group`](#rrh-group)
+    - [`rrh help`](#rrh-help)
+    - [`rrh import`](#rrh-import)
+    - [`rrh list`](#rrh-list)
+    - [`rrh mv`](#rrh-mv)
+    - [`rrh prune`](#rrh-prune)
+    - [`rrh repository`](#rrh-repository)
+    - [`rrh rm`](#rrh-rm)
+    - [`rrh status`](#rrh-status)
+    - [`rrh version`](#rrh-version)
+  - [Environment variables](#environment-variables)
+- [Development](#development)
+  - [Database](#database)
+- [Utilities](#utilities)
+  - [`cdrrh`](#cdrrh)
+  - [`rrhpeco`](#rrhpeco)
+- [About the Project](#about-the-project)
+  - [Contribution](#contribution)
+  - [Code of Conduct](#code-of-conduct)
+  - [License](#license)
+  - [Discussion](#discussion)
+  - [Author](#author)
+  - [Why the project name RRH?](#why-the-project-name-rrh)
+  - [Attributions](#attributions)
+  - [Version histories](#version-histories)
