@@ -1,0 +1,95 @@
+name: Publish
+
+on: 
+  pull_request:
+    branches:
+      - main
+    types: [closed]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: startsWith(github.head_ref, 'release/v') && github.event.pull_request.merged == true
+    strategy:
+      matrix:
+        targets:
+          - darwin_amd64
+          - darwin_arm64
+          - windows_amd64
+          - windows_386
+          - linux_amd64
+          - linux_386
+    env:
+      REPO: https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Initialize
+        shell: bash
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "action@github.com"
+          auth_header="$(git config --local --get http.https://github.com/.extraheader)"
+          git submodule sync --recursive
+          git -c "http.extraheader=$auth_header" -c protocol.version=2 submodule update --init --force --recursive --depth=1
+
+      - name: Get tag name
+        id: vars
+          HEAD_REF=${{ github.head_ref }}
+          echo "::set-output name=tag::${HEAD_REF##*/v}"
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: '0.85.0'
+          extended: true
+
+      - name: Build
+        run:
+          make
+
+      - name: Build Site
+        run:
+          make -C docs build_with_hugo
+
+      - name: Create Distributions
+        run:
+          make dist
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.vars.outputs.tag }}
+          release_name: Release v${{ steps.vars.outputs.tag }}
+          draft: true
+          prerelease: false
+
+      - name: Upload release assets
+        id: upload-release-assets
+        uses: actions/upload-release-assets@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          asset_path: dist/rrh-${{ steps.vars.outputs.tag }}_${{ matrix.targets }}.tar.gz
+          asset_name: rrh-${{ steps.vars.outputs.tag }}_${{ matrix.targets }}.tar.gz
+          asset_content_type: application/tar+gzip
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+
+      - name: Deply GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/public
+
