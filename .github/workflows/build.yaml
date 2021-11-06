@@ -18,16 +18,20 @@ jobs:
               uses: actions/setup-go@v2
               with:
                   go-version: 1.17
+
             - name: checkout
               uses: actions/checkout@v1
+
             - name: build
               run: make
+
             - name: Convert coverage to lcov
               uses: jandelgado/gcov2lcov-action@v1.0.0
               with:
                   infile: coverage.out
                   outfile: coverage.lcov
               if: "matrix.os == 'ubuntu-latest'"
+
             - name: coveralls
               uses: coverallsapp/github-action@v1.0.1
               with:

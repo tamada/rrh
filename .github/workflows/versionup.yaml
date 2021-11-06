@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Get branches
+        id: vars
         run: |
           echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
           echo "::set-output name=tag::${GITHUB_REF##**/v}"

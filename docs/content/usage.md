@@ -6,41 +6,46 @@ title: ":fork_and_knife: Usage"
 
 `rrh` has various subcommands, however, `list` and `add` subcommand make you happy.
 
-* `rrh list` shows managed repositories.
-* `rrh add <REPO>` adds the given repository under the `rrh` management.
-* type [`cdrrh`](../utilities/#cdrrh) on Terminal, then type TAB, TAB, TAB!
-
+- `rrh list` shows managed repositories.
+- `rrh add <REPO>` adds the given repository under the `rrh` management.
+- type [`cdrrh`](../utilities/#cdrrh) on Terminal, then type TAB, TAB, TAB!
 
 ## Command references
 
 ```sh
-rrh [GLOBAL OPTIONS] <SUB COMMANDS> [ARGUMENTS]
-GLOBAL OPTIONS
-    -h, --help                        print this message.
-    -v, --version                     print version.
-    -c, --config-file <CONFIG_FILE>   specifies the config file path.
-AVAILABLE SUB COMMANDS:
-    add          add repositories on the local path to rrh.
-    clone        run "git clone" and register it to a group.
-    config       set/unset and list configuration of rrh.
-    export       export rrh database to stdout.
-    fetch        run "git fetch" on the given groups.
-    fetch-all    run "git fetch" in the all repositories.
-    group        add/list/update/remove groups and show groups of the repository.
-    help         print this message.
-    import       import the given database.
-    list         print managed repositories and their groups.
-    mv           move the repositories from groups to another group.
-    open         open folder or web page of the given repositories.
-    prune        prune unnecessary repositories and groups.
-    repository   manages repositories.
-    rm           remove given repository from database.
-    status       show git status of repositories.
-    version      show version.
+Remote Repositories Head/Repositories, Ready to Hack
+
+Usage:
+  rrh [flags]
+  rrh [command]
+
+Available Commands:
+  add         add the given repositories to the rrh database
+  alias       manage alias (different names of the commands)
+  clone       run "git clone" and register it to a group
+  completion  generate the autocompletion script for the specified shell
+  config      set/unset and list configuration of RRH
+  exec        execute the specified command on the specified repositories
+  group       manage the groups for the rrh database
+  help        Help about any command
+  list        list groups and repositories
+  migrate     migrate the rrh settings from the given version
+  open        open the folder or web page of the given repositories
+  prune       prune unnecessary entries in the rrh database
+  repository  manages repositories
+
+Flags:
+  -c, --config-file string   specifies the config file path. (default "${HOME}/.config/rrh/config.json")
+  -h, --help                 help for rrh
+  -v, --verbose              verbose mode
+
+Use "rrh [command] --help" for more information about a command.
 ```
 
-If the user specified an unknown subcommand (e.g., `rrh helloworld`), `rrh` treats it as an **external command**.
-In that case, `rrh` searches an executable file named `rrh-helloworld` from the PATH environment variable.
+If the user specified an unknown subcommand (e.g., `rrh helloworld`), `rrh` treats it as an **alias command** or **external command**.
+In that case, `rrh` finds an alias from `${HOME}/.config/alias.json` as the alias command.
+If found, execute the found alias command, and exit.
+If not found, `rrh` searches an executable file named `rrh-helloworld` from the PATH environment variable.
 If `rrh` found it, `rrh` executes it, if not found, `rrh` prints help and exit.
 
 ### Subcommands
@@ -50,13 +55,49 @@ If `rrh` found it, `rrh` executes it, if not found, `rrh` prints help and exit.
 Registers the repositories which specified the given paths to the `rrh` database and categorize to the group (Default `no-group`, see [`RRH_DEFAULT_GROUP_NAME`](#rrh_default_group_name)).
 
 ```sh
-rrh add [OPTIONS] <REPOSITORY_PATHS...>
-OPTIONS
-    -g, --group <GROUP>        add repository to rrh database.
-    -r, --repository-id <ID>   specified repository id of the given repository path.
-                               Specifying this option fails with multiple arguments.
-ARGUMENTS
-    REPOSITORY_PATHS           the local path list of the git repositories.
+add the given repositories to the rrh database
+
+Usage:
+  rrh add <REPOs...> [flags]
+
+Flags:
+  -D, --dry-run                dry-run mode
+  -g, --group strings          group for the repositories (default [no-group])
+  -h, --help                   help for add
+  -r, --repository-id string   specifies the repository id. Specifying this option fails on multiple arguments
+
+Global Flags:
+  -c, --config-file string   specifies the config file path. (default "${HOME}/.config/rrh/config.json")
+  -v, --verbose              verbose mode
+```
+
+#### `rrh alias`
+
+```sh
+manage alias (different names of the commands)
+    list (no arguments give the registered aliases)
+	    alias
+    register ("--" means skip option parsing after that)
+        alias grlist -- repository list --entry group,id
+    update
+        alias grlist --update -- repository list --entry id
+    remove
+        alias --remove grlist
+    execute
+        type the registered alias name instead of rrh sub command
+
+Usage:
+  rrh alias [flags]
+
+Flags:
+  -D, --dry-run   dry-run mode
+  -h, --help      help for alias
+  -r, --remove    remove the specified alias name
+  -u, --update    update the alias
+
+Global Flags:
+  -c, --config-file string   specifies the config file path. (default "${HOME}/.config/rrh/config.json")
+  -v, --verbose              verbose mode
 ```
 
 #### `rrh clone`
@@ -65,16 +106,23 @@ Runs `git clone` command and registers the cloned repository to `rrh` database.
 The following steps identify the id of the repository.
 
 1. If the length of `REMOTE_REPOS` is 1, and `DEST` exists, then the last entry of `REMOTE_REPOS` is repository id by eliminating the suffix `.git`.
-3. If the length of `REMOTE_REPOS` is 1, and `DEST` does not exist, then the last entry of `DEST` is repository id.
-2. If the length of `REMOTE_REPOS` is greater than 1, then the last entry of each `REMOTE_REPOS` is repository ids by eliminating the suffix `.git`.
+2. If the length of `REMOTE_REPOS` is 1, and `DEST` does not exist, then the last entry of `DEST` is repository id.
+3. If the length of `REMOTE_REPOS` is greater than 1, then the last entry of each `REMOTE_REPOS` is repository ids by eliminating the suffix `.git`.
 
 ```sh
-rrh clone [OPTIONS] <REMOTE_REPOS...>
-OPTIONS
-    -g, --group <GROUP>   print managed repositories categorized in the group.
-    -d, --dest <DEST>     specify the destination. Default is the current directory.
-ARGUMENTS
-    REMOTE_REPOS          repository urls
+run "git clone" and register it to the specified groups
+
+Usage:
+  rrh clone <REMOTE_REPOs...> [flags]
+
+Flags:
+  -d, --directory string   specify the destination directory (default ".")
+  -g, --groups strings     specify the groups of the cloned repositories
+  -h, --help               help for clone
+
+Global Flags:
+  -c, --config-file string   specifies the config file path. (default "${HOME}/.config/rrh/config.json")
+  -v, --verbose              verbose mode
 ```
 
 The destination of cloned repository is located based on [`RRH_CLONE_DESTINATION`](#rrh_clone_destination)
@@ -285,7 +333,6 @@ Deletes unnecessary groups and repositories.
 The unnecessary groups are no repositories in them.
 The unnecessary repositories are to have an invalid path.
 
-
 ```sh
 rrh prune [OPTIONS]
 OPTIONS
@@ -385,86 +432,86 @@ We can see those variables by running `rrh config` sub-command.
 
 #### `RRH_HOME`
 
-* specifies the location of the RRH database and config file.
-* Default: `/Users/tamada/.rrh`
+- specifies the location of the RRH database and config file.
+- Default: `/Users/tamada/.rrh`
 
 #### `RRH_CONFIG_PATH`
 
-* specifies the location of the location path.
-    * RRH ignores to specify `RRH_CONFIG_PATH` in the config file.
-      This variable availables only environment variable.
-* Default: `${RRH_HOME}/config.json`
+- specifies the location of the location path.
+  - RRH ignores to specify `RRH_CONFIG_PATH` in the config file.
+    This variable availables only environment variable.
+- Default: `${RRH_HOME}/config.json`
 
 #### `RRH_DATABASE_PATH`
 
-* specifies the location of the database path.
-* Default: `${RRH_HOME}/database.json`
+- specifies the location of the database path.
+- Default: `${RRH_HOME}/database.json`
 
 #### `RRH_DEFAULT_GROUP_NAME`
 
-* specifies the default group name.
-* Default: `no-group`
+- specifies the default group name.
+- Default: `no-group`
 
 #### `RRH_CLONE_DESTINATION`
 
-* specifies the destination by cloning the repository.
-* Default: `.`
+- specifies the destination by cloning the repository.
+- Default: `.`
 
 #### `RRH_ON_ERROR`
 
-* specifies the behaviors of RRH on error.
-* Default: `WARN`
-* Available values: `FAIL_IMMEDIATELY`, `FAIL`, `WARN`, and `IGNORE`
-    * `FAIL_IMMEDIATELY`
-        * reports error immediately and quits RRH with a non-zero status.
-    * `FAIL`
-        * runs through all targets and reports errors if needed, then quits RRH with a non-zero status.
-    * `WARN`
-        * runs through all targets and reports errors if needed, then quits RRH successfully.
-    * `IGNORE`
-        * runs all targets and no reports errors.
+- specifies the behaviors of RRH on error.
+- Default: `WARN`
+- Available values: `FAIL_IMMEDIATELY`, `FAIL`, `WARN`, and `IGNORE`
+  - `FAIL_IMMEDIATELY`
+    - reports error immediately and quits RRH with a non-zero status.
+  - `FAIL`
+    - runs through all targets and reports errors if needed, then quits RRH with a non-zero status.
+  - `WARN`
+    - runs through all targets and reports errors if needed, then quits RRH successfully.
+  - `IGNORE`
+    - runs all targets and no reports errors.
 
 #### `RRH_TIME_FORMAT`
 
-* specifies the time format for `status` command.
-* Default: `relative`
-* Available value: `relative` and the time format for Go lang.
-    * `relative`
-        * shows times by humanized format (e.g., 2 weeks ago)
-    * Other strings
-        * regard as formatting layout and give to `Format` method of the time.
-            * see [Time.Format](https://golang.org/pkg/time/#Time.Format), for more detail.
+- specifies the time format for `status` command.
+- Default: `relative`
+- Available value: `relative` and the time format for Go lang.
+  - `relative`
+    - shows times by humanized format (e.g., 2 weeks ago)
+  - Other strings
+    - regard as formatting layout and give to `Format` method of the time.
+      - see [Time.Format](https://golang.org/pkg/time/#Time.Format), for more detail.
 
 #### `RRH_AUTO_CREATE_GROUP`
 
-* specifies to create the group when the not existing group was specified, and it needs to create.
-* Default: false
+- specifies to create the group when the not existing group was specified, and it needs to create.
+- Default: false
 
 #### `RRH_AUTO_DELETE_GROUP`
 
-* specifies to delete the group when some group was no more needed.
-* Default: false
+- specifies to delete the group when some group was no more needed.
+- Default: false
 
 #### `RRH_SORT_ON_UPDATING`
 
-* specifies to sort database entries on updating database.
-* Default: false
+- specifies to sort database entries on updating database.
+- Default: false
 
 #### `RRH_COLOR`
 
-* specifies the colors of the output.
-* Default: `"repository:fg=red+group:fg=magenta+label:op=bold+configValue:fg=green"`
-* Format: `"repository:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+group:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+label:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+configValue:fg=<COLOR>;bg=<COLOR>;op=<STYLE>"`
-    * Available `COLOR`s
-        * red, cyan, blue, black, green, white, yellow, magenta.
-    * Available `STYLE`s
-        * bold, underscore.
-    * Delimiter of repository, group and label is `+`, delimiter of type and value is `:`, delimiter of each label is `;`, and delimiter of each value is `,`.
-* Examples:
-    * `RRH_COLOR: repository:fg=red+group:fg=cyan;op=bold,underscore`
-        * Repository: red, Group: cyan in bold with underscore.
+- specifies the colors of the output.
+- Default: `"repository:fg=red+group:fg=magenta+label:op=bold+configValue:fg=green"`
+- Format: `"repository:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+group:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+label:fg=<COLOR>;bg=<COLOR>;op=<STYLE>+configValue:fg=<COLOR>;bg=<COLOR>;op=<STYLE>"`
+  - Available `COLOR`s
+    - red, cyan, blue, black, green, white, yellow, magenta.
+  - Available `STYLE`s
+    - bold, underscore.
+  - Delimiter of repository, group and label is `+`, delimiter of type and value is `:`, delimiter of each label is `;`, and delimiter of each value is `,`.
+- Examples:
+  - `RRH_COLOR: repository:fg=red+group:fg=cyan;op=bold,underscore`
+    - Repository: red, Group: cyan in bold with underscore.
 
 #### `RRH_ENABLE_COLORIZED`
 
-* specifies to colorize the output. The colors of output were specified on [`RRH_COLOR`](#rrh_color)
-* Default: false
+- specifies to colorize the output. The colors of output were specified on [`RRH_COLOR`](#rrh_color)
+- Default: false

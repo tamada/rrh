@@ -39,6 +39,7 @@ jobs:
 
       - name: Get tag name
         id: vars
+        run: |
           HEAD_REF=${{ github.head_ref }}
           echo "::set-output name=tag::${HEAD_REF##*/v}"
 

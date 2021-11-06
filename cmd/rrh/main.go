@@ -48,7 +48,7 @@ func rootCommand() *cobra.Command {
 	rootCmd.SetOut(os.Stdout)
 
 	flags := rootCmd.PersistentFlags()
-	flags.BoolVarP(&verboseMode, "verbose", "v", false, "verbose mod")
+	flags.BoolVarP(&verboseMode, "verbose", "v", false, "verbose mode")
 	flags.StringVarP(&configFile, "config-file", "c", "${HOME}/.config/rrh/config.json",
 		"specifies the config file path.")
 
