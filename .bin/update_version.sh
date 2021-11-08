@@ -9,14 +9,15 @@ fi
 
 result=0
 
+PREV_VERSION=$(grep ^VERSION Makefile | tr -d 'VERSION := ')
 grep "$VERSION" Makefile 2>&1 > /dev/null || result=$?
-if [[ $result -eq 0 ]]; then
+if [[ $result -eq 0 && $VERSION == $PREV_VERSION ]]; then
     echo "already updated to $VERSION"
     exit 1
 fi
 
 for i in README.md docs/content/_index.md; do
-    sed -e "s!Version-[0-9.]*-yellowgreen!Version-${VERSION}-yellowgreen!g" -e "s!tag/v[0-9.]*!tag/v${VERSION}!g" $i > a
+    sed -e "s!Version-${PREV_VERSION}-yellowgreen!Version-${VERSION}-yellowgreen!g" -e "s!tag/v${PREV_VERSION}*!tag/v${VERSION}!g" $i > a
     mv a $i
 done
 

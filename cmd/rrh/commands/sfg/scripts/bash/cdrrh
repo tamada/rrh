@@ -1,0 +1,14 @@
+cdrrh(){
+    path=$(rrh repository list --entry path $1)
+    if [[ $? -eq 0 ]]; then
+        if [[ $(echo $path | wc -l) -ne 1 ]]; then
+            echo "Error: multiple paths are given."
+            return 1
+        fi
+        cd $path
+        pwd
+    else
+        echo "$1: repository not found"
+        return 1
+    fi
+}
