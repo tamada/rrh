@@ -8,6 +8,23 @@ import (
 	"github.com/tamada/rrh"
 )
 
+func TestValidateValue(t *testing.T) {
+	testdata := []struct {
+		value     string
+		values    []string
+		wontError bool
+	}{
+		{"value1", []string{"value1", "value2", "value3"}, false},
+		{"value4", []string{"value1", "value2", "value3"}, true},
+	}
+	for _, td := range testdata {
+		err := ValidateValue(td.value, td.values)
+		if err == nil && td.wontError || err != nil && !td.wontError {
+			t.Errorf("wont error %v, but got %v", td.wontError, err)
+		}
+	}
+}
+
 func TestJoinArray(t *testing.T) {
 	testdata := []struct {
 		gives []string

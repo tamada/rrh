@@ -6,7 +6,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
-	"gopkg.in/go-playground/validator.v9"
 )
 
 func PerformRrhCommand(c *cobra.Command, args []string, f func(c *cobra.Command, args []string, db *rrh.Database) error) error {
@@ -25,8 +24,6 @@ func IsVerbose(c *cobra.Command) bool {
 	flag, err := c.PersistentFlags().GetBool("verbose")
 	return err != nil && flag
 }
-
-var structValidator = validator.New()
 
 func ValidateValue(value string, availables []string) error {
 	return ValidateValues([]string{value}, availables)
@@ -63,31 +60,33 @@ func JoinArray(array []string) string {
 	}
 }
 
-func ValidateOptions(s interface{}) error {
-	errs := structValidator.Struct(s)
-	return extractValidationErros(errs)
-}
+// var structValidator = validator.New()
 
-func extractValidationErros(err error) error {
-	if err != nil {
-		errorText := []string{}
-		for _, err := range err.(validator.ValidationErrors) {
-			errorText = append(errorText, validationErrorToText(err))
-		}
-		return fmt.Errorf("parameter errors: %s", strings.Join(errorText, "\n\t"))
-	}
-	return nil
-}
+// func ValidateOptions(s interface{}) error {
+// 	errs := structValidator.Struct(s)
+// 	return extractValidationErros(errs)
+// }
 
-func validationErrorToText(e validator.FieldError) string {
-	f := e.Field()
-	switch e.Tag() {
-	case "required":
-		return fmt.Sprintf("%s is required", f)
-	case "max":
-		return fmt.Sprintf("%s cannot be greater than %s", f, e.Param())
-	case "min":
-		return fmt.Sprintf("%s must be greater than %s", f, e.Param())
-	}
-	return fmt.Sprintf("%s is invalid %s", e.Field(), e.Value())
-}
+// func extractValidationErros(err error) error {
+// 	if err != nil {
+// 		errorText := []string{}
+// 		for _, err := range err.(validator.ValidationErrors) {
+// 			errorText = append(errorText, validationErrorToText(err))
+// 		}
+// 		return fmt.Errorf("parameter errors: %s", strings.Join(errorText, "\n\t"))
+// 	}
+// 	return nil
+// }
+
+// func validationErrorToText(e validator.FieldError) string {
+// 	f := e.Field()
+// 	switch e.Tag() {
+// 	case "required":
+// 		return fmt.Sprintf("%s is required", f)
+// 	case "max":
+// 		return fmt.Sprintf("%s cannot be greater than %s", f, e.Param())
+// 	case "min":
+// 		return fmt.Sprintf("%s must be greater than %s", f, e.Param())
+// 	}
+// 	return fmt.Sprintf("%s is invalid %s", e.Field(), e.Value())
+// }
