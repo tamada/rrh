@@ -35,20 +35,41 @@ func createGroupUpdateCommand() *cobra.Command {
 	return command
 }
 
+func findGroup(origName string, db *rrh.Database) (*rrh.Group, error) {
+	group := *db.FindGroup(origName)
+	if updateOpts.name != "" {
+		group.Name = updateOpts.name
+	}
+	if updateOpts.desc != "" {
+		group.Description = updateOpts.desc
+	}
+	if updateOpts.abbrev != "" {
+		abbrevFlag, err := strconv.ParseBool(updateOpts.abbrev)
+		if err != nil {
+			return nil, err
+		}
+		group.OmitList = abbrevFlag
+	}
+	return &group, nil
+}
+
 func updateGroup(c *cobra.Command, args []string, db *rrh.Database) error {
-	abbrevFlag, err := strconv.ParseBool(updateOpts.abbrev)
+	group, err := findGroup(args[0], db)
 	if err != nil {
 		return err
 	}
-	group := &rrh.Group{Name: updateOpts.name, Description: updateOpts.desc, OmitList: abbrevFlag}
 	if !db.UpdateGroup(args[0], group) {
 		return fmt.Errorf("%s: update failed", args[0])
 	}
-	c.Printf("update %s -> %v", args[0], group)
+	printResult(c, args[0], group)
 	if updateOpts.dryRunFlag {
 		c.Println("(dry-run mode)")
 		return nil
 	}
 	c.Println()
 	return db.StoreAndClose()
+}
+
+func printResult(c *cobra.Command, origName string, group *rrh.Group) {
+	c.Printf("update(%s) = %s (Note: %s, Abbrev: %v)\n", origName, group.Name, group.Description, group.OmitList)
 }
