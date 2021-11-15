@@ -1,0 +1,9 @@
+rrhpeco(){
+    csv=$(rrh list --format table | peco)
+    if [[ $(echo $csv | wc -l) -ne 1 ]]; then
+        echo "multiple entries are given"
+        return 1
+    fi
+    cd $(echo $csv | awk -F | '{ print $4 }' | tr -d ' ')
+    pwd
+}
