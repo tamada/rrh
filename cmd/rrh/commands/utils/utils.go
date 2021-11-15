@@ -1,6 +1,9 @@
 package utils
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/spf13/cobra"
 	"github.com/tamada/rrh"
 )
@@ -22,27 +25,25 @@ func IsVerbose(c *cobra.Command) bool {
 	return err != nil && flag
 }
 
-// var structValidator = validator.New()
+func ValidateValue(value string, availables []string) error {
+	return ValidateValues([]string{value}, availables)
+}
 
-// func ValidateValue(value string, availables []string) error {
-// 	return ValidateValues([]string{value}, availables)
-// }
-
-// func ValidateValues(values []string, availables []string) error {
-// 	no := []string{}
-// 	for _, value := range values {
-// 		lowerValue := strings.ToLower(value)
-// 		if !rrh.FindIn(lowerValue, availables) {
-// 			no = append(no, value)
-// 		}
-// 	}
-// 	if len(no) == 0 {
-// 		return nil
-// 	} else if len(no) == 1 {
-// 		return fmt.Errorf("%v: not available entry. availables: %v", JoinArray(no), JoinArray(availables))
-// 	}
-// 	return fmt.Errorf("%v: not available entries. availables: %v", JoinArray(no), JoinArray(availables))
-// }
+func ValidateValues(values []string, availables []string) error {
+	no := []string{}
+	for _, value := range values {
+		lowerValue := strings.ToLower(value)
+		if !rrh.FindIn(lowerValue, availables) {
+			no = append(no, value)
+		}
+	}
+	if len(no) == 0 {
+		return nil
+	} else if len(no) == 1 {
+		return fmt.Errorf("%v: not available entry. availables: %v", JoinArray(no), JoinArray(availables))
+	}
+	return fmt.Errorf("%v: not available entries. availables: %v", JoinArray(no), JoinArray(availables))
+}
 
 func JoinArray(array []string) string {
 	switch len(array) {
@@ -58,6 +59,8 @@ func JoinArray(array []string) string {
 		return JoinArray(newArray)
 	}
 }
+
+// var structValidator = validator.New()
 
 // func ValidateOptions(s interface{}) error {
 // 	errs := structValidator.Struct(s)
