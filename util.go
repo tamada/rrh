@@ -61,7 +61,6 @@ func IsExistAndGitRepository(absPath string, path string) error {
 	if !fmode.IsDir() {
 		return fmt.Errorf("%s: not directory", path)
 	}
-
 	_, err = os.Stat(filepath.Join(absPath, ".git"))
 	// If the repository of path is submodule, `.git` will be a file to indicate the `.git` directory.
 	if os.IsNotExist(err) {
@@ -98,11 +97,9 @@ func LoadJson(filePath string, v interface{}) error {
 
 func StoreJson(filePath string, v interface{}) error {
 	bytes, err := json.Marshal(v)
-	fmt.Printf("marshal: (%v) \"%v\" \n", err, string(bytes))
 	if err != nil {
 		return err
 	}
-	fmt.Printf("filePath: %s\n", filePath)
 	return ioutil.WriteFile(filePath, bytes, 0644)
 }
 

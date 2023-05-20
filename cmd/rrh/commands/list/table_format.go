@@ -16,6 +16,9 @@ func (tf *tableFormat) Format(w io.Writer, r []*Result, le Entries, noAbbrevFlag
 	if tf.headerFlag {
 		writer.SetHeader(le.StringArray())
 	}
+	writer.SetBorder(false)
+	writer.SetNoWhiteSpace(true)
+	writer.SetTablePadding("    ")
 	for _, result := range r {
 		tf.formatEach(writer, result, le)
 	}

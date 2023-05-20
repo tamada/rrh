@@ -90,6 +90,7 @@ func findAndExecuteAlias(c *cobra.Command, args []string, config *rrh.Config) (b
 	if err != nil {
 		return false, err
 	}
+	c.SilenceUsage = true
 	return true, command.Execute(c, args)
 }
 

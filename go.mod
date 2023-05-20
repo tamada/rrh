@@ -22,6 +22,7 @@ require (
 	github.com/xanzy/ssh-agent v0.2.1 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0
+	gopkg.in/pipe.v2 v2.0.0-20140414041502-3c2ca4d52544 // indirect
 	gopkg.in/src-d/go-billy.v4 v4.3.0
 	gopkg.in/src-d/go-git.v4 v4.11.0
 )

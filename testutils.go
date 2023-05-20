@@ -2,7 +2,6 @@ package rrh
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -36,7 +35,7 @@ func Rollback(dbFile, configFile string, f func(config *Config, db *Database)) s
 	var config = OpenConfig()
 	var db, err = Open(config)
 	if err != nil {
-		fmt.Println(err.Error())
+		panic(err)
 	}
 
 	f(config, db)
@@ -44,6 +43,25 @@ func Rollback(dbFile, configFile string, f func(config *Config, db *Database)) s
 	os.Setenv(ConfigPath, configFile) // replace the path of config file.
 	os.Setenv(DatabasePath, dbFile)
 
+	return newDBFile
+}
+
+func RollbackAlias(dbFile, configFile, aliasFile string, f func(config *Config, db *Database)) string {
+	newConfigFile := copyfile(configFile)
+	newDBFile := copyfile(dbFile)
+	newAliasFile := copyfile(aliasFile)
+	defer os.Remove(newConfigFile)
+	defer os.Remove(newAliasFile)
+	os.Setenv(ConfigPath, newConfigFile)
+	os.Setenv(DatabasePath, newDBFile)
+	os.Setenv(AliasPath, newAliasFile)
+
+	config := OpenConfig()
+	db, err := Open(config)
+	if err != nil {
+		panic(err)
+	}
+	f(config, db)
 	return newDBFile
 }
 
