@@ -192,7 +192,7 @@ func convertToErrors(messages []string) []error {
 func TestOpenConfigBrokenJson(t *testing.T) {
 	os.Setenv(ConfigPath, "testdata/broken.json")
 	var config = OpenConfig()
-	if config != nil {
+	if len(config.values) != 0 {
 		t.Error("broken json returns nil")
 	}
 }

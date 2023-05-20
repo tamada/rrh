@@ -87,11 +87,11 @@ func perform(c *cobra.Command, args []string, db *rrh.Database) error {
 
 func createGroups(db *rrh.Database, groups []string) common.ErrorList {
 	el := common.NewErrorList()
+	el = el.Append(createDefaultGroupNameIfNeeded(db))
 	for _, groupName := range groups {
 		_, err := db.AutoCreateGroup(groupName, "", false)
 		el = el.Append(err)
 	}
-	el = el.Append(createDefaultGroupNameIfNeeded(db))
 	return el
 }
 

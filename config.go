@@ -278,18 +278,22 @@ The load path is based on `RrhConfigPath` of the environment variables.
 */
 func OpenConfig() *Config {
 	var config = NewConfig()
+	config.values = readConfigValuesFromFile(config)
+	config.Decorator = initDecorator(config)
+	return config
+}
+
+func readConfigValuesFromFile(config *Config) map[string]string {
 	var configPath, _ = config.getStringFromEnv(ConfigPath)
 	bytes, err := ioutil.ReadFile(configPath)
 	if err != nil {
-		return config
+		return map[string]string{}
 	}
 	var values = map[string]string{}
 	if err := json.Unmarshal(bytes, &values); err != nil {
 		return nil
 	}
-	config.values = values
-	config.Decorator = initDecorator(config)
-	return config
+	return values
 }
 
 func initDecorator(config *Config) decorator.Decorator {
