@@ -36,21 +36,26 @@ func createGroupUpdateCommand() *cobra.Command {
 }
 
 func findGroup(origName string, db *rrh.Database) (*rrh.Group, error) {
-	group := *db.FindGroup(origName)
+	group := db.FindGroup(origName)
+	if group == nil {
+		return nil, fmt.Errorf("%s: group not found", origName)
+	}
+	newGroup := &rrh.Group{}
+	*newGroup = *group
 	if updateOpts.name != "" {
-		group.Name = updateOpts.name
+		newGroup.Name = updateOpts.name
 	}
 	if updateOpts.desc != "" {
-		group.Description = updateOpts.desc
+		newGroup.Description = updateOpts.desc
 	}
 	if updateOpts.abbrev != "" {
 		abbrevFlag, err := strconv.ParseBool(updateOpts.abbrev)
 		if err != nil {
 			return nil, err
 		}
-		group.OmitList = abbrevFlag
+		newGroup.OmitList = abbrevFlag
 	}
-	return &group, nil
+	return newGroup, nil
 }
 
 func updateGroup(c *cobra.Command, args []string, db *rrh.Database) error {
@@ -58,8 +63,8 @@ func updateGroup(c *cobra.Command, args []string, db *rrh.Database) error {
 	if err != nil {
 		return err
 	}
-	if !db.UpdateGroup(args[0], group) {
-		return fmt.Errorf("%s: update failed", args[0])
+	if err := db.UpdateGroup(args[0], group); err != nil {
+		return err
 	}
 	printResult(c, args[0], group)
 	if updateOpts.dryRunFlag {
@@ -71,5 +76,5 @@ func updateGroup(c *cobra.Command, args []string, db *rrh.Database) error {
 }
 
 func printResult(c *cobra.Command, origName string, group *rrh.Group) {
-	c.Printf("update(%s) = %s (Note: %s, Abbrev: %v)\n", origName, group.Name, group.Description, group.OmitList)
+	c.Printf("update(%s) = %s (Note: %s, Abbrev: %v)", origName, group.Name, group.Description, group.OmitList)
 }

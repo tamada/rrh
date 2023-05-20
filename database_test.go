@@ -278,7 +278,7 @@ func TestUpdateGroup(t *testing.T) {
 		t.Error("Update is failed (description was not updated)")
 	}
 
-	if db.UpdateGroup("unknown", &Group{"never used", "never used2", false}) {
+	if err := db.UpdateGroup("unknown", &Group{"never used", "never used2", false}); err == nil {
 		t.Error("unknown group is successfully updated.")
 	}
 }

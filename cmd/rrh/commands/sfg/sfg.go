@@ -42,7 +42,7 @@ func validateArgs(c *cobra.Command, args []string) error {
 		return errors.New("shell name option is mandatory")
 	}
 	switch strings.ToLower(sfgOpts.shellName) {
-	case "bash", "zsh":
+	case "sh", "bash", "zsh":
 		return nil
 	default:
 		return fmt.Errorf("%s: unsupported shell", sfgOpts.shellName)

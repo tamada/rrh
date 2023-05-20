@@ -220,9 +220,12 @@ func (db *Database) CreateGroup(groupID string, description string, omitList boo
 UpdateGroup updates found group with `newGroupID` and `newDescription`.
 The return value is that the update is success or not.
 */
-func (db *Database) UpdateGroup(groupID string, newGroup *Group) bool {
+func (db *Database) UpdateGroup(groupID string, newGroup *Group) error {
+	if db.HasGroup(newGroup.Name) {
+		return fmt.Errorf("%s: update group failed. already registered group", newGroup.Name)
+	}
 	if !db.HasGroup(groupID) {
-		return false
+		return fmt.Errorf("%s: update group failed. not found group", groupID)
 	}
 	for i, group := range db.Groups {
 		if group.Name == groupID {
@@ -230,9 +233,15 @@ func (db *Database) UpdateGroup(groupID string, newGroup *Group) bool {
 			break
 		}
 	}
+	if groupID != newGroup.Name {
+		for _, relation := range db.Relations {
+			if relation.GroupName == groupID {
+				relation.GroupName = newGroup.Name
+			}
+		}
+	}
 	sortIfNeeded(db)
-
-	return true
+	return nil
 }
 
 /*

@@ -83,9 +83,8 @@ func copyDB(from *rrh.Database, to *rrh.Database) common.ErrorList {
 func copyGroup(group *rrh.Group, to *rrh.Database) common.ErrorList {
 	var list = []error{}
 	if to.HasGroup(group.Name) {
-		var successFlag = to.UpdateGroup(group.Name, group)
-		if !successFlag {
-			list = append(list, fmt.Errorf("%s: update failed", group.Name))
+		if err := to.UpdateGroup(group.Name, group); err != nil {
+			list = append(list, err)
 		}
 	} else {
 		var _, err = to.CreateGroup(group.Name, group.Description, group.OmitList)
