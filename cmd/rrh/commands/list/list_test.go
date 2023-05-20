@@ -18,7 +18,7 @@ func ExampleListCommand() {
 	// Output:
 	// no-group (2 repositories)
 	//     rrh           ~/go/src/github.com/tamada/rrh
-	//     helloworld    ../testdata/helloworld
+	//     helloworld    ../../../../testdata/helloworld
 	// 1 group, and 2 repositories
 }
 

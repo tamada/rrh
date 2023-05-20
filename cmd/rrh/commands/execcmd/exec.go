@@ -73,7 +73,7 @@ func validateRepos(repos []string, db *rrh.Database) ([]string, error) {
 	for _, r := range repos {
 		repo := db.FindRepository(r)
 		if repo == nil {
-			el.Append(fmt.Errorf("%s: repository not found", r))
+			el = el.Append(fmt.Errorf("%s: repository not found", r))
 		} else {
 			results = append(results, r)
 		}
@@ -117,7 +117,7 @@ func performExec(c *cobra.Command, args []string, db *rrh.Database) error {
 	el := common.NewErrorList()
 	for _, repository := range repositories {
 		repo := db.FindRepository(repository)
-		el.Append(execute(c, repo, args))
+		el = el.Append(execute(c, repo, args))
 	}
 	return el.NilOrThis()
 }

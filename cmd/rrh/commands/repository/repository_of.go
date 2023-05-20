@@ -26,7 +26,7 @@ func performOf(c *cobra.Command, args []string, db *rrh.Database) error {
 	el := common.NewErrorList()
 	for _, arg := range args {
 		if !db.HasGroup(arg) {
-			el.Append(fmt.Errorf("%s: group not found", arg))
+			el = el.Append(fmt.Errorf("%s: group not found", arg))
 		}
 	}
 	if el.IsErr() {

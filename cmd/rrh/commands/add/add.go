@@ -3,6 +3,7 @@ package add
 import (
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
@@ -29,10 +30,19 @@ func New() *cobra.Command {
 		},
 	}
 	flags := cmd.Flags()
-	flags.StringSliceVarP(&addOpts.groups, "group", "g", []string{"no-group"}, "group for the repositories")
+	defaultGroup := findDefaultGroupName()
+	flags.StringSliceVarP(&addOpts.groups, "group", "g", []string{defaultGroup}, "group for the repositories")
 	flags.StringVarP(&addOpts.repoId, "repository-id", "r", "", "specifies the repository id. Specifying this option fails on multiple arguments")
 	flags.BoolVarP(&addOpts.dryRunFlag, "dry-run", "D", false, "dry-run mode")
 	return cmd
+}
+
+func findDefaultGroupName() string {
+	defaultGroupName := os.Getenv("RRH_DEFAULT_GROUP")
+	if defaultGroupName == "" {
+		defaultGroupName = "no-group"
+	}
+	return defaultGroupName
 }
 
 func validateArgs(c *cobra.Command, args []string) error {
@@ -43,7 +53,8 @@ func validateArgs(c *cobra.Command, args []string) error {
 	if len(args) == 0 {
 		return errors.New("too few arguments")
 	}
-	return validateGitDirs(args)
+	return nil
+	// return validateGitDirs(args)
 }
 
 func validateGitDirs(args []string) error {
@@ -51,12 +62,9 @@ func validateGitDirs(args []string) error {
 	for _, arg := range args {
 		absPath, _ := filepath.Abs(arg)
 		err := rrh.IsExistAndGitRepository(absPath, arg)
-		messages.Append(err)
+		messages = messages.Append(err)
 	}
-	if messages.IsNil() {
-		return nil
-	}
-	return messages
+	return messages.NilOrThis()
 }
 
 func perform(c *cobra.Command, args []string, db *rrh.Database) error {
@@ -66,13 +74,13 @@ func perform(c *cobra.Command, args []string, db *rrh.Database) error {
 	}
 	for _, targetPath := range args {
 		err := addRepositoryToGroup(db, targetPath, addOpts.groups)
-		el.Append(err)
-	}
-	if el.IsErr() {
-		return el
+		el = el.Append(err)
 	}
 	if !addOpts.dryRunFlag {
 		db.StoreAndClose()
+	}
+	if el.IsErr() {
+		return el
 	}
 	return nil
 }
@@ -81,9 +89,19 @@ func createGroups(db *rrh.Database, groups []string) common.ErrorList {
 	el := common.NewErrorList()
 	for _, groupName := range groups {
 		_, err := db.AutoCreateGroup(groupName, "", false)
-		el.Append(err)
+		el = el.Append(err)
 	}
+	el = el.Append(createDefaultGroupNameIfNeeded(db))
 	return el
+}
+
+func createDefaultGroupNameIfNeeded(db *rrh.Database) error {
+	defaultGroupName := findDefaultGroupName()
+	if db.HasGroup(defaultGroupName) {
+		return nil
+	}
+	_, err := db.CreateGroup(defaultGroupName, "default group", false)
+	return err
 }
 
 func findIDFromPath(repoIdFromOpts string, absPath string) string {
@@ -102,8 +120,11 @@ func isDuplicateRepositoryId(db *rrh.Database, repoId, path string) error {
 }
 
 func addRepositoryToGroup(db *rrh.Database, path string, groupNames []string) error {
-	var absPath, _ = filepath.Abs(path)
-	var id = findIDFromPath(addOpts.repoId, absPath)
+	absPath, _ := filepath.Abs(path)
+	if err := rrh.IsExistAndGitRepository(absPath, path); err != nil {
+		return err
+	}
+	id := findIDFromPath(addOpts.repoId, absPath)
 	if err1 := isDuplicateRepositoryId(db, id, absPath); err1 != nil {
 		return err1
 	}

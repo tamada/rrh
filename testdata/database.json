@@ -5,7 +5,7 @@
         "repository_path":"~/go/src/github.com/tamada/rrh"
     },{
         "repository_id":"helloworld",
-        "repository_path":"../testdata/helloworld"
+        "repository_path":"../../../../testdata/helloworld"
     }],
     "groups":[{
         "group_name":"no-group",
