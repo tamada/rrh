@@ -10,8 +10,14 @@ import (
 )
 
 func copyfile(fromfile string) string {
-	var content, _ = ioutil.ReadFile(fromfile)
-	var file, _ = ioutil.TempFile(".", "tmp")
+	var content, err = ioutil.ReadFile(fromfile)
+	if err != nil {
+		panic(err.Error())
+	}
+	var file, err2 = ioutil.TempFile(".", "tmp")
+	if err2 != nil {
+		panic(err.Error())
+	}
 	file.Write(content)
 	defer file.Close()
 	return file.Name()

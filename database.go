@@ -24,10 +24,10 @@ func (r *Remote) String() string {
 Repository represents a Git repository.
 */
 type Repository struct {
-	ID          string   `json:"repository_id"`
-	Path        string   `json:"repository_path"`
-	Description string   `json:"repository_desc"`
-	Remotes     []Remote `json:"remotes"`
+	ID          string    `json:"repository_id"`
+	Path        string    `json:"repository_path"`
+	Description string    `json:"repository_desc"`
+	Remotes     []*Remote `json:"remotes"`
 }
 
 /*
@@ -37,6 +37,14 @@ type Group struct {
 	Name        string `json:"group_name"`
 	Description string `json:"group_desc"`
 	OmitList    bool   `json:"omit_list"`
+}
+
+func (r *Repository) Identifier() string {
+	return r.ID
+}
+
+func (g *Group) Identifier() string {
+	return g.Name
 }
 
 /*
@@ -55,11 +63,11 @@ func (relation *Relation) String() string {
 Database represents the whole database of RRH.
 */
 type Database struct {
-	Timestamp    RrhTime      `json:"last_modified"`
-	Repositories []Repository `json:"repositories"`
-	Groups       []Group      `json:"groups"`
-	Relations    []Relation   `json:"relations"`
-	Config       *Config      `json:"-"`
+	Timestamp    RrhTime       `json:"last_modified"`
+	Repositories []*Repository `json:"repositories"`
+	Groups       []*Group      `json:"groups"`
+	Relations    []*Relation   `json:"relations"`
+	Config       *Config       `json:"-"`
 }
 
 func groupFrequencies(db *Database) map[string]int {
@@ -73,9 +81,9 @@ func groupFrequencies(db *Database) map[string]int {
 	return groupMap
 }
 
-func pruneGroups(db *Database) []Group {
+func pruneGroups(db *Database) []*Group {
 	var groupMap = groupFrequencies(db)
-	var prunedGroups = []Group{}
+	var prunedGroups = []*Group{}
 	for _, group := range db.Groups {
 		if groupMap[group.Name] == 0 {
 			prunedGroups = append(prunedGroups, group)
@@ -95,9 +103,9 @@ func repositoryFrequencies(db *Database) map[string]int {
 	return repoFlags
 }
 
-func pruneRepositories(db *Database) []Repository {
+func pruneRepositories(db *Database) []*Repository {
 	var repoFlags = repositoryFrequencies(db)
-	var repos = []Repository{}
+	var repos = []*Repository{}
 	for _, repo := range db.Repositories {
 		if repoFlags[repo.ID] == 0 {
 			repos = append(repos, repo)
@@ -106,11 +114,9 @@ func pruneRepositories(db *Database) []Repository {
 	return repos
 }
 
-/*
-Prune eliminates unnecessary repositories, and groups from db.
-*/
-func (db *Database) Prune() (int, int) {
-	var repos, groups = db.PruneTargets()
+// Prune eliminates unnecessary repositories, and groups from db.
+func (db *Database) Prune() ([]*Repository, []*Group) {
+	var repos, groups = pruneRepositories(db), pruneGroups(db)
 	for _, repo := range repos {
 		db.DeleteRepository(repo.ID)
 	}
@@ -118,15 +124,6 @@ func (db *Database) Prune() (int, int) {
 		db.DeleteGroup(group.Name)
 	}
 
-	return len(repos), len(groups)
-}
-
-/*
-PruneTargets returns the pruned (unnecessary) repositories and groups from db.
-*/
-func (db *Database) PruneTargets() ([]Repository, []Group) {
-	var repos = pruneRepositories(db)
-	var groups = pruneGroups(db)
 	return repos, groups
 }
 
@@ -136,7 +133,7 @@ FindRepository returns the repository which ID is given `repoID.`
 func (db *Database) FindRepository(repoID string) *Repository {
 	for _, repo := range db.Repositories {
 		if repo.ID == repoID {
-			return &repo
+			return repo
 		}
 	}
 	return nil
@@ -148,7 +145,7 @@ FindGroup returns the group which name is given `groupID.`
 func (db *Database) FindGroup(groupID string) *Group {
 	for _, group := range db.Groups {
 		if group.Name == groupID {
-			return &group
+			return group
 		}
 	}
 	return nil
@@ -175,7 +172,7 @@ func sortIfNeeded(db *Database) {
 /*
 CreateRepository returns the repository by creating the given parameters and store it to database.
 */
-func (db *Database) CreateRepository(repoID string, path string, desc string, remotes []Remote) (*Repository, error) {
+func (db *Database) CreateRepository(repoID string, path string, desc string, remotes []*Remote) (*Repository, error) {
 	if db.HasRepository(repoID) {
 		return nil, fmt.Errorf("%s: already registered repository", repoID)
 	}
@@ -183,11 +180,11 @@ func (db *Database) CreateRepository(repoID string, path string, desc string, re
 	if err != nil {
 		return nil, err
 	}
-	var repo = Repository{repoID, absPath, desc, remotes}
+	var repo = &Repository{repoID, absPath, desc, remotes}
 	db.Repositories = append(db.Repositories, repo)
 	sortIfNeeded(db)
 
-	return &repo, nil
+	return repo, nil
 }
 
 /*
@@ -212,41 +209,30 @@ func (db *Database) CreateGroup(groupID string, description string, omitList boo
 	if db.HasGroup(groupID) {
 		return nil, fmt.Errorf("%s: already registered group", groupID)
 	}
-	var group = Group{groupID, description, omitList}
+	var group = &Group{groupID, description, omitList}
 	db.Groups = append(db.Groups, group)
 	sortIfNeeded(db)
 
-	return &group, nil
+	return group, nil
 }
 
 /*
 UpdateGroup updates found group with `newGroupID` and `newDescription`.
 The return value is that the update is success or not.
 */
-func (db *Database) UpdateGroup(groupID string, newGroup Group) bool {
+func (db *Database) UpdateGroup(groupID string, newGroup *Group) bool {
 	if !db.HasGroup(groupID) {
 		return false
 	}
 	for i, group := range db.Groups {
 		if group.Name == groupID {
-			updateGroupImpl(db, i, newGroup)
+			db.Groups[i] = newGroup
+			break
 		}
 	}
 	sortIfNeeded(db)
 
 	return true
-}
-
-func updateGroupImpl(db *Database, index int, newGroup Group) {
-	var oldGroup = db.Groups[index].Name
-	db.Groups[index].Name = newGroup.Name
-	db.Groups[index].Description = newGroup.Description
-	db.Groups[index].OmitList = newGroup.OmitList
-	for i, relation := range db.Relations {
-		if relation.GroupName == oldGroup {
-			db.Relations[i].GroupName = newGroup.Name
-		}
-	}
 }
 
 /*
@@ -287,7 +273,7 @@ func (db *Database) Relate(groupID string, repoID string) error {
 	if db.HasRelation(groupID, repoID) {
 		return nil
 	}
-	db.Relations = append(db.Relations, Relation{repoID, groupID})
+	db.Relations = append(db.Relations, &Relation{repoID, groupID})
 	sortIfNeeded(db)
 
 	return nil
@@ -357,7 +343,7 @@ func (db *Database) Unrelate(groupID string, repoID string) {
 	if !db.HasRelation(groupID, repoID) {
 		return
 	}
-	var newRelations = []Relation{}
+	var newRelations = []*Relation{}
 	for _, relation := range db.Relations {
 		if !(relation.GroupName == groupID && relation.RepositoryID == repoID) {
 			newRelations = append(newRelations, relation)
@@ -370,7 +356,7 @@ func (db *Database) Unrelate(groupID string, repoID string) {
 UnrelateRepository deletes all relations of the specified repository.
 */
 func (db *Database) UnrelateRepository(repoID string) {
-	var newRelations = []Relation{}
+	var newRelations = []*Relation{}
 	for _, relation := range db.Relations {
 		if relation.RepositoryID != repoID {
 			newRelations = append(newRelations, relation)
@@ -383,7 +369,7 @@ func (db *Database) UnrelateRepository(repoID string) {
 UnrelateFromGroup deletes all relations about the specified group.
 */
 func (db *Database) UnrelateFromGroup(groupID string) {
-	var newRelations = []Relation{}
+	var newRelations = []*Relation{}
 	for _, relation := range db.Relations {
 		if relation.GroupName != groupID {
 			newRelations = append(newRelations, relation)
@@ -425,7 +411,7 @@ func (db *Database) DeleteRepository(repoID string) error {
 		return fmt.Errorf("%s: repository not found", repoID)
 	}
 	db.UnrelateRepository(repoID)
-	var newRepositories = []Repository{}
+	var newRepositories = []*Repository{}
 	for _, repo := range db.Repositories {
 		if repo.ID != repoID {
 			newRepositories = append(newRepositories, repo)
@@ -437,7 +423,7 @@ func (db *Database) DeleteRepository(repoID string) error {
 }
 
 func deleteGroup(db *Database, groupID string) error {
-	var groups = []Group{}
+	var groups = []*Group{}
 	for _, group := range db.Groups {
 		if group.Name != groupID {
 			groups = append(groups, group)
@@ -507,7 +493,7 @@ How to call this function
 */
 func Open(config *Config) (*Database, error) {
 	bytes, err := ioutil.ReadFile(databasePath(config))
-	var db = Database{Unix(0, 0), []Repository{}, []Group{}, []Relation{}, config}
+	var db = Database{Unix(0, 0), []*Repository{}, []*Group{}, []*Relation{}, config}
 	if err != nil {
 		return &db, nil
 	}

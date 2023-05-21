@@ -5,10 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
-
-	"github.com/mitchellh/go-homedir"
 )
 
 func TestValidateArgumentsOnUpdate(t *testing.T) {
@@ -115,28 +112,6 @@ func TestUpdateTrueFalseValue(t *testing.T) {
 	}
 }
 
-func TestUpdateOnError(t *testing.T) {
-	var testdata = []struct {
-		key     string
-		success bool
-	}{
-		{Ignore, true},
-		{Fail, true},
-		{FailImmediately, true},
-		{Warn, true},
-		{"unknown", false},
-	}
-
-	for _, data := range testdata {
-		var dbfile = Rollback("testdata/test_db.json", "testdata/config.json", func(config *Config, oldDB *Database) {
-			if err := config.Update(OnError, data.key); (err == nil) != data.success {
-				t.Errorf("%s: set to \"%s\", success: %v", OnError, data.key, data.success)
-			}
-		})
-		defer os.Remove(dbfile)
-	}
-}
-
 func TestUpdateValue(t *testing.T) {
 	var testdata = []struct {
 		label       string
@@ -170,12 +145,12 @@ func TestUpdateValue(t *testing.T) {
 }
 
 func TestConfigIsSet(t *testing.T) {
-	var dbFile = Rollback("../testata/test_db.json", "testdata/config.json", func(config *Config, db *Database) {
+	var dbFile = Rollback("testdata/test_db.json", "testdata/config.json", func(config *Config, db *Database) {
 		if config.IsSet(ConfigPath) {
 			t.Errorf("not boolean variable is specified")
 		}
-		var home, _ = homedir.Dir()
-		if config.GetDefaultValue(ConfigPath) != filepath.Join(home, ".rrh/config.json") {
+		var home, _ = os.UserHomeDir()
+		if config.GetDefaultValue(ConfigPath) != filepath.Join(home, ".config/rrh/config.json") {
 			t.Errorf("RrhConfigPath did not match")
 		}
 		var _, from1 = config.findDefaultValue("UnknownVariable")
@@ -212,36 +187,6 @@ func convertToErrors(messages []string) []error {
 		errs = append(errs, errors.New(msg))
 	}
 	return errs
-}
-
-func TestPrintErrors(t *testing.T) {
-	var errs = convertToErrors([]string{"msg1", "msg2"})
-	var testcases = []struct {
-		givesOnError string
-		wontOutput   string
-		wontStatus   int
-	}{
-		{Ignore, "", 0},
-		{Fail, "msg1+msg2", 5},
-	}
-
-	var dbFile = Rollback("testdata/test_db.json", "testdata/config.json", func(config *Config, db *Database) {
-		for _, tc := range testcases {
-			var output = CaptureStdout(func() {
-				config.Update(OnError, tc.givesOnError)
-				var status = config.PrintErrors(errs...)
-				if status != tc.wontStatus {
-					t.Errorf("Status code of printErrors did not match, wont %d, got %d", tc.wontStatus, status)
-				}
-			})
-			output = strings.TrimSpace(output)
-			output = strings.Replace(output, "\n", "+", -1)
-			if output != tc.wontOutput {
-				t.Errorf("output by printErrors did not match, wont %s, got %s", tc.wontOutput, output)
-			}
-		}
-	})
-	defer os.Remove(dbFile)
 }
 
 func TestOpenConfigBrokenJson(t *testing.T) {

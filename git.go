@@ -191,7 +191,7 @@ func (status *StatusOption) StatusOfRepository(db *Database, name *Relation) ([]
 /*
 FindRemotes function returns the remote of the given git repository.
 */
-func FindRemotes(path string) ([]Remote, error) {
+func FindRemotes(path string) ([]*Remote, error) {
 	var repo, err = openGitRepository(path)
 	if err != nil {
 		return nil, err
@@ -200,10 +200,10 @@ func FindRemotes(path string) ([]Remote, error) {
 	if err != nil {
 		return nil, err
 	}
-	var crs = []Remote{}
+	var crs = []*Remote{}
 	for _, remote := range remotes {
 		var config = remote.Config()
-		crs = append(crs, Remote{Name: config.Name, URL: config.URLs[0]})
+		crs = append(crs, &Remote{Name: config.Name, URL: config.URLs[0]})
 	}
 	return crs, nil
 }
