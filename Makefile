@@ -34,6 +34,7 @@ define _createDist
 	GOOS=$1 GOARCH=$2 go build -o dist/$(1)_$(2)/$(DIST)/bin/rrh-new$(3) cmd/rrh-new/*.go
 	cp -r completions dist/$(1)_$(2)/$(DIST)
 	cp -r README.md LICENSE CODE_OF_CONDUCT.md CONTRIBUTING.md dist/$(1)_$(2)/$(DIST)
+	cp -r docs/public dist/$(1)_$(2)/$(DIST)/docs
 	tar cfz dist/$(DIST)_$(1)_$(2).tar.gz -C dist/$(1)_$(2) $(DIST)
 	echo "done."
 endef
