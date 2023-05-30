@@ -1,0 +1,42 @@
+name: build
+on:
+  push:
+    branches:
+      - "**"
+env:
+  TZ: 'Asia/Tokyo'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macOS-latest
+
+    steps:
+      - name: setup go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.18
+
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: build
+        run: make
+
+      - name: Convert coverage to lcov
+        uses: jandelgado/gcov2lcov-action@v1.0.0
+        with:
+          infile: coverage.out
+          outfile: coverage.lcov
+        if: "matrix.os == 'ubuntu-latest'"
+
+      - name: coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.github_token }}
+          path-to-lcov: coverage.lcov
+        if: "matrix.os == 'ubuntu-latest'"

@@ -2,14 +2,16 @@
 title: ":house: Home"
 ---
 
+RRH is a simple git repository manager.
+
 [![Build Status](https://github.com/tamada/rrh/workflows/build/badge.svg?branch=master)](https://github.com/tamada/rrh/actions?workflow=build)
 [![Coverage Status](https://coveralls.io/repos/github/tamada/rrh/badge.svg?branch=master)](https://coveralls.io/github/tamada/rrh?branch=master)
 [![codebeat badge](https://codebeat.co/badges/15e04551-d448-4ad3-be1d-e98b1e586f1a)](https://codebeat.co/projects/github-com-tamada-rrh-master)
 [![go report](https://goreportcard.com/badge/github.com/tamada/rrh)](https://goreportcard.com/report/github.com/tamada/rrh)
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/tamada/rrh/blob/master/LICENSE)
-[![Version](https://img.shields.io/badge/Version-2.0.0-yellowgreen.svg)](https://github.com/tamada/rrh/releases/tag/v2.0.0)
 
-RRH is a simple git repository manager.
+[![License](https://img.shields.io/badge/License-Apache_2.0-information.svg)](https://github.com/tamada/rrh/blob/master/LICENSE)
+[![Version](https://img.shields.io/badge/Version-2.0.0-information.svg)](https://github.com/tamada/rrh/releases/tag/v2.0.0)
+
 
 ## Table of Contents
 

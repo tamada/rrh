@@ -8,16 +8,7 @@ all: test build
 
 deps:
 
-update_version:
-	@for i in README.md docs/content/_index.md; do\
-	    sed -e 's!Version-[0-9.]*-yellowgreen!Version-${VERSION}-yellowgreen!g' -e 's!tag/v[0-9.]*!tag/v${VERSION}!g' $$i > a ; mv a $$i; \
-	done
-
-	@sed 's/const VERSION = .*/const VERSION = "${VERSION}"/g' config.go > a
-	@mv a config.go
-	@echo "Replace version to \"${VERSION}\""
-
-setup: deps update_version
+setup: deps
 	git submodule update --init
 
 test: setup
@@ -43,6 +34,7 @@ define _createDist
 	GOOS=$1 GOARCH=$2 go build -o dist/$(1)_$(2)/$(DIST)/bin/rrh-new$(3) cmd/rrh-new/*.go
 	cp -r completions dist/$(1)_$(2)/$(DIST)
 	cp -r README.md LICENSE CODE_OF_CONDUCT.md CONTRIBUTING.md dist/$(1)_$(2)/$(DIST)
+	cp -r docs/public dist/$(1)_$(2)/$(DIST)/docs
 	tar cfz dist/$(DIST)_$(1)_$(2).tar.gz -C dist/$(1)_$(2) $(DIST)
 	echo "done."
 endef

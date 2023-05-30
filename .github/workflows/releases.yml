@@ -1,0 +1,79 @@
+name: releases
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [closed]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: startsWith(github.head_ref, 'releases/v') && github.event.pull_request.merged == true
+    env:
+      REPO: https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Initialize
+        shell: bash
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "action@github.com"
+          auth_header="$(git config --local --get http.https://github.com/.extraheader)"
+          git submodule sync --recursive
+          git -c "http.extraheader=$auth_header" -c protocol.version=2 submodule update --init --force --recursive --depth=1
+          git worktree add docs/public gh-pages
+
+      - name: Get tag name
+        id: vars
+        run: |
+          HEAD_REF=${{ github.head_ref }}
+          echo "tag=${HEAD_REF##*/v}" >> $GITHUB_OUTPUT
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.18
+        
+      - name: Build
+        run:
+          make
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: "0.111.0"
+          extended: true
+
+      - name: Build Site
+        run: |
+          (cd docs && hugo)
+          rm docs/public/favicon* docs/public/apple-touch-icon.png
+
+      - name: Deploy Site
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/public
+
+      - name: Create Distributions
+        run:
+          make dist
+
+      - name: Create release
+        id: create_release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          automatic_release_tag: v${{ steps.vars.outputs.tag }}
+          title: Release v${{ steps.vars.outputs.tag }}
+          draft: false
+          prerelease: false
+          files: |
+            dist/rrh-${{ steps.vars.outputs.tag }}_*.tar.gz

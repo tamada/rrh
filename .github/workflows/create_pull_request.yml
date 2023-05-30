@@ -1,0 +1,52 @@
+name: create_pull_request
+
+on:
+  push:
+    branches:
+      - "releases/v*"
+
+jobs:
+  create_release_pull_request:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Check PullRequest Exists
+        id: check_pr
+        env:
+          HEAD_MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          echo "github_ref ${GITHUB_REF}"
+          echo "head_message: ${HEAD_MESSAGE}"
+
+          HEAD_REF=${GITHUB_REF#refs/heads/}
+          TAG=${GITHUB_REF##**/v}
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          COMMIT_MESSAGE=$(echo "${HEAD_MESSAGE}" | sed -n -e 1p)
+          echo "message=${COMMIT_MESSAGE}" >> "$GITHUB_OUTPUT"
+          echo "count=$(gh pr list -S "Release v${TAG}"in:title | wc -l)" >> "$GITHUB_OUTPUT"
+
+      - name: Create Release Pull Request
+        if: ${{ steps.check_pr.outputs.count == 0 }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr create \
+            -B main \
+            -t 'Release v${{ steps.check_pr.outputs.tag }} ${{ steps.check_pr.outputs.message }}' \
+            -a ${{ github.actor }}  \
+            --body-file ./.github/RELEASE_WORKFLOW_TEMPLATE.md
+
+      - name: Edit Release Pull Request
+        if: ${{ steps.check_pr.outputs.count != 0 }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pr_data=$(gh pr list -S 'Release v${{ steps.check_pr.outputs.tag }}'in:title \
+            --json "title" \
+            | jq -c .[])
+          TITLE="$(echo $pr_data | jq -r '.title')"
+          echo $TITLE
+          gh pr edit  ${{ github.ref_name }} \
+            -t "${TITLE} / ${{ steps.check_pr.outputs.message }}"
