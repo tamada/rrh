@@ -71,6 +71,7 @@ func registerSubCommands(c *cobra.Command) {
 	c.AddCommand(repository.New())
 	c.AddCommand(migrate.New())
 	c.AddCommand(sfg.New())
+	c.AddCommand(generateCompletionCommand())
 }
 
 func loadAndFindAlias(c *cobra.Command, args []string, config *rrh.Config) (*alias.Command, error) {
