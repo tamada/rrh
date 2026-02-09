@@ -1,5 +1,8 @@
 # RRH
 
+> [!CAUTION]
+> This project is no longer maintained.
+
 RRH is a simple git repository manager.
 
 [![Build Status](https://github.com/tamada/rrh/workflows/build/badge.svg?branch=master)](https://github.com/tamada/rrh/actions?workflow=build)
